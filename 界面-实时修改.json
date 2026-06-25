@@ -1,0 +1,15 @@
+{
+  "id": "8ff7ac03-7deb-4040-b00b-webgame-ui",
+  "scriptName": "webgame-ui-实时修改",
+  "findRegex": "\\[开局\\]",
+  "replaceString": "```\n<body>\n<script>\n$('body').load('http://localhost:5501/dist/webgame-ui/index.html')\n</script>\n</body>\n```",
+  "trimStrings": [],
+  "placement": [1, 2],
+  "disabled": false,
+  "markdownOnly": true,
+  "promptOnly": false,
+  "runOnEdit": false,
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": null
+}

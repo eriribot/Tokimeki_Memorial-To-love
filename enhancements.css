@@ -1,0 +1,171 @@
+/* 添加更精致的样式改进 */
+
+/* 为按钮添加图标样式优化 */
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+/* 控制组添加装饰边框 */
+.control-group {
+  position: relative;
+}
+
+.control-group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--tm-pink), var(--tm-pink-dark));
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* 添加控制面板标题图标 */
+.control-group h3::before {
+  content: '✦ ';
+  color: var(--tm-pink);
+  margin-right: 8px;
+}
+
+/* 优化滚动条样式 */
+.event-log ul::-webkit-scrollbar {
+  width: 8px;
+}
+
+.event-log ul::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+
+.event-log ul::-webkit-scrollbar-thumb {
+  background: var(--tm-pink);
+  border-radius: 4px;
+}
+
+.event-log ul::-webkit-scrollbar-thumb:hover {
+  background: var(--tm-pink-dark);
+}
+
+/* 添加面板标题装饰 */
+.stat-panel h2,
+.controls h2 {
+  position: relative;
+  padding-left: 12px;
+}
+
+.stat-panel h2::before,
+.controls h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: var(--tm-pink);
+  border-radius: 2px;
+}
+
+/* 事件日志项添加悬浮效果 */
+.event-log li {
+  transition: all var(--anim-fast);
+  padding-left: 8px;
+  border-left: 3px solid transparent;
+}
+
+.event-log li:hover {
+  background: rgba(255, 143, 171, 0.1);
+  border-left-color: var(--tm-pink);
+  padding-left: 12px;
+}
+
+/* 金钱显示添加图标效果 */
+.money::before {
+  content: '💰 ';
+  margin-right: 4px;
+}
+
+/* 位置显示添加图标 */
+.location::before {
+  content: '📍 ';
+  margin-right: 4px;
+  color: var(--tm-pink);
+}
+
+/* 优化stat-row的标签 */
+.stat-row {
+  position: relative;
+  padding: 4px 0;
+}
+
+.stat-row:hover .stat-bar {
+  border-color: var(--tm-pink);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 8px rgba(255, 143, 171, 0.3);
+}
+
+/* 添加面板入场动画 */
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-panel,
+.character-portrait,
+.controls,
+.event-log {
+  animation: panelSlideIn 0.4s ease-out;
+}
+
+.stat-panel {
+  animation-delay: 0.1s;
+}
+
+.character-portrait {
+  animation-delay: 0.2s;
+}
+
+.controls {
+  animation-delay: 0.3s;
+}
+
+/* 让控制面板更加醒目 */
+.controls {
+  border: 3px solid var(--tm-pink);
+  background: linear-gradient(135deg, var(--tm-cream) 0%, #ffffff 100%);
+}
+
+/* 地图区域添加装饰边框 */
+.map-section::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 3px solid var(--tm-border);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.5;
+}

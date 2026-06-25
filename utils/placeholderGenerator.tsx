@@ -1,0 +1,304 @@
+/**
+ * 占位符图片生成器
+ * 当美术资源缺失时，生成精致的SVG占位符
+ */
+
+/**
+ * 生成角色立绘占位符 - 优化版
+ */
+function svgToDataUrl(svg) {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+export function generatePortraitPlaceholder(character) {
+  const { name, color = '#ff8fab', type = '未知系' } = character
+
+  const gradientId = `gradient-${name.replace(/\s+/g, '-')}`
+  const lightColor = adjustColorBrightness(color, 30)
+  const darkColor = adjustColorBrightness(color, -15)
+  const accentColor = adjustColorBrightness(color, 50)
+
+  return svgToDataUrl(`
+    <svg width="180" height="240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${lightColor};stop-opacity:1" />
+          <stop offset="50%" style="stop-color:${color};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${darkColor};stop-opacity:1" />
+        </linearGradient>
+        <radialGradient id="${gradientId}-glow" cx="50%" cy="40%">
+          <stop offset="0%" style="stop-color:${accentColor};stop-opacity:0.8" />
+          <stop offset="100%" style="stop-color:${color};stop-opacity:0.2" />
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+
+      <!-- 背景渐变 -->
+      <rect width="180" height="240" fill="url(#${gradientId})" rx="12"/>
+
+      <!-- 光晕效果 -->
+      <ellipse cx="90" cy="80" rx="80" ry="60" fill="url(#${gradientId}-glow)" opacity="0.6"/>
+
+      <!-- 装饰圆圈层 -->
+      <circle cx="90" cy="100" r="65" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+      <circle cx="90" cy="100" r="55" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+      <circle cx="90" cy="100" r="45" fill="rgba(255,255,255,0.35)" filter="url(#shadow)"/>
+
+      <!-- 角色名首字母 - 更大更突出 -->
+      <text
+        x="90"
+        y="115"
+        font-family="'Arial Black', Arial, sans-serif"
+        font-size="56"
+        font-weight="900"
+        fill="white"
+        text-anchor="middle"
+        filter="url(#glow)"
+        letter-spacing="2">
+        ${name.charAt(0)}
+      </text>
+
+      <!-- 装饰星星 -->
+      <path d="M 30 30 L 33 36 L 40 37 L 35 42 L 36 49 L 30 46 L 24 49 L 25 42 L 20 37 L 27 36 Z"
+            fill="rgba(255,255,255,0.6)" filter="url(#glow)"/>
+      <path d="M 150 35 L 153 41 L 160 42 L 155 47 L 156 54 L 150 51 L 144 54 L 145 47 L 140 42 L 147 41 Z"
+            fill="rgba(255,255,255,0.6)" filter="url(#glow)"/>
+
+      <!-- 角色名背景 -->
+      <rect x="30" y="175" width="120" height="40" fill="rgba(0,0,0,0.4)" rx="20" filter="url(#shadow)"/>
+
+      <!-- 角色名 -->
+      <text
+        x="90"
+        y="192"
+        font-family="'Microsoft YaHei', 'PingFang SC', sans-serif"
+        font-size="22"
+        font-weight="bold"
+        fill="white"
+        text-anchor="middle"
+        filter="url(#glow)">
+        ${name}
+      </text>
+
+      <!-- 类型标签 -->
+      <rect x="50" y="200" width="80" height="24" fill="rgba(255,255,255,0.95)" rx="12" filter="url(#shadow)"/>
+      <text
+        x="90"
+        y="216"
+        font-family="'Microsoft YaHei', sans-serif"
+        font-size="13"
+        font-weight="600"
+        fill="${darkColor}"
+        text-anchor="middle">
+        ${type}
+      </text>
+
+      <!-- 底部装饰心形 -->
+      <g transform="translate(90, 225)">
+        <path
+          d="M 0 0 C 0 0 -6 -3 -6 -7 C -6 -10 -4 -12 -1 -12 C 1 -12 2 -11 2 -11 C 2 -11 3 -12 5 -12 C 8 -12 10 -10 10 -7 C 10 -3 4 0 0 0 Z"
+          fill="rgba(255,255,255,0.8)"
+          filter="url(#glow)"
+          transform="scale(1.5)"
+        />
+      </g>
+
+      <!-- 边框装饰 -->
+      <rect x="2" y="2" width="176" height="236" rx="12" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+    </svg>
+  `)
+}
+
+/**
+ * 生成Q版立绘占位符 - 优化版
+ */
+export function generateChibiPlaceholder(character) {
+  const { name, color = '#ff8fab' } = character
+
+  const gradientId = `chibi-gradient-${name.replace(/\s+/g, '-')}`
+  const lightColor = adjustColorBrightness(color, 35)
+  const darkColor = adjustColorBrightness(color, -15)
+
+  return svgToDataUrl(`
+    <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${lightColor};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${darkColor};stop-opacity:1" />
+        </linearGradient>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.4"/>
+        </filter>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- 外层装饰环 -->
+      <circle cx="32" cy="32" r="31" fill="url(#${gradientId})" filter="url(#shadow)"/>
+      <circle cx="32" cy="32" r="29" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+
+      <!-- 内层背景 -->
+      <circle cx="32" cy="32" r="26" fill="rgba(255,255,255,0.3)"/>
+
+      <!-- 角色名首字母 -->
+      <text
+        x="32"
+        y="40"
+        font-family="'Arial Black', Arial, sans-serif"
+        font-size="28"
+        font-weight="900"
+        fill="white"
+        text-anchor="middle"
+        filter="url(#glow)">
+        ${name.charAt(0)}
+      </text>
+
+      <!-- 装饰点 -->
+      <circle cx="16" cy="16" r="4" fill="rgba(255,255,255,0.7)" filter="url(#glow)"/>
+      <circle cx="48" cy="16" r="4" fill="rgba(255,255,255,0.7)" filter="url(#glow)"/>
+      <circle cx="32" cy="50" r="3" fill="rgba(255,255,255,0.6)"/>
+
+      <!-- 小星星装饰 -->
+      <path d="M 20 10 L 21 12 L 23 12 L 21 14 L 22 16 L 20 15 L 18 16 L 19 14 L 17 12 L 19 12 Z"
+            fill="rgba(255,255,255,0.8)"/>
+      <path d="M 44 10 L 45 12 L 47 12 L 45 14 L 46 16 L 44 15 L 42 16 L 43 14 L 41 12 L 43 12 Z"
+            fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  `)
+}
+
+/**
+ * 生成通用占位符
+ */
+export function generateGenericPlaceholder(width = 180, height = 240, text = '?') {
+  return svgToDataUrl(`
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="generic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#ffc9d9;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#e0568d;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+
+      <rect width="${width}" height="${height}" fill="url(#generic-gradient)" rx="8"/>
+
+      <circle cx="${width/2}" cy="${height/2 - 20}" r="40" fill="rgba(255,255,255,0.3)"/>
+
+      <text
+        x="${width/2}"
+        y="${height/2}"
+        font-family="Arial, sans-serif"
+        font-size="60"
+        font-weight="bold"
+        fill="white"
+        text-anchor="middle">
+        ${text}
+      </text>
+
+      <text
+        x="${width/2}"
+        y="${height/2 + 40}"
+        font-family="Arial, sans-serif"
+        font-size="14"
+        fill="rgba(255,255,255,0.8)"
+        text-anchor="middle">
+        暂无图片
+      </text>
+    </svg>
+  `)
+}
+
+/**
+ * 调整颜色亮度
+ */
+function adjustColorBrightness(color, percent) {
+  // 将hex颜色转换为RGB
+  let r, g, b
+
+  if (color.startsWith('#')) {
+    const hex = color.slice(1)
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16)
+      g = parseInt(hex[1] + hex[1], 16)
+      b = parseInt(hex[2] + hex[2], 16)
+    } else {
+      r = parseInt(hex.slice(0, 2), 16)
+      g = parseInt(hex.slice(2, 4), 16)
+      b = parseInt(hex.slice(4, 6), 16)
+    }
+  } else if (color.startsWith('rgb')) {
+    const matches = color.match(/\d+/g)
+    r = parseInt(matches[0])
+    g = parseInt(matches[1])
+    b = parseInt(matches[2])
+  } else {
+    return color
+  }
+
+  // 调整亮度
+  r = Math.max(0, Math.min(255, r + (r * percent / 100)))
+  g = Math.max(0, Math.min(255, g + (g * percent / 100)))
+  b = Math.max(0, Math.min(255, b + (b * percent / 100)))
+
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
+}
+
+import { useState, useEffect } from 'react'
+import { resolveAssetPath } from './assetPath'
+
+/**
+ * React组件：带占位符回退的图片
+ */
+export function ImageWithPlaceholder({ src, alt, character, type = 'portrait', className, style, onLoad, onError }) {
+  const [imageSrc, setImageSrc] = useState(() => resolveAssetPath(src))
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setImageSrc(resolveAssetPath(src))
+    setIsLoading(true)
+  }, [src])
+
+  const handleError = (e) => {
+    // 图片加载失败，使用占位符
+    if (character) {
+      const placeholder = type === 'portrait'
+        ? generatePortraitPlaceholder(character)
+        : generateChibiPlaceholder(character)
+      setImageSrc(placeholder)
+    } else {
+      setImageSrc(generateGenericPlaceholder())
+    }
+    setIsLoading(false)
+    onError?.(e)
+  }
+
+  const handleLoad = (e) => {
+    setIsLoading(false)
+    onLoad?.(e)
+  }
+
+  return (
+    <img
+      src={imageSrc}
+      alt={alt}
+      className={className}
+      style={style}
+      onError={handleError}
+      onLoad={handleLoad}
+    />
+  )
+}

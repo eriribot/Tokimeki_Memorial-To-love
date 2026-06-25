@@ -1,0 +1,220 @@
+/* ============================================
+   卡片导入器样式
+   ============================================ */
+
+.card-importer-toggle {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--tm-blue) 0%, var(--tm-pink) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--anim-fast), filter var(--anim-fast);
+  box-shadow: 0 4px 12px rgba(142, 202, 230, 0.3);
+}
+
+.card-importer-toggle:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.card-importer-toggle:active {
+  transform: translateY(0);
+}
+
+.card-importer-panel {
+  background: var(--tm-cream);
+  border: 2px solid var(--tm-border);
+  border-radius: 16px;
+  box-shadow: var(--tm-shadow);
+  overflow: hidden;
+}
+
+.card-importer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, var(--tl-pastel-pink), var(--tl-pastel-blue));
+  border-bottom: 2px solid var(--tm-border);
+}
+
+.card-importer-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--tm-pink-dark);
+}
+
+.close-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: white;
+  border: 2px solid var(--tm-border);
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--tm-pink-dark);
+  cursor: pointer;
+  transition: transform var(--anim-fast), background var(--anim-fast);
+}
+
+.close-button:hover {
+  background: var(--tm-pink);
+  color: white;
+  transform: rotate(90deg);
+}
+
+.card-importer-content {
+  padding: 16px;
+}
+
+.import-section {
+  margin-bottom: 16px;
+}
+
+.import-section h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--tm-pink-dark);
+}
+
+.section-desc {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.file-input-label {
+  display: block;
+  cursor: pointer;
+}
+
+.file-input-label input[type="file"] {
+  display: none;
+}
+
+.file-input-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid var(--tm-border);
+  border-radius: 12px;
+  color: var(--tm-pink-dark);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--anim-fast);
+}
+
+.file-input-label:hover .file-input-button {
+  background: var(--tm-pink);
+  color: white;
+  border-color: var(--tm-pink-dark);
+}
+
+.import-divider {
+  text-align: center;
+  margin: 20px 0;
+  color: #999;
+  font-size: 13px;
+  position: relative;
+}
+
+.import-divider::before,
+.import-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: var(--tm-border);
+}
+
+.import-divider::before {
+  left: 0;
+}
+
+.import-divider::after {
+  right: 0;
+}
+
+.url-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.url-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid var(--tm-border);
+  border-radius: 12px;
+  font-size: 13px;
+  background: white;
+  transition: border-color var(--anim-fast);
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: var(--tm-pink);
+}
+
+.url-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.import-button {
+  padding: 10px 20px;
+  background: linear-gradient(180deg, var(--tm-pink), var(--tm-pink-dark));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--anim-fast);
+  white-space: nowrap;
+}
+
+.import-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.import-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.import-message {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  animation: slideIn var(--anim-normal);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.import-message.error {
+  background: #fee;
+  color: #c00;
+  border: 1px solid #fcc;
+}
+
+.import-message.success {
+  background: #efe;
+  color: #060;
+  border: 1px solid #cfc;
+}
