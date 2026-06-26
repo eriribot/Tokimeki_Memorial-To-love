@@ -1,4 +1,4 @@
-import { useGameStore } from '../stores/gameStore'
+﻿import { useGameStore } from '../stores/gameStore'
 import { useMapStore } from '../stores/mapStore'
 import { useCharacterStore } from '../stores/characterStore'
 
@@ -25,7 +25,7 @@ export default function LocationMarker({ location, isCurrent }) {
   )
 
   const icon = LOCATION_ICONS[location.id] || '📍'
-  const canEnterScene = location.id === 'classroom' && isCurrent
+  const canEnterScene = ['classroom', 'library'].includes(location.id) && isCurrent
 
   return (
     <div
@@ -114,3 +114,4 @@ export default function LocationMarker({ location, isCurrent }) {
     </div>
   )
 }
+

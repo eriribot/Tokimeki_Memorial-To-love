@@ -1079,3 +1079,112 @@ button:active {
   right: 18px;
   bottom: 16px;
 }
+
+/* ponytail: 教室舞台只显示全身 tachie，头像替代图留给对话数据，不当立绘贴片。 */
+.scene-characters {
+  left: clamp(120px, 12vw, 220px);
+  right: auto;
+  bottom: 0;
+  width: min(760px, 56%);
+  display: flex;
+  align-items: end;
+  justify-content: flex-start;
+  gap: clamp(56px, 6vw, 112px);
+}
+
+.scene-character {
+  width: 360px;
+  height: 560px;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible;
+  appearance: none;
+}
+
+.scene-character::before,
+.scene-character::after {
+  content: none !important;
+  display: none !important;
+}
+
+.scene-character:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none;
+  transform: translateY(-4px);
+}
+
+.scene-character.active {
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 0 14px rgba(255, 143, 171, 0.55));
+}
+
+.scene-character-img {
+  display: block;
+  margin: auto auto 0;
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.scene-character-img.tachie {
+  width: auto !important;
+  height: 100% !important;
+  max-width: none !important;
+}
+
+.scene-character-img.portrait,
+.scene-character span {
+  display: none !important;
+}
+
+.scene-dialogue {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 158px;
+  padding: 54px 86px 26px 150px;
+  border: 0;
+  border-top: 3px solid rgba(244, 166, 195, 0.9);
+  border-radius: 0;
+  background: rgba(255, 253, 247, 0.72);
+  box-shadow: 0 -8px 22px rgba(74, 59, 59, 0.14);
+  backdrop-filter: blur(7px);
+}
+
+.scene-speaker {
+  position: absolute;
+  left: 64px;
+  top: -22px;
+  min-width: 190px;
+  min-height: 46px;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 8px 18px rgba(224, 86, 141, 0.24);
+}
+
+.scene-dialogue p {
+  margin: 0;
+  padding: 0 110px 0 0;
+  color: #2f2b2b;
+  font-size: 22px;
+  line-height: 1.7;
+}
+
+.scene-dialogue button {
+  right: 34px;
+  bottom: 28px;
+}
+

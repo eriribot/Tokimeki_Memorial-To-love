@@ -48,7 +48,8 @@ export const createCardTemplate = () => ({
         },
         events: [],
         chibi_image: null,
-        portrait_image: null
+        portrait_image: null,
+        tachie_image: null
       }
     }
   }

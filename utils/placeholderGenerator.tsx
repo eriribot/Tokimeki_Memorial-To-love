@@ -121,6 +121,91 @@ export function generatePortraitPlaceholder(character) {
 /**
  * 生成Q版立绘占位符 - 优化版
  */
+/**
+ * 生成全身立绘占位符 - 竖版大尺寸
+ */
+export function generateTachiePlaceholder(character) {
+  const { name, color = '#ff8fab', type = '未知系' } = character
+
+  const gradientId = `tachie-gradient-${name.replace(/\s+/g, '-')}`
+  const lightColor = adjustColorBrightness(color, 30)
+  const darkColor = adjustColorBrightness(color, -20)
+  const accentColor = adjustColorBrightness(color, 50)
+
+  return svgToDataUrl(`
+    <svg width="360" height="540" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${lightColor};stop-opacity:1" />
+          <stop offset="50%" style="stop-color:${color};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${darkColor};stop-opacity:1" />
+        </linearGradient>
+        <radialGradient id="${gradientId}-glow" cx="50%" cy="35%">
+          <stop offset="0%" style="stop-color:${accentColor};stop-opacity:0.7" />
+          <stop offset="100%" style="stop-color:${color};stop-opacity:0.15" />
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="6" stdDeviation="12" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+
+      <rect width="360" height="540" fill="url(#${gradientId})" rx="16"/>
+      <ellipse cx="180" cy="180" rx="160" ry="120" fill="url(#${gradientId}-glow)" opacity="0.6"/>
+
+      <circle cx="180" cy="220" r="110" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+      <circle cx="180" cy="220" r="90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
+      <circle cx="180" cy="220" r="70" fill="rgba(255,255,255,0.25)" filter="url(#shadow)"/>
+
+      <text
+        x="180"
+        y="255"
+        font-family="'Arial Black', Arial, sans-serif"
+        font-size="96"
+        font-weight="900"
+        fill="white"
+        text-anchor="middle"
+        filter="url(#glow)"
+        letter-spacing="4">
+        ${name.charAt(0)}
+      </text>
+
+      <rect x="60" y="400" width="240" height="56" fill="rgba(0,0,0,0.35)" rx="28" filter="url(#shadow)"/>
+      <text
+        x="180"
+        y="428"
+        font-family="'Microsoft YaHei', 'PingFang SC', sans-serif"
+        font-size="28"
+        font-weight="bold"
+        fill="white"
+        text-anchor="middle"
+        filter="url(#glow)">
+        ${name}
+      </text>
+
+      <rect x="120" y="464" width="120" height="32" fill="rgba(255,255,255,0.92)" rx="16" filter="url(#shadow)"/>
+      <text
+        x="180"
+        y="486"
+        font-family="'Microsoft YaHei', sans-serif"
+        font-size="15"
+        font-weight="600"
+        fill="${darkColor}"
+        text-anchor="middle">
+        ${type}
+      </text>
+
+      <rect x="4" y="4" width="352" height="532" rx="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+    </svg>
+  `)
+}
+
 export function generateChibiPlaceholder(character) {
   const { name, color = '#ff8fab' } = character
 
@@ -275,9 +360,11 @@ export function ImageWithPlaceholder({ src, alt, character, type = 'portrait', c
   const handleError = (e) => {
     // 图片加载失败，使用占位符
     if (character) {
-      const placeholder = type === 'portrait'
-        ? generatePortraitPlaceholder(character)
-        : generateChibiPlaceholder(character)
+      const placeholder = type === 'chibi'
+        ? generateChibiPlaceholder(character)
+        : type === 'tachie'
+          ? generateTachiePlaceholder(character)
+          : generatePortraitPlaceholder(character)
       setImageSrc(placeholder)
     } else {
       setImageSrc(generateGenericPlaceholder())

@@ -68,7 +68,8 @@
         },
         "events": [],
         "chibi_image": "/artsource/chibis/Lalachibi.png",
-        "portrait_image": "/artsource/characters/Lala.png"
+        "portrait_image": "/artsource/characters/Lala.png",
+        "tachie_image": "/artsource/Tachie/Lala.png"
       }
     }
   }

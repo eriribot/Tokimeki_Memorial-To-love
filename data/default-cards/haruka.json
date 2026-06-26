@@ -68,7 +68,8 @@
         },
         "events": [],
         "chibi_image": "/artsource/chibis/mengmengchibi.png",
-        "portrait_image": "/artsource/characters/mengmeng.jpg"
+        "portrait_image": "/artsource/characters/mengmeng.jpg",
+        "tachie_image": "/artsource/Tachie/momo.png"
       }
     }
   }

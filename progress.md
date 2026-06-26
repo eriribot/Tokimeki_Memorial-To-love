@@ -7,4 +7,9 @@
 - Build passed: npm run build.
 - Browser check passed: sidebar is portrait-only; bottom panel contains StatPanel and Controls; no console errors.
 - Latest screenshot: layout-final.png.
-- TODO: none.
+- TODO: none.- 2026-06-26: Fixed classroom character sizing with ponytail scope: tachie images now use equal display width, portrait fallback keeps the existing box size. Kept map glass/background and chibi white card styling intact.
+- Build passed: npm run build from repository root.
+- 2026-06-26: Kept scene tachie grounded at the bottom of the map-stage, removed unused Player avatar from map rendering, and allowed library to enter the reused scene flow like classroom.
+- Build passed: npm run build. Playwright localhost check passed against http://localhost:5500/dist/webgame-ui/.
+- 2026-06-26: Library scene now uses existing /artsource/backgrounds/library.png via sceneBackground mapping in ClassroomScene.
+- Build passed and localhost Playwright check passed.

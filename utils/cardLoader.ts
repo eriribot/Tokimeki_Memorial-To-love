@@ -201,6 +201,7 @@ export function cardToCharacter(card, existingCharacters = []) {
     greeting: data.first_mes || `你好，我是${data.name}。`,
     portrait: gameData.portrait_image || '/artsource/characters/_placeholder.svg',
     chibi: gameData.chibi_image || '/artsource/chibis/_placeholder.svg',
+    tachie: gameData.tachie_image || null,
     affection: gameData.stats?.affection || 0,
     friendship: gameData.stats?.friendship || 0,
     romance: gameData.stats?.romance || 0,

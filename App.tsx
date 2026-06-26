@@ -1,6 +1,5 @@
 ﻿import { useEffect, useState } from 'react'
 import SchoolMap from './components/SchoolMap'
-import Player from './components/Player'
 import Sidebar from './components/Sidebar'
 import ClassroomScene from './components/ClassroomScene'
 import StatPanel from './components/StatPanel'
@@ -61,12 +60,11 @@ function App() {
                 transform: `scale(${mapScale})`,
               }}
             >
-              {currentSceneId === 'classroom' ? (
+              {currentSceneId ? (
                 <ClassroomScene />
               ) : (
                 <>
                   <SchoolMap />
-                  <Player />
                 </>
               )}
             </div>
@@ -87,3 +85,5 @@ function App() {
 }
 
 export default App
+
+

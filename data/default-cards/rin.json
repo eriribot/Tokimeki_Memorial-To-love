@@ -11,11 +11,7 @@
     "creator_notes": "To LOVE-Ru 默认角色：伊芙（对应金色暗影/小暗）",
     "system_prompt": "",
     "post_history_instructions": "",
-    "alternate_greetings": [
-      "……我只是在这里看书。",
-      "鲷鱼烧？如果是要分给我，我会收下。",
-      "请保持距离。我讨厌H。"
-    ],
+    "alternate_greetings": ["……我只是在这里看书。", "鲷鱼烧？如果是要分给我，我会收下。", "请保持距离。我讨厌H。"],
     "character_book": {
       "name": "伊芙的世界",
       "description": "关于伊芙（对应金色暗影/小暗）的背景信息",
@@ -68,7 +64,8 @@
         },
         "events": [],
         "chibi_image": "/artsource/chibis/darknesschibi.png",
-        "portrait_image": "/artsource/characters/darkness.jpg"
+        "portrait_image": "/artsource/characters/darkness.jpg",
+        "tachie_image": "/artsource/Tachie/darkness.png"
       }
     }
   }
