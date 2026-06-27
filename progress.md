@@ -13,3 +13,4 @@
 - Build passed: npm run build. Playwright localhost check passed against http://localhost:5500/dist/webgame-ui/.
 - 2026-06-26: Library scene now uses existing /artsource/backgrounds/library.png via sceneBackground mapping in ClassroomScene.
 - Build passed and localhost Playwright check passed.
+- 2026-06-27: Moved map chibi avatars below location cards so they do not cover enter-scene buttons. Added scene-characters count class and wider/flexible tachie layout for 4-character scenes. Not built or browser-tested per user request.

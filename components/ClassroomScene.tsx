@@ -65,7 +65,7 @@ export default function ClassroomScene() {
       </div>
 
       <div
-        className="scene-characters"
+        className={`scene-characters count-${Math.min(stageCharacters.length, 4)}`}
         style={{
           gridTemplateColumns: `repeat(${Math.max(stageCharacters.length, 1)}, minmax(0, 1fr))`,
         }}
@@ -108,6 +108,7 @@ export default function ClassroomScene() {
     </div>
   )
 }
+
 
 
 

@@ -1,4 +1,4 @@
-import { useGameStore } from '../stores/gameStore'
+﻿import { useGameStore } from '../stores/gameStore'
 import { useMapStore } from '../stores/mapStore'
 import { useCharacterStore } from '../stores/characterStore'
 import { resolveAssetPath } from '../utils/assetPath'
@@ -86,11 +86,12 @@ export default function SchoolMap() {
             <Character
               key={c.id}
               character={c}
-              x={loc.x * cellSize + 18 + col * 34}
-              y={loc.y * cellSize + cellSize - 72 - row * 34}
+              x={loc.x * cellSize + 12 + col * 30}
+              y={loc.y * cellSize + cellSize + 8 + row * 30}
             />
           )
         })}
     </div>
   )
 }
+
