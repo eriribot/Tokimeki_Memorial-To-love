@@ -3,7 +3,11 @@ import { useMapStore } from '../stores/mapStore'
 import { usePlayerStore } from '../stores/playerStore'
 import { useCardStore } from '../stores/cardStore'
 
-export default function Controls() {
+interface ControlsProps {
+  onOpenSkills: () => void
+}
+
+export default function Controls({ onOpenSkills }: ControlsProps) {
   const currentLocationId = useGameStore((state) => state.currentLocationId)
   const periodIndex = useGameStore((state) => state.periodIndex)
   const isPlaying = useGameStore((state) => state.isPlaying)
@@ -77,6 +81,7 @@ export default function Controls() {
       <div className="control-group">
         <h3>个人行动（{currentLocation?.name}）</h3>
         <div className="buttons grid">
+          <button onClick={onOpenSkills}>✨ 特技</button>
           {currentLocationId === 'classroom' && (
             <button onClick={handleEnterScene}>进入场景</button>
           )}

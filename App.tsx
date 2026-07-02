@@ -6,6 +6,7 @@ import StatPanel from './components/StatPanel'
 import Controls from './components/Controls'
 import EventLog from './components/EventLog'
 import CardImporter from './components/CardImporter'
+import SpecialSkillPanel from './components/SpecialSkillPanel'
 import { useGameStore } from './stores/gameStore'
 import { useMapStore } from './stores/mapStore'
 import './App.css'
@@ -33,6 +34,7 @@ function useMapScale(mapWidth, mapHeight) {
 function App() {
   const { width, height, cellSize } = useMapStore()
   const currentSceneId = useGameStore((state) => state.currentSceneId)
+  const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false)
   const mapWidth = width * cellSize
   const mapHeight = height * cellSize
   const mapScale = useMapScale(mapWidth, mapHeight)
@@ -69,11 +71,14 @@ function App() {
               )}
             </div>
             <Sidebar />
+            {isSkillPanelOpen && (
+              <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
+            )}
           </div>
 
           <div className="map-bottom-panel">
             <StatPanel />
-            <Controls />
+            <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
           </div>
         </section>
       </main>
