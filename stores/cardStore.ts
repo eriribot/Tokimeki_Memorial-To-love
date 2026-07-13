@@ -235,7 +235,9 @@ export const useCardStore = create((set, get) => ({
         friendship: 0,
         romance: 0,
         currentLocationId: t.favoriteLocations[0]
-      }))
+      })),
+      activeTargetId: state.targets[0]?.id || null,
+      error: null,
     }))
   }
 }))

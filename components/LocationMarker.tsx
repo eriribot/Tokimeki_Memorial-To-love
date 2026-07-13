@@ -1,4 +1,4 @@
-﻿import { useGameStore } from '../stores/gameStore'
+import { useGameStore } from '../stores/gameStore'
 import { useMapStore } from '../stores/mapStore'
 import { useCharacterStore } from '../stores/characterStore'
 
@@ -26,16 +26,20 @@ export default function LocationMarker({ location, isCurrent }) {
 
   const icon = LOCATION_ICONS[location.id] || '📍'
   const canEnterScene = ['classroom', 'library'].includes(location.id) && isCurrent
+  const markerSize = Math.round(cellSize * 0.74)
+  const markerHeight = canEnterScene ? markerSize + 22 : markerSize
+  const markerOffsetX = (cellSize - markerSize) / 2
+  const markerOffsetY = (cellSize - markerHeight) / 2
 
   return (
     <div
       className={`location-marker ${isCurrent ? 'current' : ''}`}
       style={{
         position: 'absolute',
-        left: location.x * cellSize + 4,
-        top: location.y * cellSize + 4,
-        width: cellSize - 8,
-        height: cellSize - 8,
+        left: location.x * cellSize + markerOffsetX,
+        top: location.y * cellSize + markerOffsetY,
+        width: markerSize,
+        height: markerHeight,
         display: 'flex',
         flexDirection: 'column',
         gap: 4,
@@ -71,16 +75,16 @@ export default function LocationMarker({ location, isCurrent }) {
           color: location.color,
           fontWeight: 700,
           fontSize: 14,
-          padding: 4,
+          padding: 3,
           gap: 4,
           transition: 'all 0.2s',
         }}
       >
-        <span style={{ fontSize: '28px', lineHeight: 1, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
+        <span style={{ fontSize: '24px', lineHeight: 1, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
           {icon}
         </span>
         <span style={{
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: 700,
           textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
           color: isCurrent ? '#e0568d' : location.color
@@ -89,7 +93,7 @@ export default function LocationMarker({ location, isCurrent }) {
         </span>
         {hereCharacters.length > 0 && (
           <span style={{
-            fontSize: '20px',
+            fontSize: '18px',
             marginTop: -2,
             animation: 'heartbeat 1.5s ease-in-out infinite',
             filter: 'drop-shadow(0 2px 4px rgba(224, 86, 141, 0.4))'
@@ -114,4 +118,3 @@ export default function LocationMarker({ location, isCurrent }) {
     </div>
   )
 }
-

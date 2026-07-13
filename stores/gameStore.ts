@@ -40,6 +40,8 @@ function spawnRandomEvents(day) {
 
 export const useGameStore = create((set) => ({
   // State
+  screen: 'start',
+  hasSession: false,
   day: 1,
   periodIndex: 0,
   currentLocationId: 'classroom',
@@ -51,6 +53,13 @@ export const useGameStore = create((set) => ({
   // Actions
   startGame: () => set({ isPlaying: true }),
   pauseGame: () => set({ isPlaying: false }),
+  resumeSession: () =>
+    set((state) =>
+      state.hasSession
+        ? { screen: 'game', isPlaying: true }
+        : state
+    ),
+  returnToStart: () => set({ screen: 'start', isPlaying: false }),
   setLocation: (id) => set({ currentLocationId: id, currentSceneId: null }),
   enterScene: (id) => set({ currentSceneId: id }),
   exitScene: () => set({ currentSceneId: null }),
@@ -89,13 +98,15 @@ export const useGameStore = create((set) => ({
         state.events.find((e) => e.id === eventId)?.message ?? '事件结束了。',
       ],
     })),
-  resetGame: () =>
+  resetGameState: () =>
     set({
+      screen: 'game',
+      hasSession: true,
       day: 1,
       periodIndex: 0,
       currentLocationId: 'classroom',
       currentSceneId: null,
-      isPlaying: false,
+      isPlaying: true,
       log: ['新学期开始了，你站在校门口。'],
       events: [],
     }),

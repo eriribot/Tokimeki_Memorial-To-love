@@ -4,6 +4,8 @@ import Sidebar from './components/Sidebar'
 import ClassroomScene from './components/ClassroomScene'
 import StatPanel from './components/StatPanel'
 import Controls from './components/Controls'
+import MapMenu from './components/MapMenu'
+import StartScreen from './components/StartScreen'
 import EventLog from './components/EventLog'
 import CardImporter from './components/CardImporter'
 import SpecialSkillPanel from './components/SpecialSkillPanel'
@@ -33,11 +35,16 @@ function useMapScale(mapWidth, mapHeight) {
 
 function App() {
   const { width, height, cellSize } = useMapStore()
+  const screen = useGameStore((state) => state.screen)
   const currentSceneId = useGameStore((state) => state.currentSceneId)
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false)
   const mapWidth = width * cellSize
   const mapHeight = height * cellSize
   const mapScale = useMapScale(mapWidth, mapHeight)
+
+  if (screen === 'start') {
+    return <StartScreen />
+  }
 
   return (
     <div className="app">
@@ -71,6 +78,7 @@ function App() {
               )}
             </div>
             <Sidebar />
+            {!currentSceneId && <MapMenu />}
             {isSkillPanelOpen && (
               <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
             )}

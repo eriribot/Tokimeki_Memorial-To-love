@@ -1,5 +1,7 @@
 import { ImageWithPlaceholder } from '../utils/placeholderGenerator'
 
+const AVATAR_SIZE = 76
+
 export default function Character({ character, x, y }) {
   return (
     <div
@@ -9,8 +11,8 @@ export default function Character({ character, x, y }) {
         position: 'absolute',
         left: x,
         top: y,
-        width: 64,
-        height: 64,
+        width: AVATAR_SIZE,
+        height: AVATAR_SIZE,
         zIndex: 50,
       }}
     >

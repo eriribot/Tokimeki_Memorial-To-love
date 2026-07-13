@@ -10,6 +10,17 @@ window.advanceTime = () => undefined;
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();
+
+  const session = {
+    screen: game.screen,
+    canContinue: game.hasSession,
+    isPlaying: game.isPlaying,
+  };
+
+  if (game.screen === 'start') {
+    return JSON.stringify(session);
+  }
+
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
   const visibleTargets = card.targets
     .filter((target) => target.currentLocationId)
@@ -21,6 +32,7 @@ window.render_game_to_text = () => {
     }));
 
   return JSON.stringify({
+    ...session,
     note: '坐标为学校地图格子坐标，左上角是(0,0)，x向右，y向下。',
     day: game.day,
     period: period.key,

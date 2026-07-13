@@ -1,19 +1,21 @@
 import { create } from 'zustand'
 
-export const usePlayerStore = create((set, get) => ({
-  // State
+const INITIAL_PLAYER_STATE = {
   name: '主角',
   color: '#3b82f6',
   avatar: '/artsource/chibis/player.png',
+  intelligence: 30,
+  athletics: 30,
+  art: 30,
+  charm: 30,
+  stamina: 100,
+  stress: 0,
+  money: 500,
+}
 
-  // 养成属性（心跳回忆式）
-  intelligence: 30, // 学力
-  athletics: 30,    // 运动
-  art: 30,          // 艺术
-  charm: 30,        // 魅力
-  stamina: 100,     // 体力
-  stress: 0,        // 压力
-  money: 500,       // 零用钱
+export const usePlayerStore = create((set, get) => ({
+  // State
+  ...INITIAL_PLAYER_STATE,
 
   // Getters
   isTired: () => get().stamina <= 0,
@@ -21,6 +23,7 @@ export const usePlayerStore = create((set, get) => ({
 
   // Actions
   setColor: (color) => set({ color }),
+  resetPlayer: () => set(INITIAL_PLAYER_STATE),
 
   study: () =>
     set((state) => ({

@@ -2,6 +2,7 @@ import { useGameStore, PERIODS } from '../stores/gameStore'
 import { useMapStore } from '../stores/mapStore'
 import { usePlayerStore } from '../stores/playerStore'
 import { useCardStore } from '../stores/cardStore'
+import { startNewSession } from '../services/gameSession'
 
 interface ControlsProps {
   onOpenSkills: () => void
@@ -14,7 +15,6 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
   const nextPeriod = useGameStore((state) => state.nextPeriod)
   const startGame = useGameStore((state) => state.startGame)
   const pauseGame = useGameStore((state) => state.pauseGame)
-  const resetGame = useGameStore((state) => state.resetGame)
   const enterScene = useGameStore((state) => state.enterScene)
   const addLog = useGameStore((state) => state.addLog)
 
@@ -63,6 +63,12 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
     addLog(`你进入了${currentLocation?.name ?? '当前地点'}。`)
   }
 
+  const handleRestart = () => {
+    if (window.confirm('确定要重新开始吗？当前进度将被重置。')) {
+      startNewSession()
+    }
+  }
+
   return (
     <div className="controls">
       <div className="control-group">
@@ -74,7 +80,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
             <button onClick={pauseGame}>暂停</button>
           )}
           <button onClick={handleNextPeriod}>推进时间</button>
-          <button onClick={resetGame}>重新开始</button>
+          <button onClick={handleRestart}>重新开始</button>
         </div>
       </div>
 
