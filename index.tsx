@@ -4,9 +4,13 @@ import App from './App';
 import './index.css';
 import { PERIODS, useGameStore } from './stores/gameStore';
 import { useCardStore } from './stores/cardStore';
+import { gameSaveApi } from './save';
+import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
 
-window.__WEBGAME_ASSET_BASE__ = '../';
+window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
+installRuntimeFonts();
 window.advanceTime = () => undefined;
+window.toloveSave = gameSaveApi;
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();
@@ -23,8 +27,8 @@ window.render_game_to_text = () => {
 
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
   const visibleTargets = card.targets
-    .filter((target) => target.currentLocationId)
-    .map((target) => ({
+    .filter(target => target.currentLocationId)
+    .map(target => ({
       id: target.id,
       name: target.name,
       location: target.currentLocationId,

@@ -22,7 +22,8 @@
 }
 
 .app {
-  min-height: 100vh;
+  width: 100%;
+  min-height: 0;
   padding: 8px 16px 16px;
   background: linear-gradient(135deg, #ffe4ec 0%, #fff0f5 50%, #e8f4ff 100%);
   color: var(--tm-text);
@@ -30,6 +31,10 @@
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
+}
+
+.tolove-app-shell.is-page-mode .app {
+  min-height: 100%;
 }
 
 html {

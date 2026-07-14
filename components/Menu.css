@@ -2,9 +2,14 @@
   position: relative;
   display: block;
   width: 100%;
-  min-height: 100vh;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: #000;
+}
+
+.tolove-app-shell.is-page-mode .start-screen {
+  height: 100%;
+  aspect-ratio: auto;
 }
 
 .start-screen-background,
@@ -31,16 +36,16 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   pointer-events: none;
 }
 
 .start-screen-title {
   position: absolute;
-  top: clamp(74px, 10.5vh, 156px);
+  top: 10.5%;
   left: 50%;
   display: block;
-  width: min(600px, 58vw);
+  width: min(600px, 58%);
   height: auto;
   transform: translateX(-50%);
   object-fit: contain;
@@ -49,11 +54,11 @@
 
 .start-menu {
   position: absolute;
-  top: clamp(49%, 54vh, 58%);
+  top: 54%;
   left: 50%;
   display: grid;
-  width: min(520px, 80vw);
-  gap: clamp(1px, 0.5vh, 8px);
+  width: min(520px, 80%);
+  gap: clamp(1px, 0.42vw, 7px);
   transform: translateX(-50%);
   pointer-events: auto;
 }
@@ -61,7 +66,7 @@
 .start-menu-item {
   position: relative;
   width: 100%;
-  height: clamp(42px, 6.3vh, 72px);
+  height: clamp(28px, 3.75vw, 68px);
   min-height: 0;
   overflow: visible;
   padding: 0;
@@ -127,8 +132,8 @@
 .start-menu-image {
   z-index: 1;
   width: auto;
-  height: clamp(28px, 4.5vh, 54px);
-  max-width: min(86vw, 520px);
+  height: clamp(22px, 2.75vw, 50px);
+  max-width: min(86%, 520px);
   transition: none;
 }
 
@@ -289,14 +294,25 @@
 }
 
 @media (max-width: 640px) {
+  .tolove-app-shell.is-embedded-mode .start-screen {
+    aspect-ratio: 4 / 3;
+  }
+
   .start-screen-title {
-    top: 11vh;
-    width: min(600px, 84vw);
+    top: 7%;
+    width: min(600px, 84%);
   }
 
   .start-menu {
-    top: 55%;
-    width: min(420px, 88vw);
+    top: 44%;
+    width: min(420px, 88%);
   }
 
+  .start-menu-item {
+    height: clamp(23px, 6.2vw, 40px);
+  }
+
+  .start-menu-image {
+    height: clamp(18px, 4.4vw, 30px);
+  }
 }

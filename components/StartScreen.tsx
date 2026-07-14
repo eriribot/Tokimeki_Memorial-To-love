@@ -1,63 +1,69 @@
-import { START_MENU_CURSOR, START_MENU_ITEMS } from '../data/menuAssets'
-import { startNewSession, resumeSession } from '../services/gameSession'
-import { useGameStore } from '../stores/gameStore'
-import { resolveAssetPath } from '../utils/assetPath'
-import { useEffect, useRef, useState } from 'react'
-import './Menu.css'
+import { START_MENU_CURSOR, START_MENU_ITEMS } from '../data/menuAssets';
+import { startNewSession } from '../services/gameSession';
+import { useGameStore } from '../stores/gameStore';
+import { resolveAssetPath } from '../utils/assetPath';
+import { useEffect, useRef, useState } from 'react';
+import './Menu.css';
 
-export default function StartScreen() {
-  const hasSession = useGameStore((state) => state.hasSession)
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const menuButtonRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const [audioState, setAudioState] = useState<'pending' | 'playing' | 'blocked'>('pending')
-  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0)
+interface StartScreenProps {
+  hasPersistedSave: boolean;
+  isCheckingSaves: boolean;
+  onContinue: () => void;
+}
+
+export default function StartScreen({ hasPersistedSave, isCheckingSaves, onContinue }: StartScreenProps) {
+  const hasSession = useGameStore((state: { hasSession: boolean }) => state.hasSession);
+  const canContinue = hasSession || hasPersistedSave;
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const menuButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [audioState, setAudioState] = useState<'pending' | 'playing' | 'blocked'>('pending');
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
 
   const playTitleMusic = () => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    void audio.play().then(() => setAudioState('playing')).catch(() => setAudioState('blocked'))
-  }
+    void audio
+      .play()
+      .then(() => setAudioState('playing'))
+      .catch(() => setAudioState('blocked'));
+  };
 
   const focusAdjacentMenuItem = (currentIndex: number, direction: -1 | 1) => {
     for (let offset = 1; offset <= START_MENU_ITEMS.length; offset += 1) {
-      const nextIndex = (currentIndex + direction * offset + START_MENU_ITEMS.length) % START_MENU_ITEMS.length
-      const nextItem = START_MENU_ITEMS[nextIndex]
-      const disabled = nextItem.id === 'continue' && !hasSession
+      const nextIndex = (currentIndex + direction * offset + START_MENU_ITEMS.length) % START_MENU_ITEMS.length;
+      const nextItem = START_MENU_ITEMS[nextIndex];
+      const disabled = nextItem.id === 'continue' && !canContinue;
 
       if (!disabled) {
-        setSelectedMenuIndex(nextIndex)
-        menuButtonRefs.current[nextIndex]?.focus()
-        return
+        setSelectedMenuIndex(nextIndex);
+        menuButtonRefs.current[nextIndex]?.focus();
+        return;
       }
     }
-  }
+  };
 
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    audio.loop = true
-    audio.volume = 0.7
-    playTitleMusic()
+    audio.loop = true;
+    audio.volume = 0.7;
+    playTitleMusic();
 
-    const retryEvents: (keyof WindowEventMap)[] = ['pointerdown', 'keydown', 'touchstart']
-    retryEvents.forEach((eventName) => window.addEventListener(eventName, playTitleMusic, { passive: true }))
+    const retryEvents: (keyof WindowEventMap)[] = ['pointerdown', 'keydown', 'touchstart'];
+    retryEvents.forEach(eventName => window.addEventListener(eventName, playTitleMusic, { passive: true }));
 
     return () => {
-      retryEvents.forEach((eventName) => window.removeEventListener(eventName, playTitleMusic))
-      audio.pause()
-      audio.currentTime = 0
-    }
-  }, [])
+      retryEvents.forEach(eventName => window.removeEventListener(eventName, playTitleMusic));
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
 
   return (
     <main className="start-screen" data-audio-state={audioState}>
-      <img
-        className="start-screen-background"
-        src={resolveAssetPath('/artsource/ui/title_bg.png')}
-        alt=""
-      />
+      <img className="start-screen-background" src={resolveAssetPath('/artsource/ui/title_bg.png')} alt="" />
       <img
         className="start-screen-foreground"
         src={resolveAssetPath('/artsource/ui/title_bg3a.png')}
@@ -81,16 +87,16 @@ export default function StartScreen() {
           src={resolveAssetPath('/artsource/ui/title.png')}
           alt="校园心动回忆"
         />
-        <div className="start-menu" aria-label="开始菜单">
+        <div className="start-menu" aria-label="开始菜单" aria-busy={isCheckingSaves}>
           {START_MENU_ITEMS.map((item, index) => {
-            const disabled = item.id === 'continue' && !hasSession
-            const action = item.id === 'restart' ? startNewSession : item.id === 'continue' ? resumeSession : undefined
-            const selected = selectedMenuIndex === index
+            const disabled = item.id === 'continue' && !canContinue;
+            const action = item.id === 'restart' ? startNewSession : item.id === 'continue' ? onContinue : undefined;
+            const selected = selectedMenuIndex === index;
 
             return (
               <button
-                ref={(element) => {
-                  menuButtonRefs.current[index] = element
+                ref={element => {
+                  menuButtonRefs.current[index] = element;
                 }}
                 key={item.id}
                 id={`start-${item.id}`}
@@ -100,41 +106,41 @@ export default function StartScreen() {
                 aria-disabled={disabled}
                 tabIndex={disabled ? -1 : 0}
                 onMouseEnter={() => {
-                  setSelectedMenuIndex(disabled ? 0 : index)
+                  setSelectedMenuIndex(disabled ? 0 : index);
                 }}
                 onFocus={() => {
                   if (disabled) {
-                    setSelectedMenuIndex(0)
-                    menuButtonRefs.current[0]?.focus()
-                    return
+                    setSelectedMenuIndex(0);
+                    menuButtonRefs.current[0]?.focus();
+                    return;
                   }
 
-                  setSelectedMenuIndex(index)
+                  setSelectedMenuIndex(index);
                 }}
-                onPointerDown={(event) => {
-                  if (!disabled) return
+                onPointerDown={event => {
+                  if (!disabled) return;
 
-                  event.preventDefault()
-                  setSelectedMenuIndex(0)
+                  event.preventDefault();
+                  setSelectedMenuIndex(0);
                 }}
-                onKeyDown={(event) => {
+                onKeyDown={event => {
                   if (event.key === 'ArrowDown') {
-                    event.preventDefault()
-                    focusAdjacentMenuItem(index, 1)
+                    event.preventDefault();
+                    focusAdjacentMenuItem(index, 1);
                   } else if (event.key === 'ArrowUp') {
-                    event.preventDefault()
-                    focusAdjacentMenuItem(index, -1)
+                    event.preventDefault();
+                    focusAdjacentMenuItem(index, -1);
                   }
                 }}
-                onClick={(event) => {
+                onClick={event => {
                   if (disabled) {
-                    event.preventDefault()
-                    setSelectedMenuIndex(0)
-                    return
+                    event.preventDefault();
+                    setSelectedMenuIndex(0);
+                    return;
                   }
 
-                  playTitleMusic()
-                  action?.()
+                  playTitleMusic();
+                  action?.();
                 }}
               >
                 {selected && (
@@ -158,10 +164,10 @@ export default function StartScreen() {
                   aria-hidden="true"
                 />
               </button>
-            )
+            );
           })}
         </div>
       </section>
     </main>
-  )
+  );
 }

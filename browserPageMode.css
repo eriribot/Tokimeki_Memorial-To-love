@@ -1,0 +1,106 @@
+.tolove-app-shell {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+
+.tolove-app-shell.is-page-mode {
+  height: 100%;
+  overflow: auto;
+  background: #000;
+  scrollbar-width: none;
+}
+
+.tolove-app-shell.is-page-mode::-webkit-scrollbar {
+  display: none;
+}
+
+.browser-page-mode-button {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-width: 132px;
+  min-height: 42px;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(36, 42, 62, 0.78), rgba(8, 12, 28, 0.88));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 7px 22px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(10px);
+  font: 700 14px/1 'Tokimeki Seurat', 'Tokimeki Arial', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transform: none;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.tolove-app-shell.is-page-mode > .browser-page-mode-button {
+  position: fixed;
+}
+
+.browser-page-mode-button:hover,
+.browser-page-mode-button:focus-visible {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    0 9px 25px rgba(0, 0, 0, 0.38),
+    0 0 0 3px rgba(255, 255, 255, 0.24);
+}
+
+.browser-page-mode-button:active {
+  filter: brightness(0.98);
+  transform: translateY(0);
+}
+
+.browser-page-mode-icon {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 0.8;
+}
+
+.browser-page-mode-error {
+  position: absolute;
+  top: 62px;
+  right: 12px;
+  z-index: 901;
+  max-width: min(360px, calc(100% - 24px));
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 225, 225, 0.88);
+  border-radius: 10px;
+  color: #fff;
+  background: rgba(126, 26, 45, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .browser-page-mode-button {
+    min-width: 44px;
+    min-height: 40px;
+    padding: 7px 11px;
+  }
+
+  .browser-page-mode-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
