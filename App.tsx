@@ -19,6 +19,7 @@ import {
   createBrowserPageOverlay,
   type BrowserPageOverlay,
 } from './utils/browserPageOverlay';
+import { resolveAssetPath } from './utils/assetPath';
 import './App.css';
 import './enhancements.css';
 import './map-enhancements.css';
@@ -257,8 +258,12 @@ function App() {
         />
       ) : (
         <div className="app">
-          <header className="game-header">
-            <h1>校园心动回忆</h1>
+          <header className="game-header" aria-label="To LOVE-Ru">
+            <img
+              className="game-header-title"
+              src={resolveAssetPath('/artsource/ui/title.png')}
+              alt="To LOVE-Ru"
+            />
           </header>
 
           <main className="game-layout">

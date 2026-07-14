@@ -85,7 +85,7 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
           id="game-title"
           className="start-screen-title"
           src={resolveAssetPath('/artsource/ui/title.png')}
-          alt="校园心动回忆"
+          alt="To LOVE-Ru"
         />
         <div className="start-menu" aria-label="开始菜单" aria-busy={isCheckingSaves}>
           {START_MENU_ITEMS.map((item, index) => {

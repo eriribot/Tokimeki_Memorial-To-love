@@ -52,12 +52,13 @@ html::-webkit-scrollbar {
   flex-shrink: 0;
 }
 
-.game-header h1 {
-  margin: 0;
-  font-size: 36px;
-  color: var(--tm-pink-dark);
-  text-shadow: 3px 3px 0 #fff, -1px -1px 0 rgba(224, 86, 141, 0.3);
-  letter-spacing: 2px;
+.game-header-title {
+  display: block;
+  width: min(360px, 58vw);
+  height: auto;
+  max-height: 72px;
+  margin: 0 auto;
+  object-fit: contain;
 }
 
 .game-layout {

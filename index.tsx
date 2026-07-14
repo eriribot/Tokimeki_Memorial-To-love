@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 import { PERIODS, useGameStore } from './stores/gameStore';
 import { useCardStore } from './stores/cardStore';
+import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { gameSaveApi } from './save';
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
 
@@ -11,6 +12,7 @@ window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
 window.advanceTime = () => undefined;
 window.toloveSave = gameSaveApi;
+window.toloveWorldbook = worldbookReader; // 暴露显式调试入口，但不在页面加载时自动读取、注入或监听世界书。
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();

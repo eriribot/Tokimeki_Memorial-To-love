@@ -1,3 +1,5 @@
+import type { WorldbookReader } from './data/worldbook';
+
 declare global {
   interface Window {
     __WEBGAME_ASSET_BASE__?: string;
@@ -11,6 +13,8 @@ declare global {
       delete: (slotId?: string, saveUuid?: string) => Promise<unknown>;
       resetBackend: () => void;
     };
+    /** 提供世界书读取、确定性扫描注入和真实激活事件观察入口。 */
+    toloveWorldbook?: WorldbookReader;
   }
 }
 
