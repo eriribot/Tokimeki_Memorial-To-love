@@ -1,7 +1,7 @@
-import { useGameStore } from '../stores/gameStore'
+import { useGameStore } from '../stores/gameStore';
 
 export default function EventLog() {
-  const log = useGameStore((state) => state.log)
+  const log = useGameStore(state => state.log);
 
   return (
     <div className="event-log">
@@ -12,5 +12,5 @@ export default function EventLog() {
         ))}
       </ul>
     </div>
-  )
+  );
 }

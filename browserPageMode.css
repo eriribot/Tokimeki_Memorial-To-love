@@ -7,8 +7,23 @@
 .tolove-app-shell.is-page-mode {
   height: 100%;
   overflow: auto;
-  background: #000;
+  background: linear-gradient(135deg, #ffe4ec 0%, #fff0f5 50%, #e8f4ff 100%);
   scrollbar-width: none;
+}
+
+/*
+ * 原生 Fullscreen API 会把应用节点放入浏览器顶层。
+ * 明确设置节点与浏览器 backdrop 的背景，切换帧不会露出默认黑色底层。
+ */
+.tolove-app-shell:fullscreen {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: linear-gradient(135deg, #ffe4ec 0%, #fff0f5 50%, #e8f4ff 100%);
+}
+
+.tolove-app-shell::backdrop {
+  background: #fff0f5;
 }
 
 .tolove-app-shell.is-page-mode::-webkit-scrollbar {

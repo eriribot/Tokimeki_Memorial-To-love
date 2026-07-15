@@ -1,55 +1,32 @@
-import { create } from 'zustand'
-import { useCardStore } from './cardStore'
+import { create } from 'zustand';
+import harukaCard from '../data/default-cards/haruka.json';
+import miyukiCard from '../data/default-cards/miyuki.json';
+import rinCard from '../data/default-cards/rin.json';
+import sakuraCard from '../data/default-cards/sakura.json';
+import type { CharacterStore } from '../types';
+import { useCardStore } from './cardStore';
 
-// 导入默认卡片JSON
-import harukaCard from '../data/default-cards/haruka.json'
-import miyukiCard from '../data/default-cards/miyuki.json'
-import rinCard from '../data/default-cards/rin.json'
-import sakuraCard from '../data/default-cards/sakura.json'
+const DEFAULT_CARDS: readonly unknown[] = [harukaCard, miyukiCard, rinCard, sakuraCard];
 
-/**
- * characterStore - 兼容层
- * 保持向后兼容，内部使用 cardStore 的 targets[] 系统
- */
-export const useCharacterStore = create((set, get) => {
-  // 初始化时加载默认卡片到 cardStore
-  const initializeDefaultCards = async () => {
-    const cardStore = useCardStore.getState()
+async function initializeDefaultCards(): Promise<void> {
+  const cardStore = useCardStore.getState();
+  if (cardStore.targets.length > 0) return;
 
-    // 只在首次初始化时加载
-    if (cardStore.targets.length === 0) {
-      for (const card of [harukaCard, miyukiCard, rinCard, sakuraCard]) {
-        await cardStore.addCardFromJSON(card)
-      }
-    }
+  for (const card of DEFAULT_CARDS) {
+    await useCardStore.getState().addCardFromJSON(card);
   }
+}
 
-  // 立即初始化
-  initializeDefaultCards()
+export const useCharacterStore = create<CharacterStore>(() => ({
+  characters: useCardStore.getState().targets,
+  spawnForPeriod: periodKey => useCardStore.getState().spawnTargetsForPeriod(periodKey),
+  addAffection: (id, amount) => useCardStore.getState().addAffection(id, amount),
+  resetCharacters: () => useCardStore.getState().resetTargets(),
+  getCardStore: () => useCardStore.getState(),
+}));
 
-  return {
-    characters: useCardStore.getState().targets,
+useCardStore.subscribe(state => {
+  useCharacterStore.setState({ characters: state.targets });
+});
 
-    // Actions - 代理到 cardStore
-    spawnForPeriod: (periodKey) => {
-      useCardStore.getState().spawnTargetsForPeriod(periodKey)
-    },
-
-    addAffection: (id, amount) => {
-      useCardStore.getState().addAffection(id, amount)
-    },
-
-    resetCharacters: () => {
-      useCardStore.getState().resetTargets()
-    },
-
-    // 新增：直接访问 cardStore 的方法
-    getCardStore: () => useCardStore.getState()
-  }
-})
-
-// 订阅 cardStore 的变化，同步更新 characterStore
-useCardStore.subscribe((state) => {
-  // 触发 characterStore 的订阅者更新
-  useCharacterStore.setState({ characters: state.targets })
-})
+void initializeDefaultCards();

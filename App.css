@@ -84,6 +84,9 @@ html::-webkit-scrollbar {
 /* 游戏画面容器：包含地图、玩家、侧边栏 */
 .map-section {
   position: relative;
+  /* 档案弹窗按游戏框本身的实际像素响应，不再依赖浏览器窗口宽度。 */
+  container-name: game-frame;
+  container-type: size;
   flex: 0 0 auto;
   max-width: 100%;
   min-width: 0;
@@ -122,124 +125,11 @@ html::-webkit-scrollbar {
   min-width: 420px;
 }
 
-/* 右侧可折叠信息栏（在游戏画面内部） */
-.game-sidebar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  z-index: 200;
-  display: flex;
-  transition: transform 0.3s ease-out;
-  pointer-events: none;
-}
-
-.game-sidebar > * {
-  pointer-events: auto;
-}
-
-.game-sidebar.closed {
-  transform: translateX(calc(100% - 44px));
-}
-
-.game-sidebar.open {
-  transform: translateX(0);
-}
-
-.sidebar-toggle {
-  width: 44px;
-  height: 120px;
-  padding: 0;
-  border-radius: 16px 0 0 16px;
-  background: linear-gradient(180deg, var(--tm-pink), var(--tm-pink-dark));
-  color: white;
-  border: 3px solid var(--tm-border);
-  border-right: none;
-  box-shadow: -4px 4px 16px rgba(224, 86, 141, 0.3);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-shrink: 0;
-  align-self: center;
-  margin-left: -3px;
-  transition: filter 0.2s ease-out;
-}
-
-.sidebar-toggle:hover {
-  filter: brightness(1.1);
-}
-
-.sidebar-toggle-icon {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.sidebar-toggle-text {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 2px;
-}
-
-.sidebar-content {
-  flex: 1 1 0;
-  width: clamp(220px, 21vw, 360px);
-  max-width: calc(100% - 44px);
-  height: 100%;
-  background: rgba(255, 245, 247, 0.98);
-  border: 3px solid var(--tm-border);
-  border-right: none;
-  border-radius: 20px 0 0 20px;
-  box-shadow: -8px 8px 32px rgba(224, 86, 141, 0.2);
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  backdrop-filter: blur(8px);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.sidebar-content::-webkit-scrollbar {
-  display: none;
-}
-
-.sidebar-content > .character-portrait {
-  animation: none;
-  padding: 16px;
-}
-
-.sidebar-content .stat-row {
-  grid-template-columns: 48px 1fr 36px;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.sidebar-content .stat-bar {
-  height: 12px;
-}
-
-.sidebar-content .buttons.grid {
-  gap: 8px;
-}
-
-.sidebar-content button {
-  padding: 10px 14px;
-  font-size: 13px;
-  min-height: 38px;
-}
-
 .map-bottom-panel {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(430px, 0.9fr) minmax(560px, 1.1fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(8px, 0.8vw, 14px);
   align-items: start;
   padding: 12px;
   border: 3px solid rgba(240, 142, 181, 0.85);
@@ -250,7 +140,9 @@ html::-webkit-scrollbar {
     radial-gradient(circle at 96% 18%, rgba(255, 209, 102, 0.36), transparent 18%),
     radial-gradient(circle at 4% 82%, rgba(142, 202, 230, 0.32), transparent 20%),
     linear-gradient(135deg, #fffdf7 0%, #fff5fa 48%, #eef8ff 100%);
-  box-shadow: 0 8px 24px rgba(224, 86, 141, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 8px 24px rgba(224, 86, 141, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .map-bottom-panel > .stat-panel,
@@ -302,26 +194,26 @@ html::-webkit-scrollbar {
 .map-bottom-panel .stats {
   margin-top: 6px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(4px, 0.45vw, 8px);
 }
 
 .map-bottom-panel .stat-row {
-  grid-template-columns: 42px minmax(70px, 1fr) 28px;
-  gap: 6px;
-  padding: 2px 0;
-  font-size: 12px;
+  grid-template-columns: clamp(42px, 13%, 68px) minmax(0, 1fr) 3ch;
+  gap: clamp(6px, 0.7vw, 12px);
+  padding: clamp(2px, 0.25vw, 5px) 0;
+  font-size: clamp(12px, 0.9vw, 14px);
 }
 
 .map-bottom-panel .stat-bar {
-  height: 9px;
+  height: clamp(9px, 0.75vw, 12px);
   border-width: 1px;
   background: rgba(255, 255, 255, 0.68);
 }
 
 .map-bottom-panel .controls {
   display: grid;
-  grid-template-columns: minmax(150px, 0.65fr) minmax(360px, 1.35fr);
+  grid-template-columns: minmax(132px, 0.62fr) minmax(0, 1.38fr);
   gap: 8px 12px;
   align-content: start;
 }
@@ -350,6 +242,25 @@ html::-webkit-scrollbar {
   border-radius: 16px;
   font-size: 12px;
   box-shadow: 0 4px 10px rgba(224, 86, 141, 0.22);
+}
+
+.map-bottom-panel button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.75);
+  opacity: 0.48;
+  transform: none;
+}
+
+.map-bottom-panel .action-cost {
+  display: inline-grid;
+  min-width: 1.8em;
+  margin-left: 0.3em;
+  padding: 0.05em 0.35em;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 28%);
+  font-size: 0.82em;
+  line-height: 1.2;
 }
 
 .map-bottom-panel .control-group:first-child button:nth-child(2),
@@ -386,15 +297,6 @@ html::-webkit-scrollbar {
   background: rgba(255, 255, 255, 0.72);
 }
 @media (max-width: 900px) {
-  .game-sidebar {
-    height: 100%;
-  }
-
-  .game-sidebar.open .sidebar-content {
-    width: calc(100% - 44px);
-    border-radius: 0;
-  }
-
   .map-bottom-panel,
   .map-bottom-panel .controls,
   .map-bottom-panel .stats,
@@ -503,7 +405,10 @@ html::-webkit-scrollbar {
   border-radius: 20px;
   padding: 16px;
   cursor: pointer;
-  transition: transform var(--anim-normal), box-shadow var(--anim-normal), border-color var(--anim-normal);
+  transition:
+    transform var(--anim-normal),
+    box-shadow var(--anim-normal),
+    border-color var(--anim-normal);
   box-shadow: var(--tm-card-shadow);
   scroll-snap-align: start;
   position: relative;
@@ -516,7 +421,9 @@ html::-webkit-scrollbar {
 
 .character-card.active {
   border-color: var(--tm-pink-dark);
-  box-shadow: 0 0 0 4px rgba(255, 143, 171, 0.3), var(--tm-card-shadow);
+  box-shadow:
+    0 0 0 4px rgba(255, 143, 171, 0.3),
+    var(--tm-card-shadow);
   transform: translateY(-2px);
 }
 
@@ -533,8 +440,13 @@ html::-webkit-scrollbar {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.25; }
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.25;
+  }
 }
 
 .character-card-portrait {
@@ -607,8 +519,13 @@ html::-webkit-scrollbar {
 }
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .affection-value {
@@ -630,8 +547,14 @@ html::-webkit-scrollbar {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============================================
@@ -764,14 +687,14 @@ html::-webkit-scrollbar {
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid var(--tm-border);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-fill {
   height: 100%;
   border-radius: 6px;
   transition: width 0.4s ease;
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 /* 控制按钮 */
@@ -813,7 +736,10 @@ button {
   cursor: pointer;
   font-size: 15px;
   font-weight: 600;
-  transition: transform 0.05s, filter 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.05s,
+    filter 0.15s,
+    box-shadow 0.15s;
   box-shadow: 0 4px 12px rgba(224, 86, 141, 0.4);
   min-height: 44px;
 }
@@ -1115,7 +1041,6 @@ button:active {
   appearance: none;
 }
 
-
 .scene-characters.count-4 .scene-character {
   width: clamp(190px, 18vw, 300px);
 }
@@ -1222,10 +1147,24 @@ button:active {
   border: 3px solid rgba(244, 166, 195, 0.8);
   border-radius: 12px;
   background:
-    repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(255,255,255,0.34) 15px, rgba(255,255,255,0.34) 16px),
-    repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(255,255,255,0.28) 15px, rgba(255,255,255,0.28) 16px),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 15px,
+      rgba(255, 255, 255, 0.34) 15px,
+      rgba(255, 255, 255, 0.34) 16px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 15px,
+      rgba(255, 255, 255, 0.28) 15px,
+      rgba(255, 255, 255, 0.28) 16px
+    ),
     linear-gradient(135deg, rgba(255, 236, 242, 0.97), rgba(255, 249, 235, 0.95));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 12px 36px rgba(80, 35, 55, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 12px 36px rgba(80, 35, 55, 0.18);
 }
 
 .special-skill-header,
@@ -1284,7 +1223,7 @@ button:active {
   min-height: 32px;
   padding: 5px 10px;
   border: 2px solid color-mix(in srgb, var(--skill-color) 48%, white);
-  background: rgba(255,255,255,0.64);
+  background: rgba(255, 255, 255, 0.64);
   color: #7a4b54;
   box-shadow: none;
 }
@@ -1311,7 +1250,7 @@ button:active {
   padding: 10px;
   border: 2px solid rgba(244, 166, 195, 0.45);
   border-radius: 16px;
-  background: rgba(255,255,255,0.58);
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .special-tree-board {
@@ -1417,7 +1356,7 @@ button:active {
   margin-top: 10px;
   padding: 10px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.66);
+  background: rgba(255, 255, 255, 0.66);
   color: #6d4b50;
   font-weight: 700;
   line-height: 1.5;
@@ -1463,7 +1402,7 @@ button:active {
 
 .special-equipped-bar button {
   min-width: 86px;
-  background: rgba(255,255,255,0.72);
+  background: rgba(255, 255, 255, 0.72);
   color: rgba(74, 59, 59, 0.55);
   border: 2px dashed rgba(244, 166, 195, 0.5);
   box-shadow: none;

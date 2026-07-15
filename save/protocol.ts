@@ -56,6 +56,7 @@ export interface SaveFileEnvelope<TData = unknown> {
 export interface SavePreview {
   playerName: string;
   day: number;
+  date?: CalendarDateValue;
   periodIndex: number;
   locationId: string;
   sceneId: string | null;
@@ -109,3 +110,4 @@ export function toSaveSummary(save: SaveRecord): SaveSummary {
   const { data: _data, ...summary } = save;
   return summary;
 }
+import type { CalendarDateValue } from '../types';

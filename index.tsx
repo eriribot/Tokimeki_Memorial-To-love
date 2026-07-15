@@ -41,6 +41,8 @@ window.render_game_to_text = () => {
     ...session,
     note: '坐标为学校地图格子坐标，左上角是(0,0)，x向右，y向下。',
     day: game.day,
+    date: game.date,
+    actionPointsRemaining: game.actionPointsRemaining,
     period: period.key,
     time: period.time,
     location: game.currentLocationId,

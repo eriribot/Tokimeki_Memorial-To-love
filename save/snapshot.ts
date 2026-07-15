@@ -1,38 +1,39 @@
 import { useCardStore } from '../stores/cardStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
+import type {
+  CalendarDateValue,
+  CharacterCard,
+  GameCharacter,
+  GameEvent,
+  GameScreen,
+  LocationId,
+  PlayerState,
+} from '../types';
 import type { SavePreview } from './protocol';
 
 export interface GameSnapshotV1 {
   schemaVersion: 1;
   savedAt: string;
   game: {
-    screen: string;
+    screen: GameScreen;
     hasSession: boolean;
     day: number;
+    date?: CalendarDateValue;
+    actionPointsRemaining?: number;
     periodIndex: number;
-    currentLocationId: string;
-    currentSceneId: string | null;
+    currentLocationId: LocationId;
+    currentSceneId: LocationId | null;
     isPlaying: boolean;
-    log: unknown[];
-    events: unknown[];
+    log: string[];
+    events: GameEvent[];
   };
-  player: {
-    name: string;
-    color: string;
-    avatar: string;
-    intelligence: number;
-    athletics: number;
-    art: number;
-    charm: number;
-    stamina: number;
-    stress: number;
-    money: number;
-  };
+  player: PlayerState;
   cards: {
-    targets: unknown[];
+    targets: GameCharacter[];
     activeTargetId: string | null;
-    loadedCards: unknown[];
+    loadedCards: CharacterCard[];
   };
 }
 
@@ -56,6 +57,8 @@ export function createGameSnapshot(): GameSnapshotV1 {
       screen: game.screen,
       hasSession: game.hasSession,
       day: game.day,
+      date: game.date,
+      actionPointsRemaining: game.actionPointsRemaining,
       periodIndex: game.periodIndex,
       currentLocationId: game.currentLocationId,
       currentSceneId: game.currentSceneId,
@@ -87,6 +90,7 @@ export function createSavePreview(snapshot: GameSnapshotV1): SavePreview {
   return {
     playerName: snapshot.player.name,
     day: snapshot.game.day,
+    date: snapshot.game.date,
     periodIndex: snapshot.game.periodIndex,
     locationId: snapshot.game.currentLocationId,
     sceneId: snapshot.game.currentSceneId,
@@ -103,7 +107,22 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
   }
 
   const snapshot = cloneJson(value) as unknown as GameSnapshotV1;
-  useGameStore.setState({ ...snapshot.game });
+  const date = isCalendarDateValue(snapshot.game.date)
+    ? snapshot.game.date
+    : getCalendarDateForGameDay(snapshot.game.day);
+  const restoredSnapshot: GameSnapshotV1 = {
+    ...snapshot,
+    game: {
+      ...snapshot.game,
+      date,
+      actionPointsRemaining:
+        typeof snapshot.game.actionPointsRemaining === 'number'
+          ? Math.min(2, Math.max(0, Math.trunc(snapshot.game.actionPointsRemaining)))
+          : 2,
+    },
+  };
+
+  useGameStore.setState({ ...restoredSnapshot.game, date });
   usePlayerStore.setState({ ...snapshot.player });
   useCardStore.setState({
     ...snapshot.cards,
@@ -111,5 +130,5 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
     error: null,
   });
 
-  return snapshot;
+  return restoredSnapshot;
 }

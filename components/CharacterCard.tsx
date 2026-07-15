@@ -1,13 +1,18 @@
-import { ImageWithPlaceholder } from '../utils/placeholderGenerator'
+import { ImageWithPlaceholder } from '../utils/placeholderGenerator';
+import type { MouseEventHandler } from 'react';
+import type { GameCharacter } from '../types';
 
-export default function CharacterCard({ character, isActive, onClick }) {
-  if (!character) return null
+interface CharacterCardProps {
+  character: GameCharacter | null;
+  isActive: boolean;
+  onClick: MouseEventHandler<HTMLDivElement>;
+}
+
+export default function CharacterCard({ character, isActive, onClick }: CharacterCardProps) {
+  if (!character) return null;
 
   return (
-    <div
-      className={`character-card ${isActive ? 'active' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`character-card ${isActive ? 'active' : ''}`} onClick={onClick}>
       <div className="character-card-portrait">
         <ImageWithPlaceholder
           src={character.portrait}
@@ -27,9 +32,9 @@ export default function CharacterCard({ character, isActive, onClick }) {
         {/* 好感度心形显示 */}
         <div className="affection-hearts">
           {[...Array(5)].map((_, i) => {
-            const heartValue = (i + 1) * 20
-            const isFilled = character.affection >= heartValue
-            const isPartial = character.affection >= heartValue - 10 && character.affection < heartValue
+            const heartValue = (i + 1) * 20;
+            const isFilled = character.affection >= heartValue;
+            const isPartial = character.affection >= heartValue - 10 && character.affection < heartValue;
 
             return (
               <svg
@@ -46,10 +51,10 @@ export default function CharacterCard({ character, isActive, onClick }) {
                   fill={isFilled ? character.color : 'none'}
                   stroke={character.color}
                   strokeWidth="2"
-                  opacity={isFilled ? 1 : (isPartial ? 0.5 : 0.3)}
+                  opacity={isFilled ? 1 : isPartial ? 0.5 : 0.3}
                 />
               </svg>
-            )
+            );
           })}
         </div>
 
@@ -59,10 +64,8 @@ export default function CharacterCard({ character, isActive, onClick }) {
         </div>
 
         {/* 问候语 */}
-        {isActive && (
-          <p className="character-greeting">"{character.greeting}"</p>
-        )}
+        {isActive && <p className="character-greeting">"{character.greeting}"</p>}
       </div>
     </div>
-  )
+  );
 }

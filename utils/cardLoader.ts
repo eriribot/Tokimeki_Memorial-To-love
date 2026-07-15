@@ -1,213 +1,146 @@
-import { normalizeCard, isValidCard } from '../data/cardSchema'
+import { normalizeCard } from '../data/cardSchema';
+import type { CardLoadResult, CharacterCard, GameCharacter, LocationId } from '../types';
 
-/**
- * 从JSON对象加载卡片
- */
-export async function loadCardFromJSON(jsonData) {
+export type CardSource = string | File | unknown;
+
+export interface MultipleCardLoadResult {
+  index: number;
+  success: boolean;
+  card: CharacterCard | null;
+  error: string | null;
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isLocationId(value: string): value is LocationId {
+  return ['gate', 'classroom', 'library', 'cafeteria', 'gym', 'musicRoom', 'rooftop', 'courtyard'].includes(value);
+}
+
+export async function loadCardFromJSON(jsonData: unknown): Promise<CardLoadResult> {
   try {
-    const card = normalizeCard(jsonData)
-    return {
-      success: true,
-      card
-    }
+    return { success: true, card: normalizeCard(jsonData) };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    }
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
-/**
- * 从文件加载卡片
- */
-export async function loadCardFromFile(file) {
+export async function loadCardFromFile(file: File): Promise<CardLoadResult> {
   try {
-    // PNG图片中嵌入的卡片数据
     if (file.type === 'image/png') {
-      const card = await extractCardFromPNG(file)
-      return loadCardFromJSON(card)
+      return loadCardFromJSON(await extractCardFromPNG(file));
     }
 
-    // 纯JSON文件
     if (file.type === 'application/json' || file.name.endsWith('.json')) {
-      const text = await file.text()
-      const json = JSON.parse(text)
-      return loadCardFromJSON(json)
+      return loadCardFromJSON(JSON.parse(await file.text()) as unknown);
     }
 
-    return {
-      success: false,
-      error: 'Unsupported file format'
-    }
+    return { success: false, error: 'Unsupported file format' };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    }
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
-/**
- * 从URL加载卡片
- */
-export async function loadCardFromURL(url) {
+export async function loadCardFromURL(url: string): Promise<CardLoadResult> {
   try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
-    const contentType = response.headers.get('content-type')
-
+    const contentType = response.headers.get('content-type');
     if (contentType?.includes('image/png')) {
-      const blob = await response.blob()
-      const file = new File([blob], 'card.png', { type: 'image/png' })
-      return loadCardFromFile(file)
+      const blob = await response.blob();
+      return loadCardFromFile(new File([blob], 'card.png', { type: 'image/png' }));
     }
 
-    const json = await response.json()
-    return loadCardFromJSON(json)
+    return loadCardFromJSON((await response.json()) as unknown);
   } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    }
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
-/**
- * 从PNG图片的元数据中提取卡片JSON
- * SillyTavern使用PNG的tEXt chunk存储卡片数据
- */
-async function extractCardFromPNG(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+async function extractCardFromPNG(file: File): Promise<unknown> {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let position = 8;
 
-    reader.onload = (e) => {
-      try {
-        const buffer = e.target.result
-        const uint8Array = new Uint8Array(buffer)
+  while (position + 12 <= bytes.length) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset + position, 4);
+    const length = view.getUint32(0, false);
+    position += 4;
 
-        // PNG文件格式: 8字节签名 + 多个chunk
-        // 我们寻找 tEXt chunk，关键字为 "chara"
-        let pos = 8 // 跳过PNG签名
+    if (position + 4 + length + 4 > bytes.length) break;
+    const type = new TextDecoder('ascii').decode(bytes.subarray(position, position + 4));
+    position += 4;
 
-        while (pos < uint8Array.length) {
-          // 读取chunk长度（大端序）
-          const length = (uint8Array[pos] << 24) |
-                        (uint8Array[pos + 1] << 16) |
-                        (uint8Array[pos + 2] << 8) |
-                        uint8Array[pos + 3]
-          pos += 4
-
-          // 读取chunk类型（4字节ASCII）
-          const type = String.fromCharCode(
-            uint8Array[pos],
-            uint8Array[pos + 1],
-            uint8Array[pos + 2],
-            uint8Array[pos + 3]
-          )
-          pos += 4
-
-          // 如果是tEXt chunk
-          if (type === 'tEXt') {
-            // 读取数据
-            const chunkData = uint8Array.slice(pos, pos + length)
-
-            // tEXt格式: keyword\0text
-            let nullPos = 0
-            while (nullPos < chunkData.length && chunkData[nullPos] !== 0) {
-              nullPos++
-            }
-
-            const keyword = new TextDecoder().decode(chunkData.slice(0, nullPos))
-
-            if (keyword === 'chara') {
-              // 找到了卡片数据
-              const jsonText = new TextDecoder().decode(chunkData.slice(nullPos + 1))
-              const jsonData = JSON.parse(jsonText)
-              resolve(jsonData)
-              return
-            }
-          }
-
-          pos += length + 4 // 数据 + CRC
-
-          // IEND chunk表示结束
-          if (type === 'IEND') break
+    if (type === 'tEXt') {
+      const chunk = bytes.subarray(position, position + length);
+      const separator = chunk.indexOf(0);
+      if (separator >= 0) {
+        const keyword = new TextDecoder('latin1').decode(chunk.subarray(0, separator));
+        if (keyword === 'chara') {
+          const jsonText = new TextDecoder().decode(chunk.subarray(separator + 1));
+          return JSON.parse(jsonText) as unknown;
         }
-
-        reject(new Error('No character card data found in PNG'))
-      } catch (error) {
-        reject(error)
       }
     }
 
-    reader.onerror = () => reject(new Error('Failed to read file'))
-    reader.readAsArrayBuffer(file)
-  })
+    position += length + 4;
+    if (type === 'IEND') break;
+  }
+
+  throw new Error('No character card data found in PNG');
 }
 
-/**
- * 批量加载卡片
- */
-export async function loadMultipleCards(sources) {
+export async function loadMultipleCards(sources: readonly CardSource[]): Promise<MultipleCardLoadResult[]> {
   const results = await Promise.allSettled(
     sources.map(source => {
-      if (typeof source === 'string') {
-        return loadCardFromURL(source)
-      } else if (source instanceof File) {
-        return loadCardFromFile(source)
-      } else {
-        return loadCardFromJSON(source)
-      }
-    })
-  )
+      if (typeof source === 'string') return loadCardFromURL(source);
+      if (source instanceof File) return loadCardFromFile(source);
+      return loadCardFromJSON(source);
+    }),
+  );
 
-  return results.map((result, index) => ({
-    index,
-    success: result.status === 'fulfilled' && result.value.success,
-    card: result.status === 'fulfilled' ? result.value.card : null,
-    error: result.status === 'rejected' ? result.reason :
-           (result.value.success ? null : result.value.error)
-  }))
+  return results.map((result, index) => {
+    if (result.status === 'rejected') {
+      return { index, success: false, card: null, error: getErrorMessage(result.reason) };
+    }
+    if (!result.value.success) {
+      return { index, success: false, card: null, error: result.value.error };
+    }
+    return { index, success: true, card: result.value.card, error: null };
+  });
 }
 
-/**
- * 将卡片转换为游戏角色对象
- */
-export function cardToCharacter(card, existingCharacters = []) {
-  const data = card.data
-  const gameData = data.extensions?.game_data || {}
+export function cardToCharacter(card: CharacterCard, existingCharacters: readonly GameCharacter[] = []): GameCharacter {
+  const data = card.data;
+  const gameData = data.extensions.game_data;
+  let id = gameData.id || data.name.toLowerCase().replace(/\s+/g, '_');
+  const baseId = id;
+  let counter = 1;
 
-  // 生成唯一ID
-  let id = gameData.id || data.name.toLowerCase().replace(/\s+/g, '_')
-
-  // 确保ID唯一
-  let counter = 1
-  const baseId = id
-  while (existingCharacters.some(c => c.id === id)) {
-    id = `${baseId}_${counter}`
-    counter++
+  while (existingCharacters.some(character => character.id === id)) {
+    id = `${baseId}_${counter}`;
+    counter += 1;
   }
+
+  const favoriteLocations = gameData.favoriteLocations.filter(isLocationId);
+  const primaryLocation = favoriteLocations[0] ?? 'classroom';
 
   return {
     id,
     name: data.name,
-    color: gameData.color || '#ff8fab',
-    type: gameData.type || (data.tags?.[0]) || '未知系',
-    favoriteLocations: gameData.favoriteLocations || ['classroom'],
-    greeting: data.first_mes || `你好，我是${data.name}。`,
-    portrait: gameData.portrait_image || '/artsource/characters/_placeholder.svg',
-    chibi: gameData.chibi_image || '/artsource/chibis/_placeholder.svg',
-    tachie: gameData.tachie_image || null,
-    affection: gameData.stats?.affection || 0,
-    friendship: gameData.stats?.friendship || 0,
-    romance: gameData.stats?.romance || 0,
-    currentLocationId: gameData.favoriteLocations?.[0] || 'classroom',
-
-    // 保留原始卡片数据以供高级功能使用
-    _cardData: card
-  }
+    color: gameData.color,
+    type: gameData.type || data.tags[0] || '未知系',
+    favoriteLocations: favoriteLocations.length > 0 ? favoriteLocations : ['classroom'],
+    greeting: data.first_mes || `你好，我是 ${data.name}。`,
+    portrait: gameData.portrait_image ?? '/artsource/characters/_placeholder.svg',
+    chibi: gameData.chibi_image ?? '/artsource/chibis/_placeholder.svg',
+    tachie: gameData.tachie_image,
+    affection: gameData.stats.affection,
+    friendship: gameData.stats.friendship,
+    romance: gameData.stats.romance,
+    currentLocationId: primaryLocation,
+    _cardData: card,
+  };
 }

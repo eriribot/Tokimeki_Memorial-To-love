@@ -1,85 +1,79 @@
-import { useState } from 'react'
-import { useCardStore } from '../stores/cardStore'
-import './CardImporter.css'
+import { useState, type ChangeEvent } from 'react';
+import { useCardStore } from '../stores/cardStore';
+import './CardImporter.css';
 
 export default function CardImporter() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [urlInput, setUrlInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const addCardFromFile = useCardStore((state) => state.addCardFromFile)
-  const addCardFromURL = useCardStore((state) => state.addCardFromURL)
+  const addCardFromFile = useCardStore(state => state.addCardFromFile);
+  const addCardFromURL = useCardStore(state => state.addCardFromURL);
 
-  const handleFileSelect = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    const result = await addCardFromFile(file)
+    const result = await addCardFromFile(file);
 
-    setLoading(false)
+    setLoading(false);
 
     if (result.success) {
-      setSuccess(`成功导入角色：${result.character.name}`)
+      setSuccess(`成功导入角色：${result.character.name}`);
       setTimeout(() => {
-        setSuccess(null)
-        setIsOpen(false)
-      }, 2000)
+        setSuccess(null);
+        setIsOpen(false);
+      }, 2000);
     } else {
-      setError(result.error || '导入失败')
+      setError(result.error || '导入失败');
     }
-  }
+  };
 
   const handleURLImport = async () => {
     if (!urlInput.trim()) {
-      setError('请输入URL')
-      return
+      setError('请输入URL');
+      return;
     }
 
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    const result = await addCardFromURL(urlInput.trim())
+    const result = await addCardFromURL(urlInput.trim());
 
-    setLoading(false)
+    setLoading(false);
 
     if (result.success) {
-      setSuccess(`成功导入角色：${result.character.name}`)
-      setUrlInput('')
+      setSuccess(`成功导入角色：${result.character.name}`);
+      setUrlInput('');
       setTimeout(() => {
-        setSuccess(null)
-        setIsOpen(false)
-      }, 2000)
+        setSuccess(null);
+        setIsOpen(false);
+      }, 2000);
     } else {
-      setError(result.error || '导入失败')
+      setError(result.error || '导入失败');
     }
-  }
+  };
 
   if (!isOpen) {
     return (
-      <button
-        className="card-importer-toggle"
-        onClick={() => setIsOpen(true)}
-      >
+      <button className="card-importer-toggle" onClick={() => setIsOpen(true)}>
         + 导入角色卡片
       </button>
-    )
+    );
   }
 
   return (
     <div className="card-importer-panel">
       <div className="card-importer-header">
         <h3>导入角色卡片</h3>
-        <button
-          className="close-button"
-          onClick={() => setIsOpen(false)}
-        >
+        <button className="close-button" onClick={() => setIsOpen(false)}>
           ×
         </button>
       </div>
@@ -95,9 +89,7 @@ export default function CardImporter() {
               onChange={handleFileSelect}
               disabled={loading}
             />
-            <span className="file-input-button">
-              {loading ? '导入中...' : '选择文件'}
-            </span>
+            <span className="file-input-button">{loading ? '导入中...' : '选择文件'}</span>
           </label>
         </div>
 
@@ -112,36 +104,24 @@ export default function CardImporter() {
               className="url-input"
               placeholder="https://example.com/character.json"
               value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
+              onChange={e => setUrlInput(e.target.value)}
               disabled={loading}
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 if (e.key === 'Enter') {
-                  handleURLImport()
+                  handleURLImport();
                 }
               }}
             />
-            <button
-              className="import-button"
-              onClick={handleURLImport}
-              disabled={loading || !urlInput.trim()}
-            >
+            <button className="import-button" onClick={handleURLImport} disabled={loading || !urlInput.trim()}>
               导入
             </button>
           </div>
         </div>
 
-        {error && (
-          <div className="import-message error">
-            ❌ {error}
-          </div>
-        )}
+        {error && <div className="import-message error">❌ {error}</div>}
 
-        {success && (
-          <div className="import-message success">
-            ✅ {success}
-          </div>
-        )}
+        {success && <div className="import-message success">✅ {success}</div>}
       </div>
     </div>
-  )
+  );
 }

@@ -262,7 +262,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
                 aria-label={
                   isEmpty
                     ? `槽位 ${slot.number}，空存档`
-                    : `槽位 ${slot.number}，第 ${preview?.day ?? '?'} 天，${actionLabel}`
+                    : `槽位 ${slot.number}，${preview?.date ? `${preview.date.month}月${preview.date.day}日` : `第 ${preview?.day ?? '?'} 天`}，${actionLabel}`
                 }
               >
                 <span className="save-slot-bubble" aria-hidden="true">
@@ -276,7 +276,10 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
                   <span className="save-slot-card-body">
                     <span className="save-slot-summary">
                       <strong>
-                        第 {preview?.day ?? '?'} 天 · {getPeriodLabel(preview?.periodIndex)}
+                        {preview?.date
+                          ? `${preview.date.month}月${preview.date.day}日 · 开学第 ${preview.day} 天`
+                          : `第 ${preview?.day ?? '?'} 天`}{' '}
+                        · {getPeriodLabel(preview?.periodIndex)}
                       </strong>
                       <span>
                         {preview?.playerName || '主人公'} / {getLocationLabel(preview?.locationId)}

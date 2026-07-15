@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
 import CardImporter from './components/CardImporter';
+import { CalendarCard, DayTransition } from './CalendarModule';
 import ClassroomScene from './components/ClassroomScene';
 import Controls from './components/Controls';
 import EventLog from './components/EventLog';
 import MapMenu from './components/MapMenu';
 import SchoolMap from './components/SchoolMap';
-import Sidebar from './components/Sidebar';
+import CharacterProfileModal from './components/CharacterProfileModal';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
@@ -15,51 +15,44 @@ import { gameSaveApi } from './save';
 import { resumeSession } from './services/gameSession';
 import { useGameStore } from './stores/gameStore';
 import { useMapStore } from './stores/mapStore';
-import {
-  createBrowserPageOverlay,
-  type BrowserPageOverlay,
-} from './utils/browserPageOverlay';
+import { useViewportSize } from './hooks/useViewportSize';
 import { resolveAssetPath } from './utils/assetPath';
+import screenfull from './vendor/screenfull';
+import type { CalendarDateValue } from './types';
 import './App.css';
 import './enhancements.css';
 import './map-enhancements.css';
 import './browserPageMode.css';
 
-function useMapScale(mapWidth: number, mapHeight: number, viewportWindow: Window) {
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const updateScale = () => {
-      const availableWidth = Math.max(320, viewportWindow.innerWidth - 32);
-      const availableHeight = Math.max(240, viewportWindow.innerHeight - 240);
-      setScale(Math.min(1, availableWidth / mapWidth, availableHeight / mapHeight));
-    };
-
-    updateScale();
-    viewportWindow.addEventListener('resize', updateScale);
-    return () => viewportWindow.removeEventListener('resize', updateScale);
-  }, [mapWidth, mapHeight, viewportWindow]);
-
-  return scale;
-}
-
 function App() {
   const { width, height, cellSize } = useMapStore();
   const screen = useGameStore((state: { screen: string }) => state.screen);
   const currentSceneId = useGameStore((state: { currentSceneId: string | null }) => state.currentSceneId);
+  const calendarDate = useGameStore(state => state.date);
+  const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
-  const [pageOverlay, setPageOverlay] = useState<BrowserPageOverlay | null>(null);
   const [isNativePageMode, setIsNativePageMode] = useState(false);
   const [pageModeError, setPageModeError] = useState<string | null>(null);
-  const pageOverlayRef = useRef<BrowserPageOverlay | null>(null);
+  const [calendarTransition, setCalendarTransition] = useState<{
+    from: CalendarDateValue;
+    to: CalendarDateValue;
+  } | null>(null);
+  const appShellRef = useRef<HTMLDivElement | null>(null);
+  const previousCalendarDateRef = useRef(calendarDate);
+  const viewportSize = useViewportSize();
   const mapWidth = width * cellSize;
   const mapHeight = height * cellSize;
-  const viewportWindow = pageOverlay?.ownerDocument.defaultView ?? window;
-  const mapScale = useMapScale(mapWidth, mapHeight, viewportWindow);
-  const isPageMode = pageOverlay !== null || isNativePageMode;
+  const availableMapWidth = Math.max(320, viewportSize.width - 32);
+  const availableMapHeight = Math.max(240, viewportSize.height - 240);
+  const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
+  const isPageMode = isNativePageMode;
+  const viewportStyle = {
+    '--tolove-viewport-width': `${viewportSize.width}px`,
+    '--tolove-viewport-height': `${viewportSize.height}px`,
+  } as CSSProperties;
 
   const closeSaveSlots = useCallback(() => setSaveSlotMode(null), []);
   const updateSaveAvailability = useCallback((hasSaves: boolean) => setHasPersistedSave(hasSaves), []);
@@ -67,132 +60,65 @@ function App() {
   const exitPageMode = useCallback(async () => {
     setPageModeError(null);
 
-    const activeOverlay = pageOverlayRef.current;
-    const fullscreenDocument = activeOverlay?.hostDocument ?? document;
-    if (activeOverlay) {
-      pageOverlayRef.current = null;
-      setPageOverlay(null);
-    }
-
-    if (fullscreenDocument.fullscreenElement) {
-      try {
-        await fullscreenDocument.exitFullscreen();
-      } catch (error) {
-        console.warn('[ToLove Fullscreen] 浏览器原生全屏退出失败。', error);
-      }
-    }
-
-    if (activeOverlay) {
-      window.setTimeout(() => activeOverlay.destroy(), 0);
-    }
-
-    setIsNativePageMode(false);
-  }, []);
-
-  const enterPageMode = useCallback(async () => {
-    if (pageOverlayRef.current || document.fullscreenElement) return;
-    setPageModeError(null);
-
-    const overlay = createBrowserPageOverlay();
-    if (overlay) {
-      try {
-        const fullscreenTarget = overlay.hostDocument.documentElement;
-        if (!fullscreenTarget.requestFullscreen) {
-          throw new Error('当前浏览器不支持 Fullscreen API');
-        }
-
-        await fullscreenTarget.requestFullscreen({ navigationUI: 'hide' });
-        if (!overlay.hostDocument.fullscreenElement) {
-          throw new Error('浏览器没有进入原生全屏状态');
-        }
-
-        pageOverlayRef.current = overlay;
-        setPageOverlay(overlay);
-        window.setTimeout(() => overlay.frame.focus(), 0);
-        console.info('[ToLove Fullscreen] 已进入浏览器原生全屏，并挂载 SillyTavern 顶层游戏界面。');
-      } catch (error) {
-        overlay.destroy();
-        const detail = error instanceof Error ? error.message : String(error);
-        console.warn('[ToLove Fullscreen] 浏览器拒绝进入原生全屏。', error);
-        setPageModeError(`浏览器未允许全屏：${detail}`);
-      }
+    if (!screenfull.isFullscreen) {
+      setIsNativePageMode(false);
       return;
     }
 
     try {
-      if (!document.documentElement.requestFullscreen) {
+      // 复用 screenfull 的跨浏览器退出流程，旧 WebKit 也使用对应的方法和事件名。
+      await screenfull.exit();
+    } catch (error) {
+      console.warn('[ToLove Fullscreen] 浏览器原生全屏退出失败。', error);
+    }
+  }, []);
+
+  const enterPageMode = useCallback(async () => {
+    if (screenfull.isFullscreen) return;
+    setPageModeError(null);
+
+    try {
+      const fullscreenTarget = appShellRef.current;
+      if (!fullscreenTarget || !screenfull.isEnabled) {
         throw new Error('当前浏览器不支持页面全屏接口');
       }
 
-      await document.documentElement.requestFullscreen();
-      setIsNativePageMode(true);
-      console.info('[ToLove Fullscreen] 已进入当前界面的浏览器原生全屏。');
+      // 只全屏现有应用节点，不创建 iframe、不复制样式，也不搬运 React 组件树。
+      await screenfull.request(fullscreenTarget, { navigationUI: 'hide' });
+      console.info('[ToLove Fullscreen] 已通过内置 screenfull 精简实现进入游戏全屏。');
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       console.warn('[ToLove Fullscreen] 无法进入全屏模式。', error);
-      setPageModeError(`无法覆盖酒馆页面：${detail}`);
+      setPageModeError(`无法进入全屏：${detail}`);
     }
   }, []);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsNativePageMode(document.fullscreenElement === document.documentElement);
+      setIsNativePageMode(screenfull.element === appShellRef.current);
     };
+    const handleFullscreenError = () => setPageModeError('浏览器拒绝了全屏请求，请检查 iframe 全屏权限。');
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    screenfull.on('change', handleFullscreenChange);
+    screenfull.on('error', handleFullscreenError);
+    return () => {
+      screenfull.off('change', handleFullscreenChange);
+      screenfull.off('error', handleFullscreenError);
+    };
   }, []);
 
   useEffect(() => {
-    if (!pageOverlay) return;
+    const previousDate = previousCalendarDateRef.current;
+    const dateChanged =
+      previousDate.year !== calendarDate.year ||
+      previousDate.month !== calendarDate.month ||
+      previousDate.day !== calendarDate.day;
 
-    const handleHostFullscreenChange = () => {
-      if (pageOverlay.hostDocument.fullscreenElement) return;
-      if (pageOverlayRef.current !== pageOverlay) return;
-
-      pageOverlayRef.current = null;
-      setPageOverlay(null);
-      window.setTimeout(() => pageOverlay.destroy(), 0);
-    };
-
-    pageOverlay.hostDocument.addEventListener('fullscreenchange', handleHostFullscreenChange);
-    return () => {
-      pageOverlay.hostDocument.removeEventListener('fullscreenchange', handleHostFullscreenChange);
-    };
-  }, [pageOverlay]);
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || !isPageMode) return;
-      event.preventDefault();
-      void exitPageMode();
-    };
-
-    const documents = new Set<Document>([document]);
-    if (pageOverlay) documents.add(pageOverlay.ownerDocument);
-    documents.forEach(activeDocument => activeDocument.addEventListener('keydown', handleEscape));
-
-    return () => {
-      documents.forEach(activeDocument => activeDocument.removeEventListener('keydown', handleEscape));
-    };
-  }, [exitPageMode, isPageMode, pageOverlay]);
-
-  useEffect(() => {
-    const cleanup = () => {
-      const activeOverlay = pageOverlayRef.current;
-      if (activeOverlay?.hostDocument.fullscreenElement) {
-        void activeOverlay.hostDocument.exitFullscreen().catch(() => undefined);
-      }
-      activeOverlay?.destroy();
-      pageOverlayRef.current = null;
-    };
-
-    window.addEventListener('pagehide', cleanup);
-    return () => {
-      window.removeEventListener('pagehide', cleanup);
-      cleanup();
-    };
-  }, []);
+    if (dateChanged) {
+      setCalendarTransition({ from: previousDate, to: calendarDate });
+      previousCalendarDateRef.current = calendarDate;
+    }
+  }, [calendarDate]);
 
   useEffect(() => {
     if (screen !== 'start') return;
@@ -228,12 +154,16 @@ function App() {
   };
 
   const interfaceContent = (
-    <div className={`tolove-app-shell ${isPageMode ? 'is-page-mode' : 'is-embedded-mode'}`}>
+    <div
+      ref={appShellRef}
+      className={`tolove-app-shell ${isPageMode ? 'is-page-mode' : 'is-embedded-mode'}`}
+      style={viewportStyle}
+    >
       <button
         type="button"
         className="browser-page-mode-button"
         aria-pressed={isPageMode}
-        title={isPageMode ? '退出全屏页面（Esc）' : '覆盖整个酒馆浏览器页面'}
+        title={isPageMode ? '退出浏览器全屏（Esc）' : '进入浏览器原生全屏'}
         onClick={() => {
           void (isPageMode ? exitPageMode() : enterPageMode());
         }}
@@ -259,11 +189,7 @@ function App() {
       ) : (
         <div className="app">
           <header className="game-header" aria-label="To LOVE-Ru">
-            <img
-              className="game-header-title"
-              src={resolveAssetPath('/artsource/ui/title.png')}
-              alt="To LOVE-Ru"
-            />
+            <img className="game-header-title" src={resolveAssetPath('/artsource/ui/title.png')} alt="To LOVE-Ru" />
           </header>
 
           <main className="game-layout">
@@ -285,7 +211,17 @@ function App() {
                 >
                   {currentSceneId ? <ClassroomScene /> : <SchoolMap />}
                 </div>
-                <Sidebar />
+                {!currentSceneId && (
+                  <CalendarCard
+                    className="game-calendar-card"
+                    date={calendarDate}
+                    actionsRemaining={actionPointsRemaining}
+                    animateCorner={actionPointsRemaining === 0}
+                    dayUnit="日"
+                    showMonth
+                  />
+                )}
+                <CharacterProfileModal />
                 {!currentSceneId && (
                   <MapMenu onOpenSave={() => setSaveSlotMode('save')} onOpenLoad={() => setSaveSlotMode('load')} />
                 )}
@@ -301,6 +237,16 @@ function App() {
 
           <CardImporter />
           <EventLog />
+          {calendarTransition && (
+            <DayTransition
+              open
+              from={calendarTransition.from}
+              to={calendarTransition.to}
+              currentActionsRemaining={0}
+              nextActionsRemaining={2}
+              onComplete={() => setCalendarTransition(null)}
+            />
+          )}
         </div>
       )}
 
@@ -310,7 +256,7 @@ function App() {
     </div>
   );
 
-  return pageOverlay ? createPortal(interfaceContent, pageOverlay.mount, 'tolove-browser-page') : interfaceContent;
+  return interfaceContent;
 }
 
 export default App;

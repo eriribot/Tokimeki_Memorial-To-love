@@ -1,7 +1,7 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import type { LocationId, MapLocation, MapStore } from '../types';
 
-// 学校大地图：不同地点，不同时间段会出现不同角色
-export const LOCATIONS = {
+export const LOCATIONS: Record<LocationId, MapLocation> = {
   gate: {
     id: 'gate',
     name: '校门',
@@ -66,11 +66,11 @@ export const LOCATIONS = {
     color: '#22c55e',
     description: '课间休息和约会的好去处。',
   },
-}
+};
 
-export const useMapStore = create(() => ({
+export const useMapStore = create<MapStore>(() => ({
   locations: LOCATIONS,
   width: 10,
   height: 6,
   cellSize: 140,
-}))
+}));

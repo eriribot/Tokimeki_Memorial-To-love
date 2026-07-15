@@ -1,17 +1,17 @@
-import { useGameStore } from '../stores/gameStore'
-import { useMapStore } from '../stores/mapStore'
-import { usePlayerStore } from '../stores/playerStore'
-import { ImageWithPlaceholder } from '../utils/placeholderGenerator'
+import { useGameStore } from '../stores/gameStore';
+import { useMapStore } from '../stores/mapStore';
+import { usePlayerStore } from '../stores/playerStore';
+import { ImageWithPlaceholder } from '../utils/placeholderGenerator';
 
 export default function Player() {
-  const currentLocationId = useGameStore((state) => state.currentLocationId)
-  const { locations, cellSize } = useMapStore()
-  const { avatar, name, color } = usePlayerStore()
+  const currentLocationId = useGameStore(state => state.currentLocationId);
+  const { locations, cellSize } = useMapStore();
+  const { avatar, name, color } = usePlayerStore();
 
-  const loc = locations[currentLocationId]
-  if (!loc) return null
+  const loc = locations[currentLocationId];
+  if (!loc) return null;
 
-  const playerCharacter = { name, color, type: '主角' }
+  const playerCharacter = { name, color, type: '主角' };
 
   return (
     <div
@@ -38,5 +38,5 @@ export default function Player() {
         }}
       />
     </div>
-  )
+  );
 }

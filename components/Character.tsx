@@ -1,8 +1,15 @@
-import { ImageWithPlaceholder } from '../utils/placeholderGenerator'
+import { ImageWithPlaceholder } from '../utils/placeholderGenerator';
+import type { GameCharacter } from '../types';
 
-const AVATAR_SIZE = 76
+const AVATAR_SIZE = 76;
 
-export default function Character({ character, x, y }) {
+interface CharacterProps {
+  character: GameCharacter;
+  x: number;
+  y: number;
+}
+
+export default function Character({ character, x, y }: CharacterProps) {
   return (
     <div
       className="character-avatar"
@@ -29,5 +36,5 @@ export default function Character({ character, x, y }) {
         }}
       />
     </div>
-  )
+  );
 }

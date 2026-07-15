@@ -1,9 +1,10 @@
-import { useGameStore } from '../stores/gameStore'
-import { useMapStore } from '../stores/mapStore'
-import { useCharacterStore } from '../stores/characterStore'
+import { useGameStore } from '../stores/gameStore';
+import { useMapStore } from '../stores/mapStore';
+import { useCharacterStore } from '../stores/characterStore';
+import type { LocationId, MapLocation } from '../types';
 
 // 地点图标映射
-const LOCATION_ICONS = {
+const LOCATION_ICONS: Record<LocationId, string> = {
   gate: '🏫',
   classroom: '📚',
   library: '📖',
@@ -12,24 +13,27 @@ const LOCATION_ICONS = {
   musicRoom: '🎹',
   rooftop: '🌤️',
   courtyard: '🌸',
+};
+
+interface LocationMarkerProps {
+  location: MapLocation;
+  isCurrent: boolean;
 }
 
-export default function LocationMarker({ location, isCurrent }) {
-  const { cellSize } = useMapStore()
-  const setLocation = useGameStore((state) => state.setLocation)
-  const enterScene = useGameStore((state) => state.enterScene)
-  const addLog = useGameStore((state) => state.addLog)
-  const characters = useCharacterStore((state) => state.characters)
-  const hereCharacters = characters.filter(
-    (c) => c.currentLocationId === location.id
-  )
+export default function LocationMarker({ location, isCurrent }: LocationMarkerProps) {
+  const { cellSize } = useMapStore();
+  const setLocation = useGameStore(state => state.setLocation);
+  const enterScene = useGameStore(state => state.enterScene);
+  const addLog = useGameStore(state => state.addLog);
+  const characters = useCharacterStore(state => state.characters);
+  const hereCharacters = characters.filter(c => c.currentLocationId === location.id);
 
-  const icon = LOCATION_ICONS[location.id] || '📍'
-  const canEnterScene = ['classroom', 'library'].includes(location.id) && isCurrent
-  const markerSize = Math.round(cellSize * 0.74)
-  const markerHeight = canEnterScene ? markerSize + 22 : markerSize
-  const markerOffsetX = (cellSize - markerSize) / 2
-  const markerOffsetY = (cellSize - markerHeight) / 2
+  const icon = LOCATION_ICONS[location.id] || '📍';
+  const canEnterScene = ['classroom', 'library'].includes(location.id) && isCurrent;
+  const markerSize = Math.round(cellSize * 0.74);
+  const markerHeight = canEnterScene ? markerSize + 22 : markerSize;
+  const markerOffsetX = (cellSize - markerSize) / 2;
+  const markerOffsetY = (cellSize - markerHeight) / 2;
 
   return (
     <div
@@ -49,13 +53,9 @@ export default function LocationMarker({ location, isCurrent }) {
         type="button"
         className="location-marker-main"
         onClick={() => {
-          setLocation(location.id)
-          const names = hereCharacters.map((c) => c.name).join('、')
-          addLog(
-            names
-              ? `你来到了${location.name}，遇见了 ${names}。`
-              : `你来到了${location.name}。`
-          )
+          setLocation(location.id);
+          const names = hereCharacters.map(c => c.name).join('、');
+          addLog(names ? `你来到了${location.name}，遇见了 ${names}。` : `你来到了${location.name}。`);
         }}
         style={{
           flex: '1 1 auto',
@@ -83,21 +83,25 @@ export default function LocationMarker({ location, isCurrent }) {
         <span style={{ fontSize: '24px', lineHeight: 1, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
           {icon}
         </span>
-        <span style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
-          color: isCurrent ? '#e0568d' : location.color
-        }}>
+        <span
+          style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
+            color: isCurrent ? '#e0568d' : location.color,
+          }}
+        >
           {location.name}
         </span>
         {hereCharacters.length > 0 && (
-          <span style={{
-            fontSize: '18px',
-            marginTop: -2,
-            animation: 'heartbeat 1.5s ease-in-out infinite',
-            filter: 'drop-shadow(0 2px 4px rgba(224, 86, 141, 0.4))'
-          }}>
+          <span
+            style={{
+              fontSize: '18px',
+              marginTop: -2,
+              animation: 'heartbeat 1.5s ease-in-out infinite',
+              filter: 'drop-shadow(0 2px 4px rgba(224, 86, 141, 0.4))',
+            }}
+          >
             💕
           </span>
         )}
@@ -108,13 +112,13 @@ export default function LocationMarker({ location, isCurrent }) {
           type="button"
           className="enter-scene-button"
           onClick={() => {
-            enterScene(location.id)
-            addLog(`你进入了${location.name}。`)
+            enterScene(location.id);
+            addLog(`你进入了${location.name}。`);
           }}
         >
           进入场景
         </button>
       )}
     </div>
-  )
+  );
 }

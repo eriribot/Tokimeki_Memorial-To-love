@@ -2,21 +2,43 @@
  * 占位符图片生成器
  * 当美术资源缺失时，生成精致的SVG占位符
  */
+import { useEffect, useState, type ComponentPropsWithoutRef, type ReactEventHandler, type SyntheticEvent } from 'react';
+import { resolveAssetPath } from './assetPath';
+
+export interface PlaceholderCharacter {
+  name: string;
+  color?: string;
+  type?: string;
+}
+
+export type PlaceholderImageType = 'portrait' | 'chibi' | 'tachie';
+
+export interface ImageWithPlaceholderProps extends Omit<
+  ComponentPropsWithoutRef<'img'>,
+  'src' | 'alt' | 'onLoad' | 'onError'
+> {
+  src: string;
+  alt: string;
+  character?: PlaceholderCharacter;
+  type?: PlaceholderImageType;
+  onLoad?: ReactEventHandler<HTMLImageElement>;
+  onError?: ReactEventHandler<HTMLImageElement>;
+}
 
 /**
  * 生成角色立绘占位符 - 优化版
  */
-function svgToDataUrl(svg) {
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+function svgToDataUrl(svg: string): string {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-export function generatePortraitPlaceholder(character) {
-  const { name, color = '#ff8fab', type = '未知系' } = character
+export function generatePortraitPlaceholder(character: PlaceholderCharacter): string {
+  const { name, color = '#ff8fab', type = '未知系' } = character;
 
-  const gradientId = `gradient-${name.replace(/\s+/g, '-')}`
-  const lightColor = adjustColorBrightness(color, 30)
-  const darkColor = adjustColorBrightness(color, -15)
-  const accentColor = adjustColorBrightness(color, 50)
+  const gradientId = `gradient-${name.replace(/\s+/g, '-')}`;
+  const lightColor = adjustColorBrightness(color, 30);
+  const darkColor = adjustColorBrightness(color, -15);
+  const accentColor = adjustColorBrightness(color, 50);
 
   return svgToDataUrl(`
     <svg width="180" height="240" xmlns="http://www.w3.org/2000/svg">
@@ -115,7 +137,7 @@ export function generatePortraitPlaceholder(character) {
       <!-- 边框装饰 -->
       <rect x="2" y="2" width="176" height="236" rx="12" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
     </svg>
-  `)
+  `);
 }
 
 /**
@@ -124,13 +146,13 @@ export function generatePortraitPlaceholder(character) {
 /**
  * 生成全身立绘占位符 - 竖版大尺寸
  */
-export function generateTachiePlaceholder(character) {
-  const { name, color = '#ff8fab', type = '未知系' } = character
+export function generateTachiePlaceholder(character: PlaceholderCharacter): string {
+  const { name, color = '#ff8fab', type = '未知系' } = character;
 
-  const gradientId = `tachie-gradient-${name.replace(/\s+/g, '-')}`
-  const lightColor = adjustColorBrightness(color, 30)
-  const darkColor = adjustColorBrightness(color, -20)
-  const accentColor = adjustColorBrightness(color, 50)
+  const gradientId = `tachie-gradient-${name.replace(/\s+/g, '-')}`;
+  const lightColor = adjustColorBrightness(color, 30);
+  const darkColor = adjustColorBrightness(color, -20);
+  const accentColor = adjustColorBrightness(color, 50);
 
   return svgToDataUrl(`
     <svg width="360" height="540" xmlns="http://www.w3.org/2000/svg">
@@ -203,15 +225,15 @@ export function generateTachiePlaceholder(character) {
 
       <rect x="4" y="4" width="352" height="532" rx="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
     </svg>
-  `)
+  `);
 }
 
-export function generateChibiPlaceholder(character) {
-  const { name, color = '#ff8fab' } = character
+export function generateChibiPlaceholder(character: PlaceholderCharacter): string {
+  const { name, color = '#ff8fab' } = character;
 
-  const gradientId = `chibi-gradient-${name.replace(/\s+/g, '-')}`
-  const lightColor = adjustColorBrightness(color, 35)
-  const darkColor = adjustColorBrightness(color, -15)
+  const gradientId = `chibi-gradient-${name.replace(/\s+/g, '-')}`;
+  const lightColor = adjustColorBrightness(color, 35);
+  const darkColor = adjustColorBrightness(color, -15);
 
   return svgToDataUrl(`
     <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
@@ -263,13 +285,13 @@ export function generateChibiPlaceholder(character) {
       <path d="M 44 10 L 45 12 L 47 12 L 45 14 L 46 16 L 44 15 L 42 16 L 43 14 L 41 12 L 43 12 Z"
             fill="rgba(255,255,255,0.8)"/>
     </svg>
-  `)
+  `);
 }
 
 /**
  * 生成通用占位符
  */
-export function generateGenericPlaceholder(width = 180, height = 240, text = '?') {
+export function generateGenericPlaceholder(width = 180, height = 240, text = '?'): string {
   return svgToDataUrl(`
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -281,11 +303,11 @@ export function generateGenericPlaceholder(width = 180, height = 240, text = '?'
 
       <rect width="${width}" height="${height}" fill="url(#generic-gradient)" rx="8"/>
 
-      <circle cx="${width/2}" cy="${height/2 - 20}" r="40" fill="rgba(255,255,255,0.3)"/>
+      <circle cx="${width / 2}" cy="${height / 2 - 20}" r="40" fill="rgba(255,255,255,0.3)"/>
 
       <text
-        x="${width/2}"
-        y="${height/2}"
+        x="${width / 2}"
+        y="${height / 2}"
         font-family="Arial, sans-serif"
         font-size="60"
         font-weight="bold"
@@ -295,8 +317,8 @@ export function generateGenericPlaceholder(width = 180, height = 240, text = '?'
       </text>
 
       <text
-        x="${width/2}"
-        y="${height/2 + 40}"
+        x="${width / 2}"
+        y="${height / 2 + 40}"
         font-family="Arial, sans-serif"
         font-size="14"
         fill="rgba(255,255,255,0.8)"
@@ -304,79 +326,80 @@ export function generateGenericPlaceholder(width = 180, height = 240, text = '?'
         暂无图片
       </text>
     </svg>
-  `)
+  `);
 }
 
 /**
  * 调整颜色亮度
  */
-function adjustColorBrightness(color, percent) {
-  // 将hex颜色转换为RGB
-  let r, g, b
-
+function adjustColorBrightness(color: string, percent: number): string {
+  let channels: [number, number, number] | null = null;
   if (color.startsWith('#')) {
-    const hex = color.slice(1)
+    const hex = color.slice(1);
     if (hex.length === 3) {
-      r = parseInt(hex[0] + hex[0], 16)
-      g = parseInt(hex[1] + hex[1], 16)
-      b = parseInt(hex[2] + hex[2], 16)
+      channels = [
+        Number.parseInt(`${hex[0]}${hex[0]}`, 16),
+        Number.parseInt(`${hex[1]}${hex[1]}`, 16),
+        Number.parseInt(`${hex[2]}${hex[2]}`, 16),
+      ];
     } else {
-      r = parseInt(hex.slice(0, 2), 16)
-      g = parseInt(hex.slice(2, 4), 16)
-      b = parseInt(hex.slice(4, 6), 16)
+      channels = [
+        Number.parseInt(hex.slice(0, 2), 16),
+        Number.parseInt(hex.slice(2, 4), 16),
+        Number.parseInt(hex.slice(4, 6), 16),
+      ];
     }
   } else if (color.startsWith('rgb')) {
-    const matches = color.match(/\d+/g)
-    r = parseInt(matches[0])
-    g = parseInt(matches[1])
-    b = parseInt(matches[2])
-  } else {
-    return color
+    const values = color.match(/\d+/g)?.map(Number);
+    if (values && values.length >= 3) {
+      channels = [values[0], values[1], values[2]];
+    }
   }
 
-  // 调整亮度
-  r = Math.max(0, Math.min(255, r + (r * percent / 100)))
-  g = Math.max(0, Math.min(255, g + (g * percent / 100)))
-  b = Math.max(0, Math.min(255, b + (b * percent / 100)))
+  if (!channels || channels.some(Number.isNaN)) return color;
 
-  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
+  const [red, green, blue] = channels.map(value => Math.max(0, Math.min(255, value + (value * percent) / 100)));
+
+  return `rgb(${Math.round(red)}, ${Math.round(green)}, ${Math.round(blue)})`;
 }
-
-import { useState, useEffect } from 'react'
-import { resolveAssetPath } from './assetPath'
 
 /**
  * React组件：带占位符回退的图片
  */
-export function ImageWithPlaceholder({ src, alt, character, type = 'portrait', className, style, onLoad, onError }) {
-  const [imageSrc, setImageSrc] = useState(() => resolveAssetPath(src))
-  const [isLoading, setIsLoading] = useState(true)
+export function ImageWithPlaceholder({
+  src,
+  alt,
+  character,
+  type = 'portrait',
+  className,
+  style,
+  onLoad,
+  onError,
+  ...imageProps
+}: ImageWithPlaceholderProps) {
+  const [imageSrc, setImageSrc] = useState(() => resolveAssetPath(src));
 
   useEffect(() => {
-    setImageSrc(resolveAssetPath(src))
-    setIsLoading(true)
-  }, [src])
+    setImageSrc(resolveAssetPath(src));
+  }, [src]);
 
-  const handleError = (e) => {
+  const handleError = (event: SyntheticEvent<HTMLImageElement>) => {
     // 图片加载失败，使用占位符
     if (character) {
-      const placeholder = type === 'chibi'
-        ? generateChibiPlaceholder(character)
-        : type === 'tachie'
-          ? generateTachiePlaceholder(character)
-          : generatePortraitPlaceholder(character)
-      setImageSrc(placeholder)
+      const placeholder =
+        type === 'chibi'
+          ? generateChibiPlaceholder(character)
+          : type === 'tachie'
+            ? generateTachiePlaceholder(character)
+            : generatePortraitPlaceholder(character);
+      setImageSrc(placeholder);
     } else {
-      setImageSrc(generateGenericPlaceholder())
+      setImageSrc(generateGenericPlaceholder());
     }
-    setIsLoading(false)
-    onError?.(e)
-  }
+    onError?.(event);
+  };
 
-  const handleLoad = (e) => {
-    setIsLoading(false)
-    onLoad?.(e)
-  }
+  const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => onLoad?.(event);
 
   return (
     <img
@@ -386,6 +409,7 @@ export function ImageWithPlaceholder({ src, alt, character, type = 'portrait', c
       style={style}
       onError={handleError}
       onLoad={handleLoad}
+      {...imageProps}
     />
-  )
+  );
 }

@@ -8,8 +8,39 @@
 }
 
 .tolove-app-shell.is-page-mode .start-screen {
-  height: 100%;
+  /*
+   * 高度来自 useViewportSize 测得的实际 CSS 像素：同时考虑手机可视视口和系统可用屏幕。
+   * 不再猜测 Windows 任务栏或移动浏览器底栏的固定高度。
+   */
+  height: var(--tolove-viewport-height, 100svh);
+  min-height: 0;
   aspect-ratio: auto;
+}
+
+.tolove-app-shell.is-page-mode .start-menu {
+  top: clamp(180px, 43%, 360px);
+  bottom: max(12px, env(safe-area-inset-bottom));
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  grid-auto-rows: minmax(32px, 1fr);
+  gap: clamp(1px, 0.55svh, 5px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.tolove-app-shell.is-page-mode .start-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.tolove-app-shell.is-page-mode .start-menu-item {
+  height: 100%;
+  min-height: 0;
+}
+
+.tolove-app-shell.is-page-mode .start-menu-image {
+  height: min(70%, 42px);
 }
 
 .start-screen-background,

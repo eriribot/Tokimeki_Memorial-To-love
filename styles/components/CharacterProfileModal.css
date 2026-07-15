@@ -1,0 +1,331 @@
+/*
+ * 角色档案弹窗样式
+ *
+ * 本文件只服务于 components/CharacterProfileModal.tsx，负责档案入口、遮罩、弹窗外壳和内容区。
+ * 角色卡片继续沿用 App.css 中的公共样式，避免同一套人物资料出现两份维护来源。
+ */
+
+/* 桌面入口覆盖在地图右侧，不参与地图布局计算，因此不会挤占非全屏画面的宽度。 */
+.profile-modal-trigger {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 200;
+  width: 52px;
+  min-height: 126px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 3px solid var(--tm-border);
+  border-right: 0;
+  border-radius: 18px 0 0 18px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--tm-pink), var(--tm-pink-dark));
+  box-shadow: -4px 4px 16px rgba(224, 86, 141, 0.3);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: box-shadow var(--anim-fast), background-color var(--anim-fast);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * enhancements.css 会给所有按钮添加横向扫光，这在地图缩放和移动 WebView 中容易产生闪烁。
+ * 档案入口保持静态，交互反馈只使用阴影变化。
+ */
+.profile-modal-trigger::before {
+  display: none;
+}
+
+.profile-modal-trigger:active {
+  filter: none;
+  transform: translateY(-50%);
+}
+
+/* 只让确实拥有鼠标的设备显示悬停反馈，触屏设备不会残留 hover 状态。 */
+@media (hover: hover) and (pointer: fine) {
+  .profile-modal-trigger:hover {
+    filter: none;
+    box-shadow: -6px 6px 20px rgba(224, 86, 141, 0.4);
+    transform: translateY(-50%);
+  }
+}
+
+.profile-modal-trigger-icon {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.profile-modal-trigger-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+/* 遮罩只覆盖游戏画面容器，不会扩张页面宽度或改变下方面板布局。 */
+.profile-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(74, 59, 59, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+/* 弹窗使用独立外壳，标题固定、内容滚动，适配非全屏窗口的有限高度。 */
+.profile-modal-window {
+  width: min(560px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 4px solid var(--tm-border);
+  border-radius: 24px;
+  color: var(--tm-text);
+  background: rgba(255, 245, 247, 0.98);
+  box-shadow: 0 18px 48px rgba(92, 38, 62, 0.32);
+}
+
+.profile-modal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 18px;
+  border-bottom: 2px solid rgba(244, 166, 195, 0.65);
+  background: linear-gradient(135deg, #fff 0%, #ffe8f0 100%);
+}
+
+.profile-modal-header h2 {
+  margin: 2px 0 0;
+  color: var(--tm-pink-dark);
+  font-size: clamp(20px, 3vw, 28px);
+}
+
+.profile-modal-eyebrow {
+  margin: 0;
+  color: var(--tm-pink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.profile-modal-close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px solid var(--tm-border);
+  border-radius: 50%;
+  color: var(--tm-pink-dark);
+  background: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.profile-modal-close:active {
+  transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profile-modal-close:hover {
+    color: #fff;
+    background: var(--tm-pink-dark);
+    filter: none;
+    transform: none;
+  }
+}
+
+/* 只有这一层负责滚动，避免角色卡内部和整个页面同时出现滚动条。 */
+.profile-modal-content {
+  min-height: 0;
+  padding: clamp(12px, 2.5vw, 20px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tm-pink) transparent;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.profile-modal-content > .character-portrait {
+  animation: none;
+}
+
+/*
+ * 以下断点读取名为 game-frame 的实际游戏框尺寸。
+ * 即使浏览器窗口很大，只要嵌入游戏框较小，弹窗仍会使用紧凑布局；反之亦然。
+ */
+@container game-frame (max-width: 700px) {
+  .profile-modal-trigger,
+  .profile-modal-trigger:hover,
+  .profile-modal-trigger:active {
+    top: 50%;
+    right: 0;
+    bottom: auto;
+    width: 52px;
+    min-width: 0;
+    min-height: 126px;
+    padding: 12px 8px;
+    flex-direction: column;
+    gap: 8px;
+    border: 3px solid var(--tm-border);
+    border-right: 0;
+    border-radius: 18px 0 0 18px;
+    filter: none;
+    box-shadow: -4px 4px 16px rgba(224, 86, 141, 0.3);
+    transform: translateY(-50%);
+  }
+
+  .profile-modal-trigger-text {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-size: 15px;
+    letter-spacing: 3px;
+  }
+
+  .profile-modal-overlay {
+    padding: 8px;
+    backdrop-filter: none;
+  }
+
+  .profile-modal-window {
+    width: calc(100% - 8px);
+    max-height: calc(100% - 8px);
+    border-width: 3px;
+    border-radius: 18px;
+  }
+
+  .profile-modal-header {
+    padding: 12px 14px;
+    box-shadow: 0 4px 12px rgba(224, 86, 141, 0.12);
+  }
+
+  .profile-modal-header h2 {
+    font-size: 22px;
+  }
+
+  .profile-modal-eyebrow {
+    font-size: 10px;
+  }
+
+  .profile-modal-content {
+    flex: 1 1 auto;
+    padding: 12px;
+    background: linear-gradient(180deg, #fff5f7 0%, #ffe8f0 100%);
+  }
+
+  .profile-modal-content > .character-portrait {
+    width: 100%;
+    padding: 12px;
+    border-width: 2px;
+    border-radius: 16px;
+  }
+
+  .profile-modal-content .character-card {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border-width: 2px;
+    border-radius: 16px;
+  }
+
+  .profile-modal-content .character-portrait.single .character-card {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .profile-modal-content .character-portrait.multiple .character-card {
+    flex: 0 0 min(82cqw, 360px);
+  }
+
+  .profile-modal-content .character-card-portrait {
+    width: min(180px, 52cqw);
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .profile-modal-content .character-card-name {
+    font-size: 18px;
+  }
+
+  .profile-modal-content .affection-hearts {
+    gap: 4px;
+    margin: 10px 0 6px;
+  }
+}
+
+/* 游戏框高度不足时切成横向资料卡，减少垂直滚动距离。 */
+@container game-frame (max-height: 520px) {
+  .profile-modal-overlay {
+    padding: 6px;
+    backdrop-filter: none;
+  }
+
+  .profile-modal-window {
+    width: min(720px, calc(100% - 12px));
+    max-height: calc(100% - 12px);
+    border-width: 3px;
+    border-radius: 16px;
+  }
+
+  .profile-modal-header {
+    padding: 8px 12px;
+  }
+
+  .profile-modal-header h2 {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  .profile-modal-eyebrow {
+    display: none;
+  }
+
+  .profile-modal-close {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+  }
+
+  .profile-modal-content {
+    padding: 8px;
+  }
+
+  .profile-modal-content > .character-portrait {
+    padding: 8px;
+  }
+
+  .profile-modal-content .character-portrait.single .character-card {
+    width: min(620px, 100%);
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(120px, 0.75fr) minmax(180px, 1fr);
+    align-items: center;
+    gap: 14px;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .profile-modal-content .character-card-portrait {
+    width: min(150px, 30cqw);
+    height: auto;
+    margin: 0 auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .profile-modal-content .character-greeting {
+    margin-top: 8px;
+  }
+}
