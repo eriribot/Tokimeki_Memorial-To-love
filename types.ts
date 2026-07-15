@@ -44,6 +44,9 @@ export interface GameState {
   isPlaying: boolean;
   log: string[];
   events: GameEvent[];
+  activeMainStoryEventId: string | null;
+  completedMainStoryEventIds: string[];
+  mainStoryPageIndex: number;
 }
 
 export interface GameActions {
@@ -56,10 +59,12 @@ export interface GameActions {
   exitScene: () => void;
   nextPeriod: () => void;
   endDay: () => void;
-  spendActionPoint: () => void;
+  settlePlayerAction: (message: string) => boolean;
   addLog: (message: string) => void;
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
+  setMainStoryPage: (pageIndex: number) => void;
+  completeMainStoryEvent: () => void;
   resetGameState: () => void;
 }
 

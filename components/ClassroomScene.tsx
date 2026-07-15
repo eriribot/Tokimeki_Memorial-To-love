@@ -10,6 +10,8 @@ export default function ClassroomScene() {
   const currentSceneId = useGameStore(state => state.currentSceneId);
   const locations = useMapStore(state => state.locations);
   const addLog = useGameStore(state => state.addLog);
+  const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
+  const settlePlayerAction = useGameStore(state => state.settlePlayerAction);
   const targets = useCardStore(state => state.targets);
   const activeTargetId = useCardStore(state => state.activeTargetId);
   const setActiveTarget = useCardStore(state => state.setActiveTarget);
@@ -33,8 +35,14 @@ export default function ClassroomScene() {
   const talkToActiveCharacter = () => {
     if (!activeCharacter) return;
 
-    addAffection(activeCharacter.id, 5);
-    addLog(`你在${sceneLocation?.name ?? '教室'}里和 ${activeCharacter.name} 交谈，好感度上升了。`);
+    if (actionPointsRemaining <= 0) {
+      addLog('今天的行动点已经用完了。');
+      return;
+    }
+
+    if (settlePlayerAction(`你在${sceneLocation?.name ?? '教室'}里和 ${activeCharacter.name} 交谈，好感度上升了。`)) {
+      addAffection(activeCharacter.id, 5);
+    }
   };
 
   return (
@@ -82,8 +90,8 @@ export default function ClassroomScene() {
         <div className="scene-speaker">{activeCharacter?.name ?? '教室'}</div>
         <p>{activeCharacter?.greeting ?? `${sceneLocation?.name ?? '教室'}里很安静，适合停下来看看。`}</p>
         {activeCharacter && (
-          <button type="button" onClick={talkToActiveCharacter}>
-            交谈
+          <button type="button" disabled={actionPointsRemaining <= 0} onClick={talkToActiveCharacter}>
+            交谈（-1）
           </button>
         )}
       </div>

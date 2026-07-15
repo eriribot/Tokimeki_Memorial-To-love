@@ -11,6 +11,7 @@ import CharacterProfileModal from './components/CharacterProfileModal';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
+import GalMainStory from './GalMainStory/GalMainStory';
 import { gameSaveApi } from './save';
 import { resumeSession } from './services/gameSession';
 import { useGameStore } from './stores/gameStore';
@@ -28,6 +29,7 @@ function App() {
   const { width, height, cellSize } = useMapStore();
   const screen = useGameStore((state: { screen: string }) => state.screen);
   const currentSceneId = useGameStore((state: { currentSceneId: string | null }) => state.currentSceneId);
+  const activeMainStoryEventId = useGameStore(state => state.activeMainStoryEventId);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
@@ -49,6 +51,7 @@ function App() {
   const availableMapHeight = Math.max(240, viewportSize.height - 240);
   const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
   const isPageMode = isNativePageMode;
+  const isMainStoryActive = activeMainStoryEventId !== null;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -211,7 +214,7 @@ function App() {
                 >
                   {currentSceneId ? <ClassroomScene /> : <SchoolMap />}
                 </div>
-                {!currentSceneId && (
+                {!currentSceneId && !isMainStoryActive && (
                   <CalendarCard
                     className="game-calendar-card"
                     date={calendarDate}
@@ -221,14 +224,21 @@ function App() {
                     showMonth
                   />
                 )}
-                <CharacterProfileModal />
-                {!currentSceneId && (
+                {!isMainStoryActive && <CharacterProfileModal />}
+                {!currentSceneId && !isMainStoryActive && (
                   <MapMenu onOpenSave={() => setSaveSlotMode('save')} onOpenLoad={() => setSaveSlotMode('load')} />
                 )}
-                {isSkillPanelOpen && <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />}
+                {!isMainStoryActive && isSkillPanelOpen && (
+                  <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
+                )}
+                <GalMainStory />
               </div>
 
-              <div className="map-bottom-panel">
+              <div
+                className={`map-bottom-panel ${isMainStoryActive ? 'is-story-locked' : ''}`}
+                inert={isMainStoryActive ? true : undefined}
+                aria-hidden={isMainStoryActive ? true : undefined}
+              >
                 <StatPanel />
                 <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
               </div>

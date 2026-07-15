@@ -1,0 +1,543 @@
+.gal-main-story {
+  position: absolute;
+  inset: 0;
+  z-index: 5000;
+  overflow: hidden;
+  background: #132131;
+  color: #27212a;
+  isolation: isolate;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gal-main-story:focus {
+  outline: none;
+}
+
+.gal-main-story:focus-visible {
+  outline: 3px solid rgba(255, 223, 94, 0.9);
+  outline-offset: -5px;
+}
+
+.gal-main-story__background,
+.gal-main-story__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gal-main-story__background {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center;
+}
+
+.gal-main-story__shade {
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(3, 11, 22, 0.05) 55%, rgba(3, 11, 22, 0.25) 100%),
+    radial-gradient(circle at 50% 42%, transparent 48%, rgba(0, 0, 0, 0.2) 100%);
+  pointer-events: none;
+}
+
+.lala-portrait-stage {
+  position: absolute;
+  right: 7%;
+  bottom: -2%;
+  z-index: 2;
+  width: min(46%, 560px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.32));
+  animation: lala-portrait-enter 260ms ease-out both;
+}
+
+.lala-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  animation: lala-portrait-breathe 4.2s ease-in-out 280ms infinite;
+}
+
+.lala-portrait__body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lala-portrait__face-window {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+}
+
+.lala-portrait__face-window img {
+  position: absolute;
+  top: 0;
+  display: block;
+  left: 0;
+  width: 100%;
+  height: 300%;
+  max-width: none;
+  max-height: none;
+}
+
+.lala-portrait__eyes {
+  top: 23.145%;
+  left: 38.477%;
+  width: 22.461%;
+  height: 12.793%;
+}
+
+.lala-portrait__mouth {
+  top: 35.645%;
+  left: 38.477%;
+  width: 22.461%;
+  height: 5.566%;
+}
+
+.lala-portrait__eyes img.is-blinking {
+  animation: lala-eye-sheet 4.2s steps(1, end) infinite;
+}
+
+.lala-portrait__mouth img.is-speaking {
+  animation: lala-mouth-sheet 420ms steps(1, end) 4;
+}
+
+.gal-main-story__dialogue {
+  position: absolute;
+  right: 3%;
+  bottom: 2.5%;
+  left: 3%;
+  z-index: 4;
+  height: auto;
+  aspect-ratio: 1024 / 160;
+  color: #28222b;
+}
+
+.gal-main-story__window {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 80%;
+  object-fit: fill;
+  filter: drop-shadow(0 9px 16px rgba(21, 15, 25, 0.28));
+  pointer-events: none;
+}
+
+.gal-main-story__nameplate,
+.gal-main-story__speaker {
+  position: absolute;
+  bottom: 60%;
+  left: 1.172%;
+  z-index: 2;
+}
+
+.gal-main-story__nameplate {
+  width: 25%;
+  aspect-ratio: 4 / 1;
+  pointer-events: none;
+}
+
+.gal-main-story__nameplate img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gal-main-story__nameplate strong {
+  position: absolute;
+  inset: 0 31.25% 0 12.5%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: #272129;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.gal-main-story__speaker {
+  display: grid;
+  min-width: 132px;
+  min-height: 42px;
+  margin: 0;
+  padding: 5px 22px 7px;
+  place-items: center;
+  border-left: 8px solid #ff689d;
+  background: rgba(255, 255, 255, 0.96);
+  color: #242027;
+  box-shadow: 4px 5px 0 rgba(232, 93, 139, 0.3);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.gal-main-story__copy {
+  position: absolute;
+  inset: 46.25% 11.719% 11.25% 10.938%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.gal-main-story__copy p {
+  width: 100%;
+  margin: 0;
+  color: #28222b;
+  font-size: 20px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.gal-main-story__copy p.is-narration {
+  color: #3c3540;
+  font-style: italic;
+}
+
+.gal-main-story__push {
+  position: absolute;
+  right: 2.344%;
+  bottom: 6.25%;
+  z-index: 3;
+  display: block;
+  width: 7.422%;
+  height: auto;
+  aspect-ratio: 76 / 50;
+  pointer-events: none;
+}
+
+.gal-main-story__push .push-frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: gal-push-frame 500ms steps(1, end) infinite;
+}
+
+.gal-main-story__push .push-frame-0 {
+  animation-delay: 0ms;
+}
+
+.gal-main-story__push .push-frame-1 {
+  animation-delay: -375ms;
+}
+
+.gal-main-story__push .push-frame-2 {
+  animation-delay: -250ms;
+}
+
+.gal-main-story__push .push-frame-3 {
+  animation-delay: -125ms;
+}
+
+.gal-main-story__controls {
+  position: absolute;
+  top: 0;
+  right: 1.5%;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 38px auto auto 38px;
+  align-items: center;
+  gap: 8px;
+  min-width: max-content;
+  cursor: default;
+}
+
+.gal-main-story button::before,
+.gal-main-story button::after {
+  content: none;
+  display: none;
+}
+
+.gal-main-story__icon-button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  background: rgba(28, 32, 44, 0.72);
+  color: #fff;
+  font-size: 21px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.gal-main-story__icon-button.is-primary {
+  border-color: rgba(255, 255, 255, 0.94);
+  background: #ec6d9d;
+}
+
+.gal-main-story__icon-button:hover,
+.gal-main-story__icon-button:focus-visible {
+  filter: brightness(1.12);
+  transform: none;
+  box-shadow: 0 0 0 3px rgba(255, 220, 114, 0.48);
+}
+
+.gal-main-story__icon-button:disabled {
+  cursor: default;
+  opacity: 0.32;
+  filter: none;
+}
+
+.gal-main-story__skip {
+  min-height: 30px;
+  padding: 4px 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  text-decoration: underline;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  box-shadow: none;
+}
+
+.gal-main-story__skip:hover,
+.gal-main-story__skip:focus-visible {
+  color: #ffdc72;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.gal-main-story__progress {
+  min-width: 4.6em;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0;
+}
+
+@keyframes lala-portrait-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lala-portrait-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-2px) scaleY(1.0025);
+  }
+}
+
+@keyframes lala-eye-sheet {
+  0%,
+  91%,
+  100% {
+    top: 0;
+  }
+  93%,
+  97% {
+    top: -100%;
+  }
+  95% {
+    top: -200%;
+  }
+}
+
+@keyframes lala-mouth-sheet {
+  0%,
+  100% {
+    top: 0;
+  }
+  25%,
+  75% {
+    top: -100%;
+  }
+  50% {
+    top: -200%;
+  }
+}
+
+@keyframes gal-push-frame {
+  0%,
+  24.99% {
+    opacity: 1;
+  }
+  25%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Tablet landscape: common 768-1024px game surfaces. */
+@container game-frame (max-width: 1023px) {
+  .lala-portrait-stage {
+    right: 4%;
+    bottom: 0;
+    width: 48%;
+  }
+
+  .gal-main-story__dialogue {
+    right: 2%;
+    bottom: 2%;
+    left: 2%;
+  }
+
+  .gal-main-story__copy {
+    inset: 46.25% 13% 11.25% 8%;
+  }
+
+  .gal-main-story__copy p {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .gal-main-story__nameplate {
+    width: 25%;
+  }
+
+  .gal-main-story__push {
+    width: 7.422%;
+    height: auto;
+  }
+
+  .gal-main-story__nameplate strong {
+    font-size: 18px;
+  }
+}
+
+/* Phone landscape: 667x375, 844x390 and 915x412 class viewports. */
+@container game-frame (max-width: 639px) {
+  .lala-portrait-stage {
+    right: 3%;
+    bottom: 30%;
+    width: 38%;
+  }
+
+  .gal-main-story__dialogue {
+    right: 1%;
+    bottom: 2%;
+    left: 1%;
+    height: 104px;
+    aspect-ratio: auto;
+  }
+
+  .gal-main-story__window {
+    height: 100%;
+  }
+
+  .gal-main-story__nameplate,
+  .gal-main-story__speaker {
+    top: -18px;
+    bottom: auto;
+    left: 10px;
+  }
+
+  .gal-main-story__nameplate {
+    width: 128px;
+  }
+
+  .gal-main-story__nameplate strong {
+    font-size: 14px;
+  }
+
+  .gal-main-story__speaker {
+    min-width: 92px;
+    min-height: 32px;
+    padding: 4px 14px 5px;
+    border-left-width: 5px;
+    font-size: 15px;
+  }
+
+  .gal-main-story__copy {
+    inset: 24px 56px 8px 14px;
+  }
+
+  .gal-main-story__copy p {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .gal-main-story__push {
+    right: 6px;
+    bottom: 8px;
+    width: 42px;
+    height: 28px;
+  }
+
+  .gal-main-story__controls {
+    top: -34px;
+    right: 6px;
+    grid-template-columns: 30px 30px;
+    gap: 5px;
+  }
+
+  .gal-main-story__progress,
+  .gal-main-story__skip {
+    display: none;
+  }
+
+  .gal-main-story__icon-button {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    font-size: 16px;
+  }
+
+  .gal-main-story__skip {
+    min-height: 28px;
+    font-size: 11px;
+  }
+
+  .gal-main-story__progress {
+    min-width: 3.8em;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lala-portrait-stage,
+  .lala-portrait,
+  .lala-portrait__eyes img.is-blinking,
+  .lala-portrait__mouth img.is-speaking {
+    animation: none;
+  }
+
+  .gal-main-story__push .push-frame {
+    display: none;
+    animation: none;
+  }
+
+  .gal-main-story__push .push-frame-0 {
+    display: block;
+    opacity: 1;
+  }
+}

@@ -7,6 +7,7 @@ import { useCardStore } from './stores/cardStore';
 import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { gameSaveApi } from './save';
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
+import { LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './GalMainStory/lalaArrival';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
@@ -28,6 +29,17 @@ window.render_game_to_text = () => {
   }
 
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
+  const activeMainStory =
+    game.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID
+      ? {
+          id: LALA_ARRIVAL_STORY.id,
+          title: LALA_ARRIVAL_STORY.title,
+          pageIndex: game.mainStoryPageIndex,
+          pageCount: LALA_ARRIVAL_STORY.beats.length,
+          speaker: LALA_ARRIVAL_STORY.beats[game.mainStoryPageIndex]?.speaker ?? null,
+          text: LALA_ARRIVAL_STORY.beats[game.mainStoryPageIndex]?.text ?? '',
+        }
+      : null;
   const visibleTargets = card.targets
     .filter(target => target.currentLocationId)
     .map(target => ({
@@ -48,6 +60,8 @@ window.render_game_to_text = () => {
     location: game.currentLocationId,
     scene: game.currentSceneId ?? 'school-map',
     activeTargetId: card.activeTargetId,
+    activeMainStory,
+    completedMainStoryEventIds: game.completedMainStoryEventIds,
     visibleTargets,
   });
 };

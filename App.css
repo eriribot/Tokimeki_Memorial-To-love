@@ -145,6 +145,12 @@ html::-webkit-scrollbar {
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+.map-bottom-panel.is-story-locked {
+  pointer-events: none;
+  opacity: 0.58;
+  filter: saturate(0.65);
+}
+
 .map-bottom-panel > .stat-panel,
 .map-bottom-panel > .controls {
   padding: 0;

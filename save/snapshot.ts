@@ -2,6 +2,7 @@ import { useCardStore } from '../stores/cardStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
+import { LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from '../GalMainStory/lalaArrival';
 import type {
   CalendarDateValue,
   CharacterCard,
@@ -28,6 +29,9 @@ export interface GameSnapshotV1 {
     isPlaying: boolean;
     log: string[];
     events: GameEvent[];
+    activeMainStoryEventId?: string | null;
+    completedMainStoryEventIds?: string[];
+    mainStoryPageIndex?: number;
   };
   player: PlayerState;
   cards: {
@@ -65,6 +69,9 @@ export function createGameSnapshot(): GameSnapshotV1 {
       isPlaying: game.isPlaying,
       log: game.log,
       events: game.events,
+      activeMainStoryEventId: game.activeMainStoryEventId,
+      completedMainStoryEventIds: game.completedMainStoryEventIds,
+      mainStoryPageIndex: game.mainStoryPageIndex,
     },
     player: {
       name: player.name,
@@ -110,6 +117,18 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
   const date = isCalendarDateValue(snapshot.game.date)
     ? snapshot.game.date
     : getCalendarDateForGameDay(snapshot.game.day);
+  const completedMainStoryEventIds = Array.isArray(snapshot.game.completedMainStoryEventIds)
+    ? [...new Set(snapshot.game.completedMainStoryEventIds.filter((id): id is string => typeof id === 'string'))]
+    : [];
+  const activeMainStoryEventId =
+    snapshot.game.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
+    !completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
+      ? LALA_ARRIVAL_EVENT_ID
+      : null;
+  const mainStoryPageIndex =
+    activeMainStoryEventId && typeof snapshot.game.mainStoryPageIndex === 'number'
+      ? Math.min(LALA_ARRIVAL_STORY.beats.length - 1, Math.max(0, Math.trunc(snapshot.game.mainStoryPageIndex)))
+      : 0;
   const restoredSnapshot: GameSnapshotV1 = {
     ...snapshot,
     game: {
@@ -119,6 +138,9 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
         typeof snapshot.game.actionPointsRemaining === 'number'
           ? Math.min(2, Math.max(0, Math.trunc(snapshot.game.actionPointsRemaining)))
           : 2,
+      activeMainStoryEventId,
+      completedMainStoryEventIds,
+      mainStoryPageIndex,
     },
   };
 

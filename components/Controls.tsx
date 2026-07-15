@@ -16,7 +16,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
   const isPlaying = useGameStore(state => state.isPlaying);
   const nextPeriod = useGameStore(state => state.nextPeriod);
   const endDay = useGameStore(state => state.endDay);
-  const spendActionPoint = useGameStore(state => state.spendActionPoint);
+  const settlePlayerAction = useGameStore(state => state.settlePlayerAction);
   const startGame = useGameStore(state => state.startGame);
   const pauseGame = useGameStore(state => state.pauseGame);
   const enterScene = useGameStore(state => state.enterScene);
@@ -49,9 +49,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
       addLog('你太累了，先休息一下吧。');
       return;
     }
-    action();
-    spendActionPoint();
-    addLog(`你进行了${label}。`);
+    if (settlePlayerAction(`你进行了${label}。`)) action();
   };
 
   const handleTalk = (character: GameCharacter) => {
@@ -59,9 +57,9 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
       addLog('今天的行动点已经用完了。');
       return;
     }
-    addAffection(character.id, 5);
-    spendActionPoint();
-    addLog(`你和 ${character.name} 聊了一会儿，好感度上升了！`);
+    if (settlePlayerAction(`你和 ${character.name} 聊了一会儿，好感度上升了！`)) {
+      addAffection(character.id, 5);
+    }
   };
 
   const handleNextPeriod = () => {

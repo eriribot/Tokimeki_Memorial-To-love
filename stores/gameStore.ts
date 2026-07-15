@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { GAME_START_DATE, getNextCalendarDate } from '../CalendarModule/date';
+import { LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY, shouldTriggerLalaArrival } from '../GalMainStory/lalaArrival';
 import type { GameEvent, GameStore, LocationId, PeriodDefinition } from '../types';
 
 export const PERIODS = [
@@ -62,6 +63,9 @@ export const useGameStore = create<GameStore>(set => ({
   isPlaying: false,
   log: [INITIAL_LOG],
   events: [],
+  activeMainStoryEventId: null,
+  completedMainStoryEventIds: [],
+  mainStoryPageIndex: 0,
 
   startGame: () => set({ isPlaying: true }),
   pauseGame: () => set({ isPlaying: false }),
@@ -106,7 +110,32 @@ export const useGameStore = create<GameStore>(set => ({
         log: [...state.log.slice(-19), `行动点已用完。第 ${nextDay} 天的早晨到了。`],
       };
     }),
-  spendActionPoint: () => set(state => ({ actionPointsRemaining: Math.max(0, state.actionPointsRemaining - 1) })),
+  settlePlayerAction: message => {
+    let settled = false;
+
+    // 扣点、日志和主线判定必须读取同一份最新状态，避免 React 更新间隙造成重复触发。
+    set(state => {
+      if (state.actionPointsRemaining <= 0 || state.activeMainStoryEventId) return state;
+
+      settled = true;
+      const actionPointsRemaining = state.actionPointsRemaining - 1;
+      const startsLalaArrival = shouldTriggerLalaArrival({
+        ...state,
+        actionPointsRemaining,
+      });
+      const log = [...state.log, message];
+      if (startsLalaArrival) log.push(`主线事件「${LALA_ARRIVAL_STORY.title}」开始。`);
+
+      return {
+        actionPointsRemaining,
+        activeMainStoryEventId: startsLalaArrival ? LALA_ARRIVAL_EVENT_ID : state.activeMainStoryEventId,
+        mainStoryPageIndex: startsLalaArrival ? 0 : state.mainStoryPageIndex,
+        log: log.slice(-20),
+      };
+    });
+
+    return settled;
+  },
   addLog: message => set(state => ({ log: [...state.log.slice(-19), message] })),
   spawnEvents: () => set(state => ({ events: spawnRandomEvents(state.day) })),
   resolveEvent: eventId =>
@@ -114,6 +143,19 @@ export const useGameStore = create<GameStore>(set => ({
       events: state.events.filter(event => event.id !== eventId),
       log: [...state.log.slice(-19), state.events.find(event => event.id === eventId)?.message ?? '事件结束了。'],
     })),
+  setMainStoryPage: pageIndex => set({ mainStoryPageIndex: Math.max(0, Math.trunc(pageIndex)) }),
+  completeMainStoryEvent: () =>
+    set(state => {
+      const eventId = state.activeMainStoryEventId;
+      if (!eventId) return state;
+
+      return {
+        activeMainStoryEventId: null,
+        completedMainStoryEventIds: [...new Set([...state.completedMainStoryEventIds, eventId])],
+        mainStoryPageIndex: 0,
+        log: [...state.log.slice(-19), `主线事件「${LALA_ARRIVAL_STORY.title}」结束。`],
+      };
+    }),
   resetGameState: () =>
     set({
       screen: 'game',
@@ -127,5 +169,8 @@ export const useGameStore = create<GameStore>(set => ({
       isPlaying: true,
       log: [INITIAL_LOG],
       events: [],
+      activeMainStoryEventId: null,
+      completedMainStoryEventIds: [],
+      mainStoryPageIndex: 0,
     }),
 }));
