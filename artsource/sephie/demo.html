@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>Sephie 分层动态立绘 · 内部验证</title>
+    <link rel="stylesheet" href="demo.css" />
+    <script src="demo.js" defer></script>
+  </head>
+  <body>
+    <main class="demo-shell">
+      <header class="demo-header">
+        <div>
+          <p class="eyebrow">INTERNAL PORTRAIT RIG CHECK</p>
+          <h1>Sephie 分层动态立绘验证</h1>
+          <p class="intro">
+            待用户验证的新稿：沿用菈菈图集格式与长三分之四身占比，人物仍为 Sephie；功能性面纱仅覆盖并明显遮淡脸部。
+          </p>
+        </div>
+        <div class="motion-chip" id="motionPreference" role="status">正在读取动态偏好…</div>
+      </header>
+
+      <section class="control-panel" aria-labelledby="motionControlsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Motion</p>
+            <h2 id="motionControlsTitle">动作控制</h2>
+          </div>
+          <p class="event-log" id="eventLog" aria-live="polite">等待素材载入</p>
+        </div>
+
+        <div class="button-row">
+          <button class="button button--primary" id="blinkOnce" type="button">眨眼一次</button>
+          <button class="button button--primary" id="speakOnce" type="button">说话测试（4 轮）</button>
+          <button class="button" id="stopMotion" type="button">停止动作</button>
+          <label class="toggle">
+            <input id="autoBlink" type="checkbox" checked />
+            <span>自动眨眼</span>
+          </label>
+          <label class="toggle">
+            <input id="autoSpeak" type="checkbox" />
+            <span>自动说话</span>
+          </label>
+          <button class="button button--quiet" id="resetDemo" type="button">重置演示</button>
+        </div>
+
+        <div class="frame-grid">
+          <fieldset class="frame-control">
+            <legend>眼睛逐帧预览</legend>
+            <div class="segmented" role="group" aria-label="选择眼睛帧">
+              <button type="button" data-kind="eyes" data-frame="0">0 · 睁眼</button>
+              <button type="button" data-kind="eyes" data-frame="1">1 · 半闭</button>
+              <button type="button" data-kind="eyes" data-frame="2">2 · 闭眼</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="frame-control">
+            <legend>嘴型逐帧预览</legend>
+            <div class="segmented" role="group" aria-label="选择嘴型帧">
+              <button type="button" data-kind="mouth" data-frame="0">0 · 静止</button>
+              <button type="button" data-kind="mouth" data-frame="1">1 · 半开</button>
+              <button type="button" data-kind="mouth" data-frame="2">2 · 张开</button>
+            </div>
+          </fieldset>
+        </div>
+      </section>
+
+      <div class="demo-grid">
+        <section class="stage-card" aria-labelledby="stageTitle">
+          <div class="section-heading section-heading--stage">
+            <div>
+              <p class="section-kicker">1024 × 1024 logical stage</p>
+              <h2 id="stageTitle">合成预览</h2>
+            </div>
+            <output class="frame-readout" id="frameReadout">眼睛 0 / 嘴型 0</output>
+          </div>
+
+          <div class="diagnostic-toolbar">
+            <label>
+              检查背景
+              <select id="stageBackground">
+                <option value="checker">透明棋盘</option>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+                <option value="pink">高饱和粉</option>
+              </select>
+            </label>
+
+            <label class="range-control">
+              预览缩放
+              <input id="stageZoom" type="range" min="60" max="180" value="100" step="10" />
+              <output id="zoomReadout">100%</output>
+            </label>
+
+            <label class="toggle toggle--compact">
+              <input id="showGuides" type="checkbox" checked />
+              <span>窗口与中心线</span>
+            </label>
+
+            <label class="toggle toggle--compact">
+              <input id="maskEnabled" type="checkbox" checked />
+              <span>应用 Alpha mask</span>
+            </label>
+
+            <label class="toggle toggle--compact">
+              <input id="eyesVisible" type="checkbox" checked />
+              <span>显示 eyes</span>
+            </label>
+
+            <label class="toggle toggle--compact">
+              <input id="mouthVisible" type="checkbox" checked />
+              <span>显示 mouth</span>
+            </label>
+          </div>
+
+          <div class="stage-viewport" id="stageViewport">
+            <div class="logical-stage show-guides" id="logicalStage" data-background="checker">
+              <div class="portrait" id="sephiePortrait" role="img" aria-label="赛菲分层动态立绘合成预览">
+                <img class="portrait__body" id="bodyLayer" alt="" aria-hidden="true" />
+
+                <span class="face-window face-window--eyes" id="eyeWindow" aria-hidden="true">
+                  <img id="eyeLayer" alt="" />
+                </span>
+
+                <span class="face-window face-window--mouth" id="mouthWindow" aria-hidden="true">
+                  <img id="mouthLayer" alt="" />
+                </span>
+              </div>
+
+              <div class="stage-guides" aria-hidden="true">
+                <span class="center-guide center-guide--x"></span>
+                <span class="center-guide center-guide--y"></span>
+                <span class="region-guide region-guide--eyes" id="eyeGuide"><b>eyes</b></span>
+                <span class="region-guide region-guide--mouth" id="mouthGuide"><b>mouth</b></span>
+                <span class="origin-label">0,0</span>
+                <span class="ground-label">1024,1024</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="stage-note">
+            最终素材没有蓝色场景背景；下拉颜色只用于检查 Alpha 边缘。关闭 mask 可与未裁切底图对照，窗口红框只用于校准。
+          </p>
+        </section>
+
+        <aside class="diagnostics" aria-labelledby="diagnosticsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Diagnostics</p>
+              <h2 id="diagnosticsTitle">素材与坐标</h2>
+            </div>
+            <strong class="asset-summary" id="assetSummary">0 / 4</strong>
+          </div>
+
+          <ul class="asset-list" id="assetList" aria-live="polite">
+            <li data-asset="body">
+              <span class="asset-state" aria-hidden="true"></span>
+              <span><b>body</b><code>sephie_body.png</code></span>
+              <output>等待载入</output>
+            </li>
+            <li data-asset="mask">
+              <span class="asset-state" aria-hidden="true"></span>
+              <span><b>mask</b><code>sephie_mask.png</code></span>
+              <output>等待载入</output>
+            </li>
+            <li data-asset="eyes">
+              <span class="asset-state" aria-hidden="true"></span>
+              <span><b>eyes</b><code>sephie_a_eye.png</code></span>
+              <output>等待载入</output>
+            </li>
+            <li data-asset="mouth">
+              <span class="asset-state" aria-hidden="true"></span>
+              <span><b>mouth</b><code>sephie_a_mouth.png</code></span>
+              <output>等待载入</output>
+            </li>
+          </ul>
+
+          <div class="coordinate-card">
+            <p>
+              <strong>最终窗口坐标</strong>
+              <span>坐标已按当前塞菲素材校准，后续换图时只修改 <code>demo.js</code> 顶部配置。</span>
+            </p>
+            <dl>
+              <div><dt>eyes</dt><dd id="eyeCoordinates">—</dd></div>
+              <div><dt>mouth</dt><dd id="mouthCoordinates">—</dd></div>
+            </dl>
+          </div>
+
+          <details class="atlas-details" open>
+            <summary>纵向图集原尺寸检查</summary>
+            <p>红线应恰好落在 1/3 与 2/3；三帧的脸部底色、发丝和五官锚点应保持一致。</p>
+            <div class="atlas-grid">
+              <figure>
+                <div class="atlas-preview atlas-preview--eyes">
+                  <img id="eyeAtlasPreview" alt="眼睛三帧纵向图集" />
+                  <span></span><span></span>
+                </div>
+                <figcaption>eyes · 256 × 512（菈菈原图集格式）</figcaption>
+              </figure>
+              <figure>
+                <div class="atlas-preview atlas-preview--mouth">
+                  <img id="mouthAtlasPreview" alt="嘴型三帧纵向图集" />
+                  <span></span><span></span>
+                </div>
+                <figcaption>mouth · 256 × 256（菈菈原图集格式）</figcaption>
+              </figure>
+            </div>
+          </details>
+        </aside>
+      </div>
+
+      <noscript>
+        <p class="noscript">这个验证页需要 JavaScript 来切换三帧图集并报告素材尺寸。</p>
+      </noscript>
+    </main>
+  </body>
+</html>
