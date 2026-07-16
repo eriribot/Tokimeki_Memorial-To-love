@@ -9,9 +9,10 @@ interface StartScreenProps {
   hasPersistedSave: boolean;
   isCheckingSaves: boolean;
   onContinue: () => void;
+  saveError?: string | null;
 }
 
-export default function StartScreen({ hasPersistedSave, isCheckingSaves, onContinue }: StartScreenProps) {
+export default function StartScreen({ hasPersistedSave, isCheckingSaves, onContinue, saveError }: StartScreenProps) {
   const hasSession = useGameStore((state: { hasSession: boolean }) => state.hasSession);
   const canContinue = hasSession || hasPersistedSave;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -33,7 +34,7 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
     for (let offset = 1; offset <= START_MENU_ITEMS.length; offset += 1) {
       const nextIndex = (currentIndex + direction * offset + START_MENU_ITEMS.length) % START_MENU_ITEMS.length;
       const nextItem = START_MENU_ITEMS[nextIndex];
-      const disabled = nextItem.id === 'continue' && !canContinue;
+      const disabled = nextItem.id === 'continue' && (!canContinue || isCheckingSaves);
 
       if (!disabled) {
         setSelectedMenuIndex(nextIndex);
@@ -89,7 +90,7 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
         />
         <div className="start-menu" aria-label="开始菜单" aria-busy={isCheckingSaves}>
           {START_MENU_ITEMS.map((item, index) => {
-            const disabled = item.id === 'continue' && !canContinue;
+            const disabled = item.id === 'continue' && (!canContinue || isCheckingSaves);
             const action = item.id === 'restart' ? startNewSession : item.id === 'continue' ? onContinue : undefined;
             const selected = selectedMenuIndex === index;
 
@@ -166,6 +167,11 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
               </button>
             );
           })}
+          {saveError && (
+            <p className="start-menu-save-error" role="alert">
+              {saveError}
+            </p>
+          )}
         </div>
       </section>
     </main>

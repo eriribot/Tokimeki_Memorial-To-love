@@ -1,8 +1,6 @@
 import { resolveAssetPath } from '../utils/assetPath';
-import type { LalaExpression } from './lalaArrival';
-
-const LALA_BODY = '/artsource/lala/004_03_03_a%20%232247.png';
-const LALA_MASK = '/artsource/lala/004_03_03_a.png';
+import { getLalaFaceAssets, LALA_PORTRAIT_ASSETS } from './galAssets';
+import type { LalaExpression } from './storyTypes';
 
 interface LalaPortraitProps {
   expression: LalaExpression;
@@ -11,10 +9,11 @@ interface LalaPortraitProps {
 }
 
 export default function LalaPortrait({ expression, isSpeaking, beatKey }: LalaPortraitProps) {
-  const maskUrl = resolveAssetPath(LALA_MASK);
-  const eyeSheet = resolveAssetPath(`/artsource/lala/004_03_03_${expression}_eye.png`);
-  const mouthSheet = resolveAssetPath(`/artsource/lala/004_03_03_${expression}_mouth.png`);
-  const shouldBlink = expression !== 'c' && expression !== 'f';
+  const maskUrl = resolveAssetPath(LALA_PORTRAIT_ASSETS.mask);
+  const faceAssets = getLalaFaceAssets(expression);
+  const eyeSheet = resolveAssetPath(faceAssets.eyes);
+  const mouthSheet = resolveAssetPath(faceAssets.mouth);
+  const shouldBlink = !LALA_PORTRAIT_ASSETS.nonBlinkingExpressions.has(expression);
 
   return (
     <div className="lala-portrait-stage" role="img" aria-label={`菈菈，表情 ${expression}`}>
@@ -25,7 +24,12 @@ export default function LalaPortrait({ expression, isSpeaking, beatKey }: LalaPo
           maskImage: `url("${maskUrl}")`,
         }}
       >
-        <img className="lala-portrait__body" src={resolveAssetPath(LALA_BODY)} alt="" aria-hidden="true" />
+        <img
+          className="lala-portrait__body"
+          src={resolveAssetPath(LALA_PORTRAIT_ASSETS.body)}
+          alt=""
+          aria-hidden="true"
+        />
 
         <span className="lala-portrait__face-window lala-portrait__eyes" aria-hidden="true">
           <img

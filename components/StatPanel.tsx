@@ -39,9 +39,7 @@ export default function StatPanel() {
           <div>
             开学第 {day} 日 · {date.month}月{date.day}日 / {daysInMonth}日
           </div>
-          <div className="time">
-            {period.time} · {period.label}
-          </div>
+          <div className="time">{period.label}</div>
         </div>
       </div>
 

@@ -12,7 +12,7 @@ import SpecialSkillPanel from './components/SpecialSkillPanel';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
 import GalMainStory from './GalMainStory/GalMainStory';
-import { gameSaveApi } from './save';
+import { DEFAULT_SAVE_SLOT, gameSaveApi, startTavernAutosave } from './save';
 import { resumeSession } from './services/gameSession';
 import { useGameStore } from './stores/gameStore';
 import { useMapStore } from './stores/mapStore';
@@ -35,7 +35,10 @@ function App() {
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
+  const [hasAutosave, setHasAutosave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
+  const [isContinuing, setIsContinuing] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isNativePageMode, setIsNativePageMode] = useState(false);
   const [pageModeError, setPageModeError] = useState<string | null>(null);
   const [calendarTransition, setCalendarTransition] = useState<{
@@ -123,6 +126,22 @@ function App() {
     }
   }, [calendarDate]);
 
+  useEffect(
+    () =>
+      startTavernAutosave({
+        onSaved: () => {
+          setHasAutosave(true);
+          setHasPersistedSave(true);
+          setSaveError(null);
+        },
+        onError: error => {
+          console.error('[ToLove Save] 自动存档失败。', error);
+          setSaveError(`酒馆本地自动存档失败：${error.message}`);
+        },
+      }),
+    [],
+  );
+
   useEffect(() => {
     if (screen !== 'start') return;
 
@@ -133,9 +152,17 @@ function App() {
       try {
         await gameSaveApi.probe(true);
         const result = await gameSaveApi.list();
-        if (!cancelled) setHasPersistedSave(result.saves.length > 0);
+        if (!cancelled) {
+          setHasAutosave(result.saves.some(save => save.slotId === DEFAULT_SAVE_SLOT));
+          setHasPersistedSave(result.saves.length > 0);
+          setSaveError(null);
+        }
       } catch (error) {
         console.warn('[ToLove Save] 无法检查已有存档。', error);
+        if (!cancelled) {
+          const detail = error instanceof Error ? error.message : String(error);
+          setSaveError(`无法读取酒馆本地文件存档：${detail}`);
+        }
       } finally {
         if (!cancelled) setIsCheckingSaves(false);
       }
@@ -148,6 +175,25 @@ function App() {
   }, [screen]);
 
   const handleContinue = () => {
+    if (useGameStore.getState().hasSession) {
+      resumeSession();
+      return;
+    }
+
+    if (hasAutosave) {
+      setIsContinuing(true);
+      setSaveError(null);
+      void gameSaveApi
+        .load(DEFAULT_SAVE_SLOT)
+        .catch(error => {
+          const detail = error instanceof Error ? error.message : String(error);
+          console.error('[ToLove Save] 自动存档读取失败。', error);
+          setSaveError(`自动存档读取失败：${detail}`);
+        })
+        .finally(() => setIsContinuing(false));
+      return;
+    }
+
     if (hasPersistedSave) {
       setSaveSlotMode('load');
       return;
@@ -186,8 +232,9 @@ function App() {
       {screen === 'start' ? (
         <StartScreen
           hasPersistedSave={hasPersistedSave}
-          isCheckingSaves={isCheckingSaves}
+          isCheckingSaves={isCheckingSaves || isContinuing}
           onContinue={handleContinue}
+          saveError={saveError}
         />
       ) : (
         <div className="app">

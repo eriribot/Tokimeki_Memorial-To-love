@@ -1,4 +1,4 @@
-import { useGameStore, PERIODS } from '../stores/gameStore';
+import { useGameStore } from '../stores/gameStore';
 import { useMapStore } from '../stores/mapStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
@@ -11,11 +11,8 @@ interface ControlsProps {
 
 export default function Controls({ onOpenSkills }: ControlsProps) {
   const currentLocationId = useGameStore(state => state.currentLocationId);
-  const periodIndex = useGameStore(state => state.periodIndex);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const isPlaying = useGameStore(state => state.isPlaying);
-  const nextPeriod = useGameStore(state => state.nextPeriod);
-  const endDay = useGameStore(state => state.endDay);
   const settlePlayerAction = useGameStore(state => state.settlePlayerAction);
   const startGame = useGameStore(state => state.startGame);
   const pauseGame = useGameStore(state => state.pauseGame);
@@ -49,7 +46,10 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
       addLog('你太累了，先休息一下吧。');
       return;
     }
-    if (settlePlayerAction(`你进行了${label}。`)) action();
+    const settlement = settlePlayerAction({ kind: 'activity', message: `你进行了${label}。` });
+    if (!settlement.accepted) return;
+    action();
+    spawnTargetsForPeriod(settlement.periodKey);
   };
 
   const handleTalk = (character: GameCharacter) => {
@@ -57,20 +57,13 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
       addLog('今天的行动点已经用完了。');
       return;
     }
-    if (settlePlayerAction(`你和 ${character.name} 聊了一会儿，好感度上升了！`)) {
-      addAffection(character.id, 5);
-    }
-  };
-
-  const handleNextPeriod = () => {
-    if (actionPointsRemaining <= 0) {
-      endDay();
-      spawnTargetsForPeriod(PERIODS[0].key);
-      return;
-    }
-    const nextIndex = (periodIndex + 1) % PERIODS.length;
-    nextPeriod();
-    spawnTargetsForPeriod(PERIODS[nextIndex].key);
+    const settlement = settlePlayerAction({
+      kind: 'talk',
+      message: `你和 ${character.name} 聊了一会儿，好感度上升了！`,
+    });
+    if (!settlement.accepted) return;
+    addAffection(character.id, 5);
+    spawnTargetsForPeriod(settlement.periodKey);
   };
 
   const handleEnterScene = () => {
@@ -87,10 +80,9 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
   return (
     <div className="controls">
       <div className="control-group">
-        <h3>时间</h3>
+        <h3>系统</h3>
         <div className="buttons">
           {!isPlaying ? <button onClick={startGame}>继续</button> : <button onClick={pauseGame}>暂停</button>}
-          <button onClick={handleNextPeriod}>{actionPointsRemaining <= 0 ? '结束今日' : '推进时间'}</button>
           <button onClick={handleRestart}>重新开始</button>
         </div>
       </div>

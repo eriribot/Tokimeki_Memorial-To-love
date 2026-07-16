@@ -54,7 +54,7 @@ Commands are run from the **repo root** (`D:\webgame\tavern_helper_template-main
 - Missing assets fall back to SVG placeholders generated in `placeholderGenerator.tsx`
 
 ### Time System
-- 6 periods per day: morning → class1 → lunch → class2 → afterSchool → evening
+- 3 periods per day: morning → afterSchool → evening
 - Characters auto-assign locations per period via `getTargetLocationForPeriod()`
 - Stored in `PERIODS` constant in `gameStore.ts`
 

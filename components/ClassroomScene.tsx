@@ -16,6 +16,7 @@ export default function ClassroomScene() {
   const activeTargetId = useCardStore(state => state.activeTargetId);
   const setActiveTarget = useCardStore(state => state.setActiveTarget);
   const addAffection = useCardStore(state => state.addAffection);
+  const spawnTargetsForPeriod = useCardStore(state => state.spawnTargetsForPeriod);
 
   const sceneLocationId = currentSceneId || 'classroom';
   const sceneLocation = locations[sceneLocationId];
@@ -40,9 +41,13 @@ export default function ClassroomScene() {
       return;
     }
 
-    if (settlePlayerAction(`你在${sceneLocation?.name ?? '教室'}里和 ${activeCharacter.name} 交谈，好感度上升了。`)) {
-      addAffection(activeCharacter.id, 5);
-    }
+    const settlement = settlePlayerAction({
+      kind: 'talk',
+      message: `你在${sceneLocation?.name ?? '教室'}里和 ${activeCharacter.name} 交谈，好感度上升了。`,
+    });
+    if (!settlement.accepted) return;
+    addAffection(activeCharacter.id, 5);
+    spawnTargetsForPeriod(settlement.periodKey);
   };
 
   return (

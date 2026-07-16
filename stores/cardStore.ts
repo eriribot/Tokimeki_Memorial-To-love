@@ -6,9 +6,6 @@ type LocationResolver = (favoriteLocations: readonly LocationId[]) => LocationId
 
 const PERIOD_LOCATION_RULES: Record<PeriodKey, LocationResolver> = {
   morning: favorites => favorites[0] ?? 'classroom',
-  class1: () => 'classroom',
-  lunch: favorites => favorites[1] ?? favorites[0] ?? 'cafeteria',
-  class2: () => 'classroom',
   afterSchool: favorites => {
     const firstChoice = favorites[0] ?? 'courtyard';
     return firstChoice === 'classroom' ? (favorites[1] ?? 'courtyard') : firstChoice;

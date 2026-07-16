@@ -2,13 +2,12 @@ export const SAVE_PROTOCOL_VERSION = 1 as const;
 export const SAVE_SCHEMA_VERSION = 1 as const;
 export const SAVE_REQUEST_EVENT = 'tolove:save:request:v1';
 export const SAVE_RESPONSE_EVENT = 'tolove:save:response:v1';
-export const SAVE_ROOT_KEY = '$toloveSave';
 export const DEFAULT_SAVE_SLOT = 'autosave';
 export const SAVE_FILE_FORMAT = 'tokimeki-to-love-gal-save' as const;
 export const SAVE_FILE_FORMAT_VERSION = 1 as const;
 
 export type SaveAction = 'probe' | 'list' | 'write' | 'load' | 'delete';
-export type SaveBackend = 'tavern-file' | 'browser-local';
+export type SaveBackend = 'tavern-file';
 
 export interface SaveRequest {
   protocolVersion: typeof SAVE_PROTOCOL_VERSION;
@@ -64,12 +63,6 @@ export interface SavePreview {
 
 export type SaveSummary = Omit<SaveRecord, 'data'>;
 
-export interface SaveRoot {
-  schemaVersion: typeof SAVE_SCHEMA_VERSION;
-  slots: Record<string, string>;
-  saves: Record<string, SaveRecord>;
-}
-
 export interface SaveProbeResult {
   backend: SaveBackend;
   persistent: boolean;
@@ -96,14 +89,6 @@ export interface SaveLoadResult<TData = unknown> {
 export interface SaveDeleteResult {
   deleted: boolean;
   saveUuid: string | null;
-}
-
-export function createEmptySaveRoot(): SaveRoot {
-  return {
-    schemaVersion: SAVE_SCHEMA_VERSION,
-    slots: {},
-    saves: {},
-  };
 }
 
 export function toSaveSummary(save: SaveRecord): SaveSummary {

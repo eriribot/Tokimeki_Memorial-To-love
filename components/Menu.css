@@ -94,6 +94,21 @@
   pointer-events: auto;
 }
 
+.start-menu-save-error {
+  width: min(520px, 92vw);
+  margin: 6px auto 0;
+  padding: 7px 10px;
+  border: 1px solid rgb(154 28 54 / 72%);
+  border-radius: 4px;
+  background: rgb(255 242 245 / 94%);
+  color: #8c1733;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
+}
+
 .start-menu-item {
   position: relative;
   width: 100%;

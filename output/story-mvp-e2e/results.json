@@ -1,0 +1,215 @@
+{
+  "direct": {
+    "initial": {
+      "screen": "game",
+      "canContinue": true,
+      "isPlaying": true,
+      "note": "坐标为学校地图格子坐标，左上角是(0,0)，x向右，y向下。",
+      "day": 1,
+      "date": {
+        "year": 2008,
+        "month": 4,
+        "day": 7
+      },
+      "actionPointsRemaining": 2,
+      "period": "morning",
+      "time": "07:00",
+      "location": "classroom",
+      "scene": "school-map",
+      "activeTargetId": "riko",
+      "activeMainStory": null,
+      "completedMainStoryEventIds": [],
+      "visibleTargets": [
+        {
+          "id": "riko",
+          "name": "夕崎梨子",
+          "location": "classroom",
+          "affection": 0
+        },
+        {
+          "id": "sakura",
+          "name": "菈菈·薩塔琳·戴比路克",
+          "location": "classroom",
+          "affection": 0
+        },
+        {
+          "id": "haruka",
+          "name": "梦梦·贝莉雅·戴比路克",
+          "location": "courtyard",
+          "affection": 0
+        },
+        {
+          "id": "miyuki",
+          "name": "古手川唯",
+          "location": "library",
+          "affection": 0
+        },
+        {
+          "id": "rin",
+          "name": "伊芙",
+          "location": "library",
+          "affection": 0
+        }
+      ]
+    },
+    "calls": [
+      {
+        "presetName": "in_use",
+        "hasJsonSchema": false,
+        "asksForPlainText": true,
+        "maxChatHistory": 6,
+        "hasEpisodeLore": true,
+        "hasLalaLore": true,
+        "hasRikoLore": true,
+        "scansRiko": true,
+        "scansLala": true
+      },
+      {
+        "presetName": "in_use",
+        "hasJsonSchema": false,
+        "asksForPlainText": true,
+        "maxChatHistory": 6,
+        "hasEpisodeLore": true,
+        "hasLalaLore": true,
+        "hasRikoLore": true,
+        "scansRiko": false,
+        "scansLala": true
+      },
+      {
+        "presetName": "in_use",
+        "hasJsonSchema": false,
+        "asksForPlainText": true,
+        "maxChatHistory": 6,
+        "hasEpisodeLore": true,
+        "hasLalaLore": true,
+        "hasRikoLore": true,
+        "scansRiko": false,
+        "scansLala": true
+      },
+      {
+        "presetName": "in_use",
+        "hasJsonSchema": false,
+        "asksForPlainText": true,
+        "maxChatHistory": 6,
+        "hasEpisodeLore": true,
+        "hasLalaLore": true,
+        "hasRikoLore": true,
+        "scansRiko": true,
+        "scansLala": true
+      }
+    ],
+    "final": {
+      "screen": "game",
+      "canContinue": true,
+      "isPlaying": true,
+      "note": "坐标为学校地图格子坐标，左上角是(0,0)，x向右，y向下。",
+      "day": 2,
+      "date": {
+        "year": 2008,
+        "month": 4,
+        "day": 8
+      },
+      "actionPointsRemaining": 2,
+      "period": "morning",
+      "time": "07:00",
+      "location": "classroom",
+      "scene": "school-map",
+      "activeTargetId": "riko",
+      "activeMainStory": null,
+      "completedMainStoryEventIds": [
+        "main.lala-arrival-2008-04-07"
+      ],
+      "visibleTargets": [
+        {
+          "id": "riko",
+          "name": "夕崎梨子",
+          "location": "classroom",
+          "affection": 5
+        },
+        {
+          "id": "sakura",
+          "name": "菈菈·薩塔琳·戴比路克",
+          "location": "classroom",
+          "affection": 0
+        },
+        {
+          "id": "haruka",
+          "name": "梦梦·贝莉雅·戴比路克",
+          "location": "courtyard",
+          "affection": 0
+        },
+        {
+          "id": "miyuki",
+          "name": "古手川唯",
+          "location": "library",
+          "affection": 0
+        },
+        {
+          "id": "rin",
+          "name": "伊芙",
+          "location": "library",
+          "affection": 0
+        }
+      ]
+    }
+  },
+  "fallback": {
+    "final": {
+      "screen": "game",
+      "canContinue": true,
+      "isPlaying": true,
+      "note": "坐标为学校地图格子坐标，左上角是(0,0)，x向右，y向下。",
+      "day": 2,
+      "date": {
+        "year": 2008,
+        "month": 4,
+        "day": 8
+      },
+      "actionPointsRemaining": 2,
+      "period": "morning",
+      "time": "07:00",
+      "location": "classroom",
+      "scene": "school-map",
+      "activeTargetId": "riko",
+      "activeMainStory": null,
+      "completedMainStoryEventIds": [
+        "main.lala-arrival-2008-04-07"
+      ],
+      "visibleTargets": [
+        {
+          "id": "riko",
+          "name": "夕崎梨子",
+          "location": "classroom",
+          "affection": 0
+        },
+        {
+          "id": "sakura",
+          "name": "菈菈·薩塔琳·戴比路克",
+          "location": "classroom",
+          "affection": 0
+        },
+        {
+          "id": "haruka",
+          "name": "梦梦·贝莉雅·戴比路克",
+          "location": "courtyard",
+          "affection": 0
+        },
+        {
+          "id": "miyuki",
+          "name": "古手川唯",
+          "location": "library",
+          "affection": 0
+        },
+        {
+          "id": "rin",
+          "name": "伊芙",
+          "location": "library",
+          "affection": 0
+        }
+      ]
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "requestFailures": []
+}

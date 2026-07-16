@@ -2,66 +2,31 @@
 
 ## 当前能力
 
-- 已有：学校地图、教室/图书馆场景、时间推进、玩家属性、角色卡、好感度、技能树和事件日志。
-- 本轮补齐：开始界面、完整新游戏重置、页内继续游戏、返回开始页和官方 Sprite 菜单。
-- 占位：保存、读取、目录、数据、辞典和系统设置只展示入口，不执行动作；鉴赏尚无入口。
-- 已知未接通：暂停只切换 `isPlaying`，尚未限制地图、时间与个人行动。
-- 当前接通状态：只是本地状态演示。没有存档、宿主状态写入、数据库或生成链路。
+- 学校地图、教室/图书馆场景、玩家属性、角色卡、好感、技能、事件日志、开始菜单和存档槽。
+- 行动点是时间推进权威；有效行动自动改变时段，AP 用完自动跨日，不再提供独立推进时间按钮。
+- 2008-04-07 第一集由两次自由行动自动触发两幕纯文本生成，支持加载/错误/保底、GAL 播放和本地 messagesave 镜像。
+- 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 
 ## 模块登记
 
-| 模块 | 负责 | 主要输入 | 主要输出 | 不负责 |
-| --- | --- | --- | --- | --- |
-| `App` | 按 `screen` 装配开始页或游戏页 | `gameStore.screen` | 当前可见页面 | 菜单动作、跨 store 重置 |
-| `gameSession` | 新游戏、继续、返回开始页 | game/player/card stores | 一致的会话生命周期 | 存档、宿主同步 |
-| `StartScreen` | 展示官方标题、重新开始和继续游戏 | `hasSession`、标题与 A/B 菜单图片 | 会话意图 | 保存槽、设置页 |
-| `MapMenu` | 展示 8 个官方图标按钮 | 菜单资源表、会话动作 | 关闭菜单或返回开始页 | 坐标热区、占位功能实现 |
-| `menuAssets` | 菜单 ID、标签、图片和占位状态 | 官方文件名 | 组件配置 | 业务逻辑 |
-| `copy_webgame_assets` | 发布仓库内美术资源 | `src/webgame-ui/artsource` | `dist/artsource` | 手工修补 `dist` |
+| 模块                                | 负责                             | 权威输入                      | 输出或副作用           | 不负责             |
+| ----------------------------------- | -------------------------------- | ----------------------------- | ---------------------- | ------------------ |
+| `stores/gameStore.ts`               | 行动、时段、日期、主线与生成状态 | 玩家行动意图                  | AP、事件节点、完成标记 | AI 正文措辞        |
+| `stores/cardStore.ts`               | 目标卡、位置与好感               | 角色卡、已结算交谈            | 角色地图状态           | 主线触发           |
+| `components/Controls.tsx`           | 展示并提交行动                   | Store 当前状态                | 行动意图               | 自行推进剧情       |
+| `services/tavernStoryGeneration.ts` | 当前幕扫描、提示和纯正文解析     | 幕 ID、世界书文本、游戏上下文 | `GalStoryAct`          | AP、好感、宿主楼层 |
+| `GalMainStory/`                     | 两幕定义、加载态和正文播放       | 已验证正文页                  | GAL 画面、翻页意图     | 重算游戏状态       |
+| `data/lore-books/`                  | 第一集、菈菈、梨子权威文本       | 人工设定                      | 生成提示上下文         | 运行时结算         |
+| `save/snapshot.ts`                  | V1 兼容快照                      | 三个 Zustand store            | 本地/宿主存档数据      | 生成请求           |
+| `data/worldbook.ts`                 | 世界书读取与原生扫描键           | 游戏上下文、TavernHelper      | 一次性扫描注入         | 判定正文完成       |
 
 ## 权威状态
 
-- 页面与会话状态以 Zustand store 为准。
-- `screen: 'start' | 'game'` 决定显示开始页还是游戏页。
-- `hasSession` 只表示当前页面会话可继续；刷新页面后不保留。
-- 返回开始页只暂停并切换页面，不清除当前局。
-- 新游戏必须同时重置游戏、玩家和角色状态。
+- 数值、日期、事件和当前幕以 Zustand + 存档为权威。
+- AI 返回的是正文候选，经本地分页和污染检查后才能进入 GAL。
+- `TavernHelper.generate()` 返回值只证明生成 API 路线；当前没有创建真实聊天楼层，也没有触发 shujuku/database。
+- 保底正文必须显式标记为 `fallback`，不能冒充宿主成功。
 
-## 状态流伪代码
+## 当前接通标签
 
-```text
-load:
-  screen = start
-  hasSession = false
-
-startNewSession:
-  reset game
-  reset player
-  reset targets and spawn morning locations
-  hasSession = true
-  isPlaying = true
-  screen = game
-
-resumeSession:
-  if hasSession:
-    isPlaying = true
-    screen = game
-
-returnToStart:
-  preserve game/player/target data
-  isPlaying = false
-  screen = start
-
-map menu icon07:
-  returnToStart
-
-map menu icon08 or backdrop:
-  close map menu
-
-placeholder icon:
-  no state change and no success log
-```
-
-## 后续边界
-
-保存、读取、目录、数据、辞典、鉴赏和设置必须在人工审查后分别登记真实状态来源，再接入功能；本轮不以本地假数据冒充接通。
+`真实 generate API 已实现；本地 messagesave 镜像已实现；真实 hidden host floors、shujuku、宿主消息和数据库未接通。`

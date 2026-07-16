@@ -1,10 +1,8 @@
-import { BrowserSaveStore } from './browserStore';
 import {
   SAVE_PROTOCOL_VERSION,
   SAVE_REQUEST_EVENT,
   SAVE_RESPONSE_EVENT,
   type SaveAction,
-  type SaveBackend,
   type SaveDeleteResult,
   type SaveListResult,
   type SaveLoadResult,
@@ -30,8 +28,6 @@ interface PendingRequest {
   reject: (error: Error) => void;
   timeoutId: ReturnType<typeof setTimeout>;
 }
-
-type BackendSelection = 'unknown' | SaveBackend;
 
 function resolveEventApi(): EventApi | null {
   const scope = globalThis as typeof globalThis & {
@@ -60,10 +56,6 @@ class TavernSaveTransport {
   private subscription?: EventSubscription;
   private readonly pending = new Map<string, PendingRequest>();
 
-  isAvailable(): boolean {
-    return resolveEventApi() !== null;
-  }
-
   request<TResult>(
     action: SaveAction,
     payload: Omit<SaveRequest, 'protocolVersion' | 'requestId' | 'action'> = {},
@@ -71,7 +63,7 @@ class TavernSaveTransport {
   ): Promise<TResult> {
     this.ensureListening();
     if (!this.api) {
-      return Promise.reject(new Error('当前页面没有酒馆助手事件接口'));
+      return Promise.reject(new Error('当前页面没有 Tavern Helper 事件接口，无法读取酒馆本地文件存档'));
     }
 
     const requestId = createSaveUuid();
@@ -85,7 +77,7 @@ class TavernSaveTransport {
     return new Promise<TResult>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         this.pending.delete(requestId);
-        reject(new Error('SillyTavern 文件存档桥未响应；请确认角色卡已绑定并启用存档脚本'));
+        reject(new Error('ToLove存档槽脚本未响应；请在 Tavern Helper 中导入、绑定并启用该脚本'));
       }, timeoutMs);
 
       this.pending.set(requestId, {
@@ -93,7 +85,7 @@ class TavernSaveTransport {
         reject,
         resolve: response => {
           if (!response.ok) {
-            reject(new Error(response.error?.message ?? 'SillyTavern 文件存档桥返回未知错误'));
+            reject(new Error(response.error?.message ?? 'ToLove存档槽脚本返回未知错误'));
             return;
           }
           resolve(response.result as TResult);
@@ -140,84 +132,35 @@ class TavernSaveTransport {
   }
 }
 
-export class HybridSaveClient {
-  private backend: BackendSelection = 'unknown';
-  private readonly browser = new BrowserSaveStore();
+export class TavernFileSaveClient {
   private readonly tavern = new TavernSaveTransport();
 
-  async probe(force = false): Promise<SaveProbeResult> {
-    if (force) {
-      this.backend = 'unknown';
-    }
-
-    if (this.backend === 'tavern-file') {
-      return this.tavern.request<SaveProbeResult>('probe');
-    }
-
-    if (this.backend === 'browser-local') {
-      return this.browser.probe();
-    }
-
-    if (this.tavern.isAvailable()) {
-      try {
-        const result = await this.tavern.request<SaveProbeResult>('probe', {}, 2500);
-        this.backend = 'tavern-file';
-        return result;
-      } catch (error) {
-        console.warn('[ToLove Save] SillyTavern 文件存档桥不可用，改用当前浏览器本地存档。', error);
-      }
-    }
-
-    this.backend = 'browser-local';
-    return this.browser.probe();
+  probe(_force = false): Promise<SaveProbeResult> {
+    return this.tavern.request<SaveProbeResult>('probe', {}, 2500);
   }
 
-  async list(): Promise<SaveListResult> {
-    return this.run('list', {}, () => this.browser.list());
+  list(): Promise<SaveListResult> {
+    return this.tavern.request<SaveListResult>('list');
   }
 
-  async write<TData>(
-    slotId: string,
-    data: TData,
-    saveUuid?: string,
-    preview?: SavePreview,
-  ): Promise<SaveWriteResult<TData>> {
+  write<TData>(slotId: string, data: TData, saveUuid?: string, preview?: SavePreview): Promise<SaveWriteResult<TData>> {
     if (!slotId.trim()) {
-      throw new Error('存档槽位不能为空');
+      return Promise.reject(new Error('存档槽位不能为空'));
     }
-
-    return this.run('write', { slotId, data, saveUuid, preview }, () =>
-      this.browser.write(slotId, data, saveUuid, preview),
-    );
+    return this.tavern.request<SaveWriteResult<TData>>('write', { slotId, data, saveUuid, preview });
   }
 
-  async load<TData>(slotId?: string, saveUuid?: string): Promise<SaveLoadResult<TData>> {
-    return this.run('load', { slotId, saveUuid }, () => this.browser.load<TData>(slotId, saveUuid));
+  load<TData>(slotId?: string, saveUuid?: string): Promise<SaveLoadResult<TData>> {
+    return this.tavern.request<SaveLoadResult<TData>>('load', { slotId, saveUuid });
   }
 
-  async delete(slotId?: string, saveUuid?: string): Promise<SaveDeleteResult> {
-    return this.run('delete', { slotId, saveUuid }, () => this.browser.delete(slotId, saveUuid));
+  delete(slotId?: string, saveUuid?: string): Promise<SaveDeleteResult> {
+    return this.tavern.request<SaveDeleteResult>('delete', { slotId, saveUuid });
   }
 
   resetBackend(): void {
-    this.backend = 'unknown';
-  }
-
-  private async run<TResult>(
-    action: Exclude<SaveAction, 'probe'>,
-    payload: Omit<SaveRequest, 'protocolVersion' | 'requestId' | 'action'>,
-    browserOperation: () => TResult,
-  ): Promise<TResult> {
-    if (this.backend === 'unknown') {
-      await this.probe();
-    }
-
-    if (this.backend === 'tavern-file') {
-      return this.tavern.request<TResult>(action, payload);
-    }
-
-    return browserOperation();
+    this.tavern.dispose();
   }
 }
 
-export const saveClient = new HybridSaveClient();
+export const saveClient = new TavernFileSaveClient();

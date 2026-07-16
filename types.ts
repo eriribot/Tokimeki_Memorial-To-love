@@ -1,3 +1,11 @@
+import type {
+  GalStoryAct,
+  MainStoryEntryReason,
+  StoryGenerationSource,
+  StoryGenerationStatus,
+  GalStoryMessageSave,
+} from './GalMainStory/storyTypes';
+
 export type GameScreen = 'start' | 'game';
 
 export interface CalendarDateValue {
@@ -6,14 +14,13 @@ export interface CalendarDateValue {
   day: number;
 }
 
-export type PeriodKey = 'morning' | 'class1' | 'lunch' | 'class2' | 'afterSchool' | 'evening';
+export type PeriodKey = 'morning' | 'afterSchool' | 'evening';
 
 export type LocationId = 'gate' | 'classroom' | 'library' | 'cafeteria' | 'gym' | 'musicRoom' | 'rooftop' | 'courtyard';
 
 export interface PeriodDefinition {
   key: PeriodKey;
   label: string;
-  time: string;
 }
 
 export interface MapLocation {
@@ -46,7 +53,27 @@ export interface GameState {
   events: GameEvent[];
   activeMainStoryEventId: string | null;
   completedMainStoryEventIds: string[];
+  mainStoryEntryReason: MainStoryEntryReason | null;
+  mainStoryActIndex: number;
   mainStoryPageIndex: number;
+  mainStoryActs: GalStoryAct[];
+  mainStoryGenerationStatus: StoryGenerationStatus;
+  mainStoryGenerationSource: StoryGenerationSource | null;
+  mainStoryGenerationError: string | null;
+}
+
+export type PlayerActionKind = 'activity' | 'talk';
+
+export interface PlayerActionRequest {
+  kind: PlayerActionKind;
+  message: string;
+}
+
+export interface PlayerActionSettlement {
+  accepted: boolean;
+  startsMainStory: boolean;
+  dayAdvanced: boolean;
+  periodKey: PeriodKey;
 }
 
 export interface GameActions {
@@ -57,14 +84,17 @@ export interface GameActions {
   setLocation: (id: LocationId) => void;
   enterScene: (id: LocationId) => void;
   exitScene: () => void;
-  nextPeriod: () => void;
-  endDay: () => void;
-  settlePlayerAction: (message: string) => boolean;
+  settlePlayerAction: (request: PlayerActionRequest) => PlayerActionSettlement;
   addLog: (message: string) => void;
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
-  setMainStoryPage: (pageIndex: number) => void;
-  completeMainStoryEvent: () => void;
+  beginMainStoryGeneration: () => boolean;
+  setMainStoryContent: (acts: GalStoryAct[], source: StoryGenerationSource, messages?: GalStoryMessageSave[]) => void;
+  setMainStoryActContent: (act: GalStoryAct, source: StoryGenerationSource, messages?: GalStoryMessageSave[]) => void;
+  failMainStoryGeneration: (message: string) => void;
+  setMainStoryPosition: (actIndex: number, pageIndex: number) => void;
+  advanceMainStoryAct: () => boolean;
+  completeMainStoryEvent: () => boolean;
   resetGameState: () => void;
 }
 

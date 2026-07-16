@@ -2,7 +2,19 @@ import { useCardStore } from '../stores/cardStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
-import { LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from '../GalMainStory/lalaArrival';
+import {
+  LALA_ARRIVAL_ACT_IDS,
+  LALA_ARRIVAL_ALLOWED_SPEAKERS,
+  LALA_ARRIVAL_EVENT_ID,
+} from '../GalMainStory/lalaArrival';
+import {
+  normalizeGalStoryActs,
+  type GalStoryAct,
+  type GalStoryMessageSave,
+  type MainStoryEntryReason,
+  type StoryGenerationSource,
+  type StoryGenerationStatus,
+} from '../GalMainStory/storyTypes';
 import type {
   CalendarDateValue,
   CharacterCard,
@@ -16,6 +28,7 @@ import type { SavePreview } from './protocol';
 
 export interface GameSnapshotV1 {
   schemaVersion: 1;
+  messageArchiveVersion?: 1;
   savedAt: string;
   game: {
     screen: GameScreen;
@@ -31,7 +44,14 @@ export interface GameSnapshotV1 {
     events: GameEvent[];
     activeMainStoryEventId?: string | null;
     completedMainStoryEventIds?: string[];
+    mainStoryEntryReason?: MainStoryEntryReason | null;
+    mainStoryActIndex?: number;
     mainStoryPageIndex?: number;
+    mainStoryActs?: GalStoryAct[];
+    mainStoryMessages?: GalStoryMessageSave[];
+    mainStoryGenerationStatus?: StoryGenerationStatus;
+    mainStoryGenerationSource?: StoryGenerationSource | null;
+    mainStoryGenerationError?: string | null;
   };
   player: PlayerState;
   cards: {
@@ -56,6 +76,7 @@ export function createGameSnapshot(): GameSnapshotV1 {
 
   return cloneJson({
     schemaVersion: 1,
+    messageArchiveVersion: 1,
     savedAt: new Date().toISOString(),
     game: {
       screen: game.screen,
@@ -71,7 +92,11 @@ export function createGameSnapshot(): GameSnapshotV1 {
       events: game.events,
       activeMainStoryEventId: game.activeMainStoryEventId,
       completedMainStoryEventIds: game.completedMainStoryEventIds,
+      mainStoryEntryReason: game.mainStoryEntryReason,
+      mainStoryActIndex: game.mainStoryActIndex,
       mainStoryPageIndex: game.mainStoryPageIndex,
+      mainStoryActs: game.mainStoryActs,
+      mainStoryGenerationSource: game.mainStoryGenerationSource,
     },
     player: {
       name: player.name,
@@ -104,7 +129,7 @@ export function createSavePreview(snapshot: GameSnapshotV1): SavePreview {
   };
 }
 
-export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
+export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryMessageSave[]): GameSnapshotV1 {
   if (!isRecord(value) || value.schemaVersion !== 1) {
     throw new Error('存档版本无效或暂不兼容');
   }
@@ -125,10 +150,46 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
     !completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
       ? LALA_ARRIVAL_EVENT_ID
       : null;
-  const mainStoryPageIndex =
-    activeMainStoryEventId && typeof snapshot.game.mainStoryPageIndex === 'number'
-      ? Math.min(LALA_ARRIVAL_STORY.beats.length - 1, Math.max(0, Math.trunc(snapshot.game.mainStoryPageIndex)))
+  let mainStoryActs: GalStoryAct[] = [];
+  if (activeMainStoryEventId && Array.isArray(snapshot.game.mainStoryActs) && snapshot.game.mainStoryActs.length > 0) {
+    try {
+      mainStoryActs = normalizeGalStoryActs(snapshot.game.mainStoryActs, {
+        expectedActIds: LALA_ARRIVAL_ACT_IDS,
+        allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
+        allowPartial: true,
+      });
+    } catch (error) {
+      console.warn('[ToLove Save] 存档中的生成正文无效，将重新请求当前第一集。', error);
+    }
+  }
+  const mainStoryEntryReason =
+    activeMainStoryEventId &&
+    (snapshot.game.mainStoryEntryReason === 'after_first_action' ||
+      snapshot.game.mainStoryEntryReason === 'after_second_action')
+      ? snapshot.game.mainStoryEntryReason
+      : activeMainStoryEventId
+        ? 'after_first_action'
+        : null;
+  const maxRestorableActIndex = Math.min(LALA_ARRIVAL_ACT_IDS.length - 1, mainStoryActs.length);
+  const mainStoryActIndex =
+    activeMainStoryEventId && typeof snapshot.game.mainStoryActIndex === 'number'
+      ? Math.min(maxRestorableActIndex, Math.max(0, Math.trunc(snapshot.game.mainStoryActIndex)))
       : 0;
+  const currentStoryAct = mainStoryActs[mainStoryActIndex];
+  const mainStoryPageIndex =
+    currentStoryAct && typeof snapshot.game.mainStoryPageIndex === 'number'
+      ? Math.min(currentStoryAct.beats.length - 1, Math.max(0, Math.trunc(snapshot.game.mainStoryPageIndex)))
+      : 0;
+  const mainStoryMessages = archivedMessages
+    ? cloneJson(archivedMessages)
+    : Array.isArray(snapshot.game.mainStoryMessages)
+      ? (snapshot.game.mainStoryMessages as GalStoryMessageSave[])
+      : [];
+  const mainStoryGenerationSource =
+    mainStoryActs.length > 0 &&
+    (snapshot.game.mainStoryGenerationSource === 'tavern' || snapshot.game.mainStoryGenerationSource === 'fallback')
+      ? snapshot.game.mainStoryGenerationSource
+      : null;
   const restoredSnapshot: GameSnapshotV1 = {
     ...snapshot,
     game: {
@@ -140,7 +201,14 @@ export function restoreGameSnapshot(value: unknown): GameSnapshotV1 {
           : 2,
       activeMainStoryEventId,
       completedMainStoryEventIds,
+      mainStoryEntryReason,
+      mainStoryActIndex,
       mainStoryPageIndex,
+      mainStoryActs,
+      mainStoryMessages,
+      mainStoryGenerationStatus: currentStoryAct ? 'ready' : 'idle',
+      mainStoryGenerationSource,
+      mainStoryGenerationError: null,
     },
   };
 

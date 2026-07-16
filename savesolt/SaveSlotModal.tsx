@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { gameSaveApi, toSaveSummary, type SaveProbeResult, type SaveSummary } from '../save';
+import { DEFAULT_SAVE_SLOT, gameSaveApi, toSaveSummary, type SaveProbeResult, type SaveSummary } from '../save';
 import { PERIODS } from '../stores/gameStore';
 import { LOCATIONS } from '../stores/mapStore';
 import './SaveSlotModal.css';
@@ -15,6 +15,7 @@ interface SaveSlotModalProps {
 interface SlotView {
   id: string;
   number: number;
+  isAutosave?: boolean;
   save?: SaveSummary;
 }
 
@@ -58,7 +59,11 @@ function getPeriodLabel(periodIndex?: number): string {
 
 function describeBackend(probe: SaveProbeResult | null): string {
   if (!probe) return '正在检查存档位置';
-  return probe.backend === 'tavern-file' ? 'SillyTavern 本地文件存档' : '当前浏览器临时存档';
+  return 'SillyTavern 本地存档与对话档';
+}
+
+function getSlotLabel(slot: SlotView): string {
+  return slot.isAutosave ? '自动存档' : `槽位 ${String(slot.number).padStart(2, '0')}`;
 }
 
 function toErrorMessage(error: unknown): string {
@@ -77,8 +82,13 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
 
   const slots = useMemo<SlotView[]>(() => {
     const savesBySlot = new Map(saves.map(save => [save.slotId, save]));
-    return SAVE_SLOT_IDS.map((id, index) => ({ id, number: index + 1, save: savesBySlot.get(id) }));
-  }, [saves]);
+    const manualSlots = SAVE_SLOT_IDS.map((id, index) => ({ id, number: index + 1, save: savesBySlot.get(id) }));
+    if (mode === 'save') return manualSlots;
+    return [
+      { id: DEFAULT_SAVE_SLOT, number: 0, isAutosave: true, save: savesBySlot.get(DEFAULT_SAVE_SLOT) },
+      ...manualSlots,
+    ];
+  }, [mode, saves]);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,7 +164,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
         const summary = toSaveSummary(result.save);
         setSaves(current => [summary, ...current.filter(save => save.saveUuid !== summary.saveUuid)]);
         onSavesChanged?.(true);
-        setNotice({ kind: 'success', text: `已保存到槽位 ${String(slot.number).padStart(2, '0')}` });
+        setNotice({ kind: 'success', text: `已保存到${getSlotLabel(slot)}` });
       } else {
         await gameSaveApi.load(slot.id, slot.save?.saveUuid);
         onSavesChanged?.(true);
@@ -223,19 +233,13 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
           </button>
         </header>
 
-        <div className={`save-slot-backend ${probe?.backend === 'tavern-file' ? 'is-tavern' : 'is-browser'}`}>
+        <div className={`save-slot-backend ${probe ? 'is-tavern' : 'is-checking'}`}>
           <span className="save-slot-backend-dot" aria-hidden="true" />
           <strong>{describeBackend(probe)}</strong>
           {probe && <span>{probe.saveCount} 个存档</span>}
           {probe?.storagePath && <span>{probe.storagePath}</span>}
           {probe?.uuidMode === 'math-random' && <span>兼容 UUID 模式</span>}
         </div>
-
-        {probe?.backend === 'browser-local' && (
-          <p className="save-slot-warning" role="status">
-            未连接 SillyTavern 文件存档脚本；当前只会保存在这台设备的这个浏览器中。
-          </p>
-        )}
 
         {notice && (
           <p className={`save-slot-notice is-${notice.kind}`} role="status">
@@ -261,13 +265,13 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
                 onClick={() => requestSlotAction(slot)}
                 aria-label={
                   isEmpty
-                    ? `槽位 ${slot.number}，空存档`
-                    : `槽位 ${slot.number}，${preview?.date ? `${preview.date.month}月${preview.date.day}日` : `第 ${preview?.day ?? '?'} 天`}，${actionLabel}`
+                    ? `${getSlotLabel(slot)}，空存档`
+                    : `${getSlotLabel(slot)}，${preview?.date ? `${preview.date.month}月${preview.date.day}日` : `第 ${preview?.day ?? '?'} 天`}，${actionLabel}`
                 }
               >
                 <span className="save-slot-bubble" aria-hidden="true">
                   <span className="save-slot-bubble-shine" />
-                  <small>SLOT</small>
+                  <small>{slot.isAutosave ? 'AUTO' : 'SLOT'}</small>
                   <b>{String(slot.number).padStart(2, '0')}</b>
                   <span className="save-slot-bubble-state">{isEmpty ? '+' : '✓'}</span>
                 </span>
@@ -324,8 +328,8 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
               <p>{mode === 'save' ? 'SAVE DATA' : 'LOAD DATA'}</p>
               <h3 id="save-confirm-title">
                 {mode === 'save' && confirmTarget.save
-                  ? `覆盖槽位 ${String(confirmTarget.number).padStart(2, '0')}？`
-                  : `${actionLabel}槽位 ${String(confirmTarget.number).padStart(2, '0')}？`}
+                  ? `覆盖${getSlotLabel(confirmTarget)}？`
+                  : `${actionLabel}${getSlotLabel(confirmTarget)}？`}
               </h3>
               <span>
                 {mode === 'save' && confirmTarget.save

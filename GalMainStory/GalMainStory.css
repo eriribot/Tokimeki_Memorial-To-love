@@ -19,12 +19,119 @@
   outline-offset: -5px;
 }
 
+.gal-main-story.is-generating {
+  cursor: default;
+}
+
 .gal-main-story__background,
 .gal-main-story__shade {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.gal-main-story__act-label {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  z-index: 5;
+  padding: 6px 12px;
+  border-left: 5px solid #ff6b9e;
+  background: rgba(20, 25, 38, 0.76);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
+}
+
+.gal-main-story__generation-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  display: grid;
+  width: min(76%, 520px);
+  padding: 24px 28px;
+  gap: 12px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 6px;
+  background: rgba(18, 25, 38, 0.9);
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+}
+
+.gal-main-story__generation-panel strong {
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.gal-main-story__generation-panel p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.gal-main-story__generation-panel.is-error {
+  border-color: rgba(255, 150, 150, 0.78);
+}
+
+.gal-main-story__scanner {
+  display: flex;
+  height: 20px;
+  align-items: end;
+  justify-content: center;
+  gap: 5px;
+}
+
+.gal-main-story__scanner span {
+  width: 5px;
+  height: 8px;
+  background: #ff7aaa;
+  animation: story-scanner 720ms ease-in-out infinite alternate;
+}
+
+.gal-main-story__scanner span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.gal-main-story__scanner span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.gal-main-story__generation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.gal-main-story__generation-actions button {
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 4px;
+  background: #ec6d9d;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.gal-main-story__generation-actions button:last-child {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.gal-main-story[data-effect='flash'] .gal-main-story__shade {
+  animation: story-flash 420ms ease-out both;
+}
+
+.gal-main-story[data-effect='shake'] .gal-main-story__background,
+.gal-main-story[data-effect='shake'] .lala-portrait-stage {
+  animation: story-shake 300ms ease-out both;
 }
 
 .gal-main-story__background {
@@ -397,6 +504,42 @@
   }
 }
 
+@keyframes story-scanner {
+  from {
+    height: 7px;
+    opacity: 0.5;
+  }
+  to {
+    height: 20px;
+    opacity: 1;
+  }
+}
+
+@keyframes story-flash {
+  0% {
+    background: rgba(255, 255, 255, 0.94);
+  }
+  100% {
+    background: rgba(3, 11, 22, 0.12);
+  }
+}
+
+@keyframes story-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-7px);
+  }
+  55% {
+    transform: translateX(6px);
+  }
+  78% {
+    transform: translateX(-3px);
+  }
+}
+
 /* Tablet landscape: common 768-1024px game surfaces. */
 @container game-frame (max-width: 1023px) {
   .lala-portrait-stage {
@@ -436,6 +579,28 @@
 
 /* Phone landscape: 667x375, 844x390 and 915x412 class viewports. */
 @container game-frame (max-width: 639px) {
+  .gal-main-story__act-label {
+    top: 8px;
+    left: 8px;
+    max-width: 52%;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .gal-main-story__generation-panel {
+    width: min(88%, 430px);
+    padding: 16px 18px;
+    gap: 8px;
+  }
+
+  .gal-main-story__generation-panel strong {
+    font-size: 16px;
+  }
+
+  .gal-main-story__generation-panel p {
+    font-size: 12px;
+  }
+
   .lala-portrait-stage {
     right: 3%;
     bottom: 30%;
@@ -533,6 +698,13 @@
 
   .gal-main-story__push .push-frame {
     display: none;
+    animation: none;
+  }
+
+  .gal-main-story__scanner span,
+  .gal-main-story[data-effect='flash'] .gal-main-story__shade,
+  .gal-main-story[data-effect='shake'] .gal-main-story__background,
+  .gal-main-story[data-effect='shake'] .lala-portrait-stage {
     animation: none;
   }
 

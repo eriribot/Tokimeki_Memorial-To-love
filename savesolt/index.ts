@@ -86,10 +86,7 @@ function hasShujukuApi(): boolean {
       if ((currentWindow as Window & { AutoCardUpdaterAPI?: unknown }).AutoCardUpdaterAPI) {
         return true;
       }
-
-      if (currentWindow.parent === currentWindow) {
-        break;
-      }
+      if (currentWindow.parent === currentWindow) break;
       currentWindow = currentWindow.parent;
     } catch {
       break;
@@ -153,9 +150,7 @@ async function readSlotFile(slotId: string): Promise<SaveRecord | null> {
     headers: getRequestHeaders(),
   });
 
-  if (response.status === 404) {
-    return null;
-  }
+  if (response.status === 404) return null;
   if (!response.ok) {
     throw new Error(`读取 ${getSaveFileName(slotId)} 失败：${await getResponseError(response)}`);
   }
@@ -270,18 +265,14 @@ async function load(request: SaveRequest): Promise<SaveLoadResult> {
 
 async function remove(request: SaveRequest): Promise<SaveDeleteResult> {
   const save = await resolveSave(request);
-  if (!save) {
-    return { deleted: false, saveUuid: null };
-  }
+  if (!save) return { deleted: false, saveUuid: null };
 
   const response = await fetch('/api/files/delete', {
     method: 'POST',
     headers: getRequestHeaders(),
     body: JSON.stringify({ path: getSaveFilePath(save.slotId) }),
   });
-  if (response.status === 404) {
-    return { deleted: false, saveUuid: null };
-  }
+  if (response.status === 404) return { deleted: false, saveUuid: null };
   if (!response.ok) {
     throw new Error(`删除 ${getSaveFileName(save.slotId)} 失败：${await getResponseError(response)}`);
   }

@@ -2,11 +2,12 @@ import { create } from 'zustand';
 import harukaCard from '../data/default-cards/haruka.json';
 import miyukiCard from '../data/default-cards/miyuki.json';
 import rinCard from '../data/default-cards/rin.json';
+import rikoCard from '../data/default-cards/riko.json';
 import sakuraCard from '../data/default-cards/sakura.json';
 import type { CharacterStore } from '../types';
 import { useCardStore } from './cardStore';
 
-const DEFAULT_CARDS: readonly unknown[] = [harukaCard, miyukiCard, rinCard, sakuraCard];
+const DEFAULT_CARDS: readonly unknown[] = [rikoCard, sakuraCard, harukaCard, miyukiCard, rinCard];
 
 async function initializeDefaultCards(): Promise<void> {
   const cardStore = useCardStore.getState();
