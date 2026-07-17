@@ -1,0 +1,70 @@
+{
+  "autosave": {
+    "diagnostics": {
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": []
+    },
+    "startState": {
+      "screen": "start",
+      "canContinue": false,
+      "isPlaying": false
+    },
+    "saveDeletes": [
+      {
+        "channel": "save",
+        "action": "delete",
+        "slotId": "autosave",
+        "saveUuid": "save-autosave-test-uuid"
+      },
+      {
+        "channel": "save",
+        "action": "delete",
+        "slotId": "autosave",
+        "saveUuid": "autosave-generated-test-uuid"
+      }
+    ],
+    "messageDeletes": [
+      {
+        "channel": "message",
+        "action": "delete",
+        "slotId": "autosave",
+        "saveUuid": "save-autosave-test-uuid"
+      },
+      {
+        "channel": "message",
+        "action": "delete",
+        "slotId": "autosave",
+        "saveUuid": "autosave-generated-test-uuid"
+      }
+    ],
+    "saveWrites": [
+      {
+        "channel": "save",
+        "action": "write",
+        "slotId": "autosave",
+        "saveUuid": null
+      },
+      {
+        "channel": "save",
+        "action": "write",
+        "slotId": "autosave",
+        "saveUuid": null
+      }
+    ],
+    "messageWrites": [
+      {
+        "channel": "message",
+        "action": "write",
+        "slotId": "autosave",
+        "saveUuid": "autosave-generated-test-uuid"
+      },
+      {
+        "channel": "message",
+        "action": "write",
+        "slotId": "autosave",
+        "saveUuid": "autosave-generated-test-uuid"
+      }
+    ]
+  }
+}

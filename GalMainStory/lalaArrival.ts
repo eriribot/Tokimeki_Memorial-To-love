@@ -1,12 +1,34 @@
 import type { CalendarDateValue } from '../types';
-import type { GalStoryAct, MainStoryEntryReason } from './storyTypes';
+import type { GalStoryAct, MainStoryEntryReason, StoryStagePresentation } from './storyTypes';
 
 export const LALA_ARRIVAL_EVENT_ID = 'main.lala-arrival-2008-04-07';
 
+export const LALA_ARRIVAL_LORE_REFERENCE = {
+  worldbookName: '出包王女',
+  entryUid: 2,
+  entryName: '剧情第一集',
+  rootTag: 'To LOVE-Ru TV Episode 01',
+  requiredContentMarker: '标题:从天而降的少女',
+} as const;
+
 export const LALA_ARRIVAL_ACTS = [
-  { id: 'ep01.act1-falling-star', title: '放学后的坠落光' },
-  { id: 'ep01.act2-bathroom', title: '浴室里的王女' },
-] as const;
+  {
+    id: 'ep01.act1-falling-star',
+    title: '放学后的坠落光',
+    presentation: {
+      initialBackground: 'school',
+      transitions: [{ atProgress: 0.8, background: 'night' }],
+    },
+  },
+  {
+    id: 'ep01.act2-bathroom',
+    title: '浴室里的王女',
+    presentation: {
+      initialBackground: 'night',
+      transitions: [{ atProgress: 0.8, background: 'school' }],
+    },
+  },
+] as const satisfies readonly { id: string; title: string; presentation: StoryStagePresentation }[];
 
 export const LALA_ARRIVAL_ACT_IDS = LALA_ARRIVAL_ACTS.map(act => act.id);
 

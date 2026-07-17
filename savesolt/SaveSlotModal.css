@@ -13,6 +13,7 @@
   padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
     max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   overflow: hidden;
+  overflow: clip;
   color: #f7fbff;
   font-family: 'FOT Seurat Pro', 'Segoe UI', 'Microsoft YaHei', sans-serif;
   background:
@@ -402,6 +403,11 @@
   scrollbar-color: rgba(96, 207, 255, 0.58) rgba(4, 20, 45, 0.28);
 }
 
+.save-slot-item {
+  position: relative;
+  min-width: 0;
+}
+
 .save-slot-window .save-slot-card {
   position: relative;
   width: 100%;
@@ -480,6 +486,54 @@
 .save-slot-window .save-slot-card:disabled {
   cursor: default;
   opacity: 0.58;
+}
+
+.save-slot-window .save-slot-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  width: 48px;
+  min-width: 48px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 145, 169, 0.72);
+  border-radius: 12px 4px 12px 4px;
+  color: #ffe8ee;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  background: rgba(100, 20, 49, 0.88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 5px 12px rgba(15, 0, 9, 0.28);
+  filter: none;
+  transform: none;
+}
+
+.save-slot-window .save-slot-delete::before,
+.save-slot-window .save-slot-delete::after {
+  content: none;
+}
+
+.save-slot-window .save-slot-delete:not(:disabled):hover,
+.save-slot-window .save-slot-delete:not(:disabled):focus-visible {
+  border-color: #ffb0c2;
+  background: rgba(142, 27, 66, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 2px rgba(255, 128, 157, 0.18),
+    0 7px 16px rgba(15, 0, 9, 0.34);
+  filter: brightness(1.06);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.save-slot-window .save-slot-delete:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .save-slot-window .save-slot-card.is-empty {
@@ -588,6 +642,10 @@
   justify-content: center;
   gap: 5px;
   padding: 3px 0;
+}
+
+.save-slot-item.has-data .save-slot-card-body {
+  padding-right: 42px;
 }
 
 .save-slot-summary {
@@ -753,6 +811,12 @@
   background: linear-gradient(180deg, #a0ecff, #4fc5ee);
 }
 
+.save-slot-window .save-slot-confirm button.is-danger {
+  border-color: #ff9db3;
+  color: #fff6f8;
+  background: linear-gradient(180deg, #d84b70, #8f2145);
+}
+
 .save-slot-window .save-slot-confirm button:hover,
 .save-slot-window .save-slot-confirm button:focus-visible {
   box-shadow: 0 0 18px rgba(80, 205, 255, 0.26);
@@ -901,6 +965,17 @@
     text-align: center;
   }
 
+  .save-slot-window .save-slot-delete {
+    top: 5px;
+    right: 5px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+    padding: 0;
+    font-size: 9px;
+  }
+
   .save-slot-bubble {
     width: 56px;
   }
@@ -920,6 +995,10 @@
     align-self: auto;
     justify-content: flex-start;
     gap: 3px;
+  }
+
+  .save-slot-item.has-data .save-slot-card-body {
+    padding-right: 0;
   }
 
   .save-slot-summary strong,
@@ -966,6 +1045,16 @@
 
   .save-slot-confirm {
     padding: 22px 20px 18px;
+  }
+
+  .save-slot-confirm > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .save-slot-window .save-slot-confirm button {
+    min-width: 0;
+    width: 100%;
   }
 }
 

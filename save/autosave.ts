@@ -14,6 +14,13 @@ interface TavernAutosaveOptions {
   onError?: (error: Error) => void;
 }
 
+interface TavernAutosaveRuntime {
+  pause: () => Promise<string | null>;
+  resume: (fingerprint: string | null) => void;
+}
+
+let activeAutosaveRuntime: TavernAutosaveRuntime | null = null;
+
 function toError(value: unknown): Error {
   return value instanceof Error ? value : new Error(String(value));
 }
@@ -38,18 +45,38 @@ function createAutosaveFingerprint(snapshot: GameSnapshotV1, messages: ReturnTyp
   });
 }
 
+export async function withTavernAutosavePaused<T>(
+  operation: () => Promise<T>,
+  shouldAdoptFingerprintOnError: () => boolean = () => false,
+): Promise<T> {
+  const runtime = activeAutosaveRuntime;
+  if (!runtime) return operation();
+
+  const fingerprint = await runtime.pause();
+  let completed = false;
+  try {
+    const result = await operation();
+    completed = true;
+    return result;
+  } finally {
+    runtime.resume(completed || shouldAdoptFingerprintOnError() ? fingerprint : null);
+  }
+}
+
 export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => void {
   const delayMs = Math.max(0, options.delayMs ?? DEFAULT_AUTOSAVE_DELAY_MS);
   let timer: ReturnType<typeof setTimeout> | null = null;
   let dirty = false;
   let writing = false;
   let disposed = false;
+  let suspended = false;
+  let currentWrite: Promise<void> | null = null;
   let pendingFingerprint: string | null = null;
   let persistedFingerprint: string | null = null;
 
   const persist = async () => {
     timer = null;
-    if (disposed || !dirty || !canAutosave()) {
+    if (disposed || suspended || !dirty || !canAutosave()) {
       dirty = false;
       return;
     }
@@ -67,21 +94,29 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     dirty = false;
     pendingFingerprint = null;
     writing = true;
+    const write = (async () => {
+      try {
+        const { save } = await saveClient.write(DEFAULT_SAVE_SLOT, snapshot, undefined, createSavePreview(snapshot));
+        await gameMessageApi.saveFor(save, messages);
+        persistedFingerprint = fingerprint;
+        options.onSaved?.(save);
+      } catch (error) {
+        options.onError?.(toError(error));
+      } finally {
+        writing = false;
+        if (dirty && !disposed && !suspended) schedule();
+      }
+    })();
+    currentWrite = write;
     try {
-      const { save } = await saveClient.write(DEFAULT_SAVE_SLOT, snapshot, undefined, createSavePreview(snapshot));
-      await gameMessageApi.saveFor(save, messages);
-      persistedFingerprint = fingerprint;
-      options.onSaved?.(save);
-    } catch (error) {
-      options.onError?.(toError(error));
+      await write;
     } finally {
-      writing = false;
-      if (dirty && !disposed) schedule();
+      if (currentWrite === write) currentWrite = null;
     }
   };
 
   const schedule = () => {
-    if (!canAutosave()) return;
+    if (suspended || !canAutosave()) return;
     const snapshot = createGameSnapshot();
     const messages = captureGameMessages();
     const fingerprint = createAutosaveFingerprint(snapshot, messages);
@@ -93,7 +128,7 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
   };
 
   const flush = () => {
-    if (!canAutosave()) return;
+    if (suspended || !canAutosave()) return;
     const snapshot = createGameSnapshot();
     const messages = captureGameMessages();
     const fingerprint = createAutosaveFingerprint(snapshot, messages);
@@ -107,6 +142,28 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     void persist();
   };
 
+  const runtime: TavernAutosaveRuntime = {
+    pause: async () => {
+      suspended = true;
+      dirty = false;
+      pendingFingerprint = null;
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      await currentWrite;
+      if (disposed || !canAutosave()) return null;
+      return createAutosaveFingerprint(createGameSnapshot(), captureGameMessages());
+    },
+    resume: fingerprint => {
+      if (disposed) return;
+      if (fingerprint !== null) persistedFingerprint = fingerprint;
+      suspended = false;
+      schedule();
+    },
+  };
+  activeAutosaveRuntime = runtime;
+
   const unsubscribers = [
     useGameStore.subscribe(schedule),
     usePlayerStore.subscribe(schedule),
@@ -116,8 +173,10 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
 
   return () => {
     disposed = true;
+    suspended = true;
     if (timer !== null) clearTimeout(timer);
     globalThis.removeEventListener('pagehide', flush);
     unsubscribers.forEach(unsubscribe => unsubscribe());
+    if (activeAutosaveRuntime === runtime) activeAutosaveRuntime = null;
   };
 }

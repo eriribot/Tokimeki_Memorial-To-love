@@ -2,6 +2,7 @@ import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
 import { createGameSnapshot, createSavePreview, restoreGameSnapshot, type GameSnapshotV1 } from './snapshot';
 import { captureGameMessages, gameMessageApi } from '../message';
+import { withTavernAutosavePaused } from './autosave';
 
 export * from './client';
 export * from './autosave';
@@ -39,9 +40,14 @@ export const gameSaveApi = {
     return save;
   },
   delete: async (slotId = DEFAULT_SAVE_SLOT, saveUuid?: string) => {
-    const result = await saveClient.delete(slotId, saveUuid);
-    await gameMessageApi.deleteFor(slotId, result.saveUuid ?? saveUuid);
-    return result;
+    let mainSaveDeleted = false;
+    const deleteFiles = async () => {
+      const result = await saveClient.delete(slotId, saveUuid);
+      mainSaveDeleted = result.deleted;
+      await gameMessageApi.deleteFor(slotId, result.saveUuid ?? saveUuid);
+      return result;
+    };
+    return slotId === DEFAULT_SAVE_SLOT ? withTavernAutosavePaused(deleteFiles, () => mainSaveDeleted) : deleteFiles();
   },
   resetBackend: () => {
     saveClient.resetBackend();

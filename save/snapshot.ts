@@ -1,4 +1,5 @@
 import { useCardStore } from '../stores/cardStore';
+import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
@@ -476,6 +477,10 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
     isLoading: false,
     error: null,
   });
+
+  // Old saves predate newer bundled characters (e.g. haruna); top up any that
+  // are missing instead of letting the snapshot permanently hide them.
+  void syncDefaultCards();
 
   return restoredSnapshot;
 }

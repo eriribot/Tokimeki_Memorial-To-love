@@ -11,6 +11,16 @@ export type StoryGenerationSource = 'tavern' | 'fallback';
 export type GalStoryMessageOutcome = 'accepted' | 'parse_error';
 export type GalStoryFloorOutcome = GalStoryMessageOutcome | 'request_error';
 
+export interface StoryBackgroundTransition {
+  atProgress: number;
+  background: StoryBackgroundId;
+}
+
+export interface StoryStagePresentation {
+  initialBackground: StoryBackgroundId;
+  transitions: readonly StoryBackgroundTransition[];
+}
+
 export interface GalStoryBeat {
   speaker: string | null;
   text: string;

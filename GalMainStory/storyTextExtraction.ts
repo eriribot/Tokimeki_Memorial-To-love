@@ -71,7 +71,7 @@ function normalizeTagName(value: string): string {
 }
 
 function unwrapCodeFence(text: string): string {
-  return text.startsWith('```') ? text.replace(/^```(?:text|txt|markdown)?\s*/iu, '').replace(/\s*```$/u, '') : text;
+  return text.startsWith('```') ? text.replace(/^```[^\r\n]*\r?\n?/u, '').replace(/\s*```$/u, '') : text;
 }
 
 function parseTags(text: string): ParsedTags {

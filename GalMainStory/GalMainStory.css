@@ -224,13 +224,44 @@
 
 .gal-main-story__dialogue {
   position: absolute;
-  right: 3%;
+  right: auto;
   bottom: 2.5%;
-  left: 3%;
+  left: 50%;
   z-index: 4;
-  height: auto;
-  aspect-ratio: 1024 / 160;
+  container-type: inline-size;
+  width: 95%;
+  max-width: 1400px;
+  height: calc(var(--gal-band) + 52px);
+  max-height: 46%;
+  transform: translateX(-50%);
   color: #28222b;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  --gal-font: clamp(15px, 1.7cqi, 21px);
+  --gal-lh: calc(var(--gal-font) * 1.6);
+  /* White band hugs three text lines plus vertical padding, like a classic galgame window. */
+  --gal-band: calc(var(--gal-lh) * 5.4);
+  --gal-plate-h: clamp(32px, 3.4cqi, 52px);
+}
+
+/* Readable light band behind the text: the source window art is nearly
+   transparent, so long paragraphs need a real backdrop of their own. */
+.gal-main-story__dialogue::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: var(--gal-band);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 253, 254, 0.66) 0%, rgba(255, 240, 246, 0.82) 100%);
+  box-shadow: 0 12px 28px rgba(21, 15, 25, 0.28);
+  -webkit-backdrop-filter: blur(4px) saturate(1.08);
+  backdrop-filter: blur(4px) saturate(1.08);
+  pointer-events: none;
 }
 
 .gal-main-story__window {
@@ -240,23 +271,30 @@
   left: 0;
   display: block;
   width: 100%;
-  height: 80%;
+  height: var(--gal-band);
   object-fit: fill;
   filter: drop-shadow(0 9px 16px rgba(21, 15, 25, 0.28));
   pointer-events: none;
 }
 
+/* Nameplate straddles the top edge of the white band. */
 .gal-main-story__nameplate,
 .gal-main-story__speaker {
   position: absolute;
-  bottom: 60%;
+  bottom: calc(var(--gal-band) - var(--gal-plate-h) * 0.45);
   left: 1.172%;
   z-index: 2;
 }
 
 .gal-main-story__nameplate {
-  width: 25%;
-  aspect-ratio: 4 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 17%;
+  max-width: 60%;
+  height: var(--gal-plate-h);
+  aspect-ratio: auto;
   pointer-events: none;
 }
 
@@ -266,40 +304,48 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
 }
 
 .gal-main-story__nameplate strong {
-  position: absolute;
-  inset: 0 31.25% 0 12.5%;
+  position: relative;
   z-index: 1;
-  display: grid;
-  place-items: center;
+  display: block;
+  padding: 0 1.6em 0 0.8em;
+  overflow: hidden;
   color: #272129;
-  font-size: 20px;
+  font-size: var(--gal-font);
   font-weight: 700;
   line-height: 1;
+  text-overflow: ellipsis;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
 }
 
 .gal-main-story__speaker {
   display: grid;
-  min-width: 132px;
-  min-height: 42px;
+  min-width: 5em;
+  height: var(--gal-plate-h);
+  max-width: 60%;
   margin: 0;
-  padding: 5px 22px 7px;
+  padding: 0 1.1em;
   place-items: center;
+  overflow: hidden;
   border-left: 8px solid #ff689d;
   background: rgba(255, 255, 255, 0.96);
   color: #242027;
   box-shadow: 4px 5px 0 rgba(232, 93, 139, 0.3);
-  font-size: 20px;
+  font-size: var(--gal-font);
   line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Text stays strictly inside the white band: the 52px strip above the band
+   is reserved for the nameplate overhang and the paging controls. */
 .gal-main-story__copy {
   position: absolute;
-  inset: 46.25% 11.719% 2.5% 10.938%;
+  inset: calc(52px + var(--gal-lh)) 6.5% calc(var(--gal-lh) * 0.8) 6.5%;
   z-index: 2;
   display: flex;
   align-items: flex-start;
@@ -315,7 +361,7 @@
 }
 
 .gal-main-story[data-speaker-ui='narration'] .gal-main-story__copy {
-  inset: 24% 11.719% 4% 8%;
+  inset: calc(52px + var(--gal-lh) * 0.55) 6.5% calc(var(--gal-lh) * 0.8) 6.5%;
 }
 
 .gal-main-story__copy p {
@@ -323,8 +369,8 @@
   width: 100%;
   margin: 0;
   color: #28222b;
-  font-size: 20px;
-  line-height: 1.55;
+  font-size: var(--gal-font);
+  line-height: 1.6;
   letter-spacing: 0;
   overflow-wrap: anywhere;
 }
@@ -337,10 +383,11 @@
 .gal-main-story__push {
   position: absolute;
   right: 2.344%;
-  bottom: 6.25%;
+  bottom: 12px;
   z-index: 3;
   display: block;
   width: 7.422%;
+  max-width: 76px;
   height: auto;
   aspect-ratio: 76 / 50;
   pointer-events: none;
@@ -908,32 +955,9 @@
     width: 48%;
   }
 
-  .gal-main-story__dialogue {
-    right: 2%;
-    bottom: 2%;
-    left: 2%;
-  }
-
-  .gal-main-story__copy {
-    inset: 46.25% 13% 2.5% 8%;
-  }
-
-  .gal-main-story__copy p {
-    font-size: 17px;
-    line-height: 1.45;
-  }
-
-  .gal-main-story__nameplate {
-    width: 25%;
-  }
-
   .gal-main-story__push {
     width: 7.422%;
     height: auto;
-  }
-
-  .gal-main-story__nameplate strong {
-    font-size: 18px;
   }
 }
 
@@ -1019,48 +1043,38 @@
     right: 1%;
     bottom: 2%;
     left: 1%;
-    height: 104px;
-    aspect-ratio: auto;
-  }
-
-  .gal-main-story__window {
-    height: 100%;
+    width: auto;
+    max-width: none;
+    height: calc(var(--gal-band) + 30px);
+    max-height: none;
+    transform: none;
+    --gal-font: 13px;
+    --gal-band: calc(var(--gal-lh) * 4.8);
+    --gal-plate-h: 28px;
   }
 
   .gal-main-story__nameplate,
   .gal-main-story__speaker {
-    top: -18px;
-    bottom: auto;
+    bottom: calc(var(--gal-band) - 12px);
     left: 10px;
   }
 
   .gal-main-story__nameplate {
-    width: 128px;
-  }
-
-  .gal-main-story__nameplate strong {
-    font-size: 14px;
+    min-width: 96px;
   }
 
   .gal-main-story__speaker {
     min-width: 92px;
-    min-height: 32px;
-    padding: 4px 14px 5px;
+    padding: 0 0.9em;
     border-left-width: 5px;
-    font-size: 15px;
   }
 
   .gal-main-story__copy {
-    inset: 24px 56px 4px 16px;
+    inset: calc(30px + var(--gal-lh) * 0.95) 14px calc(var(--gal-lh) * 0.6) 12px;
   }
 
   .gal-main-story[data-speaker-ui='narration'] .gal-main-story__copy {
-    inset: 24px 56px 4px 16px;
-  }
-
-  .gal-main-story__copy p {
-    font-size: 13px;
-    line-height: 1.35;
+    inset: calc(30px + var(--gal-lh) * 0.45) 14px calc(var(--gal-lh) * 0.6) 12px;
   }
 
   .gal-main-story__push {

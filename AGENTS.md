@@ -1,87 +1,76 @@
-# webgame-ui — 校园心动回忆 (Tokimeki Memorial × To Love)
+# webgame-ui — 校园心动回忆
 
-## Repository Purpose
+React/TypeScript dating-sim frontend embedded in SillyTavern through Tavern Helper. Players navigate the school, spend
+action points, meet characters, build affection, and play generated GAL story scenes.
 
-A dating-sim-style web game frontend (`校园心动回忆`) that runs as an embedded UI within SillyTavern via the Tavern Helper plugin. Players navigate a school map, interact with characters, build affection, and advance through daily time periods.
+## Active truth and precedence
 
-## Key Directories
+- This subtree uses React, Zustand, and project CSS. These rules override root template defaults that prefer Vue, Pinia,
+  Tailwind, or unchecked Tavern globals.
+- `MODULES.md` is the current runtime/module authority.
+- `ALDENT_STATUS.md` is the current human-review scope and evidence record.
+- `progress.md` is historical archive only; never use an old entry as current behavior.
+- When documentation conflicts with executable code, inspect the code and repair the active documentation before
+  expanding scope.
 
-| Directory | Purpose |
-|-----------|---------|
-| `components/` | React TSX components (SchoolMap, ClassroomScene, Controls, StatPanel, SpecialSkillPanel, etc.) |
-| `stores/` | Zustand stores (cardStore, characterStore, gameStore, mapStore, playerStore) |
-| `data/` | Card schema (`cardSchema.ts`), skills data (`skills.ts`), default character JSON cards |
-| `utils/` | `assetPath.ts`, `cardLoader.ts`, `placeholderGenerator.tsx` |
-| `artsource/` | Art assets: `backgrounds/`, `characters/`, `chibis/`, `Tachie/`, `ui/` |
-| `assets/` | Additional static assets |
-| `.agents/` | (empty — reserved for agent instructions) |
-| `artsource/backgrounds/` | School map background and scene backgrounds |
+## Commands
 
-## Build & Dev Commands
+Run from `D:\webgame\tavern_helper_template-main`, where `package.json`, webpack config, TypeScript config, lockfile,
+and dependencies live.
 
-Commands are run from the **repo root** (`D:\webgame\tavern_helper_template-main\`), not this subdirectory:
+| Command          | Purpose                      |
+| ---------------- | ---------------------------- |
+| `pnpm build:dev` | Unminified development build |
+| `pnpm build`     | Production build             |
+| `pnpm watch`     | Watched development build    |
+| `pnpm format`    | Prettier                     |
+| `pnpm lint`      | ESLint                       |
 
-| Command | Action |
-|---------|--------|
-| `pnpm build:dev` | Webpack dev build (unminified) |
-| `pnpm build` | Webpack production build |
-| `pnpm watch` | Dev build with file watching |
-| `pnpm format` | Prettier format all source files |
-| `pnpm lint` | ESLint check |
-| `pnpm lint:fix` | ESLint auto-fix |
+For any Tavern inline artifact, also run:
 
-**Package manager:** pnpm (see `pnpm-lock.yaml` at repo root)
+```text
+node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
+```
 
-## Architecture & Conventions
+## Architecture
 
-### State Management
-- All stores use **Zustand** (`create()` from `zustand`)
-- **gameStore** — Day/period/location/scene state, event system, game lifecycle
-- **cardStore** — SillyTavern-compatible character cards (V2 spec), targets management, affection
-- **characterStore** — Character display/positioning on map
-- **mapStore** — Map grid dimensions, locations coordinate data
-- **playerStore** — Player stats
+- `stores/gameStore.ts`: date, period, action points, location/scene, main story, lifecycle.
+- `stores/cardStore.ts`: SillyTavern V2 cards, targets, locations, affection.
+- `stores/characterStore.ts`, `mapStore.ts`, `playerStore.ts`: presentation and player/map state.
+- `services/storyGenerationPrompt.ts`: reusable runtime-stage, event-completion, completion-sentinel, and GAL output
+  contracts. It contains no episode plot or character lore.
+- `services/tavernStoryGeneration.ts`: current event adapter, accepted-history context, Tavern generation, and
+  plain-text parsing. It does not settle AP, affection, dates, or host floors.
+- `GalMainStory/`: story definitions, loading/error/fallback state, GAL rendering. It does not recalculate game state.
+- `data/storyLore.ts` read-only loads the designated disabled plot entry from the real Tavern worldbook by stable
+  UID/name, validates its content markers, and formats one event-scoped lore block. It never changes worldbook state.
+- `data/lore-books/tolove-tv-episode-01.txt` is the recovery source used to populate that Tavern entry; it is not
+  imported into the runtime bundle. `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
+- `save/` and `message/`: snapshots and the game-owned message mirror.
 
-### Card System
-- Follows **SillyTavern chara_card_v2** spec (`data/cardSchema.ts`)
-- Cards loaded from JSON, PNG (embedded metadata), or URL via `utils/cardLoader.ts`
-- Game-specific data lives in `extensions.game_data` (id, color, type, favoriteLocations, stats)
-- `cardToCharacter()` converts loaded cards into game character objects
+Scene switching uses `currentSceneId`; there is no routing library. Three periods exist: morning, afterSchool, evening.
 
-### Asset Resolution
-- All asset paths use `resolveAssetPath()` from `utils/assetPath.ts`
-- `window.__WEBGAME_ASSET_BASE__` global (defaults to `'../'`) prepended to paths starting with `/`
-- Missing assets fall back to SVG placeholders generated in `placeholderGenerator.tsx`
+## Invariants
 
-### Time System
-- 3 periods per day: morning → afterSchool → evening
-- Characters auto-assign locations per period via `getTargetLocationForPeriod()`
-- Stored in `PERIODS` constant in `gameStore.ts`
+- Zustand plus the save snapshot owns AP, date, event completion, and the current act.
+- AI output is a story candidate. It must pass local extraction/normalization before GAL rendering.
+- Length is not event completion. A candidate also needs the exact current event/stage completion sentinel as its last
+  non-empty response line; a missing sentinel is a visible parse error and protects against hard truncation. The
+  sentinel is transport evidence, not machine proof that every worldbook beat is semantically present.
+- Player-settled values remain authoritative; the model must not recalculate them.
+- The `出包王女 / 剧情第一集` entry must remain disabled. Main-story generation reads it directly and injects it once
+  with `should_scan: false`; missing, duplicate, enabled, or malformed entries fail visibly before generation.
+- `TavernHelper.generate()` proves only the generation path. It does not prove real hidden host floors, `MESSAGE_SENT`,
+  shujuku/ACU, or database hooks.
+- UI or local file-mirror success must not be described as real host/plugin integration.
+- Asset paths start with `/` and must pass through `resolveAssetPath()`.
+- `window.render_game_to_text()` exposes game state for Tavern AI. `window.advanceTime` remains an external no-op
+  placeholder.
 
-### Styling
-- CSS custom properties with `--tm-*` prefix (pink theme) defined in `App.css`
-- `enhancements.css` and `map-enhancements.css` for additional styling layers
-- `App.css` — main layout and component styles (~29KB)
+## Verification and review
 
-### UI Pattern
-- Main layout: header → map/scene area → bottom panel (stats + controls)
-- Modal overlays: `SpecialSkillPanel`, `CardImporter`
-- `EventLog` rendered as overlay
-- `map-scale` hook dynamically resizes the map to fit viewport
-
-## Git
-
-- Single branch: `main`
-- Remote: `origin https://github.com/eriribot/Tokimeki_Memorial-To-love.git`
-- The root `AGENTS.md` is a symlink -> `CLAUDE.md` (contains tavern_helper template rules)
-- Recent commits: skill tree system, school background, art asset optimization
-
-## Gotchas
-
-1. **This is a subdirectory workspace** — the `package.json`, `webpack.config.ts`, `tsconfig.json`, and `node_modules` all live at the **repo root** level (`D:\webgame\tavern_helper_template-main\`). Do not look for them here.
-2. **Asset paths** in code start with `/` (e.g. `/artsource/backgrounds/map.png`) — they get resolved by `resolveAssetPath()` at runtime.
-3. **No routing library** — scene switching is done via `currentSceneId` state (null = school map, string = classroom/other scene).
-4. **Character data** is loaded from JSON cards at runtime via `CardImporter` component — default cards live in `data/default-cards/`.
-5. **Skills system** defined in `data/skills.ts` and rendered by `SpecialSkillPanel`.
-6. The game is **embedded in SillyTavern** — `window.render_game_to_text()` exports game state as JSON for the tavern AI to read.
-7. `index.tsx` sets `window.advanceTime` as a no-op placeholder for external integration.
+- Validate the changed behavior, affected build, and exact final inline artifact when applicable.
+- Browser mocks, builds, screenshots, and scripts are evidence, not human acceptance.
+- Substantial prompt, host, database, option-settlement, Galgame, or inline-bundle work uses the Aldent review gate
+  recorded in `ALDENT_STATUS.md`.
+- Preserve unrelated dirty worktree changes.

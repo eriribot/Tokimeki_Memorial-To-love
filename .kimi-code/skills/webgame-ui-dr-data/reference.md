@@ -70,6 +70,8 @@
 
 | File | Display name | `game_data.id` | Type | Favorite locations | Color |
 |------|--------------|----------------|------|--------------------|-------|
+| `data/default-cards/riko.json` | 夕崎梨子 | `riko` | 同班同学 | `classroom`, `courtyard` | `#e96f91` |
+| `data/default-cards/haruna.json` | 西连寺春菜 | `haruna` | 同班同学 | `classroom`, `rooftop` | `#a78bfa` |
 | `data/default-cards/sakura.json` | 菈菈·薩塔琳·戴比路克 | `sakura` | 第一公主 | `classroom`, `courtyard` | `#f87171` |
 | `data/default-cards/rin.json` | 伊芙 | `rin` | 宇宙杀手 | `library`, `courtyard` | `#fbbf24` |
 | `data/default-cards/haruka.json` | 梦梦·贝莉雅·戴比路克 | `haruka` | 第三公主 | `courtyard`, `classroom` | `#f472b6` |

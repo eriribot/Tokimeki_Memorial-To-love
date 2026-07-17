@@ -12,7 +12,7 @@ import SpecialSkillPanel from './components/SpecialSkillPanel';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
 import GalMainStory from './GalMainStory/GalMainStory';
-import { DEFAULT_SAVE_SLOT, gameSaveApi, startTavernAutosave } from './save';
+import { gameSaveApi, startTavernAutosave } from './save';
 import { resumeSession } from './services/gameSession';
 import { useGameStore } from './stores/gameStore';
 import { useMapStore } from './stores/mapStore';
@@ -37,9 +37,7 @@ function App() {
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
-  const [hasAutosave, setHasAutosave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
-  const [isContinuing, setIsContinuing] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isNativePageMode, setIsNativePageMode] = useState(false);
   const [pageModeError, setPageModeError] = useState<string | null>(null);
@@ -143,7 +141,6 @@ function App() {
     () =>
       startTavernAutosave({
         onSaved: () => {
-          setHasAutosave(true);
           setHasPersistedSave(true);
           setSaveError(null);
         },
@@ -166,7 +163,6 @@ function App() {
         await gameSaveApi.probe(true);
         const result = await gameSaveApi.list();
         if (!cancelled) {
-          setHasAutosave(result.saves.some(save => save.slotId === DEFAULT_SAVE_SLOT));
           setHasPersistedSave(result.saves.length > 0);
           setSaveError(null);
         }
@@ -188,25 +184,6 @@ function App() {
   }, [screen]);
 
   const handleContinue = () => {
-    if (useGameStore.getState().hasSession) {
-      resumeSession();
-      return;
-    }
-
-    if (hasAutosave) {
-      setIsContinuing(true);
-      setSaveError(null);
-      void gameSaveApi
-        .load(DEFAULT_SAVE_SLOT)
-        .catch(error => {
-          const detail = error instanceof Error ? error.message : String(error);
-          console.error('[ToLove Save] 自动存档读取失败。', error);
-          setSaveError(`自动存档读取失败：${detail}`);
-        })
-        .finally(() => setIsContinuing(false));
-      return;
-    }
-
     if (hasPersistedSave) {
       setSaveSlotMode('load');
       return;
@@ -245,7 +222,7 @@ function App() {
       {screen === 'start' ? (
         <StartScreen
           hasPersistedSave={hasPersistedSave}
-          isCheckingSaves={isCheckingSaves || isContinuing}
+          isCheckingSaves={isCheckingSaves}
           onContinue={handleContinue}
           saveError={saveError}
         />
@@ -300,10 +277,7 @@ function App() {
                 {!isStoryOverlayOpen && isSkillPanelOpen && (
                   <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
                 )}
-                <GalMainStory
-                  historyMode={isStoryHistoryMode}
-                  onExitHistory={() => setIsStoryHistoryOpen(false)}
-                />
+                <GalMainStory historyMode={isStoryHistoryMode} onExitHistory={() => setIsStoryHistoryOpen(false)} />
               </div>
 
               <div

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_SAVE_SLOT, gameSaveApi, toSaveSummary, type SaveProbeResult, type SaveSummary } from '../save';
 import { PERIODS } from '../stores/gameStore';
 import { LOCATIONS } from '../stores/mapStore';
@@ -17,6 +17,11 @@ interface SlotView {
   number: number;
   isAutosave?: boolean;
   save?: SaveSummary;
+}
+
+interface PendingSlotAction {
+  kind: SaveSlotMode | 'delete';
+  slot: SlotView;
 }
 
 const SAVE_SLOT_COUNT = 8;
@@ -77,7 +82,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
   const [saves, setSaves] = useState<SaveSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [busySlotId, setBusySlotId] = useState<string | null>(null);
-  const [confirmTarget, setConfirmTarget] = useState<SlotView | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingSlotAction | null>(null);
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
 
   const slots = useMemo<SlotView[]>(() => {
@@ -89,6 +94,20 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
       ...manualSlots,
     ];
   }, [mode, saves]);
+
+  const applySaveList = useCallback(
+    (nextSaves: SaveSummary[]) => {
+      setSaves(nextSaves);
+      onSavesChanged?.(nextSaves.length > 0);
+    },
+    [onSavesChanged],
+  );
+
+  const refreshSaveList = useCallback(async (): Promise<SaveSummary[]> => {
+    const result = await gameSaveApi.list();
+    applySaveList(result.saves);
+    return result.saves;
+  }, [applySaveList]);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,8 +122,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
         if (cancelled) return;
 
         setProbe(nextProbe);
-        setSaves(result.saves);
-        onSavesChanged?.(result.saves.length > 0);
+        applySaveList(result.saves);
       } catch (error) {
         if (!cancelled) {
           setNotice({ kind: 'error', text: toErrorMessage(error) });
@@ -118,7 +136,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
     return () => {
       cancelled = true;
     };
-  }, [mode, onSavesChanged]);
+  }, [applySaveList, mode]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setClock(new Date()), 30_000);
@@ -133,8 +151,8 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       event.preventDefault();
-      if (confirmTarget) {
-        setConfirmTarget(null);
+      if (pendingAction) {
+        setPendingAction(null);
       } else if (!busySlotId) {
         onClose();
       }
@@ -142,24 +160,47 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [busySlotId, confirmTarget, onClose]);
+  }, [busySlotId, onClose, pendingAction]);
 
   const requestSlotAction = (slot: SlotView) => {
     if (isLoading || busySlotId || (mode === 'load' && !slot.save)) return;
     setNotice(null);
-    setConfirmTarget(slot);
+    setPendingAction({ kind: mode, slot });
+  };
+
+  const requestDelete = (event: MouseEvent<HTMLButtonElement>, slot: SlotView) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (isLoading || busySlotId || !slot.save) return;
+    setNotice(null);
+    setPendingAction({ kind: 'delete', slot });
   };
 
   const executeSlotAction = async () => {
-    const slot = confirmTarget;
-    if (!slot) return;
+    const action = pendingAction;
+    if (!action) return;
+    const { slot } = action;
 
-    setConfirmTarget(null);
+    setPendingAction(null);
     setBusySlotId(slot.id);
     setNotice(null);
 
     try {
-      if (mode === 'save') {
+      if (action.kind === 'delete') {
+        const saveUuid = slot.save?.saveUuid;
+        if (!saveUuid) throw new Error(`${getSlotLabel(slot)}没有可删除的存档`);
+        const result = await gameSaveApi.delete(slot.id, saveUuid);
+        const refreshedSaves = await refreshSaveList();
+        const replacement = refreshedSaves.find(save => save.slotId === slot.id);
+        setNotice({
+          kind: 'success',
+          text: result.deleted
+            ? `已删除${getSlotLabel(slot)}`
+            : replacement
+              ? `${getSlotLabel(slot)}已变化，未删除，列表已刷新`
+              : `${getSlotLabel(slot)}已经为空，列表已刷新`,
+        });
+      } else if (action.kind === 'save') {
         const result = await gameSaveApi.save(slot.id, slot.save?.saveUuid);
         const summary = toSaveSummary(result.save);
         setSaves(current => [summary, ...current.filter(save => save.saveUuid !== summary.saveUuid)]);
@@ -171,6 +212,13 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
         onClose();
       }
     } catch (error) {
+      if (action.kind === 'delete') {
+        try {
+          await refreshSaveList();
+        } catch {
+          // 保留原始删除错误；再次打开界面会重新探测权威文件列表。
+        }
+      }
       setNotice({ kind: 'error', text: toErrorMessage(error) });
     } finally {
       setBusySlotId(null);
@@ -179,6 +227,8 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
 
   const title = mode === 'save' ? '保存数据' : '读取数据';
   const actionLabel = mode === 'save' ? '保存' : '读取';
+  const confirmTarget = pendingAction?.slot ?? null;
+  const isDeleteConfirmation = pendingAction?.kind === 'delete';
 
   return (
     <div className="save-slot-overlay" data-save-mode={mode}>
@@ -236,7 +286,7 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
         <div className={`save-slot-backend ${probe ? 'is-tavern' : 'is-checking'}`}>
           <span className="save-slot-backend-dot" aria-hidden="true" />
           <strong>{describeBackend(probe)}</strong>
-          {probe && <span>{probe.saveCount} 个存档</span>}
+          {probe && <span>{saves.length} 个存档</span>}
           {probe?.storagePath && <span>{probe.storagePath}</span>}
           {probe?.uuidMode === 'math-random' && <span>兼容 UUID 模式</span>}
         </div>
@@ -256,57 +306,74 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
             const disabled = isLoading || busySlotId !== null || (mode === 'load' && isEmpty);
 
             return (
-              <button
+              <div
                 key={slot.id}
-                type="button"
-                className={`save-slot-card ${isEmpty ? 'is-empty' : 'has-data'} ${isBusy ? 'is-busy' : ''}`}
-                data-save-slot={slot.id}
-                disabled={disabled}
-                onClick={() => requestSlotAction(slot)}
-                aria-label={
-                  isEmpty
-                    ? `${getSlotLabel(slot)}，空存档`
-                    : `${getSlotLabel(slot)}，${preview?.date ? `${preview.date.month}月${preview.date.day}日` : `第 ${preview?.day ?? '?'} 天`}，${actionLabel}`
-                }
+                className={`save-slot-item ${isEmpty ? 'is-empty' : 'has-data'} ${isBusy ? 'is-busy' : ''}`}
+                data-save-slot-item={slot.id}
               >
-                <span className="save-slot-bubble" aria-hidden="true">
-                  <span className="save-slot-bubble-shine" />
-                  <small>{slot.isAutosave ? 'AUTO' : 'SLOT'}</small>
-                  <b>{String(slot.number).padStart(2, '0')}</b>
-                  <span className="save-slot-bubble-state">{isEmpty ? '+' : '✓'}</span>
-                </span>
+                <button
+                  type="button"
+                  className={`save-slot-card ${isEmpty ? 'is-empty' : 'has-data'} ${isBusy ? 'is-busy' : ''}`}
+                  data-save-slot={slot.id}
+                  disabled={disabled}
+                  onClick={() => requestSlotAction(slot)}
+                  aria-label={
+                    isEmpty
+                      ? `${getSlotLabel(slot)}，空存档`
+                      : `${getSlotLabel(slot)}，${preview?.date ? `${preview.date.month}月${preview.date.day}日` : `第 ${preview?.day ?? '?'} 天`}，${actionLabel}`
+                  }
+                >
+                  <span className="save-slot-bubble" aria-hidden="true">
+                    <span className="save-slot-bubble-shine" />
+                    <small>{slot.isAutosave ? 'AUTO' : 'SLOT'}</small>
+                    <b>{String(slot.number).padStart(2, '0')}</b>
+                    <span className="save-slot-bubble-state">{isEmpty ? '+' : '✓'}</span>
+                  </span>
 
-                {save ? (
-                  <span className="save-slot-card-body">
-                    <span className="save-slot-summary">
-                      <strong>
-                        {preview?.date
-                          ? `${preview.date.month}月${preview.date.day}日 · 开学第 ${preview.day} 天`
-                          : `第 ${preview?.day ?? '?'} 天`}{' '}
-                        · {getPeriodLabel(preview?.periodIndex)}
-                      </strong>
-                      <span>
-                        {preview?.playerName || '主人公'} / {getLocationLabel(preview?.locationId)}
+                  {save ? (
+                    <span className="save-slot-card-body">
+                      <span className="save-slot-summary">
+                        <strong>
+                          {preview?.date
+                            ? `${preview.date.month}月${preview.date.day}日 · 开学第 ${preview.day} 天`
+                            : `第 ${preview?.day ?? '?'} 天`}{' '}
+                          · {getPeriodLabel(preview?.periodIndex)}
+                        </strong>
+                        <span>
+                          {preview?.playerName || '主人公'} / {getLocationLabel(preview?.locationId)}
+                        </span>
                       </span>
+                      <span className="save-slot-meta">
+                        <time dateTime={save.updatedAt}>{formatSaveTime(save.updatedAt)}</time>
+                        <span>REV.{save.revision}</span>
+                      </span>
+                      <span className="save-slot-uuid" title={save.saveUuid}>
+                        UUID {save.saveUuid}
+                      </span>
+                      <b className="save-slot-action-label">{isBusy ? '处理中…' : actionLabel}</b>
                     </span>
-                    <span className="save-slot-meta">
-                      <time dateTime={save.updatedAt}>{formatSaveTime(save.updatedAt)}</time>
-                      <span>REV.{save.revision}</span>
+                  ) : (
+                    <span className="save-slot-card-body save-slot-empty-copy">
+                      <strong>EMPTY SLOT</strong>
+                      <span>{mode === 'save' ? '建立新存档' : '尚无存档数据'}</span>
+                      <span className="save-slot-empty-rule" aria-hidden="true" />
+                      <b className="save-slot-action-label">{mode === 'save' ? '选择' : '不可读取'}</b>
                     </span>
-                    <span className="save-slot-uuid" title={save.saveUuid}>
-                      UUID {save.saveUuid}
-                    </span>
-                    <b className="save-slot-action-label">{isBusy ? '处理中…' : actionLabel}</b>
-                  </span>
-                ) : (
-                  <span className="save-slot-card-body save-slot-empty-copy">
-                    <strong>EMPTY SLOT</strong>
-                    <span>{mode === 'save' ? '建立新存档' : '尚无存档数据'}</span>
-                    <span className="save-slot-empty-rule" aria-hidden="true" />
-                    <b className="save-slot-action-label">{mode === 'save' ? '选择' : '不可读取'}</b>
-                  </span>
+                  )}
+                </button>
+                {save && (
+                  <button
+                    type="button"
+                    className="save-slot-delete"
+                    data-delete-save-slot={slot.id}
+                    disabled={isLoading || busySlotId !== null}
+                    onClick={event => requestDelete(event, slot)}
+                    aria-label={`删除${getSlotLabel(slot)}`}
+                  >
+                    {isBusy ? '处理中' : '删除'}
+                  </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -325,25 +392,41 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
               aria-modal="true"
               aria-labelledby="save-confirm-title"
             >
-              <p>{mode === 'save' ? 'SAVE DATA' : 'LOAD DATA'}</p>
+              <p>{isDeleteConfirmation ? 'DELETE DATA' : mode === 'save' ? 'SAVE DATA' : 'LOAD DATA'}</p>
               <h3 id="save-confirm-title">
-                {mode === 'save' && confirmTarget.save
-                  ? `覆盖${getSlotLabel(confirmTarget)}？`
-                  : `${actionLabel}${getSlotLabel(confirmTarget)}？`}
+                {isDeleteConfirmation
+                  ? `删除${getSlotLabel(confirmTarget)}？`
+                  : mode === 'save' && confirmTarget.save
+                    ? `覆盖${getSlotLabel(confirmTarget)}？`
+                    : `${actionLabel}${getSlotLabel(confirmTarget)}？`}
               </h3>
               <span>
-                {mode === 'save' && confirmTarget.save
-                  ? '原有记录会被当前进度替换，但存档 UUID 保持不变。'
-                  : mode === 'save'
-                    ? '将在这个空槽位建立一份新存档。'
-                    : '当前未保存的游戏进度将会丢失。'}
+                {isDeleteConfirmation
+                  ? confirmTarget.isAutosave
+                    ? '当前自动存档和对应的对话记录会永久删除。继续游玩或返回标题后，系统会重新建立自动存档。'
+                    : '主存档和对应的对话记录会永久删除，此操作无法撤销。'
+                  : mode === 'save' && confirmTarget.save
+                    ? '原有记录会被当前进度替换，但存档 UUID 保持不变。'
+                    : mode === 'save'
+                      ? '将在这个空槽位建立一份新存档。'
+                      : '当前未保存的游戏进度将会丢失。'}
               </span>
               <div>
-                <button type="button" className="is-secondary" onClick={() => setConfirmTarget(null)}>
+                <button
+                  type="button"
+                  className="is-secondary"
+                  onClick={() => setPendingAction(null)}
+                  autoFocus={isDeleteConfirmation}
+                >
                   取消
                 </button>
-                <button type="button" className="is-primary" onClick={() => void executeSlotAction()} autoFocus>
-                  确定{actionLabel}
+                <button
+                  type="button"
+                  className={isDeleteConfirmation ? 'is-danger' : 'is-primary'}
+                  onClick={() => void executeSlotAction()}
+                  autoFocus={!isDeleteConfirmation}
+                >
+                  {isDeleteConfirmation ? '确认删除' : `确定${actionLabel}`}
                 </button>
               </div>
             </section>

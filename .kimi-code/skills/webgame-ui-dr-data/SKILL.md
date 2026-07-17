@@ -12,7 +12,7 @@ The `data` module is the single source of truth for *what a character card looks
 It lives under `D:/webgame/tavern_helper_template-main/src/webgame-ui/data` and provides:
 
 - **`data/cardSchema.ts`** — the canonical SillyTavern Character Card V2 schema plus the webgame-specific `extensions.game_data` extension. Exports factory functions, validation, and normalization helpers.
-- **`data/default-cards/*.json`** — four built-in character cards that ship with the game and are auto-loaded on startup.
+- **`data/default-cards/*.json`** — six built-in character cards that ship with the game and are auto-loaded on startup.
 - Backward compatibility with SillyTavern V1 cards, PNG-embedded cards, JSON files, and remote URLs via `utils/cardLoader.ts`.
 
 Everything that consumes character data — `utils/cardLoader.ts`, `stores/cardStore.ts`, `stores/characterStore.ts`, and the UI components — ultimately depends on shapes produced by this module.
@@ -183,12 +183,14 @@ Default cards are loaded once at startup by `stores/characterStore.ts`:
 
 ```ts
 import harukaCard from '../data/default-cards/haruka.json'
+import harunaCard from '../data/default-cards/haruna.json'
 import miyukiCard from '../data/default-cards/miyuki.json'
 import rinCard from '../data/default-cards/rin.json'
+import rikoCard from '../data/default-cards/riko.json'
 import sakuraCard from '../data/default-cards/sakura.json'
 ```
 
-The store loops through `[harukaCard, miyukiCard, rinCard, sakuraCard]` and calls `cardStore.addCardFromJSON(card)`. A Zustand subscription then syncs `characterStore.characters` to `cardStore.targets`.
+The store loops through `[rikoCard, sakuraCard, harunaCard, harukaCard, miyukiCard, rinCard]` and calls `cardStore.addCardFromJSON(card)`. A Zustand subscription then syncs `characterStore.characters` to `cardStore.targets`.
 
 Location scheduling uses `getTargetLocationForPeriod(target, periodKey)` in `stores/cardStore.ts`. It reads `favoriteLocations` and maps time-of-day keys (`morning`, `class1`, `lunch`, `class2`, `afterSchool`, `evening`) to a concrete `currentLocationId`.
 
@@ -208,6 +210,8 @@ Location scheduling uses `getTargetLocationForPeriod(target, periodKey)` in `sto
 5. Import the JSON in `stores/characterStore.ts` and add it to the initialization array.
 
 Example default cards to copy from:
+- `data/default-cards/riko.json` — 夕崎梨子 (`id: 'riko'`)
+- `data/default-cards/haruna.json` — 西连寺春菜 (`id: 'haruna'`)
 - `data/default-cards/sakura.json` — 菈菈·薩塔琳·戴比路克 (`id: 'sakura'`)
 - `data/default-cards/rin.json` — 伊芙 (`id: 'rin'`)
 - `data/default-cards/haruka.json` — 梦梦·贝莉雅·戴比路克 (`id: 'haruka'`)
@@ -253,6 +257,8 @@ try {
 ## Key files
 
 - `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/cardSchema.ts`
+- `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/default-cards/riko.json`
+- `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/default-cards/haruna.json`
 - `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/default-cards/sakura.json`
 - `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/default-cards/rin.json`
 - `D:/webgame/tavern_helper_template-main/src/webgame-ui/data/default-cards/haruka.json`

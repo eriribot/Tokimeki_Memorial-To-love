@@ -1,0 +1,6 @@
+[
+  {
+    "type": "console.error",
+    "text": "[ToLove Save] 自动存档失败。 Error: 当前页面没有 Tavern Helper 事件接口，无法读取酒馆本地文件存档\n    at TavernSaveTransport.request (webpack-internal:///./src/webgame-ui/save/client.ts:28:35)\n    at TavernFileSaveClient.write (webpack-internal:///./src/webgame-ui/save/client.ts:104:28)\n    at persist (webpack-internal:///./src/webgame-ui/save/autosave.ts:69:84)\n    at eval (webpack-internal:///./src/webgame-ui/save/autosave.ts:95:39)\n    at <anonymous>:15:9"
+  }
+]
