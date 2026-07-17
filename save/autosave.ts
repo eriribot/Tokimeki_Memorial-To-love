@@ -23,12 +23,29 @@ function canAutosave(): boolean {
   return game.hasSession && game.screen === 'game';
 }
 
+function createAutosaveFingerprint(snapshot: GameSnapshotV1, messages: ReturnType<typeof captureGameMessages>): string {
+  return JSON.stringify({
+    snapshot: {
+      ...snapshot,
+      savedAt: '',
+      game: {
+        ...snapshot.game,
+        // GAL 翻页只改变本地阅读位置，不值得反复上传两份酒馆文件。
+        mainStoryPageIndex: 0,
+      },
+    },
+    messages,
+  });
+}
+
 export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => void {
   const delayMs = Math.max(0, options.delayMs ?? DEFAULT_AUTOSAVE_DELAY_MS);
   let timer: ReturnType<typeof setTimeout> | null = null;
   let dirty = false;
   let writing = false;
   let disposed = false;
+  let pendingFingerprint: string | null = null;
+  let persistedFingerprint: string | null = null;
 
   const persist = async () => {
     timer = null;
@@ -38,13 +55,22 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     }
     if (writing) return;
 
+    const snapshot = createGameSnapshot();
+    const messages = captureGameMessages();
+    const fingerprint = createAutosaveFingerprint(snapshot, messages);
+    if (fingerprint === persistedFingerprint) {
+      dirty = false;
+      pendingFingerprint = null;
+      return;
+    }
+
     dirty = false;
+    pendingFingerprint = null;
     writing = true;
     try {
-      const snapshot = createGameSnapshot();
-      const messages = captureGameMessages();
       const { save } = await saveClient.write(DEFAULT_SAVE_SLOT, snapshot, undefined, createSavePreview(snapshot));
       await gameMessageApi.saveFor(save, messages);
+      persistedFingerprint = fingerprint;
       options.onSaved?.(save);
     } catch (error) {
       options.onError?.(toError(error));
@@ -56,6 +82,11 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
 
   const schedule = () => {
     if (!canAutosave()) return;
+    const snapshot = createGameSnapshot();
+    const messages = captureGameMessages();
+    const fingerprint = createAutosaveFingerprint(snapshot, messages);
+    if (fingerprint === persistedFingerprint || (fingerprint === pendingFingerprint && timer !== null)) return;
+    pendingFingerprint = fingerprint;
     dirty = true;
     if (timer !== null) clearTimeout(timer);
     timer = setTimeout(() => void persist(), delayMs);
@@ -63,6 +94,11 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
 
   const flush = () => {
     if (!canAutosave()) return;
+    const snapshot = createGameSnapshot();
+    const messages = captureGameMessages();
+    const fingerprint = createAutosaveFingerprint(snapshot, messages);
+    if (fingerprint === persistedFingerprint) return;
+    pendingFingerprint = fingerprint;
     dirty = true;
     if (timer !== null) {
       clearTimeout(timer);

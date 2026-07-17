@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   actToPlainText,
   createFallbackLalaArrivalMessages,
+  createLalaArrivalFloor,
+  createLalaArrivalFloorId,
   generateLalaArrivalAct,
 } from '../services/tavernStoryGeneration';
 import { PERIODS, useGameStore } from '../stores/gameStore';
@@ -11,18 +13,101 @@ import { resolveAssetPath } from '../utils/assetPath';
 import { GALBOX_ASSETS, getSpeakerNameplateAsset } from './galAssets';
 import LalaPortrait from './LalaPortrait';
 import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './lalaArrival';
+import StoryHistoryArchive from './StoryHistoryArchive';
+import type { GalStoryFloor, GalStoryMessageSave } from './storyTypes';
 import './GalMainStory.css';
+
+interface StoryCursor {
+  actIndex: number;
+  pageIndex: number;
+}
+
+interface GalMainStoryProps {
+  historyMode?: boolean;
+  onExitHistory?: () => void;
+}
+
+type HistoryPlaybackTarget = { kind: 'all' } | { kind: 'floor'; floorId: string } | null;
+
+interface RawStoryEntry {
+  message: GalStoryMessageSave;
+  index: number;
+}
+
+interface RawStoryHistoryDialogProps {
+  entries: readonly RawStoryEntry[];
+  onClose: () => void;
+}
+
+function RawStoryHistoryDialog({ entries, onClose }: RawStoryHistoryDialogProps) {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="gal-main-story__raw-backdrop"
+      role="presentation"
+      onClick={event => {
+        event.stopPropagation();
+        onClose();
+      }}
+    >
+      <section
+        id="gal-main-story-raw-dialog"
+        className="gal-main-story__raw-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gal-main-story-raw-title"
+        onClick={event => event.stopPropagation()}
+      >
+        <header>
+          <div>
+            <span>仅显示 Assistant · 按消息 index 排序</span>
+            <h2 id="gal-main-story-raw-title">AI 生成原文</h2>
+          </div>
+          <button ref={closeButtonRef} type="button" onClick={onClose} aria-label="关闭 AI 原文">
+            ×
+          </button>
+        </header>
+        <div className="gal-main-story__raw-list">
+          {entries.map(({ message, index }) => (
+            <article key={message.id}>
+              <div className="gal-main-story__raw-entry-heading">
+                <strong>第 {message.extra.actIndex + 1} 幕</strong>
+                <span>index {index}</span>
+                <span>{message.extra.outcome === 'parse_error' ? '未转换为 GAL' : '已转换为 GAL'}</span>
+              </div>
+              {message.extra.error && <p className="gal-main-story__raw-error">解析原因：{message.extra.error}</p>}
+              <pre>{message.mes}</pre>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export default function GalMainStory() {
+export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
   const activeEventId = useGameStore(state => state.activeMainStoryEventId);
   const entryReason = useGameStore(state => state.mainStoryEntryReason);
   const actIndex = useGameStore(state => state.mainStoryActIndex);
   const pageIndex = useGameStore(state => state.mainStoryPageIndex);
   const acts = useGameStore(state => state.mainStoryActs);
+  const storyArchives = useGameStore(state => state.mainStoryArchives);
   const generationStatus = useGameStore(state => state.mainStoryGenerationStatus);
   const generationSource = useGameStore(state => state.mainStoryGenerationSource);
   const generationError = useGameStore(state => state.mainStoryGenerationError);
@@ -34,46 +119,138 @@ export default function GalMainStory() {
   const setStoryActContent = useGameStore(state => state.setMainStoryActContent);
   const failGeneration = useGameStore(state => state.failMainStoryGeneration);
   const setStoryPosition = useGameStore(state => state.setMainStoryPosition);
+  const selectStoryFloor = useGameStore(state => state.selectMainStoryFloor);
   const advanceMainStoryAct = useGameStore(state => state.advanceMainStoryAct);
   const completeMainStoryEvent = useGameStore(state => state.completeMainStoryEvent);
   const playerName = usePlayerStore(state => state.name);
   const spawnTargetsForPeriod = useCardStore(state => state.spawnTargetsForPeriod);
   const storyRef = useRef<HTMLElement | null>(null);
+  const [replayIndex, setReplayIndex] = useState<number | null>(null);
+  const [historyPlaybackTarget, setHistoryPlaybackTarget] = useState<HistoryPlaybackTarget>(null);
+  const [isRawHistoryOpen, setIsRawHistoryOpen] = useState(false);
 
-  const act = acts[actIndex];
-  const beat = act?.beats[pageIndex];
-  const isLastPage = Boolean(act && pageIndex === act.beats.length - 1);
-  const isLastAct = actIndex === LALA_ARRIVAL_STORY.acts.length - 1;
-  const isLalaSpeaking = beat?.speaker === '菈菈';
-  const speakerNameplate = getSpeakerNameplateAsset(beat?.speaker ?? null);
+  const liveAct = acts[actIndex];
+  const liveBeat = liveAct?.beats[pageIndex];
+  const isLastLivePage = Boolean(liveAct && pageIndex === liveAct.beats.length - 1);
+  const isLastLiveAct = actIndex === LALA_ARRIVAL_STORY.acts.length - 1;
+  const liveReadCursors = useMemo<StoryCursor[]>(
+    () =>
+      acts.flatMap((savedAct, savedActIndex) => {
+        if (savedActIndex > actIndex) return [];
+        const lastPageIndex =
+          savedActIndex < actIndex ? savedAct.beats.length - 1 : Math.min(pageIndex, savedAct.beats.length - 1);
+        if (lastPageIndex < 0) return [];
+        return savedAct.beats.slice(0, lastPageIndex + 1).map((_, savedPageIndex) => ({
+          actIndex: savedActIndex,
+          pageIndex: savedPageIndex,
+        }));
+      }),
+    [actIndex, acts, pageIndex],
+  );
+  const historyFloor = useMemo<GalStoryFloor | null>(() => {
+    if (historyPlaybackTarget?.kind !== 'floor') return null;
+    for (const archive of storyArchives) {
+      const floor = archive.floors.find(candidate => candidate.floorId === historyPlaybackTarget.floorId);
+      if (floor) return floor;
+    }
+    return null;
+  }, [historyPlaybackTarget, storyArchives]);
+  const historyActs = useMemo(() => {
+    if (!historyFloor?.act) return acts;
+    const previewActs = [...acts];
+    previewActs[historyFloor.actIndex] = historyFloor.act;
+    return previewActs;
+  }, [acts, historyFloor]);
+  const historyCursors = useMemo<StoryCursor[]>(() => {
+    if (!historyPlaybackTarget) return [];
+    if (historyPlaybackTarget.kind === 'floor' && historyFloor?.act) {
+      return historyFloor.act.beats.map((_, savedPageIndex) => ({
+        actIndex: historyFloor.actIndex,
+        pageIndex: savedPageIndex,
+      }));
+    }
+    return historyActs.flatMap((savedAct, savedActIndex) =>
+      savedAct.beats.map((_, savedPageIndex) => ({
+        actIndex: savedActIndex,
+        pageIndex: savedPageIndex,
+      })),
+    );
+  }, [historyActs, historyFloor, historyPlaybackTarget]);
+  const readCursors = historyMode ? historyCursors : liveReadCursors;
+  const replayCursorIndex = historyMode ? (replayIndex ?? 0) : replayIndex;
+  const replayCursor = replayCursorIndex === null ? null : (readCursors[replayCursorIndex] ?? null);
+  const isReplaying = replayCursor !== null;
+  const visibleActIndex = replayCursor?.actIndex ?? actIndex;
+  const visiblePageIndex = replayCursor?.pageIndex ?? pageIndex;
+  const visibleAct = (historyMode ? historyActs : acts)[visibleActIndex];
+  const visibleBeat = visibleAct?.beats[visiblePageIndex];
+  const isLalaSpeaking = visibleBeat?.speaker === '菈菈';
+  const speakerNameplate = getSpeakerNameplateAsset(visibleBeat?.speaker ?? null);
+  const assistantHistory = useMemo<RawStoryEntry[]>(
+    () =>
+      messageHistory
+        .map((message, index) => ({ message, index }))
+        .filter(
+          ({ message }) => !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern',
+        )
+        .sort((left, right) => left.index - right.index),
+    [messageHistory],
+  );
+  const contextFloorIds = useMemo(
+    () =>
+      storyArchives
+        .filter(archive => archive.actIndex < actIndex && archive.activeFloorId !== null)
+        .sort((left, right) => left.actIndex - right.actIndex)
+        .map(archive => archive.activeFloorId as string),
+    [actIndex, storyArchives],
+  );
+
+  const closeRawHistory = useCallback(() => {
+    setIsRawHistoryOpen(false);
+    globalThis.setTimeout(() => storyRef.current?.focus(), 0);
+  }, []);
+  const exitHistory = useCallback(() => onExitHistory?.(), [onExitHistory]);
 
   const requestGeneration = useCallback(async () => {
     if (!entryReason || !beginGeneration()) return;
+    setIsRawHistoryOpen(false);
     const period = PERIODS[periodIndex] ?? PERIODS[0];
+    const floorId = createLalaArrivalFloorId(actIndex);
+    const request = {
+      floorId,
+      actIndex,
+      entryReason,
+      playerName,
+      day,
+      period: period.key,
+      location: currentLocationId,
+      storyHistory: acts,
+      contextFloorIds,
+    };
 
     try {
-      const generated = await generateLalaArrivalAct({
-        actIndex,
-        entryReason,
-        playerName,
-        day,
-        period: period.key,
-        location: currentLocationId,
-        messageHistory,
-      });
-      setStoryActContent(generated.act, 'tavern', generated.messages);
+      const generated = await generateLalaArrivalAct(request);
+      if (!generated.ok) {
+        console.warn('[ToLove Story] AI 返回未能转换成 GAL，已保留原文。', generated.error);
+        failGeneration(generated.error, generated.messages, generated.floor);
+        return;
+      }
+      setStoryActContent(generated.floor, generated.messages);
     } catch (error) {
       console.error('[ToLove Story] 第一集生成失败。', error);
-      failGeneration(getErrorMessage(error));
+      const message = getErrorMessage(error);
+      const floor = createLalaArrivalFloor(request, null, 'tavern', [], 'request_error', message);
+      failGeneration(message, [], floor);
     }
   }, [
     beginGeneration,
     actIndex,
+    acts,
     currentLocationId,
+    contextFloorIds,
     day,
     entryReason,
     failGeneration,
-    messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,
@@ -85,52 +262,140 @@ export default function GalMainStory() {
     }
   }, [activeEventId, generationStatus, requestGeneration]);
 
+  useEffect(() => {
+    setReplayIndex(historyMode ? 0 : null);
+    setHistoryPlaybackTarget(null);
+    setIsRawHistoryOpen(false);
+  }, [activeEventId, actIndex, historyMode]);
+
   const finishCurrentAct = useCallback(() => {
-    if (!isLastAct) {
+    if (!isLastLiveAct) {
       advanceMainStoryAct();
       return;
     }
     if (completeMainStoryEvent()) spawnTargetsForPeriod(PERIODS[0].key);
-  }, [advanceMainStoryAct, completeMainStoryEvent, isLastAct, spawnTargetsForPeriod]);
+  }, [advanceMainStoryAct, completeMainStoryEvent, isLastLiveAct, spawnTargetsForPeriod]);
 
   const useFallbackAct = useCallback(() => {
     if (!entryReason) return;
     const period = PERIODS[periodIndex] ?? PERIODS[0];
+    const floorId = createLalaArrivalFloorId(actIndex);
     const fallbackAct = createLalaArrivalFallbackAct(entryReason, actIndex);
-    const messages = createFallbackLalaArrivalMessages(
-      {
-        actIndex,
-        entryReason,
-        playerName,
-        day,
-        period: period.key,
-        location: currentLocationId,
-        messageHistory,
-      },
-      actToPlainText(fallbackAct),
-    );
-    setStoryActContent(fallbackAct, 'fallback', messages);
-  }, [actIndex, currentLocationId, day, entryReason, messageHistory, periodIndex, playerName, setStoryActContent]);
+    const request = {
+      floorId,
+      actIndex,
+      entryReason,
+      playerName,
+      day,
+      period: period.key,
+      location: currentLocationId,
+      storyHistory: acts,
+      contextFloorIds,
+    };
+    const messages = createFallbackLalaArrivalMessages(request, actToPlainText(fallbackAct));
+    const floor = createLalaArrivalFloor(request, fallbackAct, 'fallback', messages, 'accepted');
+    setStoryActContent(floor, messages);
+  }, [
+    actIndex,
+    acts,
+    contextFloorIds,
+    currentLocationId,
+    day,
+    entryReason,
+    periodIndex,
+    playerName,
+    setStoryActContent,
+  ]);
+
+  const playAllHistory = useCallback(() => {
+    setHistoryPlaybackTarget({ kind: 'all' });
+    setReplayIndex(0);
+  }, []);
+
+  const previewHistoryFloor = useCallback((floorId: string) => {
+    setHistoryPlaybackTarget({ kind: 'floor', floorId });
+    setReplayIndex(0);
+  }, []);
+
+  const returnToHistoryArchive = useCallback(() => {
+    setHistoryPlaybackTarget(null);
+    setReplayIndex(0);
+  }, []);
 
   const goNext = useCallback(() => {
-    if (!act || !beat) return;
-    if (!isLastPage) {
+    if (historyMode) {
+      const currentIndex = replayCursorIndex ?? 0;
+      if (currentIndex >= readCursors.length - 1) returnToHistoryArchive();
+      else setReplayIndex(currentIndex + 1);
+      return;
+    }
+    if (replayIndex !== null) {
+      if (replayIndex >= readCursors.length - 2) setReplayIndex(null);
+      else setReplayIndex(replayIndex + 1);
+      return;
+    }
+    if (!liveAct || !liveBeat) return;
+    if (!isLastLivePage) {
       setStoryPosition(actIndex, pageIndex + 1);
       return;
     }
     finishCurrentAct();
-  }, [act, actIndex, beat, finishCurrentAct, isLastPage, pageIndex, setStoryPosition]);
+  }, [
+    actIndex,
+    finishCurrentAct,
+    isLastLivePage,
+    liveAct,
+    liveBeat,
+    historyMode,
+    pageIndex,
+    readCursors.length,
+    replayCursorIndex,
+    replayIndex,
+    returnToHistoryArchive,
+    setStoryPosition,
+  ]);
 
   const goPrevious = useCallback(() => {
-    if (!act || !beat || pageIndex <= 0) return;
-    setStoryPosition(actIndex, pageIndex - 1);
-  }, [act, actIndex, beat, pageIndex, setStoryPosition]);
+    if (historyMode) {
+      const currentIndex = replayCursorIndex ?? 0;
+      if (currentIndex > 0) setReplayIndex(currentIndex - 1);
+      return;
+    }
+    if (replayIndex !== null) {
+      if (replayIndex > 0) setReplayIndex(replayIndex - 1);
+      return;
+    }
+    if (readCursors.length <= 1) return;
+    setReplayIndex(readCursors.length - 2);
+  }, [historyMode, readCursors.length, replayCursorIndex, replayIndex]);
 
   useEffect(() => {
-    if (activeEventId !== LALA_ARRIVAL_EVENT_ID || generationStatus !== 'ready') return;
-
+    const isReady = historyMode
+      ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
+      : activeEventId === LALA_ARRIVAL_EVENT_ID && generationStatus === 'ready';
+    if (!isReady) return;
     storyRef.current?.focus();
+  }, [activeEventId, generationStatus, historyMode, historyPlaybackTarget, visibleAct, visibleBeat]);
+
+  useEffect(() => {
+    const isReady = historyMode
+      ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
+      : activeEventId === LALA_ARRIVAL_EVENT_ID && generationStatus === 'ready';
+    if (!isReady || isRawHistoryOpen) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest('button, a, input, textarea, select, .gal-main-story__raw-dialog')
+      ) {
+        return;
+      }
+      if (historyMode && event.key === 'Escape') {
+        event.preventDefault();
+        returnToHistoryArchive();
+        return;
+      }
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
         goPrevious();
@@ -142,18 +407,47 @@ export default function GalMainStory() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeEventId, generationStatus, goNext, goPrevious]);
+  }, [
+    activeEventId,
+    generationStatus,
+    goNext,
+    goPrevious,
+    historyMode,
+    historyPlaybackTarget,
+    isRawHistoryOpen,
+    returnToHistoryArchive,
+    visibleAct,
+    visibleBeat,
+  ]);
 
-  if (activeEventId !== LALA_ARRIVAL_EVENT_ID) return null;
+  const isLiveStoryActive = activeEventId === LALA_ARRIVAL_EVENT_ID;
+  if (!isLiveStoryActive && !historyMode) return null;
 
-  if (generationStatus !== 'ready' || !act || !beat) {
+  if (historyMode && historyPlaybackTarget === null) {
+    return (
+      <StoryHistoryArchive
+        rawAssistantCount={assistantHistory.length}
+        isRawHistoryOpen={isRawHistoryOpen}
+        onExit={exitHistory}
+        onOpenRawHistory={() => setIsRawHistoryOpen(true)}
+        onPlayAll={playAllHistory}
+        onPreviewFloor={previewHistoryFloor}
+      >
+        {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
+      </StoryHistoryArchive>
+    );
+  }
+
+  if (!historyMode && (generationStatus !== 'ready' || !liveAct || !liveBeat)) {
     const isError = generationStatus === 'error';
     return (
       <section
         className="gal-main-story is-generating"
+        ref={storyRef}
         role="dialog"
         aria-modal="true"
         aria-label={isError ? '第一集生成失败' : '第一集生成中'}
+        tabIndex={-1}
         data-generation-status={generationStatus}
       >
         <img
@@ -177,19 +471,48 @@ export default function GalMainStory() {
               <button type="button" onClick={() => void requestGeneration()}>
                 重试
               </button>
+              {assistantHistory.length > 0 && (
+                <button type="button" onClick={() => setIsRawHistoryOpen(true)}>
+                  查看 AI 原文
+                </button>
+              )}
               <button type="button" onClick={useFallbackAct}>
                 使用保底版
               </button>
             </div>
           )}
         </div>
+        {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
       </section>
     );
   }
 
-  const actMeta = LALA_ARRIVAL_STORY.acts[actIndex];
-  const background = LALA_ARRIVAL_STORY.backgrounds[beat.background];
-  const previousDisabled = pageIndex === 0;
+  if (!visibleAct || !visibleBeat) return null;
+
+  const actMeta = LALA_ARRIVAL_STORY.acts[visibleActIndex];
+  const background = LALA_ARRIVAL_STORY.backgrounds[visibleBeat.background];
+  const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
+  const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
+  const isLastReplayPage =
+    !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
+  const historyFloorArchive = historyFloor
+    ? storyArchives.find(archive => archive.floors.some(floor => floor.floorId === historyFloor.floorId))
+    : undefined;
+  const historyFloorIndex = historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
+  const isHistoryFloorActive = Boolean(
+    historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId,
+  );
+  const nextActionLabel = historyMode
+    ? isLastHistoryPage
+      ? '返回剧情目录'
+      : '下一页'
+    : isLastReplayPage
+      ? '返回当前剧情'
+    : isLastLiveAct && isLastLivePage
+      ? '结束剧情'
+      : isLastLivePage
+        ? '回到自由行动'
+        : '下一页';
 
   return (
     <section
@@ -197,34 +520,36 @@ export default function GalMainStory() {
       ref={storyRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`主线事件：${LALA_ARRIVAL_STORY.title}`}
+      aria-label={historyMode ? `已读主线回放：${LALA_ARRIVAL_STORY.title}` : `主线事件：${LALA_ARRIVAL_STORY.title}`}
       tabIndex={-1}
-      data-event-id={activeEventId}
-      data-act-id={act.id}
-      data-page-index={pageIndex}
-      data-speaker={beat.speaker ?? 'narration'}
-      data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : beat.speaker ? 'generic-nameplate' : 'narration'}
-      data-lala-expression={beat.lalaExpression ?? 'hidden'}
-      data-effect={beat.effect}
-      data-generation-source={generationSource ?? 'unknown'}
+      data-event-id={historyMode ? 'history-replay' : activeEventId}
+      data-act-id={visibleAct.id}
+      data-page-index={visiblePageIndex}
+      data-speaker={visibleBeat.speaker ?? 'narration'}
+      data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration'}
+      data-lala-expression={visibleBeat.lalaExpression ?? 'hidden'}
+      data-effect={visibleBeat.effect}
+      data-replay={isReplaying ? 'true' : 'false'}
+      data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
       onClick={goNext}
     >
       <img
-        key={`${act.id}-${pageIndex}-${beat.background}`}
+        key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.background}`}
         className="gal-main-story__background"
         src={resolveAssetPath(background)}
-        alt={beat.background === 'school' ? '彩南高校' : '夜晚场景'}
+        alt={visibleBeat.background === 'school' ? '彩南高校' : '夜晚场景'}
       />
       <div className="gal-main-story__shade" aria-hidden="true" />
       <div className="gal-main-story__act-label">
-        第 {actIndex + 1} 幕 · {actMeta?.title ?? act.id}
+        {isReplaying && '回放中 · '}第 {visibleActIndex + 1} 幕 · {actMeta?.title ?? visibleAct.id}
+        {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
       </div>
 
-      {beat.lalaExpression && (
+      {visibleBeat.lalaExpression && (
         <LalaPortrait
-          expression={beat.lalaExpression}
+          expression={visibleBeat.lalaExpression}
           isSpeaking={isLalaSpeaking}
-          beatKey={actIndex * 100 + pageIndex}
+          beatKey={visibleActIndex * 100 + visiblePageIndex}
         />
       )}
 
@@ -237,16 +562,16 @@ export default function GalMainStory() {
         />
 
         {speakerNameplate ? (
-          <div className="gal-main-story__nameplate" role="img" aria-label={beat.speaker ?? undefined}>
+          <div className="gal-main-story__nameplate" role="img" aria-label={visibleBeat.speaker ?? undefined}>
             <img src={resolveAssetPath(speakerNameplate)} alt="" aria-hidden="true" />
-            <strong>{beat.speaker}</strong>
+            <strong>{visibleBeat.speaker}</strong>
           </div>
         ) : (
-          beat.speaker && <strong className="gal-main-story__speaker">{beat.speaker}</strong>
+          visibleBeat.speaker && <strong className="gal-main-story__speaker">{visibleBeat.speaker}</strong>
         )}
 
-        <div className="gal-main-story__copy">
-          <p className={beat.speaker ? '' : 'is-narration'}>{beat.text}</p>
+        <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">
+          <p className={visibleBeat.speaker ? '' : 'is-narration'}>{visibleBeat.text}</p>
         </div>
 
         <span className="gal-main-story__push" aria-hidden="true">
@@ -267,22 +592,57 @@ export default function GalMainStory() {
             ←
           </button>
           <span className="gal-main-story__progress">
-            {actIndex + 1}-{pageIndex + 1} / {LALA_ARRIVAL_STORY.acts.length}-{act.beats.length}
+            {isReplaying && '回放 '}
+            {visibleActIndex + 1}-{visiblePageIndex + 1} / {LALA_ARRIVAL_STORY.acts.length}-{visibleAct.beats.length}
           </span>
-          <button type="button" className="gal-main-story__skip" onClick={finishCurrentAct} aria-label="跳过当前幕">
-            跳过
+          <button
+            type="button"
+            className="gal-main-story__skip"
+            onClick={historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct}
+            aria-label={historyMode ? '返回剧情目录' : isReplaying ? '返回当前剧情' : '跳过当前幕'}
+          >
+            {historyMode ? '返回目录' : isReplaying ? '返回当前' : '跳过'}
           </button>
+          {historyMode ? (
+            historyFloor ? (
+              <button
+                type="button"
+                className="gal-main-story__raw-button"
+                disabled={isHistoryFloorActive || historyFloor.act === null}
+                onClick={() => selectStoryFloor(historyFloor.floorId)}
+              >
+                {isHistoryFloorActive ? '当前采用' : '采用此楼层'}
+              </button>
+            ) : (
+              <button type="button" className="gal-main-story__raw-button" disabled>
+                全部当前版
+              </button>
+            )
+          ) : (
+            <button
+              type="button"
+              className="gal-main-story__raw-button"
+              disabled={assistantHistory.length === 0}
+              aria-haspopup="dialog"
+              aria-controls="gal-main-story-raw-dialog"
+              aria-expanded={isRawHistoryOpen}
+              onClick={() => setIsRawHistoryOpen(true)}
+            >
+              AI 原文
+            </button>
+          )}
           <button
             type="button"
             className="gal-main-story__icon-button is-primary"
             onClick={goNext}
-            aria-label={isLastAct && isLastPage ? '结束剧情' : isLastPage ? '回到自由行动' : '下一页'}
-            title={isLastAct && isLastPage ? '结束剧情' : isLastPage ? '回到自由行动' : '下一页'}
+            aria-label={nextActionLabel}
+            title={nextActionLabel}
           >
-            {isLastAct && isLastPage ? '✓' : '→'}
+            {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
           </button>
         </nav>
       </div>
+      {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
     </section>
   );
 }

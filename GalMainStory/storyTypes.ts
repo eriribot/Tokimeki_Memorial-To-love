@@ -8,6 +8,8 @@ export type StoryEffect = (typeof STORY_EFFECTS)[number];
 export type MainStoryEntryReason = 'after_first_action' | 'after_second_action';
 export type StoryGenerationStatus = 'idle' | 'loading' | 'ready' | 'error';
 export type StoryGenerationSource = 'tavern' | 'fallback';
+export type GalStoryMessageOutcome = 'accepted' | 'parse_error';
+export type GalStoryFloorOutcome = GalStoryMessageOutcome | 'request_error';
 
 export interface GalStoryBeat {
   speaker: string | null;
@@ -20,6 +22,37 @@ export interface GalStoryBeat {
 export interface GalStoryAct {
   id: string;
   beats: GalStoryBeat[];
+}
+
+export interface GalStoryGenerationContext {
+  entryReason: MainStoryEntryReason;
+  playerName: string;
+  day: number;
+  period: string;
+  location: string;
+}
+
+export interface GalStoryFloor {
+  floorId: string;
+  eventId: string;
+  actIndex: number;
+  actId: string;
+  source: StoryGenerationSource;
+  createdAt: string;
+  outcome: GalStoryFloorOutcome;
+  act: GalStoryAct | null;
+  context: GalStoryGenerationContext;
+  contextFloorIds: string[];
+  messageIds: string[];
+  error?: string;
+}
+
+export interface GalStoryActArchive {
+  eventId: string;
+  actIndex: number;
+  actId: string;
+  activeFloorId: string | null;
+  floors: GalStoryFloor[];
 }
 
 interface StoryValidationOptions {
@@ -47,10 +80,6 @@ function normalizeBeat(value: unknown, allowedSpeakers: readonly string[]): GalS
   if (typeof value.text !== 'string') throw new Error('剧情页缺少正文。');
   const text = value.text.trim();
   if (!text || text.length > 180) throw new Error('每页正文必须为 1 到 180 个字符。');
-  if (/<(?:analysis|progress|planning)>|行动点|好感度|世界书|JSON/iu.test(text)) {
-    throw new Error('模型把规划、数值或调试文本混入了 GAL 正文。');
-  }
-
   const lalaExpression = value.lalaExpression;
   if (lalaExpression !== null && !isOneOf(lalaExpression, LALA_EXPRESSIONS)) {
     throw new Error('剧情页包含未登记的菈菈表情。');
@@ -107,10 +136,16 @@ export interface GalStoryMessageExtra {
   entryReason: MainStoryEntryReason;
   source: GalStoryMessageSource;
   generationId: string;
+  floorId?: string;
   period: string;
   location: string;
+  day?: number;
+  playerName?: string;
+  contextFloorIds?: string[];
   role: GalStoryMessageRole;
   renderable: boolean;
+  outcome?: GalStoryMessageOutcome;
+  error?: string;
 }
 
 export interface GalStoryMessageSave {

@@ -30,9 +30,11 @@ function App() {
   const screen = useGameStore((state: { screen: string }) => state.screen);
   const currentSceneId = useGameStore((state: { currentSceneId: string | null }) => state.currentSceneId);
   const activeMainStoryEventId = useGameStore(state => state.activeMainStoryEventId);
+  const mainStoryArchives = useGameStore(state => state.mainStoryArchives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
+  const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
   const [hasAutosave, setHasAutosave] = useState(false);
@@ -55,6 +57,13 @@ function App() {
   const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
   const isPageMode = isNativePageMode;
   const isMainStoryActive = activeMainStoryEventId !== null;
+  const hasMainStoryHistory = mainStoryArchives.some(
+    archive =>
+      archive.activeFloorId !== null &&
+      archive.floors.some(floor => floor.floorId === archive.activeFloorId && floor.act !== null),
+  );
+  const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
+  const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -98,6 +107,10 @@ function App() {
       setPageModeError(`无法进入全屏：${detail}`);
     }
   }, []);
+
+  useEffect(() => {
+    if (isMainStoryActive || !hasMainStoryHistory) setIsStoryHistoryOpen(false);
+  }, [hasMainStoryHistory, isMainStoryActive]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -253,15 +266,24 @@ function App() {
               >
                 <div
                   className="map-stage"
+                  inert={isStoryOverlayOpen ? true : undefined}
+                  aria-hidden={isStoryOverlayOpen ? true : undefined}
                   style={{
                     width: mapWidth,
                     height: mapHeight,
                     transform: `scale(${mapScale})`,
                   }}
                 >
-                  {currentSceneId ? <ClassroomScene /> : <SchoolMap />}
+                  {currentSceneId ? (
+                    <ClassroomScene />
+                  ) : (
+                    <SchoolMap
+                      hasStoryHistory={hasMainStoryHistory}
+                      onOpenStoryHistory={() => setIsStoryHistoryOpen(true)}
+                    />
+                  )}
                 </div>
-                {!currentSceneId && !isMainStoryActive && (
+                {!currentSceneId && !isStoryOverlayOpen && (
                   <CalendarCard
                     className="game-calendar-card"
                     date={calendarDate}
@@ -271,20 +293,23 @@ function App() {
                     showMonth
                   />
                 )}
-                {!isMainStoryActive && <CharacterProfileModal />}
-                {!currentSceneId && !isMainStoryActive && (
+                {!isStoryOverlayOpen && <CharacterProfileModal />}
+                {!currentSceneId && !isStoryOverlayOpen && (
                   <MapMenu onOpenSave={() => setSaveSlotMode('save')} onOpenLoad={() => setSaveSlotMode('load')} />
                 )}
-                {!isMainStoryActive && isSkillPanelOpen && (
+                {!isStoryOverlayOpen && isSkillPanelOpen && (
                   <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
                 )}
-                <GalMainStory />
+                <GalMainStory
+                  historyMode={isStoryHistoryMode}
+                  onExitHistory={() => setIsStoryHistoryOpen(false)}
+                />
               </div>
 
               <div
-                className={`map-bottom-panel ${isMainStoryActive ? 'is-story-locked' : ''}`}
-                inert={isMainStoryActive ? true : undefined}
-                aria-hidden={isMainStoryActive ? true : undefined}
+                className={`map-bottom-panel ${isStoryOverlayOpen ? 'is-story-locked' : ''}`}
+                inert={isStoryOverlayOpen ? true : undefined}
+                aria-hidden={isStoryOverlayOpen ? true : undefined}
               >
                 <StatPanel />
                 <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />

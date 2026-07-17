@@ -5,7 +5,19 @@ import { resolveAssetPath } from '../utils/assetPath';
 import LocationMarker from './LocationMarker';
 import Character from './Character';
 
-export default function SchoolMap() {
+interface SchoolMapProps {
+  hasStoryHistory: boolean;
+  onOpenStoryHistory: () => void;
+}
+
+const LEGACY_CHIBI_REPLACEMENTS: Readonly<Record<string, string>> = {
+  '/artsource/chibis/Lalachibi.png': '/artsource/chibis/lala.png',
+  '/artsource/chibis/yuichibi.png': '/artsource/chibis/yui.png',
+  '/artsource/chibis/mengmengchibi.png': '/artsource/chibis/mengmeng.png',
+  '/artsource/chibis/darknesschibi.png': '/artsource/chibis/darkness.png',
+};
+
+export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: SchoolMapProps) {
   const currentLocationId = useGameStore(state => state.currentLocationId);
   const { locations, width, height, cellSize } = useMapStore();
   const characters = useCharacterStore(state => state.characters);
@@ -89,12 +101,24 @@ export default function SchoolMap() {
           return (
             <Character
               key={c.id}
-              character={c}
+              character={{ ...c, chibi: LEGACY_CHIBI_REPLACEMENTS[c.chibi] ?? c.chibi }}
               x={centerX - rowWidth / 2 + col * (avatarSize + avatarGap)}
               y={loc.y * cellSize + cellSize + 8 + row * (avatarSize + 4)}
             />
           );
         })}
+
+      {hasStoryHistory && (
+        <button
+          type="button"
+          className="school-map__story-history"
+          aria-label="回放已读主线剧情"
+          title="回放已读主线剧情"
+          onClick={onOpenStoryHistory}
+        >
+          <img src={resolveAssetPath('/artsource/ui/skip_kidoku.png')} alt="" aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
 }

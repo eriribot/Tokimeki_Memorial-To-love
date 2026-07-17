@@ -6,6 +6,7 @@ import {
   LALA_ARRIVAL_EVENT_ID,
   LALA_ARRIVAL_STORY,
 } from '../GalMainStory/lalaArrival';
+import type { GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
 import type { GameEvent, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 
 export const PERIODS = [
@@ -54,6 +55,50 @@ function spawnRandomEvents(day: number): GameEvent[] {
   });
 }
 
+function mergeStoryMessages<T extends { id: string }>(current: readonly T[], incoming: readonly T[]): T[] {
+  if (incoming.length === 0) return [...current];
+  const knownIds = new Set(current.map(message => message.id));
+  const merged = [...current];
+  for (const message of incoming) {
+    if (knownIds.has(message.id)) continue;
+    knownIds.add(message.id);
+    merged.push(message);
+  }
+  return merged;
+}
+
+function upsertStoryFloor(
+  archives: readonly GalStoryActArchive[],
+  floor: GalStoryFloor,
+  activate: boolean,
+): GalStoryActArchive[] {
+  const archiveIndex = archives.findIndex(
+    archive => archive.eventId === floor.eventId && archive.actIndex === floor.actIndex && archive.actId === floor.actId,
+  );
+  const current =
+    archiveIndex >= 0
+      ? archives[archiveIndex]
+      : {
+          eventId: floor.eventId,
+          actIndex: floor.actIndex,
+          actId: floor.actId,
+          activeFloorId: null,
+          floors: [],
+        };
+  const floors = current.floors.some(savedFloor => savedFloor.floorId === floor.floorId)
+    ? current.floors
+    : [...current.floors, floor];
+  const canActivate = activate && floor.outcome === 'accepted' && floor.act !== null;
+  const nextArchive: GalStoryActArchive = {
+    ...current,
+    floors,
+    activeFloorId: canActivate ? floor.floorId : current.activeFloorId,
+  };
+
+  if (archiveIndex < 0) return [...archives, nextArchive].sort((left, right) => left.actIndex - right.actIndex);
+  return archives.map((archive, index) => (index === archiveIndex ? nextArchive : archive));
+}
+
 const INITIAL_LOG = '新学期开始了，你站在校门口。';
 
 export const useGameStore = create<GameStore>(set => ({
@@ -74,6 +119,7 @@ export const useGameStore = create<GameStore>(set => ({
   mainStoryActIndex: 0,
   mainStoryPageIndex: 0,
   mainStoryActs: [],
+  mainStoryArchives: [],
   mainStoryMessages: [],
   mainStoryGenerationStatus: 'idle',
   mainStoryGenerationSource: null,
@@ -183,55 +229,99 @@ export const useGameStore = create<GameStore>(set => ({
     return started;
   },
 
-  setMainStoryContent: (acts, source, messages = []) =>
-    set(state =>
-      state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID
-        ? {
-            mainStoryActs: acts,
-            mainStoryMessages: messages,
-            mainStoryActIndex: Math.min(state.mainStoryActIndex, Math.max(0, acts.length - 1)),
-            mainStoryPageIndex: 0,
-            mainStoryGenerationStatus: 'ready',
-            mainStoryGenerationSource: source,
-            mainStoryGenerationError: null,
-          }
-        : state,
-    ),
-
-  setMainStoryActContent: (act, source, messages = []) =>
+  setMainStoryActContent: (floor, messages) =>
     set(state => {
+      const mainStoryMessages = mergeStoryMessages(state.mainStoryMessages, messages);
+      const existingFloor = state.mainStoryArchives
+        .flatMap(archive => archive.floors)
+        .find(savedFloor => savedFloor.floorId === floor.floorId);
+      if (existingFloor) return { mainStoryMessages };
+
       const expectedAct = LALA_ARRIVAL_STORY.acts[state.mainStoryActIndex];
-      if (state.activeMainStoryEventId !== LALA_ARRIVAL_EVENT_ID || !expectedAct || act.id !== expectedAct.id) {
-        return state;
+      const isValidAcceptedFloor =
+        floor.floorId.trim().length > 0 &&
+        floor.eventId === LALA_ARRIVAL_EVENT_ID &&
+        floor.outcome === 'accepted' &&
+        floor.act !== null &&
+        floor.act.id === floor.actId;
+      if (!isValidAcceptedFloor) return { mainStoryMessages };
+
+      const mainStoryArchives = upsertStoryFloor(
+        state.mainStoryArchives,
+        floor,
+        state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
+          Boolean(expectedAct) &&
+          floor.actIndex === state.mainStoryActIndex &&
+          floor.actId === expectedAct?.id,
+      );
+      if (
+        state.activeMainStoryEventId !== LALA_ARRIVAL_EVENT_ID ||
+        !expectedAct ||
+        floor.actIndex !== state.mainStoryActIndex ||
+        floor.actId !== expectedAct.id
+      ) {
+        return { mainStoryArchives, mainStoryMessages };
       }
       const mainStoryActs = [...state.mainStoryActs];
-      mainStoryActs[state.mainStoryActIndex] = act;
-      const mainStoryMessages = messages.length > 0
-        ? [
-            ...state.mainStoryMessages.filter(
-              message =>
-                message.extra.eventId !== LALA_ARRIVAL_EVENT_ID || message.extra.actIndex !== state.mainStoryActIndex,
-            ),
-            ...messages,
-          ]
-        : state.mainStoryMessages;
+      mainStoryActs[state.mainStoryActIndex] = floor.act;
       return {
         mainStoryActs,
+        mainStoryArchives,
         mainStoryMessages,
         mainStoryPageIndex: 0,
         mainStoryGenerationStatus: 'ready',
         mainStoryGenerationSource:
-          state.mainStoryGenerationSource === 'fallback' || source === 'fallback' ? 'fallback' : 'tavern',
+          state.mainStoryGenerationSource === 'fallback' || floor.source === 'fallback' ? 'fallback' : 'tavern',
         mainStoryGenerationError: null,
       };
     }),
 
-  failMainStoryGeneration: message =>
-    set(state =>
-      state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID
-        ? { mainStoryGenerationStatus: 'error', mainStoryGenerationError: message }
-        : state,
-    ),
+  failMainStoryGeneration: (message, messages = [], floor) =>
+    set(state => {
+      const persisted = {
+        mainStoryArchives: floor
+          ? upsertStoryFloor(state.mainStoryArchives, floor, false)
+          : state.mainStoryArchives,
+        mainStoryMessages: mergeStoryMessages(state.mainStoryMessages, messages),
+      };
+      const appliesToActiveAct =
+        state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
+        (!floor || (floor.eventId === LALA_ARRIVAL_EVENT_ID && floor.actIndex === state.mainStoryActIndex));
+      if (!appliesToActiveAct) return persisted;
+      return {
+        ...persisted,
+        mainStoryGenerationStatus: 'error',
+        mainStoryGenerationError: message,
+      };
+    }),
+
+  addMainStoryFloor: (floor, messages = []) =>
+    set(state => ({
+      mainStoryArchives: upsertStoryFloor(state.mainStoryArchives, floor, false),
+      mainStoryMessages: mergeStoryMessages(state.mainStoryMessages, messages),
+    })),
+
+  selectMainStoryFloor: floorId => {
+    let selected = false;
+    set(state => {
+      const archiveIndex = state.mainStoryArchives.findIndex(archive =>
+        archive.floors.some(floor => floor.floorId === floorId),
+      );
+      if (archiveIndex < 0) return state;
+      const archive = state.mainStoryArchives[archiveIndex];
+      const floor = archive.floors.find(candidate => candidate.floorId === floorId);
+      if (!floor || floor.outcome !== 'accepted' || floor.act === null) return state;
+
+      selected = true;
+      const mainStoryArchives = state.mainStoryArchives.map((savedArchive, index) =>
+        index === archiveIndex ? { ...savedArchive, activeFloorId: floorId } : savedArchive,
+      );
+      const mainStoryActs = [...state.mainStoryActs];
+      mainStoryActs[floor.actIndex] = floor.act;
+      return { mainStoryArchives, mainStoryActs };
+    });
+    return selected;
+  },
 
   setMainStoryPosition: (actIndex, pageIndex) =>
     set(state => {
@@ -271,7 +361,10 @@ export const useGameStore = create<GameStore>(set => ({
         mainStoryGenerationSource: null,
         mainStoryGenerationError: null,
         currentSceneId: null,
-        log: [...state.log.slice(-19), `主线事件「${LALA_ARRIVAL_STORY.title}」第 ${state.mainStoryActIndex + 1} 幕暂告一段落。`],
+        log: [
+          ...state.log.slice(-19),
+          `主线事件「${LALA_ARRIVAL_STORY.title}」第 ${state.mainStoryActIndex + 1} 幕暂告一段落。`,
+        ],
       };
     });
     return advanced;
@@ -297,7 +390,6 @@ export const useGameStore = create<GameStore>(set => ({
         mainStoryEntryReason: null,
         mainStoryActIndex: 0,
         mainStoryPageIndex: 0,
-        mainStoryActs: [],
         mainStoryGenerationStatus: 'idle',
         mainStoryGenerationSource: null,
         mainStoryGenerationError: null,
@@ -330,6 +422,7 @@ export const useGameStore = create<GameStore>(set => ({
       mainStoryActIndex: 0,
       mainStoryPageIndex: 0,
       mainStoryActs: [],
+      mainStoryArchives: [],
       mainStoryMessages: [],
       mainStoryGenerationStatus: 'idle',
       mainStoryGenerationSource: null,

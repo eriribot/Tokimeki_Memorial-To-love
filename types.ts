@@ -1,5 +1,7 @@
 import type {
+  GalStoryActArchive,
   GalStoryAct,
+  GalStoryFloor,
   MainStoryEntryReason,
   StoryGenerationSource,
   StoryGenerationStatus,
@@ -57,6 +59,8 @@ export interface GameState {
   mainStoryActIndex: number;
   mainStoryPageIndex: number;
   mainStoryActs: GalStoryAct[];
+  mainStoryArchives: GalStoryActArchive[];
+  mainStoryMessages: GalStoryMessageSave[];
   mainStoryGenerationStatus: StoryGenerationStatus;
   mainStoryGenerationSource: StoryGenerationSource | null;
   mainStoryGenerationError: string | null;
@@ -89,9 +93,10 @@ export interface GameActions {
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
   beginMainStoryGeneration: () => boolean;
-  setMainStoryContent: (acts: GalStoryAct[], source: StoryGenerationSource, messages?: GalStoryMessageSave[]) => void;
-  setMainStoryActContent: (act: GalStoryAct, source: StoryGenerationSource, messages?: GalStoryMessageSave[]) => void;
-  failMainStoryGeneration: (message: string) => void;
+  setMainStoryActContent: (floor: GalStoryFloor, messages: GalStoryMessageSave[]) => void;
+  failMainStoryGeneration: (message: string, messages?: GalStoryMessageSave[], floor?: GalStoryFloor) => void;
+  addMainStoryFloor: (floor: GalStoryFloor, messages?: GalStoryMessageSave[]) => void;
+  selectMainStoryFloor: (floorId: string) => boolean;
   setMainStoryPosition: (actIndex: number, pageIndex: number) => void;
   advanceMainStoryAct: () => boolean;
   completeMainStoryEvent: () => boolean;

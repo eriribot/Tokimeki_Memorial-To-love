@@ -8,6 +8,45 @@
   overflow: hidden;
 }
 
+.school-map__story-history {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  z-index: 80;
+  width: 112px;
+  min-height: 0;
+  aspect-ratio: 112 / 74;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  appearance: none;
+}
+
+.school-map__story-history img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.school-map__story-history::before,
+.school-map__story-history::after {
+  content: none;
+  display: none;
+}
+
+.school-map__story-history:hover,
+.school-map__story-history:focus-visible {
+  outline: none;
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+
 /* 优化地图背景图 */
 .school-map .map-background {
   opacity: 1 !important;
@@ -144,9 +183,9 @@
 
 .character-avatar img {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 /* 添加地图装饰元素 */
