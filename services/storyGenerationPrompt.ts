@@ -23,21 +23,11 @@ function normalizeInline(value: string, fallback: string): string {
   return normalized || fallback;
 }
 
-export function buildStoryCompletionSentinel(eventId: string, stageId: string): string {
-  const encodedEventId = encodeURIComponent(normalizeInline(eventId, 'unknown-event'));
-  const encodedStageId = encodeURIComponent(normalizeInline(stageId, 'unknown-stage'));
-  return `[[STAGE_COMPLETE:${encodedEventId}:${encodedStageId}]]`;
-}
-
 function formatFacts(facts: readonly string[]): string {
   return facts.map(fact => `- ${fact}`).join('\n');
 }
 
-export function buildStoryOutputProtocol(
-  allowedSpeakers: readonly string[],
-  moodExamples: readonly string[],
-  completionSentinel: string,
-): string {
+export function buildStoryOutputProtocol(allowedSpeakers: readonly string[], moodExamples: readonly string[]): string {
   return `
 这是供程序读取 GAL 正文的格式契约。它只约束正文如何标记，不接管当前预设的文风、叙事密度、创作方法、剧情细节或对白内容，也不规定固定行数或字数。
 
@@ -48,8 +38,6 @@ export function buildStoryOutputProtocol(
 - 对白只可写成“@角色名【情绪】：台词”，角色名、情绪和台词必须在同一行。
 - 角色名只可用：${allowedSpeakers.join('、')}。玩家必须标“@你”。
 - 情绪可自由填写一个简短、明确的中文词，例如：${moodExamples.join('、')}；不限于这些示例。
-- 只有当前阶段全部必达节点和收束条件已在正文中实际发生、且下一边界没有被跨越时，才在整份回答的最后一个非空行原样输出阶段完成标记：${completionSentinel}
-- 阶段完成标记位于 <content>、吐槽、摘要等 preset 外围结构之后，不属于 GAL 正文，不加 @。如果回答被截断或阶段尚未完成，不得伪造该标记。
 
 绝对禁止：
 - 正文区域内禁止JSON、标题、幕名、说明、总结、Markdown或代码围栏。
@@ -77,7 +65,6 @@ export function buildStoryGenerationPrompt(context: StoryGenerationPromptContext
   const period = normalizeInline(context.period, 'unknown-period');
   const location = normalizeInline(context.location, 'unknown-location');
   const stableFacts = context.stableFacts?.filter(Boolean) ?? [];
-  const completionSentinel = buildStoryCompletionSentinel(eventId, stageId);
 
   return `
 为校园恋爱游戏生成当前已经由游戏状态选中的 GAL 事件阶段正文。
@@ -115,6 +102,6 @@ ${formatFacts(stableFacts)}
 - 错误：世界书给出的因果锚点是“异常出现 → 角色尝试应对 → 关键装置介入 → 意外升级 → 危机解除并回到日常”，正文只写到相遇或初次应对便结束。
 - 正确：让全部因果锚点及其直接后果在场景中实际发生，在危机解除并建立下一阶段的交接状态后停笔；具体对白、喜剧动作、地点利用和镜头表现均可原创。
 
-${buildStoryOutputProtocol(context.allowedSpeakers, context.moodExamples, completionSentinel)}
+${buildStoryOutputProtocol(context.allowedSpeakers, context.moodExamples)}
 `.trim();
 }

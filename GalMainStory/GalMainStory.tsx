@@ -10,11 +10,11 @@ import { PERIODS, useGameStore } from '../stores/gameStore';
 import { useCardStore } from '../stores/cardStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { resolveAssetPath } from '../utils/assetPath';
-import { GALBOX_ASSETS, getSpeakerNameplateAsset } from './galAssets';
-import LalaPortrait from './LalaPortrait';
+import { GALBOX_ASSETS, getSpeakerNameplateAsset, HARUNA_PORTRAIT_RIG, LALA_PORTRAIT_RIG } from './galAssets';
+import LayeredPortrait from './LayeredPortrait';
 import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './lalaArrival';
 import StoryHistoryArchive from './StoryHistoryArchive';
-import type { GalStoryFloor, GalStoryMessageSave } from './storyTypes';
+import type { GalStoryBeat, GalStoryFloor, GalStoryMessageSave, LalaExpression, StoryBackgroundId } from './storyTypes';
 import './GalMainStory.css';
 
 interface StoryCursor {
@@ -38,6 +38,13 @@ interface RawStoryHistoryDialogProps {
   entries: readonly RawStoryEntry[];
   onClose: () => void;
 }
+
+const STORY_BACKGROUND_ALT: Record<StoryBackgroundId, string> = {
+  school: '彩南高校',
+  night: '夜晚场景',
+  washroomDoor: '浴室门前',
+  washroom: '浴室内部',
+};
 
 function RawStoryHistoryDialog({ entries, onClose }: RawStoryHistoryDialogProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -99,6 +106,13 @@ function RawStoryHistoryDialog({ entries, onClose }: RawStoryHistoryDialogProps)
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function getHarunaPortraitExpression(beat: GalStoryBeat | undefined, actIndex: number): LalaExpression | null {
+  if (!beat || actIndex !== 0 || beat.background !== 'school' || beat.lalaExpression) return null;
+  if (beat.effect === 'shake') return 'e';
+  if (beat.effect === 'flash') return 'd';
+  return beat.speaker === '西连寺春菜' ? 'f' : 'a';
 }
 
 export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
@@ -184,7 +198,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const visiblePageIndex = replayCursor?.pageIndex ?? pageIndex;
   const visibleAct = (historyMode ? historyActs : acts)[visibleActIndex];
   const visibleBeat = visibleAct?.beats[visiblePageIndex];
-  const isLalaSpeaking = visibleBeat?.speaker === '菈菈';
+  const harunaExpression = getHarunaPortraitExpression(visibleBeat, visibleActIndex);
+  const portraitRig = visibleBeat?.lalaExpression ? LALA_PORTRAIT_RIG : harunaExpression ? HARUNA_PORTRAIT_RIG : null;
+  const portraitExpression = visibleBeat?.lalaExpression ?? harunaExpression;
+  const isPortraitSpeaking =
+    (portraitRig?.id === 'lala' && visibleBeat?.speaker === '菈菈') ||
+    (portraitRig?.id === 'haruna' && visibleBeat?.speaker === '西连寺春菜');
   const speakerNameplate = getSpeakerNameplateAsset(visibleBeat?.speaker ?? null);
   const assistantHistory = useMemo<RawStoryEntry[]>(
     () =>
@@ -493,26 +512,24 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const background = LALA_ARRIVAL_STORY.backgrounds[visibleBeat.background];
   const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
-  const isLastReplayPage =
-    !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
+  const isLastReplayPage = !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
   const historyFloorArchive = historyFloor
     ? storyArchives.find(archive => archive.floors.some(floor => floor.floorId === historyFloor.floorId))
     : undefined;
-  const historyFloorIndex = historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
-  const isHistoryFloorActive = Boolean(
-    historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId,
-  );
+  const historyFloorIndex =
+    historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
+  const isHistoryFloorActive = Boolean(historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId);
   const nextActionLabel = historyMode
     ? isLastHistoryPage
       ? '返回剧情目录'
       : '下一页'
     : isLastReplayPage
       ? '返回当前剧情'
-    : isLastLiveAct && isLastLivePage
-      ? '结束剧情'
-      : isLastLivePage
-        ? '回到自由行动'
-        : '下一页';
+      : isLastLiveAct && isLastLivePage
+        ? '结束剧情'
+        : isLastLivePage
+          ? '回到自由行动'
+          : '下一页';
 
   return (
     <section
@@ -528,6 +545,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-speaker={visibleBeat.speaker ?? 'narration'}
       data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration'}
       data-lala-expression={visibleBeat.lalaExpression ?? 'hidden'}
+      data-haruna-expression={harunaExpression ?? 'hidden'}
+      data-portrait-character={portraitRig?.id ?? 'hidden'}
+      data-background={visibleBeat.background}
       data-effect={visibleBeat.effect}
       data-replay={isReplaying ? 'true' : 'false'}
       data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
@@ -537,7 +557,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.background}`}
         className="gal-main-story__background"
         src={resolveAssetPath(background)}
-        alt={visibleBeat.background === 'school' ? '彩南高校' : '夜晚场景'}
+        alt={STORY_BACKGROUND_ALT[visibleBeat.background]}
       />
       <div className="gal-main-story__shade" aria-hidden="true" />
       <div className="gal-main-story__act-label">
@@ -545,10 +565,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
       </div>
 
-      {visibleBeat.lalaExpression && (
-        <LalaPortrait
-          expression={visibleBeat.lalaExpression}
-          isSpeaking={isLalaSpeaking}
+      {portraitRig && portraitExpression && (
+        <LayeredPortrait
+          key={portraitRig.id}
+          rig={portraitRig}
+          expression={portraitExpression}
+          isSpeaking={isPortraitSpeaking}
           beatKey={visibleActIndex * 100 + visiblePageIndex}
         />
       )}

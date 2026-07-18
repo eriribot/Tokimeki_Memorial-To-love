@@ -25,7 +25,7 @@ import {
 } from '../GalMainStory/storyTypes';
 import { buildSelectedStoryLoreContext, readDisabledWorldbookStoryLore } from '../data/storyLore';
 import { createSaveUuid } from '../save/uuid';
-import { buildStoryCompletionSentinel, buildStoryGenerationPrompt } from './storyGenerationPrompt';
+import { buildStoryGenerationPrompt } from './storyGenerationPrompt';
 
 export interface GenerateLalaArrivalActRequest {
   floorId: string;
@@ -100,21 +100,6 @@ function buildGenerationPrompt(request: GenerateLalaArrivalActRequest): string {
     allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
     moodExamples: STORY_MOOD_EXAMPLES,
   });
-}
-
-function getCompletionSentinel(request: GenerateLalaArrivalActRequest): string {
-  const act = LALA_ARRIVAL_ACTS[request.actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
-  return buildStoryCompletionSentinel(LALA_ARRIVAL_EVENT_ID, act.id);
-}
-
-function stripCompletionSentinel(raw: string, request: GenerateLalaArrivalActRequest): string {
-  const trimmed = raw.trim();
-  const sentinel = getCompletionSentinel(request);
-  if (!trimmed.endsWith(sentinel)) {
-    throw new Error('酒馆正文缺少当前阶段完成标记，可能被截断或尚未满足世界书结束条件。');
-  }
-  return trimmed.slice(0, -sentinel.length).trimEnd();
 }
 
 function buildStoryContext(storyHistory: GalStoryAct[], actIndex: number): string | null {
@@ -397,7 +382,7 @@ export async function generateLalaArrivalAct(request: GenerateLalaArrivalActRequ
 
   if (typeof result !== 'string') throw new Error('酒馆返回了工具调用，当前剧情生成只接受正文文本。');
   try {
-    const playableText = extractPlayableText(stripCompletionSentinel(result, request));
+    const playableText = extractPlayableText(result);
     const parsedAct = parsePlainTextAct(playableText, request.actIndex, request.playerName);
     const messages = createLalaArrivalMessagePair({
       ...request,

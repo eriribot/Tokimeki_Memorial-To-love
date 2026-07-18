@@ -130,7 +130,7 @@
 }
 
 .gal-main-story[data-effect='shake'] .gal-main-story__background,
-.gal-main-story[data-effect='shake'] .lala-portrait-stage {
+.gal-main-story[data-effect='shake'] .layered-portrait-stage {
   animation: story-shake 300ms ease-out both;
 }
 
@@ -148,7 +148,7 @@
   pointer-events: none;
 }
 
-.lala-portrait-stage {
+.layered-portrait-stage {
   position: absolute;
   right: 7%;
   bottom: -2%;
@@ -157,10 +157,10 @@
   aspect-ratio: 1;
   pointer-events: none;
   filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.32));
-  animation: lala-portrait-enter 260ms ease-out both;
+  animation: layered-portrait-enter 260ms ease-out both;
 }
 
-.lala-portrait {
+.layered-portrait {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -171,10 +171,10 @@
   mask-position: center;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
-  animation: lala-portrait-breathe 4.2s ease-in-out 280ms infinite;
+  animation: layered-portrait-breathe 4.2s ease-in-out 280ms infinite;
 }
 
-.lala-portrait__body {
+.layered-portrait__body {
   position: absolute;
   inset: 0;
   display: block;
@@ -183,13 +183,13 @@
   object-fit: contain;
 }
 
-.lala-portrait__face-window {
+.layered-portrait__face-window {
   position: absolute;
   display: block;
   overflow: hidden;
 }
 
-.lala-portrait__face-window img {
+.layered-portrait__face-window img {
   position: absolute;
   top: 0;
   display: block;
@@ -200,26 +200,12 @@
   max-height: none;
 }
 
-.lala-portrait__eyes {
-  top: 23.145%;
-  left: 38.477%;
-  width: 22.461%;
-  height: 12.793%;
+.layered-portrait__eyes img.is-blinking {
+  animation: layered-eye-sheet 4.2s steps(1, end) infinite;
 }
 
-.lala-portrait__mouth {
-  top: 35.645%;
-  left: 38.477%;
-  width: 22.461%;
-  height: 5.566%;
-}
-
-.lala-portrait__eyes img.is-blinking {
-  animation: lala-eye-sheet 4.2s steps(1, end) infinite;
-}
-
-.lala-portrait__mouth img.is-speaking {
-  animation: lala-mouth-sheet 420ms steps(1, end) 4;
+.layered-portrait__mouth img.is-speaking {
+  animation: layered-mouth-sheet 420ms steps(1, end) 4;
 }
 
 .gal-main-story__dialogue {
@@ -846,7 +832,7 @@
   margin-top: 9px;
 }
 
-@keyframes lala-portrait-enter {
+@keyframes layered-portrait-enter {
   from {
     opacity: 0;
     transform: translateX(24px);
@@ -857,7 +843,7 @@
   }
 }
 
-@keyframes lala-portrait-breathe {
+@keyframes layered-portrait-breathe {
   0%,
   100% {
     transform: translateY(0) scaleY(1);
@@ -867,7 +853,7 @@
   }
 }
 
-@keyframes lala-eye-sheet {
+@keyframes layered-eye-sheet {
   0%,
   91%,
   100% {
@@ -882,7 +868,7 @@
   }
 }
 
-@keyframes lala-mouth-sheet {
+@keyframes layered-mouth-sheet {
   0%,
   100% {
     top: 0;
@@ -949,7 +935,7 @@
     inset: 3%;
   }
 
-  .lala-portrait-stage {
+  .layered-portrait-stage {
     right: 4%;
     bottom: 0;
     width: 48%;
@@ -1033,7 +1019,7 @@
     font-size: 12px;
   }
 
-  .lala-portrait-stage {
+  .layered-portrait-stage {
     right: 3%;
     bottom: 30%;
     width: 38%;
@@ -1153,10 +1139,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lala-portrait-stage,
-  .lala-portrait,
-  .lala-portrait__eyes img.is-blinking,
-  .lala-portrait__mouth img.is-speaking {
+  .layered-portrait-stage,
+  .layered-portrait,
+  .layered-portrait__eyes img.is-blinking,
+  .layered-portrait__mouth img.is-speaking {
     animation: none;
   }
 
@@ -1168,7 +1154,7 @@
   .gal-main-story__scanner span,
   .gal-main-story[data-effect='flash'] .gal-main-story__shade,
   .gal-main-story[data-effect='shake'] .gal-main-story__background,
-  .gal-main-story[data-effect='shake'] .lala-portrait-stage {
+  .gal-main-story[data-effect='shake'] .layered-portrait-stage {
     animation: none;
   }
 

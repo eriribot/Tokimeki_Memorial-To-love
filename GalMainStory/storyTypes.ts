@@ -1,5 +1,5 @@
 export const LALA_EXPRESSIONS = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
-export const STORY_BACKGROUNDS = ['school', 'night'] as const;
+export const STORY_BACKGROUNDS = ['school', 'night', 'washroomDoor', 'washroom'] as const;
 export const STORY_EFFECTS = ['none', 'flash', 'shake'] as const;
 
 export type LalaExpression = (typeof LALA_EXPRESSIONS)[number];

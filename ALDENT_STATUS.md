@@ -2,92 +2,99 @@
 
 ```yaml
 status: waiting_for_review
-current_loop: disabled-worldbook-story-lore-read
-authorized_by: user_go_on_2026-07-17
+current_loop: remove-ai-stage-completion-sentinel
+authorized_by: user_explicit_remove_request_2026-07-18
 authorized_scope:
-  - read the disabled 出包王女 / 剧情第一集 worldbook entry by stable UID/name before episode generation
-  - validate the entry and inject exactly one event-scoped lore block into each act request
-  - reject missing, duplicate, enabled, or malformed lore before calling generate
-  - update focused tests and active documentation, rebuild, and verify the exact inline artifact
+  - remove the model-emitted event/stage completion sentinel from the generation prompt
+  - accept parseable Tavern GAL text without a response suffix
+  - preserve AP, date, current-act, and internal event-completion authority in Zustand and saves
+  - update the existing story regression and active documentation without creating a new mjs test
+  - validate development, production, browser flow, and the exact inline artifact
 forbidden_scope:
-  - modify or enable the user's live SillyTavern worldbook
-  - import the local episode TXT into the runtime bundle or restore deleted character lore files
-  - change AP, affection, date, event settlement, save schema, hidden host floors, plugins, or databases
-connection_state: getWorldbook_read_and_generate_call_path_locally_mocked
+  - weaken playable-text, speaker, worldbook, empty-response, or pollution validation
+  - change AP, affection, dates, act triggers, event settlement, saves, or fallback rules
+  - change story lore, backgrounds, portraits, blink timing, host floors, shujuku, plugins, or databases
+connection_state: local_production_no_sentinel_story_flow_verified
 overall_connection_label: 只是本地状态演示
-human_review: pending_real_tavern_generation
-next_loop: frozen_until_completed_human_review_form_or_new_explicit_request
+human_review: pending_real_tavern_no_sentinel_acceptance
+prior_pending_reviews:
+  - ep01-act1-background-sequence
+  - haruna-cross-page-blink-continuity
+next_loop: frozen_after_review_invitation_until_new_explicit_feedback_or_completed_review_form
 ```
 
 ## 本轮结果
 
-- 第一集生成前调用 `TavernHelper.getWorldbook('出包王女')`，优先核对
-  `UID 2 + 剧情第一集`，UID 变化时只允许唯一同名条目回退。
-- 条目必须保持关闭，正文必须以 `<To LOVE-Ru TV Episode 01>` 包围并包含
-  `标题:从天而降的少女`；否则在调用 AI 前进入可见错误。
-- 通过校验的完整条目以一个 `<selected_story_lore>` system 块注入。块携带当前 event/stage
-  ID，`should_scan:false`，不会进入 `user_input`，也不发送 `position:none` 原生扫描键。
-- 第二幕仍携带已接受的第一幕连续性正文；运行时契约仍是最后一个 depth-0 system 注入。
-- 本地 `data/lore-books/tolove-tv-episode-01.txt` 只是世界书恢复源，没有被 import 或打入 inline
-  bundle。菈菈、梨子两份 TXT 保持原有删除状态。
+- 已删除 `buildStoryCompletionSentinel()`、prompt 中的末行标记要求，以及正文适配器中的 `endsWith()` /
+  `stripCompletionSentinel()` 强制检查。
+- `TavernHelper.generate()` 返回字符串后现在直接进入 `<content>` 抽取和 `@旁白` / `@角色【情绪】`
+  解析。没有额外末行标记的合法正文可以进入 GAL。
+- AP、日期、当前幕和 `completedMainStoryEventIds`
+  没有改动：第一次行动仍为 4 月 7 日/AP=1/第一幕，第二次行动仍为 AP=0/第二幕，第二幕播放结束后仍进入 4 月 8 日/AP=2，并只写一条内部事件完成记录。
+- 空正文、JSON、未知说话人、缺少 `@`、污染正文、世界书缺失/重复/误开启/损坏和 API 请求失败仍按原规则显示错误。
+- 仓库已有 `output/verify-story-mvp.mjs` 已改为让正常 mock 返回纯 `@`
+  正文，并断言两个请求都不包含完成哨兵；没有新增测试脚本。
 
-## 改动范围
+## 本轮改动范围
 
-- `data/storyLore.ts`
-- `GalMainStory/lalaArrival.ts`
 - `services/storyGenerationPrompt.ts`
 - `services/tavernStoryGeneration.ts`
-- `output/verify-story-mvp.mjs`
-- `output/story-mvp-e2e/`
+- `output/verify-story-mvp.mjs`（仅更新现有回归）
 - `AGENTS.md`
 - `MODULES.md`
 - `AI生文与GAL前端整合方案.md`
 - `ALDENT_STATUS.md`
+- `references/aldent-human-review-form.md`
 - `references/aldent-review-invitation.md`
+- `output/story-no-sentinel-dev/`、`output/story-no-sentinel-production/`、`output/web-game-no-sentinel/`（本地证据）
+
+工作区中现有背景和 Haruna/Lala 立绘差异属于前序循环，本轮没有重写或回退它们。
 
 ## 验证证据
 
-| Check                       | Status  | Evidence                                                                                                  |
-| --------------------------- | ------- | --------------------------------------------------------------------------------------------------------- |
-| Script syntax               | passed  | `node --check src/webgame-ui/output/verify-story-mvp.mjs`                                                 |
-| Targeted Prettier           | passed  | 本轮 TS/MJS/Markdown 全部符合项目格式                                                                     |
-| Targeted ESLint             | passed  | `storyLore.ts`、`lalaArrival.ts`、`storyGenerationPrompt.ts`、`tavernStoryGeneration.ts`                  |
-| Subtree TypeScript          | failed  | 既有 `stores/gameStore.ts:266` 的 `GalStoryAct \| null` 错误；本轮文件范围 ESLint 和实际 webpack 构建通过 |
-| Development build           | passed  | fresh `pnpm build:dev`                                                                                    |
-| Exact inline safety         | passed  | 五项风险计数均为 0，1 个 inline script 可解析                                                             |
-| Exact artifact              | passed  | 4,481,496 bytes；SHA-256 `58BAF5DA0DE816DA312F4262827FC9BDF19572BE62AEE841DFEDD9CC898AE191`               |
-| Local TXT exclusion         | passed  | 本地第一集独有正文句未出现在最终 inline HTML；bundle 只含读取/校验逻辑和标题标记                          |
-| Story MVP browser flow      | passed  | 正常两幕、缺完成标记、条目误开启、API 失败/fallback 四条路径                                              |
-| Lore routing assertions     | passed  | 两幕各读取一次关闭条目、各有一份精确 stage lore；无 native scan、无 user_input 正文重复                   |
-| Enabled-entry guard         | passed  | 条目开启时错误可见，AP 保持 1，`generate` 调用 0 次                                                       |
-| Console/page/request errors | passed  | 三项均为 0                                                                                                |
-| Screenshot inspection       | passed  | 正常 GAL、关闭条目错误和移动 fallback 无新增重叠或裁切                                                    |
-| Real Tavern worldbook read  | not run | 本轮没有读取或修改用户真实世界书                                                                          |
-| Real Tavern generation      | not run | 等待用户加载 fresh artifact 后触发两幕                                                                    |
-| Human acceptance            | not run | 自动化是证据，不是人工接受                                                                                |
+| Check                                 | Status  | Evidence                                                                                                 |
+| ------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| Runtime sentinel references           | passed  | builder、prompt 参数、suffix 检查和旧错误文案已从运行源码删除                                            |
+| Existing test syntax                  | passed  | `node --check output/verify-story-mvp.mjs`                                                               |
+| Targeted Prettier                     | passed  | 本轮源码、现有回归和活跃文档                                                                             |
+| Targeted ESLint                       | passed  | 0 errors；现有 `.mjs` 的 `node:fs` / `node:path` 规则产生 2 个既有 warning                               |
+| Development build                     | passed  | fresh `pnpm build:dev`                                                                                   |
+| Development no-sentinel story flow    | passed  | 两幕纯 `@` mock 均进入 `ready`；`doesNotRequestCompletionSentinel=true`                                  |
+| Production no-sentinel story flow     | passed  | 正常两幕、世界书保护、请求失败/fallback 均通过；三个浏览器错误数组为空                                   |
+| AP/date/internal completion authority | passed  | 第一幕结束 4 月 7 日/AP=1；第二幕结束 4 月 8 日/AP=2；内部事件记录 1 条                                  |
+| Screenshot review                     | passed  | production `direct-ready.png` 显示正常第一幕 GAL，不再是缺标记错误页                                     |
+| Generic web-game client               | passed  | 启动和状态截图正常；只记录静态页缺 Tavern 文件桥的既有预期错误                                           |
+| Production bundle old-string scan     | passed  | `STAGE_COMPLETE`、旧错误文案和“阶段完成标记”在最终 HTML 中均为 0 命中                                    |
+| Production build                      | passed  | fresh `pnpm build`；仅有既有 465 KiB bundle 体积警告                                                     |
+| Exact inline safety                   | passed  | `legacyEntityPrefix/currencySign/replacementChar/replacementSpecial/syntaxErrors = 0`，`scriptCount = 1` |
+| Exact artifact                        | passed  | 476,250 bytes；SHA-256 `0F74FE9D8B157499188FD9E99E50E7C26D787EEF3FAFC28001144ABCB207C3DF`                |
+| Real Tavern generation/rendering      | not run | 尚未在用户实际 SillyTavern/Tavern Helper 中加载新哈希重新生成                                            |
+| Human acceptance                      | not run | 等待确认截图中的同类无标记正文现在可直接进入 GAL                                                         |
 
 ## 当前接通状态
 
-- 生成链：源码会先只读 `getWorldbook`，校验关闭条目后调用
-  `TavernHelper.generate({ preset_name: 'in_use', max_chat_history: 0 })`；本地 mock 已验证参数，真实 Tavern 尚未运行。
-- 宿主消息链：没有创建 hidden user/assistant 楼层。
-- 插件/数据库链：没有触发 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
-- UI 镜像链：游戏自有 messagesave/file bridge 保持不变，不是宿主聊天权威。
-- 本轮没有修改真实世界书开关、条目内容或绑定。
+- 生成链：源码仍调用真实 `getWorldbook` 和
+  `TavernHelper.generate`；本轮只在浏览器 mock 验证返回处理，真实 Tavern 未运行。
+- 宿主消息链：未接通。
+- 插件/数据库链：未接通。
+- UI 镜像链：现有本地游戏消息镜像保持不变。
+
+本轮没有提升真实 Tavern、插件或数据库的接通等级。
 
 ## 人工复现
 
-1. 保持截图中的 `出包王女 / 剧情第一集` 为关闭状态，标题和 UID 仍为 `剧情第一集 / 2`，正文首尾标签完整。
-2. 加载 fresh `dist/webgame-ui/index.html`，使用新存档开始 2008-04-07。
-3. 完成第一次有效行动，确认进入“放学后的坠落光”，没有出现“条目必须保持关闭”或“正文不完整”错误。
-4. 保存第一幕 AI 原文和 GAL 截图。原文最后一行应为当前第一幕完成标记，正文只完成第一幕并停在浴室白光。
-5. 播完第一幕并完成第二次有效行动，保存第二幕 AI 原文和截图。正文应完成浴室登场、追逐、装置失控和次日误告白，并停在婚约宣言。
-6. 确认两幕结束后日期为 4 月 8 日、AP 恢复为 2，且没有重复的第一集世界书正文。
+1. 加载 SHA-256 对应的 fresh `dist/webgame-ui/index.html`，用新存档在 4 月 7 日完成第一次有效行动。
+2. 查看 AI 原文，确认末尾不需要 `[[STAGE_COMPLETE:...]]`；合法 `@`
+   正文应直接显示第一幕 GAL，不再出现“缺少当前阶段完成标记”。
+3. 播完第一幕，确认仍为 4 月 7 日、AP=1，当前主线退出。
+4. 完成第二次有效行动；第二幕无末行标记也应进入 GAL。播完后确认进入 4 月 8 日、AP=2，第一集不再触发。
+5. 确认原有 `@` 格式、说话人和世界书错误仍可见；不要把“现在不检查末行标记”误解为“任何文本都会放行”。
+6. 背景顺序和春菜眨眼仍是前序待验收项，本轮通过不能代替它们的人工结论。
 
 ## 已知风险
 
-- 完成标记只能证明响应闭合，不能机器证明模型语义上覆盖了每个必要节点；真实 AI 原文仍需人工阅读。
-- 每幕会注入完整第一集条目，并用精确 stage ID 和提示边界限制当前幕；模型是否遵守“不提前演出”仍需真实 preset 验收。
-- 真实 Tavern 若把条目名称改掉、保留多个同名条目、开启条目或粘贴不完整正文，生成会按设计失败并显示原因。
+- 一个语法可解析但实际被 token 上限截断的正文现在也会进入 GAL。这是移除不可靠末行哨兵后的明确取舍；AP/日期只能选择和结算阶段，不能证明正文语义完整。
+- 原哨兵同样不能证明世界书节点真的完成，只能证明模型输出了指定字符串。本轮保留 prompt 的事件闭环要求，真实语义质量继续由实际 Tavern 原文和人工审查判断。
+- 若以后需要可靠的传输截断诊断，应优先使用生成 API 明确提供的停止原因；不应重新用模型自报字符串冒充机器证据。
 
-本状态和审查邀请发出后冻结修改。
+本状态更新后只剩审查邀请；邀请发出后冻结修改。

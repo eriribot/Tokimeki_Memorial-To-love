@@ -34,7 +34,7 @@ function isExpectedMissingTavernFileBridge(message) {
 
 async function installTavernMock(page, mode) {
   await page.addInitScript(
-    ({ entryEnabled, episodeLore, omitCompletionSentinel, shouldFail }) => {
+    ({ entryEnabled, episodeLore, shouldFail }) => {
       window.__storyCalls = [];
       window.__storyWorldbookReads = [];
       window.TavernHelper = {
@@ -64,7 +64,6 @@ async function installTavernMock(page, mode) {
           );
           const selectedStoryLore = selectedStoryLoreInjects[0]?.content ?? '';
           const actNumber = Number(config.user_input.match(/第 (\d+) \/ \d+ 阶段/u)?.[1] ?? 1);
-          const completionSentinel = config.user_input.match(/\[\[STAGE_COMPLETE:[^\r\n]+\]\]/u)?.[0] ?? '';
           const selectedStoryStageId = selectedStoryLore.match(/stage_id="([^"]+)"/u)?.[1] ?? '';
           const worldbookReads = [...window.__storyWorldbookReads];
 
@@ -89,10 +88,10 @@ async function installTavernMock(page, mode) {
               config.user_input.includes('当前游戏日') &&
               config.user_input.includes('当前时段') &&
               config.user_input.includes('当前地点'),
-            hasCompletionSentinelContract:
-              completionSentinel.length > 0 &&
-              outputProtocol.includes(completionSentinel) &&
-              outputProtocol.includes('最后一个非空行'),
+            doesNotRequestCompletionSentinel:
+              !config.user_input.includes('STAGE_COMPLETE') &&
+              !outputProtocol.includes('STAGE_COMPLETE') &&
+              !outputProtocol.includes('阶段完成标记'),
             selectedStoryLoreCount: selectedStoryLoreInjects.length,
             selectedStoryStageId,
             hasExpectedEpisodeLore:
@@ -113,49 +112,43 @@ async function installTavernMock(page, mode) {
           await new Promise(resolve => setTimeout(resolve, 260));
           if (shouldFail) throw new Error('mock tavern unavailable');
 
-          const finishResponse = content => (omitCompletionSentinel ? content : `${content}\n${completionSentinel}`);
-
           if (actNumber === 1) {
-            return finishResponse(
-              [
-                '@旁白：放学后的风掠过旧校舍天台，夕阳把两人的影子拉得很长。',
-                '@西连寺春菜【紧张】：那个……我有件事一直想告诉你。',
-                '@你【紧张】：其实我也有话想说。',
-                '@旁白：枯叶贴着栏杆滚过，短暂的安静被远处破空声撕开。',
-                '@西连寺春菜【担心】：那是什么声音？',
-                '@旁白：白光骤然坠下，风压把天台门撞得砰然作响。',
-                '@你【认真】：春菜，先躲到我后面！',
-                '@旁白：你护着春菜退向楼梯，警报声从教学楼深处接连响起。',
-                '@猿山【慌张】：还愣着干什么，快撤啊！',
-                '@旁白：骚动平息后，你送别春菜，没能说出口的话仍卡在喉咙里。',
-                '@你【担心】：今天到底是怎么回事……',
-                '@旁白：回到家后，你推开浴室门，刺眼白光先一步填满视线。',
-              ].join('\n'),
-            );
+            return [
+              '@旁白：放学后的风掠过旧校舍天台，夕阳把两人的影子拉得很长。',
+              '@西连寺春菜【紧张】：那个……我有件事一直想告诉你。',
+              '@你【紧张】：其实我也有话想说。',
+              '@旁白：枯叶贴着栏杆滚过，短暂的安静被远处破空声撕开。',
+              '@西连寺春菜【担心】：那是什么声音？',
+              '@旁白：白光骤然坠下，风压把天台门撞得砰然作响。',
+              '@你【认真】：春菜，先躲到我后面！',
+              '@旁白：你护着春菜退向楼梯，警报声从教学楼深处接连响起。',
+              '@猿山【慌张】：还愣着干什么，快撤啊！',
+              '@旁白：骚动平息后，你送别春菜，没能说出口的话仍卡在喉咙里。',
+              '@你【担心】：今天到底是怎么回事……',
+              '@旁白：回到家后，你推开浴室门，刺眼白光先一步填满视线。',
+            ].join('\n');
           }
 
-          return finishResponse(
-            [
-              '@旁白：浴室里的白光突然收拢，水花和蒸汽遮住了混乱的中心。',
-              '@菈菈【开心】：传送成功！我是菈菈！',
-              '@你【错愕】：等一下，事情怎么又变成这样了？',
-              '@旁白：你立刻转开视线，门外同时传来一串急促脚步。',
-              '@菈菈【认真】：跳跳瓦普君只能传送生物，详细说明等会儿再说！',
-              '@沛凯【无奈】：菈菈大人，我先处理衣服，传送误差的报告稍后再写。',
-              '@旁白：远处紧跟着一声轰响，整齐脚步已经循着动静追到门外。',
-              '@亲卫队【严肃】：发现菈菈殿下，请立刻随我们返回戴比路克！',
-              '@你【认真】：先离开这里，我不会让他们替你决定人生。',
-              '@菈菈【开心】：好，那我们一起跑！',
-              '@旁白：你们翻过窗台冲向屋顶，萨斯丁的大剑擦着栏杆落下。',
-              '@萨斯丁【坚定】：公主殿下，王位和相亲安排不能继续搁置。',
-              '@菈菈【生气】：那是我的人生，我才不要别人替我决定！',
-              '@你【认真】：她已经说得很清楚了。',
-              '@菈菈【兴奋】：那就让GOGO真空君把大家都冷静下来！',
-              '@旁白：机器吸起追兵和杂物后失控爆响，混乱一直持续到深夜。',
-              '@旁白：次日早晨，你鼓起勇气对春菜补上昨天没说完的话，菈菈却正好抢到你面前。',
-              '@菈菈【惊喜】：原来你喜欢我！太好了，那我们结婚吧！',
-            ].join('\n'),
-          );
+          return [
+            '@旁白：浴室里的白光突然收拢，水花和蒸汽遮住了混乱的中心。',
+            '@菈菈【开心】：传送成功！我是菈菈！',
+            '@你【错愕】：等一下，事情怎么又变成这样了？',
+            '@旁白：你立刻转开视线，门外同时传来一串急促脚步。',
+            '@菈菈【认真】：跳跳瓦普君只能传送生物，详细说明等会儿再说！',
+            '@沛凯【无奈】：菈菈大人，我先处理衣服，传送误差的报告稍后再写。',
+            '@旁白：远处紧跟着一声轰响，整齐脚步已经循着动静追到门外。',
+            '@亲卫队【严肃】：发现菈菈殿下，请立刻随我们返回戴比路克！',
+            '@你【认真】：先离开这里，我不会让他们替你决定人生。',
+            '@菈菈【开心】：好，那我们一起跑！',
+            '@旁白：你们翻过窗台冲向屋顶，萨斯丁的大剑擦着栏杆落下。',
+            '@萨斯丁【坚定】：公主殿下，王位和相亲安排不能继续搁置。',
+            '@菈菈【生气】：那是我的人生，我才不要别人替我决定！',
+            '@你【认真】：她已经说得很清楚了。',
+            '@菈菈【兴奋】：那就让GOGO真空君把大家都冷静下来！',
+            '@旁白：机器吸起追兵和杂物后失控爆响，混乱一直持续到深夜。',
+            '@旁白：次日早晨，你鼓起勇气对春菜补上昨天没说完的话，菈菈却正好抢到你面前。',
+            '@菈菈【惊喜】：原来你喜欢我！太好了，那我们结婚吧！',
+          ].join('\n');
         },
       };
     },
@@ -172,7 +165,6 @@ async function installTavernMock(page, mode) {
 第二幕·浴室里的王女:
 1.菈菈随机传送登场，事件收束到次日误告白与婚约宣言。
 </To LOVE-Ru TV Episode 01>`,
-      omitCompletionSentinel: mode === 'incomplete',
       shouldFail: mode === 'error',
     },
   );
@@ -218,7 +210,6 @@ async function playCurrentAct(page, maxSteps = 260) {
 const browser = await chromium.launch({ headless: true });
 const results = {
   direct: {},
-  completionGuard: {},
   loreGuard: {},
   fallback: {},
   consoleErrors: [],
@@ -271,7 +262,7 @@ try {
   assert(calls[0].hasEventCompletionContract, '第一幕缺少通用事件完成契约');
   assert(calls[0].hasSystemEventCompletionContract, '第一幕末端 system 缺少事件完成契约');
   assert(calls[0].hasRuntimeStageScope, '第一幕缺少运行时事件阶段范围');
-  assert(calls[0].hasCompletionSentinelContract, '第一幕缺少通用阶段完成标记契约');
+  assert(calls[0].doesNotRequestCompletionSentinel, '第一幕仍要求模型输出阶段完成标记');
   assertSelectedStoryLoreCall(calls[0], 'ep01.act1-falling-star', 1, '第一幕');
   assert(!calls[0].hasAcceptedStoryHistory, '第一幕不应注入旧幕正文');
   await page.screenshot({ path: path.join(outputDir, 'direct-ready.png'), fullPage: true });
@@ -299,7 +290,7 @@ try {
   assert(calls[1].hasEventCompletionContract, '第二幕缺少通用事件完成契约');
   assert(calls[1].hasSystemEventCompletionContract, '第二幕末端 system 缺少事件完成契约');
   assert(calls[1].hasRuntimeStageScope, '第二幕缺少运行时事件阶段范围');
-  assert(calls[1].hasCompletionSentinelContract, '第二幕缺少通用阶段完成标记契约');
+  assert(calls[1].doesNotRequestCompletionSentinel, '第二幕仍要求模型输出阶段完成标记');
   assertSelectedStoryLoreCall(calls[1], 'ep01.act2-bathroom', 2, '第二幕');
   assert(calls[1].hasAcceptedStoryHistory, '第二幕没有注入已接受的第一幕连续性正文');
 
@@ -308,7 +299,7 @@ try {
   assert(state.activeMainStory === null, '两幕播放后主线仍未结束');
   assert(state.date.month === 4 && state.date.day === 8, '完成第一集后没有进入 4 月 8 日');
   assert(state.actionPointsRemaining === 2, '次日行动点没有恢复');
-  assert(state.completedMainStoryEventIds.length === 1, '完成标记没有唯一写入');
+  assert(state.completedMainStoryEventIds.length === 1, '事件完成记录没有唯一写入');
   results.direct = {
     initial,
     calls,
@@ -316,41 +307,6 @@ try {
     savePersistence: '真实 SillyTavern 文件存读档仍由人工审查，不由该浏览器 mock 代替',
   };
   await context.close();
-
-  const completionGuardContext = await browser.newContext({ viewport: { width: 1180, height: 820 } });
-  const completionGuardPage = await completionGuardContext.newPage();
-  completionGuardPage.on('console', message => {
-    if (
-      message.type() === 'error' &&
-      !message.text().includes('[ToLove Story]') &&
-      !isExpectedMissingTavernFileBridge(message)
-    ) {
-      results.consoleErrors.push(`${message.text()} @ ${message.location().url}`);
-    }
-  });
-  completionGuardPage.on('pageerror', error => results.pageErrors.push(error.message));
-  completionGuardPage.on('requestfailed', request => {
-    const failure = `${request.url()} ${request.failure()?.errorText}`;
-    if (!failure.includes('/music/op.mp3 net::ERR_ABORTED')) results.requestFailures.push(failure);
-  });
-  await installTavernMock(completionGuardPage, 'incomplete');
-  await startGame(completionGuardPage);
-  await completionGuardPage.getByRole('button', { name: /学习/u }).click();
-  await waitForStoryStatus(completionGuardPage, 'error');
-  state = await readState(completionGuardPage);
-  assert(state.actionPointsRemaining === 1, '缺少完成标记时 AP 应保持已结算的 1');
-  assert(state.activeMainStory.generationStatus === 'error', '缺少完成标记的正文没有进入可见错误态');
-  assert(state.activeMainStory.generationError.includes('阶段完成标记'), '缺少完成标记时错误原因不明确');
-  calls = await completionGuardPage.evaluate(() => window.__storyCalls);
-  assert(calls.length === 1, '缺少完成标记时应只生成一次');
-  assertSelectedStoryLoreCall(calls[0], 'ep01.act1-falling-star', 1, '缺标记路径第一幕');
-  await completionGuardPage.screenshot({ path: path.join(outputDir, 'completion-guard.png'), fullPage: true });
-  results.completionGuard = {
-    generationStatus: state.activeMainStory.generationStatus,
-    generationError: state.activeMainStory.generationError,
-    actionPointsRemaining: state.actionPointsRemaining,
-  };
-  await completionGuardContext.close();
 
   const loreGuardContext = await browser.newContext({ viewport: { width: 1180, height: 820 } });
   const loreGuardPage = await loreGuardContext.newPage();
@@ -433,7 +389,7 @@ try {
 
   state = await readState(fallbackPage);
   assert(state.date.day === 8 && state.actionPointsRemaining === 2, '两幕保底结束后跨日状态错误');
-  assert(state.completedMainStoryEventIds.length === 1, '两幕保底完成标记不唯一');
+  assert(state.completedMainStoryEventIds.length === 1, '两幕保底事件完成记录不唯一');
   calls = await fallbackPage.evaluate(() => window.__storyCalls);
   assert(calls.length === 2, '请求失败路径两幕应各调用一次 generate');
   assertSelectedStoryLoreCall(calls[0], 'ep01.act1-falling-star', 1, '失败路径第一幕');

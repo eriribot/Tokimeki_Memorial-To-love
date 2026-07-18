@@ -17,15 +17,22 @@ export const LALA_ARRIVAL_ACTS = [
     title: '放学后的坠落光',
     presentation: {
       initialBackground: 'school',
-      transitions: [{ atProgress: 0.8, background: 'night' }],
+      transitions: [
+        { atProgress: 0.65, background: 'night' },
+        { atProgress: 0.8, background: 'washroomDoor' },
+        { atProgress: 1, background: 'washroom' },
+      ],
     },
   },
   {
     id: 'ep01.act2-bathroom',
     title: '浴室里的王女',
     presentation: {
-      initialBackground: 'night',
-      transitions: [{ atProgress: 0.8, background: 'school' }],
+      initialBackground: 'washroom',
+      transitions: [
+        { atProgress: 0.4, background: 'night' },
+        { atProgress: 0.8, background: 'school' },
+      ],
     },
   },
 ] as const satisfies readonly { id: string; title: string; presentation: StoryStagePresentation }[];
@@ -50,6 +57,8 @@ export const LALA_ARRIVAL_STORY = {
   backgrounds: {
     school: '/artsource/backgrounds/classroom.jpg',
     night: '/artsource/backgrounds/park_background.png',
+    washroomDoor: '/artsource/backgrounds/washroom_door.png',
+    washroom: '/artsource/backgrounds/washroom.png',
   },
   acts: LALA_ARRIVAL_ACTS,
 } as const;
@@ -171,9 +180,16 @@ export function createLalaArrivalFallback(_entryReason: MainStoryEntryReason): G
         },
         {
           speaker: null,
-          text: '浴室门把手转开的瞬间，墙上的开关还没按下，刺眼的白光已经先一步填满视线。',
-          lalaExpression: 'f',
-          background: 'night',
+          text: '你来到浴室门前，手刚搭上门把，门缝里便漏出一线不属于家中的白光。',
+          lalaExpression: null,
+          background: 'washroomDoor',
+          effect: 'none',
+        },
+        {
+          speaker: null,
+          text: '门把手转开的瞬间，刺眼白光越过粉紫色水汽和浴缸，把整个视野彻底吞没。',
+          lalaExpression: null,
+          background: 'washroom',
           effect: 'flash',
         },
       ],
@@ -185,35 +201,35 @@ export function createLalaArrivalFallback(_entryReason: MainStoryEntryReason): G
           speaker: null,
           text: '白光在浴室里炸开，水汽被卷成一圈涡流，一个粉色长发的少女咚地落进浴缸。',
           lalaExpression: 'f',
-          background: 'night',
+          background: 'washroom',
           effect: 'flash',
         },
         {
           speaker: '你',
           text: '等一下！你是从哪里掉进来的？！',
           lalaExpression: 'f',
-          background: 'night',
+          background: 'washroom',
           effect: 'shake',
         },
         {
           speaker: '菈菈',
           text: '传送成功！你好，我是菈菈！虽然落点好像稍微偏了一点点。',
           lalaExpression: 'a',
-          background: 'night',
+          background: 'washroom',
           effect: 'none',
         },
         {
           speaker: null,
           text: '她身后的尾巴轻轻一摆，圆滚滚的机械装置从窗口飞进来，认真得像在宣布实验报告。',
           lalaExpression: 'b',
-          background: 'night',
+          background: 'washroom',
           effect: 'none',
         },
         {
           speaker: '沛凯',
           text: '菈菈大人，随机传送的误差依旧十分稳定。请先让我解决服装问题。',
           lalaExpression: 'c',
-          background: 'night',
+          background: 'washroom',
           effect: 'none',
         },
         {
