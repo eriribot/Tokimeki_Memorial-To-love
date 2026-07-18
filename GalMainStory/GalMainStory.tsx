@@ -224,8 +224,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       day,
       period: period.key,
       location: currentLocationId,
-      storyHistory: acts,
       contextFloorIds,
+      chatHistory: messageHistory,
     };
 
     try {
@@ -245,12 +245,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   }, [
     beginGeneration,
     actIndex,
-    acts,
     currentLocationId,
     contextFloorIds,
     day,
     entryReason,
     failGeneration,
+    messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,
@@ -289,19 +289,19 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       day,
       period: period.key,
       location: currentLocationId,
-      storyHistory: acts,
       contextFloorIds,
+      chatHistory: messageHistory,
     };
     const messages = createFallbackLalaArrivalMessages(request, actToPlainText(fallbackAct));
     const floor = createLalaArrivalFloor(request, fallbackAct, 'fallback', messages, 'accepted');
     setStoryActContent(floor, messages);
   }, [
     actIndex,
-    acts,
     contextFloorIds,
     currentLocationId,
     day,
     entryReason,
+    messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,
@@ -493,26 +493,24 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const background = LALA_ARRIVAL_STORY.backgrounds[visibleBeat.background];
   const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
-  const isLastReplayPage =
-    !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
+  const isLastReplayPage = !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
   const historyFloorArchive = historyFloor
     ? storyArchives.find(archive => archive.floors.some(floor => floor.floorId === historyFloor.floorId))
     : undefined;
-  const historyFloorIndex = historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
-  const isHistoryFloorActive = Boolean(
-    historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId,
-  );
+  const historyFloorIndex =
+    historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
+  const isHistoryFloorActive = Boolean(historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId);
   const nextActionLabel = historyMode
     ? isLastHistoryPage
       ? '返回剧情目录'
       : '下一页'
     : isLastReplayPage
       ? '返回当前剧情'
-    : isLastLiveAct && isLastLivePage
-      ? '结束剧情'
-      : isLastLivePage
-        ? '回到自由行动'
-        : '下一页';
+      : isLastLiveAct && isLastLivePage
+        ? '结束剧情'
+        : isLastLivePage
+          ? '回到自由行动'
+          : '下一页';
 
   return (
     <section

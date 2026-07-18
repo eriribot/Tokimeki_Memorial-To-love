@@ -67,7 +67,6 @@ export interface GalStoryActArchive {
 
 interface StoryValidationOptions {
   expectedActIds: readonly string[];
-  allowedSpeakers: readonly string[];
   allowPartial?: boolean;
 }
 
@@ -79,12 +78,16 @@ function isOneOf<T extends string>(value: unknown, values: readonly T[]): value 
   return typeof value === 'string' && values.includes(value as T);
 }
 
-function normalizeBeat(value: unknown, allowedSpeakers: readonly string[]): GalStoryBeat {
+function normalizeBeat(value: unknown): GalStoryBeat {
   if (!isRecord(value)) throw new Error('剧情页必须是对象。');
 
-  const speaker = value.speaker;
-  if (speaker !== null && (typeof speaker !== 'string' || !allowedSpeakers.includes(speaker))) {
-    throw new Error(`剧情包含未登记的说话人：${String(speaker)}`);
+  let speaker: string | null = null;
+  if (value.speaker !== null) {
+    if (typeof value.speaker !== 'string') throw new Error('剧情页的说话人名称无效。');
+    speaker = value.speaker.normalize('NFKC').trim();
+    if (!speaker || speaker.length > 48 || /[\r\n]/u.test(speaker)) {
+      throw new Error('剧情页的说话人名称无效。');
+    }
   }
 
   if (typeof value.text !== 'string') throw new Error('剧情页缺少正文。');
@@ -130,7 +133,7 @@ export function normalizeGalStoryActs(value: unknown, options: StoryValidationOp
 
     return {
       id: expectedId,
-      beats: rawAct.beats.map(beat => normalizeBeat(beat, options.allowedSpeakers)),
+      beats: rawAct.beats.map(beat => normalizeBeat(beat)),
     };
   });
 }

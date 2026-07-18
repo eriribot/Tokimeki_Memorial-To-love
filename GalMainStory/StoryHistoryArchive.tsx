@@ -60,31 +60,26 @@ export default function StoryHistoryArchive({
   children,
 }: StoryHistoryArchiveProps) {
   const archives = useGameStore(state => state.mainStoryArchives);
+  const messageHistory = useGameStore(state => state.mainStoryMessages);
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const isMountedRef = useRef(true);
   const [regeneratingActIndex, setRegeneratingActIndex] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const sortedArchives = useMemo(
-    () => [...archives].sort((left, right) => left.actIndex - right.actIndex),
-    [archives],
-  );
+  const sortedArchives = useMemo(() => [...archives].sort((left, right) => left.actIndex - right.actIndex), [archives]);
   const hasPlayableStory = sortedArchives.some(archive => Boolean(getActiveFloor(archive)?.act));
 
   useEffect(() => {
     if (!isRawHistoryOpen) panelRef.current?.focus();
   }, [isRawHistoryOpen]);
 
-  useEffect(
-    () => {
-      isMountedRef.current = true;
-      return () => {
-        isMountedRef.current = false;
-      };
-    },
-    [],
-  );
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (isRawHistoryOpen) return;
@@ -134,8 +129,8 @@ export default function StoryHistoryArchive({
         day: baseFloor.context.day,
         period: baseFloor.context.period,
         location: baseFloor.context.location,
-        storyHistory: previous.acts,
         contextFloorIds: previous.floors.map(floor => floor.floorId),
+        chatHistory: messageHistory,
       };
       try {
         const generated = await generateLalaArrivalAct(request);
@@ -156,7 +151,7 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActIndex(null);
       }
     },
-    [addFloor, onPreviewFloor, regeneratingActIndex, sortedArchives],
+    [addFloor, messageHistory, onPreviewFloor, regeneratingActIndex, sortedArchives],
   );
 
   return (

@@ -3,11 +3,7 @@ import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
-import {
-  LALA_ARRIVAL_ACT_IDS,
-  LALA_ARRIVAL_ALLOWED_SPEAKERS,
-  LALA_ARRIVAL_EVENT_ID,
-} from '../GalMainStory/lalaArrival';
+import { LALA_ARRIVAL_ACT_IDS, LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/lalaArrival';
 import {
   normalizeGalStoryActs,
   type GalStoryActArchive,
@@ -117,7 +113,6 @@ function normalizeStoryFloor(value: unknown, actIndex: number, actId: string): G
     value.outcome === 'accepted'
       ? normalizeGalStoryActs([value.act], {
           expectedActIds: [actId],
-          allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
         })[0]
       : null;
   if (value.outcome !== 'accepted' && value.act !== null) throw new Error('失败楼层不能携带可播放正文');
@@ -184,8 +179,7 @@ function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
       seenActIndexes.add(actIndex);
       const requestedActiveFloorId = rawArchive.activeFloorId as string | null;
       const activeFloorId = floors.some(
-        floor =>
-          floor.floorId === requestedActiveFloorId && floor.outcome === 'accepted' && floor.act !== null,
+        floor => floor.floorId === requestedActiveFloorId && floor.outcome === 'accepted' && floor.act !== null,
       )
         ? requestedActiveFloorId
         : null;
@@ -272,7 +266,9 @@ function createLegacyStoryArchives(
         playerName: acceptedAssistant?.extra.playerName ?? snapshot.player.name,
         day: acceptedAssistant?.extra.day ?? snapshot.game.day,
         period:
-          acceptedAssistant?.extra.period ?? ['morning', 'afterSchool', 'evening'][snapshot.game.periodIndex] ?? 'afterSchool',
+          acceptedAssistant?.extra.period ??
+          ['morning', 'afterSchool', 'evening'][snapshot.game.periodIndex] ??
+          'afterSchool',
         location: acceptedAssistant?.extra.location ?? snapshot.game.currentLocationId,
       },
       contextFloorIds: [...contextFloorIds],
@@ -389,7 +385,6 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
     try {
       mainStoryActs = normalizeGalStoryActs(snapshot.game.mainStoryActs, {
         expectedActIds: LALA_ARRIVAL_ACT_IDS,
-        allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
         allowPartial: true,
       });
     } catch (error) {

@@ -3,18 +3,32 @@ import type { GalStoryAct, MainStoryEntryReason, StoryStagePresentation } from '
 
 export const LALA_ARRIVAL_EVENT_ID = 'main.lala-arrival-2008-04-07';
 
-export const LALA_ARRIVAL_LORE_REFERENCE = {
+export const LALA_ARRIVAL_PLOT_LORE_REFERENCE = {
   worldbookName: '出包王女',
   entryUid: 2,
   entryName: '剧情第一集',
   rootTag: 'To LOVE-Ru TV Episode 01',
   requiredContentMarker: '标题:从天而降的少女',
+  kind: 'plot',
+} as const;
+
+const LALA_CHARACTER_LORE_REFERENCE = {
+  worldbookName: '出包王女',
+  entryUid: 1,
+  entryName: '菈菈.萨塔琳.戴比路克',
+  rootTag: 'Lala Satalin Deviluke',
+  requiredContentMarker: '姓名:菈菈·萨塔琳·戴比路克',
+  kind: 'character',
 } as const;
 
 export const LALA_ARRIVAL_ACTS = [
   {
     id: 'ep01.act1-falling-star',
     title: '放学后的坠落光',
+    actionPointsRemaining: 1,
+    opening: '放学后的旧校舍天台上，你与春菜都差点说出告白。',
+    ending: '你回到家打开浴室门，白光先一步填满视线。',
+    charactersWithLore: [],
     presentation: {
       initialBackground: 'school',
       transitions: [{ atProgress: 0.8, background: 'night' }],
@@ -23,12 +37,42 @@ export const LALA_ARRIVAL_ACTS = [
   {
     id: 'ep01.act2-bathroom',
     title: '浴室里的王女',
+    actionPointsRemaining: 0,
+    opening: '承接浴室门后的白光、水花与蒸汽，菈菈随机传送出现。',
+    ending: '次日菈菈完整误接你原本给春菜的告白，公开宣布婚约，众人错愕。',
+    charactersWithLore: ['菈菈'],
     presentation: {
       initialBackground: 'night',
       transitions: [{ atProgress: 0.8, background: 'school' }],
     },
   },
-] as const satisfies readonly { id: string; title: string; presentation: StoryStagePresentation }[];
+] as const satisfies readonly {
+  id: string;
+  title: string;
+  actionPointsRemaining: number;
+  opening: string;
+  ending: string;
+  charactersWithLore: readonly string[];
+  presentation: StoryStagePresentation;
+}[];
+
+const LALA_ARRIVAL_CHARACTER_LORE_REFERENCES = {
+  菈菈: LALA_CHARACTER_LORE_REFERENCE,
+} as const;
+
+export function getLalaArrivalLoreReferences(actIndex: number) {
+  const act = LALA_ARRIVAL_ACTS[actIndex];
+  if (!act) throw new Error('第一集幕编号无效。');
+
+  return [
+    LALA_ARRIVAL_PLOT_LORE_REFERENCE,
+    ...act.charactersWithLore.flatMap(characterName => {
+      const reference =
+        LALA_ARRIVAL_CHARACTER_LORE_REFERENCES[characterName as keyof typeof LALA_ARRIVAL_CHARACTER_LORE_REFERENCES];
+      return reference ? [reference] : [];
+    }),
+  ];
+}
 
 export const LALA_ARRIVAL_ACT_IDS = LALA_ARRIVAL_ACTS.map(act => act.id);
 
@@ -76,9 +120,8 @@ export function getPendingLalaArrivalActIndex(state: LalaArrivalTriggerState): n
   }
 
   const actIndex = Math.min(LALA_ARRIVAL_ACTS.length - 1, Math.max(0, Math.trunc(state.mainStoryActIndex)));
-  if (actIndex === 0 && state.actionPointsRemaining === 1) return 0;
-  if (actIndex === 1 && state.actionPointsRemaining === 0) return 1;
-  return null;
+  const act = LALA_ARRIVAL_ACTS[actIndex];
+  return act.actionPointsRemaining === state.actionPointsRemaining ? actIndex : null;
 }
 
 export function shouldTriggerLalaArrival(state: LalaArrivalTriggerState): boolean {
