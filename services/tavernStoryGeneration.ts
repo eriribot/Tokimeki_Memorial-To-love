@@ -2,8 +2,8 @@ import {
   LALA_ARRIVAL_ACTS,
   LALA_ARRIVAL_ALLOWED_SPEAKERS,
   LALA_ARRIVAL_EVENT_ID,
-  LALA_ARRIVAL_LORE_REFERENCE,
   LALA_ARRIVAL_STORY,
+  getLalaArrivalLoreReferences,
 } from '../GalMainStory/lalaArrival';
 import {
   assignLalaPortraitExpressions,
@@ -23,7 +23,7 @@ import {
   type StoryBackgroundId,
   type StoryEffect,
 } from '../GalMainStory/storyTypes';
-import { buildSelectedStoryLoreContext, readDisabledWorldbookStoryLore } from '../data/storyLore';
+import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
 import { createSaveUuid } from '../save/uuid';
 import { buildStoryGenerationPrompt } from './storyGenerationPrompt';
 
@@ -35,9 +35,11 @@ export interface GenerateLalaArrivalActRequest {
   day: number;
   period: string;
   location: string;
-  storyHistory: GalStoryAct[];
   contextFloorIds: string[];
+  chatHistory: readonly GalStoryMessageSave[];
 }
+
+const STORY_CHAT_HISTORY_LIMIT = 6;
 
 interface BuildMessagePairRequest extends GenerateLalaArrivalActRequest {
   userInput: string;
@@ -71,55 +73,39 @@ function getTavernGenerateApi(): Pick<Window['TavernHelper'], 'generate'> {
   return api;
 }
 
-function normalizePlayerName(name: string): string {
-  return (
-    name
-      .normalize('NFKC')
-      .replace(/[\r\n]/gu, ' ')
-      .trim()
-      .slice(0, 40) || '主角'
-  );
-}
-
 function buildGenerationPrompt(request: GenerateLalaArrivalActRequest): string {
   const act = LALA_ARRIVAL_ACTS[request.actIndex];
   if (!act) throw new Error('第一集幕编号无效。');
 
   return buildStoryGenerationPrompt({
-    eventId: LALA_ARRIVAL_EVENT_ID,
     eventTitle: LALA_ARRIVAL_STORY.title,
-    stageId: act.id,
     stageTitle: act.title,
-    stageIndex: request.actIndex,
-    stageCount: LALA_ARRIVAL_ACTS.length,
-    entryReason: request.entryReason,
-    playerName: normalizePlayerName(request.playerName),
-    day: request.day,
-    period: request.period,
-    location: request.location,
+    stageOpening: act.opening,
+    stageEnding: act.ending,
     allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
     moodExamples: STORY_MOOD_EXAMPLES,
   });
 }
 
-function buildStoryContext(storyHistory: GalStoryAct[], actIndex: number): string | null {
-  const acceptedActs = storyHistory.slice(0, actIndex).filter((act): act is GalStoryAct => Boolean(act));
-  if (acceptedActs.length === 0) return null;
-
-  const transcript = acceptedActs
-    .map(
-      (act, index) =>
-        `<accepted_story act_index="${index}" act_id="${act.id}">\n${actToPlainText(act)}\n</accepted_story>`,
+function buildGenerationChatHistory(messages: readonly GalStoryMessageSave[], currentActIndex: number): RolePrompt[] {
+  return messages
+    .filter(
+      message =>
+        message.extra.type === 'tolove-main-story' &&
+        message.extra.eventId === LALA_ARRIVAL_EVENT_ID &&
+        message.extra.actIndex <= currentActIndex &&
+        !message.is_system &&
+        message.mes.trim().length > 0,
     )
-    .join('\n\n');
+    .slice(-STORY_CHAT_HISTORY_LIMIT)
+    .map(message => ({
+      role: message.extra.role,
+      content: message.mes,
+    }));
+}
 
-  return `
-以下是当前存档已经采用并播放过的 GAL 正文，只用于保持人物、事件和叙事连续性。不要复述整段旧正文。历史对白为了压缩上下文可能省略【情绪】，本次新正文仍必须使用“@角色名【情绪】：台词”，叙述必须使用“@旁白：文本”。
-
-<accepted_story_history>
-${transcript}
-</accepted_story_history>
-  `.trim();
+function stripLegacyCompletionSentinels(raw: string): string {
+  return raw.replace(/\[\[STAGE_COMPLETE:[^\r\n]*?\]\]/gu, '').trim();
 }
 
 function getErrorMessage(error: unknown): string {
@@ -324,7 +310,6 @@ function parsePlainTextAct(raw: string, actIndex: number, playerName: string): G
 
   return normalizeGalStoryActs([{ id: act.id, beats }], {
     expectedActIds: [act.id],
-    allowedSpeakers: LALA_ARRIVAL_ALLOWED_SPEAKERS,
   })[0];
 }
 
@@ -337,52 +322,31 @@ export async function generateLalaArrivalAct(request: GenerateLalaArrivalActRequ
   if (!act) throw new Error('第一集幕编号无效。');
   const api = getTavernGenerateApi();
   const userInput = buildGenerationPrompt(request);
-  const messageContext = buildStoryContext(request.storyHistory, request.actIndex);
-  const storyLore = await readDisabledWorldbookStoryLore(LALA_ARRIVAL_LORE_REFERENCE);
-  const storyLoreContext = buildSelectedStoryLoreContext(storyLore, {
-    eventId: LALA_ARRIVAL_EVENT_ID,
-    stageId: act.id,
-    stageTitle: act.title,
-  });
-  const result = await api.generate({
-    preset_name: 'in_use',
-    generation_id: request.floorId,
-    user_input: userInput,
-    max_chat_history: 0,
-    should_stream: false,
-    should_silence: false,
-    injects: [
-      ...(messageContext
-        ? [
-            {
-              position: 'in_chat' as const,
-              depth: 2,
-              role: 'system' as const,
-              content: messageContext,
-              should_scan: false,
-            },
-          ]
-        : []),
-      {
-        position: 'in_chat',
-        depth: 1,
-        role: 'system',
-        content: storyLoreContext,
-        should_scan: false,
+  const selectedLores = await readDisabledWorldbookStoryLores(getLalaArrivalLoreReferences(request.actIndex));
+  const stopWorldInfoScanHook = armStoryLoresForNextWorldInfoScan(selectedLores);
+  let result: Awaited<ReturnType<typeof api.generate>>;
+  try {
+    result = await api.generate({
+      preset_name: 'in_use',
+      generation_id: request.floorId,
+      user_input: userInput,
+      max_chat_history: STORY_CHAT_HISTORY_LIMIT,
+      should_stream: false,
+      should_silence: false,
+      overrides: {
+        chat_history: {
+          with_depth_entries: true,
+          prompts: buildGenerationChatHistory(request.chatHistory, request.actIndex),
+        },
       },
-      {
-        position: 'in_chat',
-        depth: 0,
-        role: 'system',
-        content: buildGenerationPrompt(request),
-        should_scan: false,
-      },
-    ],
-  });
+    });
+  } finally {
+    stopWorldInfoScanHook();
+  }
 
   if (typeof result !== 'string') throw new Error('酒馆返回了工具调用，当前剧情生成只接受正文文本。');
   try {
-    const playableText = extractPlayableText(result);
+    const playableText = extractPlayableText(stripLegacyCompletionSentinels(result));
     const parsedAct = parsePlainTextAct(playableText, request.actIndex, request.playerName);
     const messages = createLalaArrivalMessagePair({
       ...request,

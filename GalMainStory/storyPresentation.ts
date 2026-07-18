@@ -142,6 +142,11 @@ export function normalizeStorySpeaker(value: string, playerName: string): string
   return normalizedPlayerName && key === normalizedPlayerName ? '你' : null;
 }
 
+function normalizeExplicitSpeakerName(value: string): string | null {
+  const speaker = value.normalize('NFKC').replace(LABEL_EDGE_PATTERN, '').trim();
+  return speaker && speaker.length <= 48 && !/[\r\n]/u.test(speaker) ? speaker : null;
+}
+
 export function parseStoryLine(value: string, playerName: string): ParsedStoryLine {
   const line = normalizeStoryLineSource(value);
   if (!line) throw new Error('剧情正文包含空白页。');
@@ -161,9 +166,10 @@ export function parseStoryLine(value: string, playerName: string): ParsedStoryLi
     return { speaker: null, text, mood: null };
   }
 
-  const speaker = normalizeStorySpeaker(rawSpeaker, playerName);
+  const speaker =
+    normalizeStorySpeaker(rawSpeaker, playerName) ??
+    (dialogue.explicitSpeakerSyntax ? normalizeExplicitSpeakerName(rawSpeaker) : null);
   if (!speaker) {
-    if (dialogue.explicitSpeakerSyntax) throw new Error(`剧情对白包含未登记的说话人：${rawSpeaker}`);
     return { speaker: null, text: line, mood: null };
   }
 
@@ -183,10 +189,11 @@ function parseDetachedSpeakerLabel(value: string, playerName: string): DetachedS
   if (!match) return null;
 
   const rawSpeaker = match[1].trim();
-  const speaker = normalizeStorySpeaker(rawSpeaker, playerName);
+  const explicitUnknownSpeaker = Boolean(bracketed || (colon && (colon[2] || rawSpeaker.startsWith('@'))));
+  const speaker =
+    normalizeStorySpeaker(rawSpeaker, playerName) ??
+    (explicitUnknownSpeaker ? normalizeExplicitSpeakerName(rawSpeaker) : null);
   if (!speaker) {
-    const explicitUnknownSpeaker = Boolean(bracketed || (colon && colon[2]));
-    if (explicitUnknownSpeaker) throw new Error(`剧情对白包含未登记的说话人：${rawSpeaker}`);
     return null;
   }
   return { speaker, mood: normalizeStoryMood(match[2]) };

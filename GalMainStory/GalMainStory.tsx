@@ -243,8 +243,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       day,
       period: period.key,
       location: currentLocationId,
-      storyHistory: acts,
       contextFloorIds,
+      chatHistory: messageHistory,
     };
 
     try {
@@ -264,12 +264,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   }, [
     beginGeneration,
     actIndex,
-    acts,
     currentLocationId,
     contextFloorIds,
     day,
     entryReason,
     failGeneration,
+    messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,
@@ -308,19 +308,19 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       day,
       period: period.key,
       location: currentLocationId,
-      storyHistory: acts,
       contextFloorIds,
+      chatHistory: messageHistory,
     };
     const messages = createFallbackLalaArrivalMessages(request, actToPlainText(fallbackAct));
     const floor = createLalaArrivalFloor(request, fallbackAct, 'fallback', messages, 'accepted');
     setStoryActContent(floor, messages);
   }, [
     actIndex,
-    acts,
     contextFloorIds,
     currentLocationId,
     day,
     entryReason,
+    messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,

@@ -37,13 +37,14 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 - `stores/gameStore.ts`: date, period, action points, location/scene, main story, lifecycle.
 - `stores/cardStore.ts`: SillyTavern V2 cards, targets, locations, affection.
 - `stores/characterStore.ts`, `mapStore.ts`, `playerStore.ts`: presentation and player/map state.
-- `services/storyGenerationPrompt.ts`: reusable runtime-stage, event-completion, and GAL output contracts. It contains
-  no episode plot or character lore.
+- `services/storyGenerationPrompt.ts`: reusable stage-opening/stage-ending and GAL output contracts. It contains no
+  episode plot or character lore.
 - `services/tavernStoryGeneration.ts`: current event adapter, accepted-history context, Tavern generation, and
   plain-text parsing. It does not settle AP, affection, dates, or host floors.
 - `GalMainStory/`: story definitions, loading/error/fallback state, GAL rendering. It does not recalculate game state.
-- `data/storyLore.ts` read-only loads the designated disabled plot entry from the real Tavern worldbook by stable
-  UID/name, validates its content markers, and formats one event-scoped lore block. It never changes worldbook state.
+- `data/storyLore.ts` read-only loads the selected disabled plot/character entries from the real Tavern worldbook by
+  stable UID/name, validates their content markers, and arms only their per-scan copies for the next native World Info
+  scan. It never changes saved worldbook state.
 - `data/lore-books/tolove-tv-episode-01.txt` is the recovery source used to populate that Tavern entry; it is not
   imported into the runtime bundle. `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
 - `save/` and `message/`: snapshots and the game-owned message mirror.
@@ -58,10 +59,11 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
   stage; local acceptance validates the playable-text protocol, not a response suffix. Semantic coverage of every
   worldbook beat remains a prompt and human-review concern.
 - Player-settled values remain authoritative; the model must not recalculate them.
-- The `出包王女 / 剧情第一集` entry must remain disabled. Main-story generation reads it directly and injects it once
-  with `should_scan: false`; missing, duplicate, enabled, or malformed entries fail visibly before generation.
-- `TavernHelper.generate()` proves only the generation path. It does not prove real hidden host floors, `MESSAGE_SENT`,
-  shujuku/ACU, or database hooks.
+- The selected `出包王女` plot/character entries must remain disabled. Main-story generation validates them, then
+  temporarily enables only their copies in the next `WORLDINFO_ENTRIES_LOADED` scan; missing, duplicate, enabled, or
+  malformed entries fail visibly before generation.
+- `TavernHelper.generate()` proves only the generation call. Real Tavern evidence is still required to prove the
+  one-shot World Info hook, and it does not prove hidden host floors, `MESSAGE_SENT`, shujuku/ACU, or database hooks.
 - UI or local file-mirror success must not be described as real host/plugin integration.
 - Asset paths start with `/` and must pass through `resolveAssetPath()`.
 - `window.render_game_to_text()` exposes game state for Tavern AI. `window.advanceTime` remains an external no-op
