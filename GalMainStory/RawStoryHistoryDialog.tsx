@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LALA_ARRIVAL_STORY } from './lalaArrival';
+import { LALA_ARRIVAL_STORY } from './episodes/episode01';
 import type { RawStoryActView, RawStoryVersionView } from './storyRawArchive';
 
 interface RawStoryHistoryDialogProps {
@@ -37,9 +37,12 @@ export default function RawStoryHistoryDialog({ acts, initialFloorId, onClose }:
   const initialVersion = useMemo(() => findInitialVersion(acts, initialFloorId), [acts, initialFloorId]);
   const [selectedFloorId, setSelectedFloorId] = useState(initialVersion?.floor.floorId ?? '');
   const [pageIndex, setPageIndex] = useState(0);
-  const selectedAct = acts.find(act => act.versions.some(version => version.floor.floorId === selectedFloorId)) ?? acts[0];
+  const selectedAct =
+    acts.find(act => act.versions.some(version => version.floor.floorId === selectedFloorId)) ?? acts[0];
   const selectedVersion =
-    selectedAct?.versions.find(version => version.floor.floorId === selectedFloorId) ?? selectedAct?.versions[0] ?? null;
+    selectedAct?.versions.find(version => version.floor.floorId === selectedFloorId) ??
+    selectedAct?.versions[0] ??
+    null;
   const pageCount = selectedVersion?.pages.length ?? 0;
   const safePageIndex = pageCount > 0 ? Math.min(pageCount - 1, pageIndex) : 0;
   const selectedPage = selectedVersion?.pages[safePageIndex] ?? null;

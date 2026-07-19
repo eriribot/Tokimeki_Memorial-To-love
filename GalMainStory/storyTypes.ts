@@ -21,6 +21,17 @@ export interface StoryStagePresentation {
   transitions: readonly StoryBackgroundTransition[];
 }
 
+export interface StoryActDefinition {
+  id: string;
+  title: string;
+  actionPointsRemaining: number;
+  opening: string;
+  ending: string;
+  charactersWithLore: readonly string[];
+  presentation: StoryStagePresentation;
+  fallbackBeats: readonly GalStoryBeat[];
+}
+
 export interface GalStoryBeat {
   speaker: string | null;
   text: string;

@@ -20,6 +20,11 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
   const addLog = useGameStore(state => state.addLog);
   const maps = useMapStore(state => state.maps);
   const currentMap = getMapForLocation(currentLocationId);
+  const targetMap = currentMap.id === 'sainanHigh' ? maps.sainanTown : maps.sainanHigh;
+  const targetMapButton =
+    targetMap.id === 'sainanTown'
+      ? '/artsource/backgrounds/map_next02.png'
+      : '/artsource/backgrounds/map_next01.png';
 
   const selectMap = (map: GameMapDefinition) => {
     if (map.id === currentMap.id) return;
@@ -58,19 +63,24 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
 
   return (
     <div className={`map-menu ${isOpen ? 'open' : ''}`}>
-      <div className="map-region-switcher" role="group" aria-label="地图区域">
-        {Object.values(maps).map(map => (
-          <button
-            key={map.id}
-            type="button"
-            className={map.id === currentMap.id ? 'is-active' : ''}
-            aria-pressed={map.id === currentMap.id}
-            onClick={() => selectMap(map)}
-          >
-            <span aria-hidden="true">{map.id === 'sainanHigh' ? '🏫' : '🏙️'}</span>
-            {map.name}
-          </button>
-        ))}
+      <div
+        className={`map-edge-switcher ${targetMap.id === 'sainanTown' ? 'is-left' : 'is-right'}`}
+      >
+        <img
+          className="map-edge-switcher__art"
+          src={resolveAssetPath(targetMapButton)}
+          alt=""
+          aria-hidden="true"
+        />
+        <button
+          type="button"
+          className="map-edge-switcher__trigger"
+          aria-label={`前往${targetMap.name}`}
+          title={`前往${targetMap.name}`}
+          onClick={() => selectMap(targetMap)}
+        >
+          <img src={resolveAssetPath(targetMapButton)} alt="" aria-hidden="true" />
+        </button>
       </div>
 
       {!isOpen && (

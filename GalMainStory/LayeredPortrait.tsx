@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
-import { getPortraitFaceAssets, type LayeredPortraitRig } from './galAssets';
+import { getPortraitFaceAssets, type LayeredPortraitRig } from './characters';
 import type { LalaExpression } from './storyTypes';
 
 interface LayeredPortraitProps {

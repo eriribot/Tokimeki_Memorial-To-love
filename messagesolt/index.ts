@@ -81,6 +81,21 @@ async function getResponseError(response: Response): Promise<string> {
   }
 }
 
+async function getExistingFilePaths(filePaths: readonly string[]): Promise<Set<string>> {
+  const response = await fetch('/api/files/verify', {
+    method: 'POST',
+    headers: getRequestHeaders(),
+    body: JSON.stringify({ urls: filePaths }),
+  });
+  if (!response.ok) {
+    throw new Error(`检查对话档文件失败：${await getResponseError(response)}`);
+  }
+
+  const verified = (await response.json()) as unknown;
+  if (!isRecord(verified)) throw new Error('SillyTavern 返回了无效的对话档文件检查结果');
+  return new Set(filePaths.filter(filePath => verified[filePath] === true));
+}
+
 function parseMessageFile(value: unknown, expectedSlotId: string): MessageArchive {
   if (!isRecord(value) || value.format !== MESSAGE_FILE_FORMAT || value.formatVersion !== MESSAGE_FILE_FORMAT_VERSION) {
     throw new Error(`文件 ${getMessageFileName(expectedSlotId)} 不是有效的 ToLove GAL 对话档`);
@@ -88,7 +103,7 @@ function parseMessageFile(value: unknown, expectedSlotId: string): MessageArchiv
   return normalizeMessageArchive(value.archive, expectedSlotId);
 }
 
-async function readSlotFile(slotId: string): Promise<MessageArchive | null> {
+async function readExistingSlotFile(slotId: string): Promise<MessageArchive | null> {
   const response = await fetch(`${getMessageFilePath(slotId)}?tolove=${Date.now()}`, {
     method: 'GET',
     cache: 'no-store',
@@ -99,6 +114,23 @@ async function readSlotFile(slotId: string): Promise<MessageArchive | null> {
     throw new Error(`读取 ${getMessageFileName(slotId)} 失败：${await getResponseError(response)}`);
   }
   return parseMessageFile(await response.json(), slotId);
+}
+
+async function readSlotFile(slotId: string): Promise<MessageArchive | null> {
+  const filePath = getMessageFilePath(slotId);
+  const existingPaths = await getExistingFilePaths([filePath]);
+  return existingPaths.has(filePath) ? readExistingSlotFile(slotId) : null;
+}
+
+async function readAllSlotFiles(): Promise<MessageArchive[]> {
+  const slotPaths = MESSAGE_SLOT_IDS.map(slotId => [slotId, getMessageFilePath(slotId)] as const);
+  const existingPaths = await getExistingFilePaths(slotPaths.map(([, filePath]) => filePath));
+  const archives = await Promise.all(
+    slotPaths
+      .filter(([, filePath]) => existingPaths.has(filePath))
+      .map(([slotId]) => readExistingSlotFile(slotId)),
+  );
+  return archives.filter((archive): archive is MessageArchive => archive !== null);
 }
 
 async function uploadSlotFile(archive: MessageArchive): Promise<MessageArchive> {
@@ -135,12 +167,12 @@ async function uploadSlotFile(archive: MessageArchive): Promise<MessageArchive> 
 }
 
 async function probe(): Promise<MessageProbeResult> {
-  const archives = await Promise.all(MESSAGE_SLOT_IDS.map(slotId => readSlotFile(slotId)));
+  const archives = await readAllSlotFiles();
   return {
     backend: 'tavern-file',
     persistent: true,
     storagePath: MESSAGE_STORAGE_LABEL,
-    archiveCount: archives.filter(archive => archive !== null).length,
+    archiveCount: archives.length,
   };
 }
 

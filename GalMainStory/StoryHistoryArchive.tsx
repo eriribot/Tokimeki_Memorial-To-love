@@ -6,7 +6,8 @@ import {
 } from '../services/tavernStoryGeneration';
 import { useGameStore } from '../stores/gameStore';
 import { resolveAssetPath } from '../utils/assetPath';
-import { LALA_ARRIVAL_STORY } from './lalaArrival';
+import { LALA_ARRIVAL_STORY } from './episodes/episode01';
+import { getStoryScene } from './scenes';
 import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from './storyTypes';
 
 interface StoryHistoryArchiveProps {
@@ -72,8 +73,7 @@ export default function StoryHistoryArchive({
       new Set(
         messageHistory
           .filter(
-            message =>
-              !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern',
+            message => !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern',
           )
           .map(message => message.id),
       ),
@@ -168,8 +168,8 @@ export default function StoryHistoryArchive({
     <section className="gal-main-story gal-story-archive" role="dialog" aria-modal="true" aria-label="已读剧情档案">
       <img
         className="gal-main-story__background"
-        src={resolveAssetPath(LALA_ARRIVAL_STORY.backgrounds.school)}
-        alt="彩南高校"
+        src={resolveAssetPath(getStoryScene('school').asset)}
+        alt={getStoryScene('school').alt}
       />
       <div className="gal-main-story__shade" aria-hidden="true" />
       <div className="gal-story-archive__panel" ref={panelRef} tabIndex={-1}>
@@ -182,11 +182,7 @@ export default function StoryHistoryArchive({
             <button type="button" disabled={!hasPlayableStory} onClick={onPlayAll}>
               从头回放
             </button>
-            <button
-              type="button"
-              disabled={rawAssistantMessageIds.size === 0}
-              onClick={() => onOpenRawHistory(null)}
-            >
+            <button type="button" disabled={rawAssistantMessageIds.size === 0} onClick={() => onOpenRawHistory(null)}>
               AI 原文
             </button>
             <button type="button" onClick={onExit}>

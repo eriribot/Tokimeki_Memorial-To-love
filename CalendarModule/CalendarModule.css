@@ -29,6 +29,22 @@
   pointer-events: none;
 }
 
+@container game-frame (min-height: 481px) and (max-height: 700px) {
+  .game-calendar-card {
+    --tm-calendar-width: 82px;
+    top: 8px;
+    left: 8px;
+  }
+}
+
+@container game-frame (max-height: 480px) {
+  .game-calendar-card {
+    --tm-calendar-width: 52px;
+    top: 6px;
+    left: 6px;
+  }
+}
+
 .tm-calendar-card__face {
   position: absolute;
   z-index: 0;

@@ -3,7 +3,7 @@ import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
-import { LALA_ARRIVAL_ACT_IDS, LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/lalaArrival';
+import { LALA_ARRIVAL_ACT_IDS, LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/episodes/episode01';
 import {
   normalizeGalStoryActs,
   type GalStoryActArchive,

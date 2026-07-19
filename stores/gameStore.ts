@@ -5,7 +5,7 @@ import {
   getPendingLalaArrivalActIndex,
   LALA_ARRIVAL_EVENT_ID,
   LALA_ARRIVAL_STORY,
-} from '../GalMainStory/lalaArrival';
+} from '../GalMainStory/episodes/episode01';
 import type { GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
 import type { GameEvent, GameState, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 
@@ -73,7 +73,8 @@ function upsertStoryFloor(
   activate: boolean,
 ): GalStoryActArchive[] {
   const archiveIndex = archives.findIndex(
-    archive => archive.eventId === floor.eventId && archive.actIndex === floor.actIndex && archive.actId === floor.actId,
+    archive =>
+      archive.eventId === floor.eventId && archive.actIndex === floor.actIndex && archive.actId === floor.actId,
   );
   const current =
     archiveIndex >= 0
@@ -277,13 +278,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (existingFloor) return { mainStoryMessages };
 
       const expectedAct = LALA_ARRIVAL_STORY.acts[state.mainStoryActIndex];
+      const acceptedAct = floor.act;
       const isValidAcceptedFloor =
         floor.floorId.trim().length > 0 &&
         floor.eventId === LALA_ARRIVAL_EVENT_ID &&
         floor.outcome === 'accepted' &&
-        floor.act !== null &&
-        floor.act.id === floor.actId;
-      if (!isValidAcceptedFloor) return { mainStoryMessages };
+        acceptedAct !== null &&
+        acceptedAct.id === floor.actId;
+      if (!isValidAcceptedFloor || !acceptedAct) return { mainStoryMessages };
 
       const mainStoryArchives = upsertStoryFloor(
         state.mainStoryArchives,
@@ -302,7 +304,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return { mainStoryArchives, mainStoryMessages };
       }
       const mainStoryActs = [...state.mainStoryActs];
-      mainStoryActs[state.mainStoryActIndex] = floor.act;
+      mainStoryActs[state.mainStoryActIndex] = acceptedAct;
       return {
         mainStoryActs,
         mainStoryArchives,
@@ -318,9 +320,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   failMainStoryGeneration: (message, messages = [], floor) =>
     set(state => {
       const persisted = {
-        mainStoryArchives: floor
-          ? upsertStoryFloor(state.mainStoryArchives, floor, false)
-          : state.mainStoryArchives,
+        mainStoryArchives: floor ? upsertStoryFloor(state.mainStoryArchives, floor, false) : state.mainStoryArchives,
         mainStoryMessages: mergeStoryMessages(state.mainStoryMessages, messages),
       };
       const appliesToActiveAct =

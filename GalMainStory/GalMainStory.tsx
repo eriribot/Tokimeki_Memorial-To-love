@@ -10,19 +10,16 @@ import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { syncCharacterPresence } from '../services/characterPresence';
 import { resolveAssetPath } from '../utils/assetPath';
-import {
-  GALBOX_ASSETS,
-  getSpeakerNameplateAsset,
-  HARUNA_PORTRAIT_RIG,
-  LALA_PORTRAIT_RIG,
-  RIKO_PORTRAIT_RIG,
-} from './galAssets';
+import { getSpeakerNameplateAsset, getStoryPortraitCharacter, isStoryPortraitCharacterSpeaking } from './characters';
+import { getLalaArrivalPortraitCue, type LalaArrivalPortraitCue } from './episodes/episode01/director';
+import { GALBOX_ASSETS } from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
-import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './lalaArrival';
+import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './episodes/episode01';
 import RawStoryHistoryDialog from './RawStoryHistoryDialog';
+import { getStoryScene } from './scenes';
 import StoryHistoryArchive from './StoryHistoryArchive';
 import { buildRawStoryArchive } from './storyRawArchive';
-import type { GalStoryBeat, GalStoryFloor, LalaExpression, StoryBackgroundId } from './storyTypes';
+import type { GalStoryFloor } from './storyTypes';
 import './GalMainStory.css';
 
 interface StoryCursor {
@@ -38,28 +35,16 @@ interface GalMainStoryProps {
 type HistoryPlaybackTarget = { kind: 'all' } | { kind: 'floor'; floorId: string } | null;
 type RawHistoryTarget = { floorId: string | null } | null;
 
-const STORY_BACKGROUND_ALT: Record<StoryBackgroundId, string> = {
-  school: '彩南高校',
-  night: '夜晚场景',
-  washroomDoor: '浴室门前',
-  washroom: '浴室内部',
-};
-
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function getHarunaPortraitExpression(beat: GalStoryBeat | undefined, actIndex: number): LalaExpression | null {
-  if (!beat || actIndex !== 0 || beat.background !== 'school' || beat.lalaExpression) return null;
-  if (beat.effect === 'shake') return 'e';
-  if (beat.effect === 'flash') return 'd';
-  return beat.speaker === '西连寺春菜' ? 'f' : 'a';
-}
-
-function getRikoPortraitExpression(beat: GalStoryBeat | undefined, actIndex: number): LalaExpression | null {
-  if (!beat || actIndex !== 0 || beat.background !== 'school' || beat.lalaExpression) return null;
-  if (beat.speaker && /^(?:夕崎梨子|梨子)$/u.test(beat.speaker)) return 'a';
-  return beat.speaker === null && /夕崎梨子|梨子/u.test(beat.text) ? 'a' : null;
+function getPortraitNameplateSpeaker(
+  beatSpeaker: string | null | undefined,
+  portraitCue: LalaArrivalPortraitCue | null,
+): string | null {
+  if (beatSpeaker) return beatSpeaker;
+  return portraitCue?.characterId === 'riko' ? getStoryPortraitCharacter('riko').displayName : null;
 }
 
 export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
@@ -145,21 +130,14 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const visiblePageIndex = replayCursor?.pageIndex ?? pageIndex;
   const visibleAct = (historyMode ? historyActs : acts)[visibleActIndex];
   const visibleBeat = visibleAct?.beats[visiblePageIndex];
-  const rikoExpression = getRikoPortraitExpression(visibleBeat, visibleActIndex);
-  const harunaExpression = rikoExpression ? null : getHarunaPortraitExpression(visibleBeat, visibleActIndex);
-  const portraitRig = visibleBeat?.lalaExpression
-    ? LALA_PORTRAIT_RIG
-    : rikoExpression
-      ? RIKO_PORTRAIT_RIG
-      : harunaExpression
-        ? HARUNA_PORTRAIT_RIG
-        : null;
-  const portraitExpression = visibleBeat?.lalaExpression ?? rikoExpression ?? harunaExpression;
-  const isPortraitSpeaking =
-    (portraitRig?.id === 'lala' && visibleBeat?.speaker === '菈菈') ||
-    (portraitRig?.id === 'haruna' && visibleBeat?.speaker === '西连寺春菜') ||
-    (portraitRig?.id === 'riko' && /^(?:夕崎梨子|梨子)$/u.test(visibleBeat?.speaker ?? ''));
-  const nameplateSpeaker = visibleBeat?.speaker ?? (rikoExpression ? RIKO_PORTRAIT_RIG.displayName : null);
+  const portraitCue = getLalaArrivalPortraitCue(visibleBeat, visibleActIndex);
+  const portraitCharacter = portraitCue ? getStoryPortraitCharacter(portraitCue.characterId) : null;
+  const portraitRig = portraitCharacter?.rig ?? null;
+  const portraitExpression = portraitCue?.expression ?? null;
+  const rikoExpression = portraitCue?.characterId === 'riko' ? portraitCue.expression : null;
+  const harunaExpression = portraitCue?.characterId === 'haruna' ? portraitCue.expression : null;
+  const isPortraitSpeaking = isStoryPortraitCharacterSpeaking(portraitCharacter, visibleBeat?.speaker);
+  const nameplateSpeaker = getPortraitNameplateSpeaker(visibleBeat?.speaker, portraitCue);
   const speakerNameplate = getSpeakerNameplateAsset(nameplateSpeaker);
   const rawStoryArchive = useMemo(
     () => buildRawStoryArchive(storyArchives, messageHistory),
@@ -172,7 +150,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const currentRawFloorId =
     activeRawVersion?.floor.floorId ??
     (currentRawAct && currentRawAct.versions.length > 0
-      ? currentRawAct.versions[currentRawAct.versions.length - 1]?.floor.floorId ?? null
+      ? (currentRawAct.versions[currentRawAct.versions.length - 1]?.floor.floorId ?? null)
       : null);
   const contextFloorIds = useMemo(
     () =>
@@ -436,8 +414,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       >
         <img
           className="gal-main-story__background"
-          src={resolveAssetPath(LALA_ARRIVAL_STORY.backgrounds.night)}
-          alt="夜色中的校园"
+          src={resolveAssetPath(getStoryScene('night').asset)}
+          alt={getStoryScene('night').alt}
         />
         <div className="gal-main-story__shade" aria-hidden="true" />
         <div className={`gal-main-story__generation-panel ${isError ? 'is-error' : ''}`}>
@@ -480,7 +458,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   if (!visibleAct || !visibleBeat) return null;
 
   const actMeta = LALA_ARRIVAL_STORY.acts[visibleActIndex];
-  const background = LALA_ARRIVAL_STORY.backgrounds[visibleBeat.background];
+  const scene = getStoryScene(visibleBeat.background);
   const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
   const isLastReplayPage = !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
@@ -528,8 +506,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       <img
         key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.background}`}
         className="gal-main-story__background"
-        src={resolveAssetPath(background)}
-        alt={STORY_BACKGROUND_ALT[visibleBeat.background]}
+        src={resolveAssetPath(scene.asset)}
+        alt={scene.alt}
       />
       <div className="gal-main-story__shade" aria-hidden="true" />
       <div className="gal-main-story__act-label">

@@ -4,13 +4,13 @@ import {
   LALA_ARRIVAL_EVENT_ID,
   LALA_ARRIVAL_STORY,
   getLalaArrivalLoreReferences,
-} from '../GalMainStory/lalaArrival';
+} from '../GalMainStory/episodes/episode01';
 import {
   assignLalaPortraitExpressions,
-  parseStoryParagraphs,
-  STORY_MOOD_EXAMPLES,
-  type ParsedStoryLine,
-} from '../GalMainStory/storyPresentation';
+  getLalaArrivalBackground,
+  getLalaArrivalEffect,
+} from '../GalMainStory/episodes/episode01/director';
+import { parseStoryParagraphs, STORY_MOOD_EXAMPLES, type ParsedStoryLine } from '../GalMainStory/storyPresentation';
 import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
 import {
   normalizeGalStoryActs,
@@ -20,8 +20,6 @@ import {
   type GalStoryMessageSave,
   type GalStoryMessageSource,
   type MainStoryEntryReason,
-  type StoryBackgroundId,
-  type StoryEffect,
 } from '../GalMainStory/storyTypes';
 import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
 import { createSaveUuid } from '../save/uuid';
@@ -254,22 +252,6 @@ function looksLikeJsonStory(text: string): boolean {
   );
 }
 
-function getBackground(actIndex: number, pageIndex: number, pageCount: number): StoryBackgroundId {
-  const presentation = LALA_ARRIVAL_ACTS[actIndex]?.presentation;
-  if (!presentation) return 'school';
-  const progress = pageCount <= 1 ? 0 : pageIndex / (pageCount - 1);
-  return presentation.transitions.reduce<StoryBackgroundId>(
-    (background, transition) => (progress >= transition.atProgress ? transition.background : background),
-    presentation.initialBackground,
-  );
-}
-
-function getEffect(text: string): StoryEffect {
-  if (/白光|闪|爆|轰|砰|炸/gu.test(text)) return 'flash';
-  if (/撞|震|摇|追|冲|卷|吸|坠|跌/gu.test(text)) return 'shake';
-  return 'none';
-}
-
 function parsePlainTextAct(raw: string, actIndex: number, playerName: string): GalStoryAct {
   const act = LALA_ARRIVAL_ACTS[actIndex];
   if (!act) throw new Error('第一集幕编号无效。');
@@ -303,8 +285,8 @@ function parsePlainTextAct(raw: string, actIndex: number, playerName: string): G
       speaker: line.speaker,
       text: line.text,
       lalaExpression: lalaExpressions[pageIndex],
-      background: getBackground(actIndex, pageIndex, parsedLines.length),
-      effect: getEffect(line.text),
+      background: getLalaArrivalBackground(actIndex, pageIndex, parsedLines.length),
+      effect: getLalaArrivalEffect(line.text),
     };
   });
 

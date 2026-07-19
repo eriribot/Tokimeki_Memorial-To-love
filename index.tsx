@@ -6,7 +6,7 @@ import { PERIODS, useGameStore } from './stores/gameStore';
 import { useCardStore } from './stores/cardStore';
 import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
-import { LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './GalMainStory/lalaArrival';
+import { getMainStoryEpisode } from './GalMainStory/storyRegistry';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
@@ -33,25 +33,25 @@ window.render_game_to_text = () => {
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
   const currentStoryAct = game.mainStoryActs[game.mainStoryActIndex];
   const currentStoryBeat = currentStoryAct?.beats[game.mainStoryPageIndex];
-  const activeMainStory =
-    game.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID
-      ? {
-          id: LALA_ARRIVAL_STORY.id,
-          title: LALA_ARRIVAL_STORY.title,
-          entryReason: game.mainStoryEntryReason,
-          generationStatus: game.mainStoryGenerationStatus,
-          generationSource: game.mainStoryGenerationSource,
-          generationError: game.mainStoryGenerationError,
-          actIndex: game.mainStoryActIndex,
-          actCount: game.mainStoryActs.length,
-          messageCount: game.mainStoryMessages.length,
-          actId: currentStoryAct?.id ?? null,
-          pageIndex: game.mainStoryPageIndex,
-          pageCount: currentStoryAct?.beats.length ?? 0,
-          speaker: currentStoryBeat?.speaker ?? null,
-          text: currentStoryBeat?.text ?? '',
-        }
-      : null;
+  const activeStory = getMainStoryEpisode(game.activeMainStoryEventId);
+  const activeMainStory = activeStory
+    ? {
+        id: activeStory.id,
+        title: activeStory.title,
+        entryReason: game.mainStoryEntryReason,
+        generationStatus: game.mainStoryGenerationStatus,
+        generationSource: game.mainStoryGenerationSource,
+        generationError: game.mainStoryGenerationError,
+        actIndex: game.mainStoryActIndex,
+        actCount: game.mainStoryActs.length,
+        messageCount: game.mainStoryMessages.length,
+        actId: currentStoryAct?.id ?? null,
+        pageIndex: game.mainStoryPageIndex,
+        pageCount: currentStoryAct?.beats.length ?? 0,
+        speaker: currentStoryBeat?.speaker ?? null,
+        text: currentStoryBeat?.text ?? '',
+      }
+    : null;
   const visibleTargets = card.targets
     .filter(target => target.currentLocationId)
     .map(target => ({

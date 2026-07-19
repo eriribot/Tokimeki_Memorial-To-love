@@ -1,4 +1,4 @@
-import { LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/lalaArrival';
+import { LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/episodes/episode01';
 import type { CharacterAvailabilityRule } from '../types';
 
 export const DEFAULT_CHARACTER_AVAILABILITY: Readonly<Record<string, CharacterAvailabilityRule>> = {

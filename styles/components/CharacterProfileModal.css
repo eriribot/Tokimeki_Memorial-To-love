@@ -7,9 +7,10 @@
 
 /* 桌面入口覆盖在地图右侧，不参与地图布局计算，因此不会挤占非全屏画面的宽度。 */
 .profile-modal-trigger {
+  --profile-trigger-shadow-x: -4px;
+  --profile-trigger-hover-shadow-x: -6px;
   position: absolute;
-  top: 50%;
-  right: 0;
+  top: 52%;
   z-index: 200;
   width: 52px;
   min-height: 126px;
@@ -20,16 +21,30 @@
   justify-content: center;
   gap: 8px;
   border: 3px solid var(--tm-border);
-  border-right: 0;
-  border-radius: 18px 0 0 18px;
   color: #fff;
   background: linear-gradient(180deg, var(--tm-pink), var(--tm-pink-dark));
-  box-shadow: -4px 4px 16px rgba(224, 86, 141, 0.3);
+  box-shadow: var(--profile-trigger-shadow-x) 4px 16px rgba(224, 86, 141, 0.3);
   cursor: pointer;
   transform: translateY(-50%);
   transition: box-shadow var(--anim-fast), background-color var(--anim-fast);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+.profile-modal-trigger.is-right {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-radius: 18px 0 0 18px;
+}
+
+.profile-modal-trigger.is-left {
+  --profile-trigger-shadow-x: 4px;
+  --profile-trigger-hover-shadow-x: 6px;
+  right: auto;
+  left: 0;
+  border-left: 0;
+  border-radius: 0 18px 18px 0;
 }
 
 /*
@@ -49,7 +64,7 @@
 @media (hover: hover) and (pointer: fine) {
   .profile-modal-trigger:hover {
     filter: none;
-    box-shadow: -6px 6px 20px rgba(224, 86, 141, 0.4);
+    box-shadow: var(--profile-trigger-hover-shadow-x) 6px 20px rgba(224, 86, 141, 0.4);
     transform: translateY(-50%);
   }
 }
@@ -171,8 +186,7 @@
   .profile-modal-trigger,
   .profile-modal-trigger:hover,
   .profile-modal-trigger:active {
-    top: 50%;
-    right: 0;
+    top: 52%;
     bottom: auto;
     width: 52px;
     min-width: 0;
@@ -180,11 +194,8 @@
     padding: 12px 8px;
     flex-direction: column;
     gap: 8px;
-    border: 3px solid var(--tm-border);
-    border-right: 0;
-    border-radius: 18px 0 0 18px;
     filter: none;
-    box-shadow: -4px 4px 16px rgba(224, 86, 141, 0.3);
+    box-shadow: var(--profile-trigger-shadow-x) 4px 16px rgba(224, 86, 141, 0.3);
     transform: translateY(-50%);
   }
 
@@ -327,5 +338,65 @@
 
   .profile-modal-content .character-greeting {
     margin-top: 8px;
+  }
+}
+
+@container game-frame (min-height: 481px) and (max-height: 700px) {
+  .profile-modal-trigger,
+  .profile-modal-trigger:hover,
+  .profile-modal-trigger:active {
+    width: 40px;
+    min-height: 96px;
+    padding: 7px 5px;
+    gap: 5px;
+    border-width: 2px;
+  }
+
+  .profile-modal-trigger.is-right {
+    border-radius: 14px 0 0 14px;
+  }
+
+  .profile-modal-trigger.is-left {
+    border-radius: 0 14px 14px 0;
+  }
+
+  .profile-modal-trigger-icon {
+    font-size: 18px;
+  }
+
+  .profile-modal-trigger-text {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+}
+
+@container game-frame (max-height: 480px) {
+  .profile-modal-trigger,
+  .profile-modal-trigger:hover,
+  .profile-modal-trigger:active {
+    top: 56%;
+    width: 30px;
+    min-height: 72px;
+    padding: 5px 3px;
+    gap: 3px;
+    border-width: 2px;
+    box-shadow: var(--profile-trigger-shadow-x) 2px 8px rgba(224, 86, 141, 0.26);
+  }
+
+  .profile-modal-trigger.is-right {
+    border-radius: 11px 0 0 11px;
+  }
+
+  .profile-modal-trigger.is-left {
+    border-radius: 0 11px 11px 0;
+  }
+
+  .profile-modal-trigger-icon {
+    font-size: 14px;
+  }
+
+  .profile-modal-trigger-text {
+    font-size: 10px;
+    letter-spacing: 1px;
   }
 }

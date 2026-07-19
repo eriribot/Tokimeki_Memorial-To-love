@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useGameStore } from '../stores/gameStore';
+import { getMapForLocation } from '../stores/mapStore';
 import CharacterPortrait from './CharacterPortrait';
 import '../styles/components/CharacterProfileModal.css';
 
@@ -10,12 +12,15 @@ import '../styles/components/CharacterProfileModal.css';
  */
 export default function CharacterProfileModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const currentLocationId = useGameStore(state => state.currentLocationId);
+  const currentMap = getMapForLocation(currentLocationId);
+  const triggerSide = currentMap.id === 'sainanHigh' ? 'right' : 'left';
 
   return (
     <>
       {/* 档案入口固定在游戏画面上方，不参与地图布局，也不再保留侧栏或抽屉语义。 */}
       <button
-        className="profile-modal-trigger"
+        className={`profile-modal-trigger is-${triggerSide}`}
         onClick={() => setIsOpen(true)}
         type="button"
         aria-haspopup="dialog"

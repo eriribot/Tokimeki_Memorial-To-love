@@ -116,6 +116,21 @@ async function getResponseError(response: Response): Promise<string> {
   }
 }
 
+async function getExistingFilePaths(filePaths: readonly string[]): Promise<Set<string>> {
+  const response = await fetch('/api/files/verify', {
+    method: 'POST',
+    headers: getRequestHeaders(),
+    body: JSON.stringify({ urls: filePaths }),
+  });
+  if (!response.ok) {
+    throw new Error(`检查存档文件失败：${await getResponseError(response)}`);
+  }
+
+  const verified = (await response.json()) as unknown;
+  if (!isRecord(verified)) throw new Error('SillyTavern 返回了无效的存档文件检查结果');
+  return new Set(filePaths.filter(filePath => verified[filePath] === true));
+}
+
 function normalizeSaveRecord(value: unknown, expectedSlotId: string): SaveRecord {
   if (!isRecord(value) || value.schemaVersion !== SAVE_SCHEMA_VERSION) {
     throw new Error(`存档文件 ${getSaveFileName(expectedSlotId)} 的版本无效`);
@@ -142,7 +157,7 @@ function parseSaveFile(value: unknown, expectedSlotId: string): SaveRecord {
   return normalizeSaveRecord(value.save, expectedSlotId);
 }
 
-async function readSlotFile(slotId: string): Promise<SaveRecord | null> {
+async function readExistingSlotFile(slotId: string): Promise<SaveRecord | null> {
   const filePath = getSaveFilePath(slotId);
   const response = await fetch(`${filePath}?tolove=${Date.now()}`, {
     method: 'GET',
@@ -161,6 +176,23 @@ async function readSlotFile(slotId: string): Promise<SaveRecord | null> {
     if (error instanceof Error) throw error;
     throw new Error(`无法解析 ${getSaveFileName(slotId)}`, { cause: error });
   }
+}
+
+async function readSlotFile(slotId: string): Promise<SaveRecord | null> {
+  const filePath = getSaveFilePath(slotId);
+  const existingPaths = await getExistingFilePaths([filePath]);
+  return existingPaths.has(filePath) ? readExistingSlotFile(slotId) : null;
+}
+
+async function readAllSlotFiles(): Promise<SaveRecord[]> {
+  const slotPaths = SAVE_SLOT_IDS.map(slotId => [slotId, getSaveFilePath(slotId)] as const);
+  const existingPaths = await getExistingFilePaths(slotPaths.map(([, filePath]) => filePath));
+  const records = await Promise.all(
+    slotPaths
+      .filter(([, filePath]) => existingPaths.has(filePath))
+      .map(([slotId]) => readExistingSlotFile(slotId)),
+  );
+  return records.filter((save): save is SaveRecord => save !== null);
 }
 
 async function uploadSlotFile(save: SaveRecord): Promise<SaveRecord> {
@@ -198,9 +230,7 @@ async function uploadSlotFile(save: SaveRecord): Promise<SaveRecord> {
 }
 
 async function list(): Promise<SaveListResult> {
-  const records = await Promise.all(SAVE_SLOT_IDS.map(slotId => readSlotFile(slotId)));
-  const saves = records
-    .filter((save): save is SaveRecord => save !== null)
+  const saves = (await readAllSlotFiles())
     .map(toSaveSummary)
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   return { saves };
@@ -252,8 +282,8 @@ async function resolveSave(request: SaveRequest): Promise<SaveRecord | null> {
   }
 
   if (request.saveUuid) {
-    const records = await Promise.all(SAVE_SLOT_IDS.map(slotId => readSlotFile(slotId)));
-    return records.find(save => save?.saveUuid === request.saveUuid) ?? null;
+    const records = await readAllSlotFiles();
+    return records.find(save => save.saveUuid === request.saveUuid) ?? null;
   }
 
   return null;
