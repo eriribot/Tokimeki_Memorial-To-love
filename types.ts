@@ -18,7 +18,32 @@ export interface CalendarDateValue {
 
 export type PeriodKey = 'morning' | 'afterSchool' | 'evening';
 
-export type LocationId = 'gate' | 'classroom' | 'library' | 'cafeteria' | 'gym' | 'musicRoom' | 'rooftop' | 'courtyard';
+export type CharacterAvailabilityRule =
+  | { kind: 'always' }
+  | { kind: 'after-event'; eventId: string }
+  | { kind: 'locked' };
+
+export interface CharacterPresenceContext {
+  periodKey: PeriodKey;
+  completedMainStoryEventIds: readonly string[];
+}
+
+export type LocationId =
+  | 'gate'
+  | 'classroom'
+  | 'library'
+  | 'cafeteria'
+  | 'gym'
+  | 'musicRoom'
+  | 'rooftop'
+  | 'courtyard'
+  | 'station'
+  | 'shoppingStreet'
+  | 'park'
+  | 'riverbank'
+  | 'residentialArea';
+
+export type MapId = 'sainanHigh' | 'sainanTown';
 
 export interface PeriodDefinition {
   key: PeriodKey;
@@ -32,6 +57,14 @@ export interface MapLocation {
   y: number;
   color: string;
   description: string;
+}
+
+export interface GameMapDefinition {
+  id: MapId;
+  name: string;
+  background: string;
+  entryLocationId: LocationId;
+  locationIds: readonly LocationId[];
 }
 
 export interface GameEvent {
@@ -92,6 +125,7 @@ export interface GameActions {
   addLog: (message: string) => void;
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
+  reconcilePendingMainStoryEntry: () => boolean;
   beginMainStoryGeneration: () => boolean;
   setMainStoryActContent: (floor: GalStoryFloor, messages: GalStoryMessageSave[]) => void;
   failMainStoryGeneration: (message: string, messages?: GalStoryMessageSave[], floor?: GalStoryFloor) => void;
@@ -281,7 +315,7 @@ export interface CardStoreActions {
   getTargetsByLocation: (locationId: LocationId) => GameCharacter[];
   updateTarget: (targetId: string, updates: Partial<GameCharacter>) => void;
   addAffection: (targetId: string, amount: number) => void;
-  spawnTargetsForPeriod: (periodKey: PeriodKey) => void;
+  syncTargetLocations: (context: CharacterPresenceContext) => void;
   clearTargets: () => void;
   resetTargets: () => void;
 }
@@ -290,13 +324,14 @@ export type CardStore = CardStoreState & CardStoreActions;
 
 export interface CharacterStore {
   characters: GameCharacter[];
-  spawnForPeriod: (periodKey: PeriodKey) => void;
+  syncPresence: () => void;
   addAffection: (id: string, amount: number) => void;
   resetCharacters: () => void;
   getCardStore: () => CardStore;
 }
 
 export interface MapStore {
+  maps: Record<MapId, GameMapDefinition>;
   locations: Record<LocationId, MapLocation>;
   width: number;
   height: number;

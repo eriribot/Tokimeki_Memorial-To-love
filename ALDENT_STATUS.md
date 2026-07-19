@@ -2,22 +2,23 @@
 
 ```yaml
 status: waiting_for_review
-current_loop: merge-local-scenes-with-remote-story-display
-authorized_by: user_merge_conflict_report_2026-07-18
+current_loop: story-progression-character-availability-and-raw-reader
+authorized_by: user_code_only_and_human_testing_request_2026-07-19
 authorized_scope:
-  - resolve the pull conflict between local fac9bdc and remote d120b26
-  - preserve local backgrounds, layered portraits, and no-required-sentinel behavior
-  - preserve the remote story-display fix, one-shot World Info scan route, and saved-message chat history
-  - accept the remote cleanup of tracked output artifacts and obsolete test scripts
-  - repair active documentation and validate the merged inline artifact
+  - recover the pending first-episode act from AP and accepted-act progress after save restore or resume
+  - gate bundled character presence by completed main-story events without deleting character cards
+  - replace the flat AI raw-message pile with act, version, and page reading slots
+  - update current module and human-review records
 forbidden_scope:
-  - force-push, discard either commit, or restore the removed output test suite
-  - change AP, affection, dates, event settlement, saves, backgrounds, portrait coordinates, or blink timing
-  - change saved Tavern worldbook state, create host floors, or connect shujuku/plugins/databases
-connection_state: merged_local_production_build_and_static_browser_start_verified
-overall_connection_label: 只是本地状态演示
-human_review: pending_real_tavern_world_info_and_generation_acceptance
+  - create or run mjs tests, validation scripts, builds, lint, browser automation, or inline-bundle verification
+  - change prompts, generation protocol, worldbook selection or saved worldbook state
+  - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins, or databases
+  - claim runtime, Tavern, or human acceptance from source inspection
+connection_state: local_code_implemented_unverified
+overall_connection_label: 只是本地代码实现，尚未人工验收
+human_review: pending_story_progression_character_visibility_and_raw_reader_acceptance
 prior_pending_reviews:
+  - merge-local-scenes-with-remote-story-display
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 next_loop: frozen_after_review_invitation_until_new_explicit_feedback_or_completed_review_form
@@ -25,54 +26,53 @@ next_loop: frozen_after_review_invitation_until_new_explicit_feedback_or_complet
 
 ## 本轮结果
 
-- Git 分叉为本地 `fac9bdc（增加新场景）` 与远端 `d120b26（修复正文显示）`，共同基线为 `e99519a`。
-- `services/storyGenerationPrompt.ts` 和 `services/tavernStoryGeneration.ts`
-  采用远端正文显示链作为骨架；它同样不要求模型输出完成标记，并会清理旧回复中残留的历史标记。
-- 本地 `school -> night -> washroomDoor -> washroom` 背景、共享菈菈/春菜分层立绘和眨眼修复均保留并通过编译。
-- 当前幕用明确开场/结尾约束正文。代码按当前幕读取关闭的剧情/人物条目，只在下一次 `WORLDINFO_ENTRIES_LOADED`
-  扫描的内存副本中临时启用；保存的世界书开关不应改变。
-- 连续性改为从已保存的主线 user/assistant 消息中取最后 6 条，传给 `overrides.chat_history.prompts`。
-- 明确 `@姓名牌` 的临时老师、学生或路人可以进入 GAL；已登记角色仍会归一化。
-- 远端删除的 `output/verify-story-mvp.mjs` 及旧截图/测试产物保持删除，没有为解决冲突恢复它们。
+- 主线当前幕从已采用正文进度恢复；非活动事件存档不再无条件把 `mainStoryActIndex` 清零。
+- 恢复或继续游戏时会幂等检查 4 月 7 日的 AP 阈值，补回已经到点但尚未进入的幕；普通正确的
+  `AP=1 / actIndex=1` 状态仍等待下一次行动触发第二幕。
+- 角色卡继续保存在 Card store，出现位置由独立规则同步：梨子和春菜初始可见，菈菈完成第一集后可见，梦梦、唯和小暗当前锁定；未知导入角色默认可见。
+- AI 原文通过既有楼层 `messageIds` 关联 Tavern Assistant 消息，按幕和楼层版本组织，并对原字符串做只读分页。已读目录中的每个楼层可直接打开其原文版本。
+- 没有修改提示词、世界书、Tavern 宿主消息、生成协议、shujuku、插件或数据库链。
 
 ## 验证证据
 
-| Check                           | Status  | Evidence                                                                                  |
-| ------------------------------- | ------- | ----------------------------------------------------------------------------------------- |
-| Three-way conflict resolution   | passed  | 三个 unmerged path 已解析；源码无 conflict marker                                         |
-| Targeted Prettier / ESLint      | passed  | 合并相关 TS/TSX 文件 ESLint 0 errors                                                      |
-| Development build               | passed  | fresh `pnpm build:dev`                                                                    |
-| Production build                | passed  | fresh `pnpm build`；只有既有 462 KiB 体积警告                                             |
-| Static production browser start | passed  | 地图、角色、AP/日期状态正常；仅有脱离 Tavern 时缺文件桥的预期错误                         |
-| Exact inline safety             | passed  | 五项 replacement/字符风险与语法错误均为 0，`scriptCount = 1`                              |
-| Exact artifact                  | passed  | 473,451 bytes；SHA-256 `A04DE67443EEA4E059F0E2070E1C1C5FD420D245A7A3AF46E38A212E189FC196` |
-| Real one-shot World Info scan   | not run | 静态浏览器没有真实 `WORLDINFO_ENTRIES_LOADED` 和 Tavern 世界书                            |
-| Real generation / GAL rendering | not run | 尚未在用户实际 SillyTavern/Tavern Helper 中运行合并包                                     |
-| Human acceptance                | not run | 等待确认正文、背景、立绘与世界书扫描合并后同时正常                                        |
+| Check                                | Status  | Evidence                              |
+| ------------------------------------ | ------- | ------------------------------------- |
+| Source formatting / lint             | not run | 用户要求全部检验交给人工              |
+| TypeScript / development build       | not run | 未运行 `pnpm build:dev`               |
+| Production build                     | not run | 未运行 `pnpm build`                   |
+| Browser / Playwright interaction     | not run | 未启动页面或浏览器自动化              |
+| Save/load AP progression             | not run | 等待人工在实际存档流程中验收          |
+| Character visibility                 | not run | 等待人工检查地图、场景、档案和文本态  |
+| Raw reader act/version/page behavior | not run | 等待人工检查具体楼层选择与分页        |
+| Raw message immutability             | not run | 等待人工比较保存消息与重新生成上下文  |
+| Inline artifact verification         | not run | 未运行 `verify-inline-bundle.mjs`     |
+| Real Tavern generation               | not run | 未调用真实 Tavern Helper 生成         |
+| Human acceptance                     | not run | 等待用户审查                          |
 
 ## 当前接通状态
 
-- 生成链：真实 `TavernHelper.generate` 路径存在，本轮只证明编译和静态启动，未证明真实返回。
-- World Info 链：源码注册一次性原生扫描钩子；真实命中、隔离和停止尚待 Tavern 日志。
-- 宿主消息链：没有创建 hidden user/assistant 楼层；chat history 来自游戏保存消息。
-- 插件/数据库链：没有接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
-- UI 镜像链：游戏自有 messagesave/file bridge 保持不变，不是宿主聊天权威。
+- 本轮只完成本地源码实现，未形成新的构建或 inline artifact 证据。
+- 生成链、一次性 World Info 扫描链和游戏 messagesave 镜像保持原实现，本轮未验证也未改动其协议。
+- 宿主消息链仍未创建 hidden user/assistant 楼层。
+- 插件/数据库链仍未接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
+- 原文阅读器只读取游戏保存的 Tavern Assistant 消息，不新增消息，不修改 prompt history，也不代表宿主聊天权威。
 
 ## 人工复现
 
-1. 加载上述 SHA-256 对应的 fresh `dist/webgame-ui/index.html`，确认 `剧情第一集` 和菈菈人物条目保持关闭。
-2. 第一次有效行动触发第一幕；确认仅剧情条目的本次扫描副本被启用，正文无需 `STAGE_COMPLETE` 即进入 GAL。
-3. 播完第一幕后确认仍为 4 月 7 日、AP=1，背景依次进入学校、夜景、浴室门前和浴室内部。
-4. 第二次有效行动触发第二幕；确认本次扫描包含剧情和菈菈人物条目，并带有已保存前置消息连续性。
-5. 生成结束后重新查看世界书，两个保存条目仍保持关闭；普通后续扫描不应继续强制命中这两个副本。
-6. 播完第二幕后确认进入 4 月 8 日、AP=2，菈菈/春菜立绘和眨眼没有合并回归。
+1. 开始新游戏，确认地图、地点提示、附近角色与角色档案中只有夕崎梨子和西连寺春菜，菈菈、梦梦、古手川唯和小暗都不出现。
+2. 完成 4 月 7 日第一集两幕后，确认菈菈开始出现在校园；梦梦、古手川唯和小暗仍保持隐藏。
+3. 第一幕完成后在 `AP=1`、日期仍为 4 月 7 日时保存并读取，确认已读第一幕和当前幕进度保留，且不会重复触发第一幕。
+4. 读取上述存档后执行第二次有效行动，确认 AP 到 0 时进入第二幕 AI 正文，而不是直接跨到 4 月 8 日。
+5. 打开已读剧情，分别从总入口和具体楼层的 `AI 原文` 按钮进入，确认可以切换幕、生成版本和单页，并且具体楼层按钮会预选对应版本。
+6. 检查长原文一次只显示一页，上一页/下一页和页数正确；把各页按顺序拼接后应与原 Assistant 消息完全一致。
+7. 关闭阅读器并重新生成候选楼层，确认已保存原文、采用楼层以及用于连续性的历史消息没有因阅读、切页或切版本发生变化。
 
 ## 已知风险
 
-- 一次性 World Info 钩子依赖真实 Tavern 的 `eventOnce`、`tavern_events.WORLDINFO_ENTRIES_LOADED`
-  和扫描时序；本地构建无法代替真实证据。
-- `stripLegacyCompletionSentinels()` 只兼容清理旧模型输出，不重新要求标记。
-- 远端清理了仓库内浏览器回归脚本，因此本轮没有自动证明完整两幕；不能把静态启动截图写成真实生成验收。
-- 背景顺序和春菜眨眼仍是前序待验收项，本次冲突解决不自动接受它们。
+- 本轮按用户要求没有运行格式化、编译、浏览器或 inline artifact 检查，源码能否构建和实际布局均需人工确认。
+- 角色出场规则当前只覆盖已有第一集进度；梦梦、唯和小暗在未来剧情事件落地前保持锁定。
+- 恢复补触发依赖存档中的日期、AP、已采用幕和完成事件记录彼此一致；异常或手工修改过的存档仍需单独判断。
+- 原文分页按字符上限优先寻找段落或句末断点，只影响阅读视图，不是 GAL 正文解析或消息迁移。
+- 背景顺序、春菜跨页眨眼以及前次合并后的真实 Tavern 扫描仍是前序待验收项，本轮不自动接受它们。
 
 本状态更新后只剩审查邀请；邀请发出后冻结修改。

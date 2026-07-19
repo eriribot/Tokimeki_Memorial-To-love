@@ -1,16 +1,16 @@
-import { PERIODS, useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
 import { gameSaveApi } from '../save';
+import { syncCharacterPresence } from './characterPresence';
 
 export function startNewSession() {
+  useGameStore.getState().resetGameState();
   usePlayerStore.getState().resetPlayer();
 
   const cards = useCardStore.getState();
   cards.resetTargets();
-  cards.spawnTargetsForPeriod(PERIODS[0].key);
-
-  useGameStore.getState().resetGameState();
+  syncCharacterPresence();
 }
 
 export function resumeSession() {

@@ -1,5 +1,14 @@
 import { create } from 'zustand';
-import type { CardAddResult, CardLoadResult, CardStore, GameCharacter, LocationId, PeriodKey } from '../types';
+import { isCharacterAvailable } from '../data/characterAvailability';
+import type {
+  CardAddResult,
+  CardLoadResult,
+  CardStore,
+  CharacterPresenceContext,
+  GameCharacter,
+  LocationId,
+  PeriodKey,
+} from '../types';
 import { cardToCharacter, loadCardFromFile, loadCardFromJSON, loadCardFromURL } from '../utils/cardLoader';
 
 type LocationResolver = (favoriteLocations: readonly LocationId[]) => LocationId | null;
@@ -19,6 +28,14 @@ function getErrorMessage(error: unknown): string {
 
 export function getTargetLocationForPeriod(target: GameCharacter, periodKey: PeriodKey): LocationId | null {
   return PERIOD_LOCATION_RULES[periodKey](target.favoriteLocations);
+}
+
+export function getTargetLocationForContext(
+  target: GameCharacter,
+  context: CharacterPresenceContext,
+): LocationId | null {
+  if (!isCharacterAvailable(target.id, context.completedMainStoryEventIds)) return null;
+  return getTargetLocationForPeriod(target, context.periodKey);
 }
 
 export const useCardStore = create<CardStore>((set, get) => {
@@ -86,13 +103,19 @@ export const useCardStore = create<CardStore>((set, get) => {
             : target,
         ),
       })),
-    spawnTargetsForPeriod: periodKey =>
-      set(state => ({
-        targets: state.targets.map(target => ({
+    syncTargetLocations: context =>
+      set(state => {
+        const targets = state.targets.map(target => ({
           ...target,
-          currentLocationId: getTargetLocationForPeriod(target, periodKey),
-        })),
-      })),
+          currentLocationId: getTargetLocationForContext(target, context),
+        }));
+        const activeTargetId = targets.some(
+          target => target.id === state.activeTargetId && target.currentLocationId !== null,
+        )
+          ? state.activeTargetId
+          : (targets.find(target => target.currentLocationId !== null)?.id ?? null);
+        return { targets, activeTargetId };
+      }),
     clearTargets: () =>
       set({
         targets: [],
@@ -107,9 +130,9 @@ export const useCardStore = create<CardStore>((set, get) => {
           affection: 0,
           friendship: 0,
           romance: 0,
-          currentLocationId: target.favoriteLocations[0] ?? 'classroom',
+          currentLocationId: null,
         })),
-        activeTargetId: state.targets[0]?.id ?? null,
+        activeTargetId: null,
         error: null,
       })),
   };

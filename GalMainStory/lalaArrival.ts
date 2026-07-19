@@ -130,7 +130,7 @@ export function getPendingLalaArrivalActIndex(state: LalaArrivalTriggerState): n
 
   const actIndex = Math.min(LALA_ARRIVAL_ACTS.length - 1, Math.max(0, Math.trunc(state.mainStoryActIndex)));
   const act = LALA_ARRIVAL_ACTS[actIndex];
-  return act.actionPointsRemaining === state.actionPointsRemaining ? actIndex : null;
+  return state.actionPointsRemaining <= act.actionPointsRemaining ? actIndex : null;
 }
 
 export function shouldTriggerLalaArrival(state: LalaArrivalTriggerState): boolean {

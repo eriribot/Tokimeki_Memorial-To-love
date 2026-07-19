@@ -5,12 +5,12 @@ import miyukiCard from '../data/default-cards/miyuki.json';
 import rinCard from '../data/default-cards/rin.json';
 import rikoCard from '../data/default-cards/riko.json';
 import sakuraCard from '../data/default-cards/sakura.json';
+import { syncCharacterPresence } from '../services/characterPresence';
 import type { CharacterCard, CharacterStore, GameCharacter } from '../types';
 import { useCardStore } from './cardStore';
-import { PERIODS, useGameStore } from './gameStore';
 
 const DEFAULT_CARDS: readonly unknown[] = [rikoCard, sakuraCard, harunaCard, harukaCard, miyukiCard, rinCard];
-const RIKO_LEGACY_CHIBI = '/artsource/characters/miyuki.png';
+const RIKO_LEGACY_CHIBIS = new Set(['/artsource/characters/miyuki.png', '/artsource/chibis/riko.png']);
 const RIKO_CHIBI = '/artsource/chibis/riko.png';
 
 function readDefaultCardId(card: unknown): string | null {
@@ -21,7 +21,7 @@ function readDefaultCardId(card: unknown): string | null {
 
 function migrateRikoCardChibi(card: CharacterCard): CharacterCard {
   const gameData = card.data.extensions.game_data;
-  if (gameData.id !== 'riko' || gameData.chibi_image !== RIKO_LEGACY_CHIBI) return card;
+  if (gameData.id !== 'riko' || !RIKO_LEGACY_CHIBIS.has(gameData.chibi_image)) return card;
 
   return {
     ...card,
@@ -43,7 +43,7 @@ function migrateBundledCharacterAssets(): void {
   let changed = false;
 
   const targets = state.targets.map((target): GameCharacter => {
-    if (target.id !== 'riko' || target.chibi !== RIKO_LEGACY_CHIBI) return target;
+    if (target.id !== 'riko' || !RIKO_LEGACY_CHIBIS.has(target.chibi)) return target;
     changed = true;
     return {
       ...target,
@@ -65,19 +65,13 @@ function migrateBundledCharacterAssets(): void {
     asset paths without overwriting imported/custom character cards. */
 export async function syncDefaultCards(): Promise<void> {
   migrateBundledCharacterAssets();
-  let added = false;
   for (const card of DEFAULT_CARDS) {
     const id = readDefaultCardId(card);
     if (!id) continue;
     if (useCardStore.getState().targets.some(target => target.id === id)) continue;
     await useCardStore.getState().addCardFromJSON(card);
-    added = true;
   }
-  if (added) {
-    const periodIndex = useGameStore.getState().periodIndex;
-    const period = PERIODS[periodIndex] ?? PERIODS[0];
-    useCardStore.getState().spawnTargetsForPeriod(period.key);
-  }
+  syncCharacterPresence();
 }
 
 async function initializeDefaultCards(): Promise<void> {
@@ -86,7 +80,7 @@ async function initializeDefaultCards(): Promise<void> {
 
 export const useCharacterStore = create<CharacterStore>(() => ({
   characters: useCardStore.getState().targets,
-  spawnForPeriod: periodKey => useCardStore.getState().spawnTargetsForPeriod(periodKey),
+  syncPresence: syncCharacterPresence,
   addAffection: (id, amount) => useCardStore.getState().addAffection(id, amount),
   resetCharacters: () => useCardStore.getState().resetTargets(),
   getCardStore: () => useCardStore.getState(),

@@ -7,7 +7,7 @@ import {
   LALA_ARRIVAL_STORY,
 } from '../GalMainStory/lalaArrival';
 import type { GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
-import type { GameEvent, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
+import type { GameEvent, GameState, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 
 export const PERIODS = [
   { key: 'morning', label: '早' },
@@ -101,7 +101,32 @@ function upsertStoryFloor(
 
 const INITIAL_LOG = '新学期开始了，你站在校门口。';
 
-export const useGameStore = create<GameStore>(set => ({
+function getLalaArrivalProgressActIndex(state: GameState): number {
+  if (state.completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)) return 0;
+  const lastActIndex = LALA_ARRIVAL_STORY.acts.length - 1;
+  return Math.min(lastActIndex, Math.max(state.mainStoryActIndex, state.mainStoryActs.length));
+}
+
+function createLalaArrivalEntryPatch(
+  state: GameState,
+  actIndex: number,
+  log: readonly string[] = state.log,
+): Partial<GameState> {
+  return {
+    activeMainStoryEventId: LALA_ARRIVAL_EVENT_ID,
+    mainStoryEntryReason: getLalaArrivalEntryReason(actIndex),
+    mainStoryActIndex: actIndex,
+    mainStoryPageIndex: 0,
+    mainStoryActs: state.mainStoryActs.slice(0, actIndex),
+    mainStoryGenerationStatus: 'idle',
+    mainStoryGenerationSource: null,
+    mainStoryGenerationError: null,
+    currentSceneId: null,
+    log: [...log, `主线事件「${LALA_ARRIVAL_STORY.title}」第 ${actIndex + 1} 幕开始。`].slice(-20),
+  };
+}
+
+export const useGameStore = create<GameStore>((set, get) => ({
   screen: 'start',
   hasSession: false,
   day: 1,
@@ -127,7 +152,10 @@ export const useGameStore = create<GameStore>(set => ({
 
   startGame: () => set({ isPlaying: true }),
   pauseGame: () => set({ isPlaying: false }),
-  resumeSession: () => set(state => (state.hasSession ? { screen: 'game', isPlaying: true } : {})),
+  resumeSession: () => {
+    set(state => (state.hasSession ? { screen: 'game', isPlaying: true } : {}));
+    get().reconcilePendingMainStoryEntry();
+  },
   returnToStart: () => set({ screen: 'start', isPlaying: false }),
   setLocation: id => set({ currentLocationId: id, currentSceneId: null }),
   enterScene: id => set({ currentSceneId: id }),
@@ -149,7 +177,12 @@ export const useGameStore = create<GameStore>(set => ({
       const actionPointsRemaining = state.actionPointsRemaining - 1;
       const periodIndex = actionPointsRemaining > 0 ? AFTER_SCHOOL_PERIOD_INDEX : EVENING_PERIOD_INDEX;
       const period = PERIODS[periodIndex] ?? PERIODS[0];
-      const nextMainStoryActIndex = getPendingLalaArrivalActIndex({ ...state, actionPointsRemaining });
+      const mainStoryActIndex = getLalaArrivalProgressActIndex(state);
+      const nextMainStoryActIndex = getPendingLalaArrivalActIndex({
+        ...state,
+        actionPointsRemaining,
+        mainStoryActIndex,
+      });
       const startsLalaArrival = nextMainStoryActIndex !== null;
       const log = [...state.log, request.message];
 
@@ -161,21 +194,10 @@ export const useGameStore = create<GameStore>(set => ({
       };
 
       if (startsLalaArrival) {
-        log.push(`主线事件「${LALA_ARRIVAL_STORY.title}」第 ${nextMainStoryActIndex + 1} 幕开始。`);
         return {
           actionPointsRemaining,
           periodIndex,
-          currentSceneId: null,
-          activeMainStoryEventId: LALA_ARRIVAL_EVENT_ID,
-          mainStoryEntryReason: getLalaArrivalEntryReason(nextMainStoryActIndex),
-          mainStoryActIndex: nextMainStoryActIndex,
-          mainStoryPageIndex: 0,
-          mainStoryActs: state.mainStoryActs.slice(0, nextMainStoryActIndex),
-          mainStoryMessages: state.mainStoryMessages,
-          mainStoryGenerationStatus: 'idle',
-          mainStoryGenerationSource: null,
-          mainStoryGenerationError: null,
-          log: log.slice(-20),
+          ...createLalaArrivalEntryPatch(state, nextMainStoryActIndex, log),
         };
       }
 
@@ -212,6 +234,23 @@ export const useGameStore = create<GameStore>(set => ({
       events: state.events.filter(event => event.id !== eventId),
       log: [...state.log.slice(-19), state.events.find(event => event.id === eventId)?.message ?? '事件结束了。'],
     })),
+
+  reconcilePendingMainStoryEntry: () => {
+    let started = false;
+    set(state => {
+      if (!state.hasSession || state.screen !== 'game' || state.activeMainStoryEventId !== null) return state;
+
+      const mainStoryActIndex = getLalaArrivalProgressActIndex(state);
+      const pendingActIndex = getPendingLalaArrivalActIndex({ ...state, mainStoryActIndex });
+      if (pendingActIndex === null) {
+        return mainStoryActIndex === state.mainStoryActIndex ? state : { mainStoryActIndex };
+      }
+
+      started = true;
+      return createLalaArrivalEntryPatch(state, pendingActIndex);
+    });
+    return started;
+  },
 
   beginMainStoryGeneration: () => {
     let started = false;
@@ -367,6 +406,7 @@ export const useGameStore = create<GameStore>(set => ({
         ],
       };
     });
+    if (advanced) get().reconcilePendingMainStoryEntry();
     return advanced;
   },
 

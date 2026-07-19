@@ -4,6 +4,7 @@ import { useMapStore } from '../stores/mapStore';
 import { useCardStore } from '../stores/cardStore';
 import { resolveAssetPath } from '../utils/assetPath';
 import { ImageWithPlaceholder } from '../utils/placeholderGenerator';
+import { syncCharacterPresence } from '../services/characterPresence';
 
 export default function ClassroomScene() {
   const exitScene = useGameStore(state => state.exitScene);
@@ -16,7 +17,6 @@ export default function ClassroomScene() {
   const activeTargetId = useCardStore(state => state.activeTargetId);
   const setActiveTarget = useCardStore(state => state.setActiveTarget);
   const addAffection = useCardStore(state => state.addAffection);
-  const spawnTargetsForPeriod = useCardStore(state => state.spawnTargetsForPeriod);
 
   const sceneLocationId = currentSceneId || 'classroom';
   const sceneLocation = locations[sceneLocationId];
@@ -47,7 +47,7 @@ export default function ClassroomScene() {
     });
     if (!settlement.accepted) return;
     addAffection(activeCharacter.id, 5);
-    spawnTargetsForPeriod(settlement.periodKey);
+    syncCharacterPresence();
   };
 
   return (

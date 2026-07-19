@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { MAP_MENU_ITEMS, MENU_CURSOR, MENU_TOGGLE } from '../data/menuAssets';
 import { returnToStart } from '../services/gameSession';
+import { useGameStore } from '../stores/gameStore';
+import { getMapForLocation, useMapStore } from '../stores/mapStore';
+import type { GameMapDefinition } from '../types';
 import { resolveAssetPath } from '../utils/assetPath';
 import './Menu.css';
 
@@ -12,6 +15,17 @@ interface MapMenuProps {
 export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('save');
+  const currentLocationId = useGameStore(state => state.currentLocationId);
+  const setLocation = useGameStore(state => state.setLocation);
+  const addLog = useGameStore(state => state.addLog);
+  const maps = useMapStore(state => state.maps);
+  const currentMap = getMapForLocation(currentLocationId);
+
+  const selectMap = (map: GameMapDefinition) => {
+    if (map.id === currentMap.id) return;
+    setLocation(map.entryLocationId);
+    addLog(`你打开了${map.name}的地图。`);
+  };
 
   const openMenu = () => {
     setSelectedId('save');
@@ -44,6 +58,21 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
 
   return (
     <div className={`map-menu ${isOpen ? 'open' : ''}`}>
+      <div className="map-region-switcher" role="group" aria-label="地图区域">
+        {Object.values(maps).map(map => (
+          <button
+            key={map.id}
+            type="button"
+            className={map.id === currentMap.id ? 'is-active' : ''}
+            aria-pressed={map.id === currentMap.id}
+            onClick={() => selectMap(map)}
+          >
+            <span aria-hidden="true">{map.id === 'sainanHigh' ? '🏫' : '🏙️'}</span>
+            {map.name}
+          </button>
+        ))}
+      </div>
+
       {!isOpen && (
         <button
           id="map-menu-toggle"

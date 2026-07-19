@@ -1,5 +1,5 @@
 import { useGameStore } from '../stores/gameStore';
-import { useMapStore } from '../stores/mapStore';
+import { getMapForLocation, useMapStore } from '../stores/mapStore';
 import { useCharacterStore } from '../stores/characterStore';
 import { resolveAssetPath } from '../utils/assetPath';
 import LocationMarker from './LocationMarker';
@@ -31,6 +31,8 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
   const currentLocationId = useGameStore(state => state.currentLocationId);
   const { locations, width, height, cellSize } = useMapStore();
   const characters = useCharacterStore(state => state.characters);
+  const currentMap = getMapForLocation(currentLocationId);
+  const mapLocations = currentMap.locationIds.map(locationId => locations[locationId]);
 
   const mapWidth = width * cellSize;
   const mapHeight = height * cellSize;
@@ -41,6 +43,7 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
   return (
     <div
       className="school-map"
+      data-map-id={currentMap.id}
       style={{
         position: 'relative',
         width: mapWidth,
@@ -50,9 +53,10 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
     >
       {/* 地图背景图 */}
       <img
+        key={currentMap.id}
         className="map-background"
-        src={resolveAssetPath('/artsource/backgrounds/map.png')}
-        alt="学校地图"
+        src={resolveAssetPath(currentMap.background)}
+        alt={`${currentMap.name}地图`}
         style={{
           position: 'absolute',
           inset: 0,
@@ -85,13 +89,13 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
       })}
 
       {/* 地点 */}
-      {Object.values(locations).map(loc => (
+      {mapLocations.map(loc => (
         <LocationMarker key={loc.id} location={loc} isCurrent={loc.id === currentLocationId} />
       ))}
 
       {/* 角色 Q 版立绘 */}
       {characters
-        .filter(c => c.currentLocationId !== null)
+        .filter(c => c.currentLocationId !== null && currentMap.locationIds.includes(c.currentLocationId))
         .map(c => {
           if (c.currentLocationId === null) return null;
           const loc = locations[c.currentLocationId];

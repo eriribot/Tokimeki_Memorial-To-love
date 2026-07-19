@@ -10,10 +10,9 @@ import { LALA_ARRIVAL_STORY } from './lalaArrival';
 import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from './storyTypes';
 
 interface StoryHistoryArchiveProps {
-  rawAssistantCount: number;
   isRawHistoryOpen: boolean;
   onExit: () => void;
-  onOpenRawHistory: () => void;
+  onOpenRawHistory: (floorId: string | null) => void;
   onPlayAll: () => void;
   onPreviewFloor: (floorId: string) => void;
   children?: ReactNode;
@@ -51,7 +50,6 @@ function formatFloorTime(value: string): string {
 }
 
 export default function StoryHistoryArchive({
-  rawAssistantCount,
   isRawHistoryOpen,
   onExit,
   onOpenRawHistory,
@@ -69,6 +67,18 @@ export default function StoryHistoryArchive({
   const [notice, setNotice] = useState<string | null>(null);
   const sortedArchives = useMemo(() => [...archives].sort((left, right) => left.actIndex - right.actIndex), [archives]);
   const hasPlayableStory = sortedArchives.some(archive => Boolean(getActiveFloor(archive)?.act));
+  const rawAssistantMessageIds = useMemo(
+    () =>
+      new Set(
+        messageHistory
+          .filter(
+            message =>
+              !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern',
+          )
+          .map(message => message.id),
+      ),
+    [messageHistory],
+  );
 
   useEffect(() => {
     if (!isRawHistoryOpen) panelRef.current?.focus();
@@ -172,7 +182,11 @@ export default function StoryHistoryArchive({
             <button type="button" disabled={!hasPlayableStory} onClick={onPlayAll}>
               从头回放
             </button>
-            <button type="button" disabled={rawAssistantCount === 0} onClick={onOpenRawHistory}>
+            <button
+              type="button"
+              disabled={rawAssistantMessageIds.size === 0}
+              onClick={() => onOpenRawHistory(null)}
+            >
               AI 原文
             </button>
             <button type="button" onClick={onExit}>
@@ -224,6 +238,7 @@ export default function StoryHistoryArchive({
                   {archive.floors.map((floor, floorIndex) => {
                     const isActive = floor.floorId === archive.activeFloorId;
                     const isPlayable = floor.outcome === 'accepted' && floor.act !== null;
+                    const hasRawAssistant = floor.messageIds.some(messageId => rawAssistantMessageIds.has(messageId));
                     return (
                       <li key={floor.floorId} className={isActive ? 'is-active' : ''}>
                         <div className="gal-story-archive__floor-meta">
@@ -237,6 +252,13 @@ export default function StoryHistoryArchive({
                         </div>
                         {floor.error && <p>{floor.error}</p>}
                         <div className="gal-story-archive__floor-actions">
+                          <button
+                            type="button"
+                            disabled={!hasRawAssistant}
+                            onClick={() => onOpenRawHistory(floor.floorId)}
+                          >
+                            AI 原文
+                          </button>
                           <button type="button" disabled={!isPlayable} onClick={() => onPreviewFloor(floor.floorId)}>
                             预览
                           </button>

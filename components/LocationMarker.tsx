@@ -13,6 +13,11 @@ const LOCATION_ICONS: Record<LocationId, string> = {
   musicRoom: '🎹',
   rooftop: '🌤️',
   courtyard: '🌸',
+  station: '🚉',
+  shoppingStreet: '🛍️',
+  park: '🌳',
+  riverbank: '🌊',
+  residentialArea: '🏠',
 };
 
 interface LocationMarkerProps {

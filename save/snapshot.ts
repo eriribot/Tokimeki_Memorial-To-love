@@ -25,6 +25,7 @@ import type {
 } from '../types';
 import type { SavePreview } from './protocol';
 import { normalizeStoryMessages } from '../message/protocol';
+import { syncCharacterPresence } from '../services/characterPresence';
 
 export interface GameSnapshotV1 {
   schemaVersion: 1;
@@ -425,10 +426,11 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
         ? 'after_first_action'
         : null;
   const maxRestorableActIndex = Math.min(LALA_ARRIVAL_ACT_IDS.length - 1, mainStoryActs.length);
-  const mainStoryActIndex =
-    activeMainStoryEventId && typeof snapshot.game.mainStoryActIndex === 'number'
+  const mainStoryActIndex = completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
+    ? 0
+    : activeMainStoryEventId && typeof snapshot.game.mainStoryActIndex === 'number'
       ? Math.min(maxRestorableActIndex, Math.max(0, Math.trunc(snapshot.game.mainStoryActIndex)))
-      : 0;
+      : maxRestorableActIndex;
   const currentStoryAct = mainStoryActs[mainStoryActIndex];
   const mainStoryPageIndex =
     currentStoryAct && typeof snapshot.game.mainStoryPageIndex === 'number'
@@ -466,12 +468,14 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
   };
 
   useGameStore.setState({ ...restoredSnapshot.game, date });
+  useGameStore.getState().reconcilePendingMainStoryEntry();
   usePlayerStore.setState({ ...snapshot.player });
   useCardStore.setState({
     ...snapshot.cards,
     isLoading: false,
     error: null,
   });
+  syncCharacterPresence();
 
   // Old saves predate newer bundled characters (e.g. haruna); top up any that
   // are missing instead of letting the snapshot permanently hide them.

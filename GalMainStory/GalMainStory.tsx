@@ -7,8 +7,8 @@ import {
   generateLalaArrivalAct,
 } from '../services/tavernStoryGeneration';
 import { PERIODS, useGameStore } from '../stores/gameStore';
-import { useCardStore } from '../stores/cardStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { syncCharacterPresence } from '../services/characterPresence';
 import { resolveAssetPath } from '../utils/assetPath';
 import {
   GALBOX_ASSETS,
@@ -19,8 +19,10 @@ import {
 } from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
 import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './lalaArrival';
+import RawStoryHistoryDialog from './RawStoryHistoryDialog';
 import StoryHistoryArchive from './StoryHistoryArchive';
-import type { GalStoryBeat, GalStoryFloor, GalStoryMessageSave, LalaExpression, StoryBackgroundId } from './storyTypes';
+import { buildRawStoryArchive } from './storyRawArchive';
+import type { GalStoryBeat, GalStoryFloor, LalaExpression, StoryBackgroundId } from './storyTypes';
 import './GalMainStory.css';
 
 interface StoryCursor {
@@ -34,16 +36,7 @@ interface GalMainStoryProps {
 }
 
 type HistoryPlaybackTarget = { kind: 'all' } | { kind: 'floor'; floorId: string } | null;
-
-interface RawStoryEntry {
-  message: GalStoryMessageSave;
-  index: number;
-}
-
-interface RawStoryHistoryDialogProps {
-  entries: readonly RawStoryEntry[];
-  onClose: () => void;
-}
+type RawHistoryTarget = { floorId: string | null } | null;
 
 const STORY_BACKGROUND_ALT: Record<StoryBackgroundId, string> = {
   school: '彩南高校',
@@ -51,64 +44,6 @@ const STORY_BACKGROUND_ALT: Record<StoryBackgroundId, string> = {
   washroomDoor: '浴室门前',
   washroom: '浴室内部',
 };
-
-function RawStoryHistoryDialog({ entries, onClose }: RawStoryHistoryDialogProps) {
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    closeButtonRef.current?.focus();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
-  return (
-    <div
-      className="gal-main-story__raw-backdrop"
-      role="presentation"
-      onClick={event => {
-        event.stopPropagation();
-        onClose();
-      }}
-    >
-      <section
-        id="gal-main-story-raw-dialog"
-        className="gal-main-story__raw-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="gal-main-story-raw-title"
-        onClick={event => event.stopPropagation()}
-      >
-        <header>
-          <div>
-            <span>仅显示 Assistant · 按消息 index 排序</span>
-            <h2 id="gal-main-story-raw-title">AI 生成原文</h2>
-          </div>
-          <button ref={closeButtonRef} type="button" onClick={onClose} aria-label="关闭 AI 原文">
-            ×
-          </button>
-        </header>
-        <div className="gal-main-story__raw-list">
-          {entries.map(({ message, index }) => (
-            <article key={message.id}>
-              <div className="gal-main-story__raw-entry-heading">
-                <strong>第 {message.extra.actIndex + 1} 幕</strong>
-                <span>index {index}</span>
-                <span>{message.extra.outcome === 'parse_error' ? '未转换为 GAL' : '已转换为 GAL'}</span>
-              </div>
-              {message.extra.error && <p className="gal-main-story__raw-error">解析原因：{message.extra.error}</p>}
-              <pre>{message.mes}</pre>
-            </article>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -149,11 +84,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const advanceMainStoryAct = useGameStore(state => state.advanceMainStoryAct);
   const completeMainStoryEvent = useGameStore(state => state.completeMainStoryEvent);
   const playerName = usePlayerStore(state => state.name);
-  const spawnTargetsForPeriod = useCardStore(state => state.spawnTargetsForPeriod);
   const storyRef = useRef<HTMLElement | null>(null);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [historyPlaybackTarget, setHistoryPlaybackTarget] = useState<HistoryPlaybackTarget>(null);
-  const [isRawHistoryOpen, setIsRawHistoryOpen] = useState(false);
+  const [rawHistoryTarget, setRawHistoryTarget] = useState<RawHistoryTarget>(null);
+  const isRawHistoryOpen = rawHistoryTarget !== null;
 
   const liveAct = acts[actIndex];
   const liveBeat = liveAct?.beats[pageIndex];
@@ -226,16 +161,19 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     (portraitRig?.id === 'riko' && /^(?:夕崎梨子|梨子)$/u.test(visibleBeat?.speaker ?? ''));
   const nameplateSpeaker = visibleBeat?.speaker ?? (rikoExpression ? RIKO_PORTRAIT_RIG.displayName : null);
   const speakerNameplate = getSpeakerNameplateAsset(nameplateSpeaker);
-  const assistantHistory = useMemo<RawStoryEntry[]>(
-    () =>
-      messageHistory
-        .map((message, index) => ({ message, index }))
-        .filter(
-          ({ message }) => !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern',
-        )
-        .sort((left, right) => left.index - right.index),
-    [messageHistory],
+  const rawStoryArchive = useMemo(
+    () => buildRawStoryArchive(storyArchives, messageHistory),
+    [messageHistory, storyArchives],
   );
+  const hasRawStoryHistory = rawStoryArchive.some(act => act.versions.length > 0);
+  const currentRawAct = rawStoryArchive.find(act => act.actIndex === actIndex);
+  const activeCurrentFloorId = storyArchives.find(archive => archive.actIndex === actIndex)?.activeFloorId ?? null;
+  const activeRawVersion = currentRawAct?.versions.find(version => version.floor.floorId === activeCurrentFloorId);
+  const currentRawFloorId =
+    activeRawVersion?.floor.floorId ??
+    (currentRawAct && currentRawAct.versions.length > 0
+      ? currentRawAct.versions[currentRawAct.versions.length - 1]?.floor.floorId ?? null
+      : null);
   const contextFloorIds = useMemo(
     () =>
       storyArchives
@@ -246,14 +184,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   );
 
   const closeRawHistory = useCallback(() => {
-    setIsRawHistoryOpen(false);
+    setRawHistoryTarget(null);
     globalThis.setTimeout(() => storyRef.current?.focus(), 0);
   }, []);
+  const openRawHistory = useCallback((floorId: string | null) => setRawHistoryTarget({ floorId }), []);
   const exitHistory = useCallback(() => onExitHistory?.(), [onExitHistory]);
 
   const requestGeneration = useCallback(async () => {
     if (!entryReason || !beginGeneration()) return;
-    setIsRawHistoryOpen(false);
+    setRawHistoryTarget(null);
     const period = PERIODS[periodIndex] ?? PERIODS[0];
     const floorId = createLalaArrivalFloorId(actIndex);
     const request = {
@@ -305,7 +244,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   useEffect(() => {
     setReplayIndex(historyMode ? 0 : null);
     setHistoryPlaybackTarget(null);
-    setIsRawHistoryOpen(false);
+    setRawHistoryTarget(null);
   }, [activeEventId, actIndex, historyMode]);
 
   const finishCurrentAct = useCallback(() => {
@@ -313,8 +252,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       advanceMainStoryAct();
       return;
     }
-    if (completeMainStoryEvent()) spawnTargetsForPeriod(PERIODS[0].key);
-  }, [advanceMainStoryAct, completeMainStoryEvent, isLastLiveAct, spawnTargetsForPeriod]);
+    if (completeMainStoryEvent()) syncCharacterPresence();
+  }, [advanceMainStoryAct, completeMainStoryEvent, isLastLiveAct]);
 
   const useFallbackAct = useCallback(() => {
     if (!entryReason) return;
@@ -466,14 +405,19 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   if (historyMode && historyPlaybackTarget === null) {
     return (
       <StoryHistoryArchive
-        rawAssistantCount={assistantHistory.length}
         isRawHistoryOpen={isRawHistoryOpen}
         onExit={exitHistory}
-        onOpenRawHistory={() => setIsRawHistoryOpen(true)}
+        onOpenRawHistory={openRawHistory}
         onPlayAll={playAllHistory}
         onPreviewFloor={previewHistoryFloor}
       >
-        {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
+        {rawHistoryTarget && (
+          <RawStoryHistoryDialog
+            acts={rawStoryArchive}
+            initialFloorId={rawHistoryTarget.floorId}
+            onClose={closeRawHistory}
+          />
+        )}
       </StoryHistoryArchive>
     );
   }
@@ -511,8 +455,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
               <button type="button" onClick={() => void requestGeneration()}>
                 重试
               </button>
-              {assistantHistory.length > 0 && (
-                <button type="button" onClick={() => setIsRawHistoryOpen(true)}>
+              {hasRawStoryHistory && (
+                <button type="button" onClick={() => openRawHistory(currentRawFloorId)}>
                   查看 AI 原文
                 </button>
               )}
@@ -522,7 +466,13 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
             </div>
           )}
         </div>
-        {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
+        {rawHistoryTarget && (
+          <RawStoryHistoryDialog
+            acts={rawStoryArchive}
+            initialFloorId={rawHistoryTarget.floorId}
+            onClose={closeRawHistory}
+          />
+        )}
       </section>
     );
   }
@@ -666,11 +616,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
             <button
               type="button"
               className="gal-main-story__raw-button"
-              disabled={assistantHistory.length === 0}
+              disabled={!hasRawStoryHistory}
               aria-haspopup="dialog"
               aria-controls="gal-main-story-raw-dialog"
               aria-expanded={isRawHistoryOpen}
-              onClick={() => setIsRawHistoryOpen(true)}
+              onClick={() => openRawHistory(currentRawFloorId)}
             >
               AI 原文
             </button>
@@ -686,7 +636,13 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
           </button>
         </nav>
       </div>
-      {isRawHistoryOpen && <RawStoryHistoryDialog entries={assistantHistory} onClose={closeRawHistory} />}
+      {rawHistoryTarget && (
+        <RawStoryHistoryDialog
+          acts={rawStoryArchive}
+          initialFloorId={rawHistoryTarget.floorId}
+          onClose={closeRawHistory}
+        />
+      )}
     </section>
   );
 }

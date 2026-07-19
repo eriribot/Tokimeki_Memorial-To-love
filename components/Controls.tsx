@@ -3,6 +3,7 @@ import { useMapStore } from '../stores/mapStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
 import { startNewSession } from '../services/gameSession';
+import { syncCharacterPresence } from '../services/characterPresence';
 import type { GameCharacter, PlayerAction } from '../types';
 
 interface ControlsProps {
@@ -32,7 +33,6 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
   const targets = useCardStore(state => state.targets);
   const addAffection = useCardStore(state => state.addAffection);
   const activeTargetId = useCardStore(state => state.activeTargetId);
-  const spawnTargetsForPeriod = useCardStore(state => state.spawnTargetsForPeriod);
 
   const currentLocation = locations[currentLocationId];
   const hereCharacters = targets.filter(c => c.currentLocationId === currentLocationId);
@@ -49,7 +49,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
     const settlement = settlePlayerAction({ kind: 'activity', message: `你进行了${label}。` });
     if (!settlement.accepted) return;
     action();
-    spawnTargetsForPeriod(settlement.periodKey);
+    syncCharacterPresence();
   };
 
   const handleTalk = (character: GameCharacter) => {
@@ -63,7 +63,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
     });
     if (!settlement.accepted) return;
     addAffection(character.id, 5);
-    spawnTargetsForPeriod(settlement.periodKey);
+    syncCharacterPresence();
   };
 
   const handleEnterScene = () => {
