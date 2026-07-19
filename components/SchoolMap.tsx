@@ -17,6 +17,16 @@ const LEGACY_CHIBI_REPLACEMENTS: Readonly<Record<string, string>> = {
   '/artsource/chibis/darknesschibi.png': '/artsource/chibis/darkness.png',
 };
 
+const AVATAR_SIZE = 76;
+const AVATAR_COLUMN_GAP = 10;
+const AVATAR_ROW_GAP = 4;
+const MAP_SAFE_INSET = 12;
+const MARKER_GAP = 8;
+
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(Math.max(value, minimum), Math.max(minimum, maximum));
+}
+
 export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: SchoolMapProps) {
   const currentLocationId = useGameStore(state => state.currentLocationId);
   const { locations, width, height, cellSize } = useMapStore();
@@ -27,8 +37,6 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
   const gridCellSize = cellSize / 2;
   const gridWidth = width * 2;
   const gridHeight = height * 2;
-  const avatarSize = 76;
-  const avatarGap = 10;
 
   return (
     <div
@@ -91,19 +99,39 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
 
           const sameLocationCharacters = characters.filter(other => other.currentLocationId === c.currentLocationId);
           const locationIndex = sameLocationCharacters.findIndex(other => other.id === c.id);
-          const perRow = Math.min(2, sameLocationCharacters.length);
-          const row = Math.floor(locationIndex / perRow);
-          const col = locationIndex % perRow;
-          const rowCount = Math.min(perRow, sameLocationCharacters.length - row * perRow);
-          const rowWidth = rowCount * avatarSize + (rowCount - 1) * avatarGap;
-          const centerX = loc.x * cellSize + cellSize / 2;
+          const columns = Math.min(2, sameLocationCharacters.length);
+          const rows = Math.ceil(sameLocationCharacters.length / columns);
+          const row = Math.floor(locationIndex / columns);
+          const column = locationIndex % columns;
+          const groupWidth = columns * AVATAR_SIZE + (columns - 1) * AVATAR_COLUMN_GAP;
+          const groupHeight = rows * AVATAR_SIZE + (rows - 1) * AVATAR_ROW_GAP;
+          const markerCenterX = (loc.x + 0.5) * cellSize;
+          const markerCenterY = (loc.y + 0.5) * cellSize;
+          const markerSize = Math.round(cellSize * 0.74);
+          const canEnterScene = currentLocationId === loc.id && ['classroom', 'library'].includes(loc.id);
+          const markerHeight = markerSize + (canEnterScene ? 22 : 0);
+          const belowMarker = markerCenterY + markerHeight / 2 + MARKER_GAP;
+          const aboveMarker = markerCenterY - markerHeight / 2 - MARKER_GAP - groupHeight;
+          const groupTop =
+            belowMarker + groupHeight <= mapHeight - MAP_SAFE_INSET
+              ? belowMarker
+              : aboveMarker >= MAP_SAFE_INSET
+                ? aboveMarker
+                : clamp(belowMarker, MAP_SAFE_INSET, mapHeight - MAP_SAFE_INSET - groupHeight);
+          const groupLeft = clamp(
+            markerCenterX - groupWidth / 2,
+            MAP_SAFE_INSET,
+            mapWidth - MAP_SAFE_INSET - groupWidth,
+          );
+          const charactersInRow = Math.min(columns, sameLocationCharacters.length - row * columns);
+          const rowWidth = charactersInRow * AVATAR_SIZE + (charactersInRow - 1) * AVATAR_COLUMN_GAP;
 
           return (
             <Character
               key={c.id}
               character={{ ...c, chibi: LEGACY_CHIBI_REPLACEMENTS[c.chibi] ?? c.chibi }}
-              x={centerX - rowWidth / 2 + col * (avatarSize + avatarGap)}
-              y={loc.y * cellSize + cellSize + 8 + row * (avatarSize + 4)}
+              x={groupLeft + (groupWidth - rowWidth) / 2 + column * (AVATAR_SIZE + AVATAR_COLUMN_GAP)}
+              y={groupTop + row * (AVATAR_SIZE + AVATAR_ROW_GAP)}
             />
           );
         })}

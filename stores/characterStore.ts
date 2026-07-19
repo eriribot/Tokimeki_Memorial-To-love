@@ -5,11 +5,13 @@ import miyukiCard from '../data/default-cards/miyuki.json';
 import rinCard from '../data/default-cards/rin.json';
 import rikoCard from '../data/default-cards/riko.json';
 import sakuraCard from '../data/default-cards/sakura.json';
-import type { CharacterStore } from '../types';
+import type { CharacterCard, CharacterStore, GameCharacter } from '../types';
 import { useCardStore } from './cardStore';
 import { PERIODS, useGameStore } from './gameStore';
 
 const DEFAULT_CARDS: readonly unknown[] = [rikoCard, sakuraCard, harunaCard, harukaCard, miyukiCard, rinCard];
+const RIKO_LEGACY_CHIBI = '/artsource/characters/miyuki.png';
+const RIKO_CHIBI = '/artsource/chibis/riko.png';
 
 function readDefaultCardId(card: unknown): string | null {
   const gameData = (card as { data?: { extensions?: { game_data?: { id?: unknown } } } })?.data?.extensions
@@ -17,10 +19,52 @@ function readDefaultCardId(card: unknown): string | null {
   return typeof gameData?.id === 'string' && gameData.id.trim().length > 0 ? gameData.id : null;
 }
 
+function migrateRikoCardChibi(card: CharacterCard): CharacterCard {
+  const gameData = card.data.extensions.game_data;
+  if (gameData.id !== 'riko' || gameData.chibi_image !== RIKO_LEGACY_CHIBI) return card;
+
+  return {
+    ...card,
+    data: {
+      ...card.data,
+      extensions: {
+        ...card.data.extensions,
+        game_data: {
+          ...gameData,
+          chibi_image: RIKO_CHIBI,
+        },
+      },
+    },
+  };
+}
+
+function migrateBundledCharacterAssets(): void {
+  const state = useCardStore.getState();
+  let changed = false;
+
+  const targets = state.targets.map((target): GameCharacter => {
+    if (target.id !== 'riko' || target.chibi !== RIKO_LEGACY_CHIBI) return target;
+    changed = true;
+    return {
+      ...target,
+      chibi: RIKO_CHIBI,
+      _cardData: migrateRikoCardChibi(target._cardData),
+    };
+  });
+  const loadedCards = state.loadedCards.map(card => {
+    const migrated = migrateRikoCardChibi(card);
+    if (migrated !== card) changed = true;
+    return migrated;
+  });
+
+  if (changed) useCardStore.setState({ targets, loadedCards });
+}
+
 /** Seeds bundled default cards that are missing from targets — notably saves
-    written before a new character shipped — then re-places everyone for the
-    current period so the newcomer lands on the map immediately. */
+    written before a new character shipped — and migrates known stale bundled
+    asset paths without overwriting imported/custom character cards. */
 export async function syncDefaultCards(): Promise<void> {
+  migrateBundledCharacterAssets();
   let added = false;
   for (const card of DEFAULT_CARDS) {
     const id = readDefaultCardId(card);
@@ -37,9 +81,6 @@ export async function syncDefaultCards(): Promise<void> {
 }
 
 async function initializeDefaultCards(): Promise<void> {
-  const cardStore = useCardStore.getState();
-  if (cardStore.targets.length > 0) return;
-
   await syncDefaultCards();
 }
 

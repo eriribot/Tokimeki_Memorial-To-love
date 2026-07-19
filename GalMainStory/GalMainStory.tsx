@@ -10,7 +10,13 @@ import { PERIODS, useGameStore } from '../stores/gameStore';
 import { useCardStore } from '../stores/cardStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { resolveAssetPath } from '../utils/assetPath';
-import { GALBOX_ASSETS, getSpeakerNameplateAsset, HARUNA_PORTRAIT_RIG, LALA_PORTRAIT_RIG } from './galAssets';
+import {
+  GALBOX_ASSETS,
+  getSpeakerNameplateAsset,
+  HARUNA_PORTRAIT_RIG,
+  LALA_PORTRAIT_RIG,
+  RIKO_PORTRAIT_RIG,
+} from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
 import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './lalaArrival';
 import StoryHistoryArchive from './StoryHistoryArchive';
@@ -115,6 +121,12 @@ function getHarunaPortraitExpression(beat: GalStoryBeat | undefined, actIndex: n
   return beat.speaker === '西连寺春菜' ? 'f' : 'a';
 }
 
+function getRikoPortraitExpression(beat: GalStoryBeat | undefined, actIndex: number): LalaExpression | null {
+  if (!beat || actIndex !== 0 || beat.background !== 'school' || beat.lalaExpression) return null;
+  if (beat.speaker && /^(?:夕崎梨子|梨子)$/u.test(beat.speaker)) return 'a';
+  return beat.speaker === null && /夕崎梨子|梨子/u.test(beat.text) ? 'a' : null;
+}
+
 export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
   const activeEventId = useGameStore(state => state.activeMainStoryEventId);
   const entryReason = useGameStore(state => state.mainStoryEntryReason);
@@ -198,13 +210,22 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const visiblePageIndex = replayCursor?.pageIndex ?? pageIndex;
   const visibleAct = (historyMode ? historyActs : acts)[visibleActIndex];
   const visibleBeat = visibleAct?.beats[visiblePageIndex];
-  const harunaExpression = getHarunaPortraitExpression(visibleBeat, visibleActIndex);
-  const portraitRig = visibleBeat?.lalaExpression ? LALA_PORTRAIT_RIG : harunaExpression ? HARUNA_PORTRAIT_RIG : null;
-  const portraitExpression = visibleBeat?.lalaExpression ?? harunaExpression;
+  const rikoExpression = getRikoPortraitExpression(visibleBeat, visibleActIndex);
+  const harunaExpression = rikoExpression ? null : getHarunaPortraitExpression(visibleBeat, visibleActIndex);
+  const portraitRig = visibleBeat?.lalaExpression
+    ? LALA_PORTRAIT_RIG
+    : rikoExpression
+      ? RIKO_PORTRAIT_RIG
+      : harunaExpression
+        ? HARUNA_PORTRAIT_RIG
+        : null;
+  const portraitExpression = visibleBeat?.lalaExpression ?? rikoExpression ?? harunaExpression;
   const isPortraitSpeaking =
     (portraitRig?.id === 'lala' && visibleBeat?.speaker === '菈菈') ||
-    (portraitRig?.id === 'haruna' && visibleBeat?.speaker === '西连寺春菜');
-  const speakerNameplate = getSpeakerNameplateAsset(visibleBeat?.speaker ?? null);
+    (portraitRig?.id === 'haruna' && visibleBeat?.speaker === '西连寺春菜') ||
+    (portraitRig?.id === 'riko' && /^(?:夕崎梨子|梨子)$/u.test(visibleBeat?.speaker ?? ''));
+  const nameplateSpeaker = visibleBeat?.speaker ?? (rikoExpression ? RIKO_PORTRAIT_RIG.displayName : null);
+  const speakerNameplate = getSpeakerNameplateAsset(nameplateSpeaker);
   const assistantHistory = useMemo<RawStoryEntry[]>(
     () =>
       messageHistory
@@ -546,6 +567,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration'}
       data-lala-expression={visibleBeat.lalaExpression ?? 'hidden'}
       data-haruna-expression={harunaExpression ?? 'hidden'}
+      data-riko-expression={rikoExpression ?? 'hidden'}
       data-portrait-character={portraitRig?.id ?? 'hidden'}
       data-background={visibleBeat.background}
       data-effect={visibleBeat.effect}
@@ -584,9 +606,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         />
 
         {speakerNameplate ? (
-          <div className="gal-main-story__nameplate" role="img" aria-label={visibleBeat.speaker ?? undefined}>
+          <div className="gal-main-story__nameplate" role="img" aria-label={nameplateSpeaker ?? undefined}>
             <img src={resolveAssetPath(speakerNameplate)} alt="" aria-hidden="true" />
-            <strong>{visibleBeat.speaker}</strong>
+            <strong>{nameplateSpeaker}</strong>
           </div>
         ) : (
           visibleBeat.speaker && <strong className="gal-main-story__speaker">{visibleBeat.speaker}</strong>

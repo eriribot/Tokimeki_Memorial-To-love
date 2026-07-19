@@ -8,7 +8,7 @@ interface PortraitRegion {
 }
 
 export interface LayeredPortraitRig {
-  id: 'lala' | 'haruna';
+  id: 'lala' | 'haruna' | 'riko';
   displayName: string;
   canvas: { width: number; height: number };
   body: string;
@@ -23,6 +23,8 @@ export const GALBOX_ASSETS = {
   nextIndicatorFrames: [0, 1, 2, 3].map(frame => `/artsource/galbox/push_${frame}.png`),
   speakerNameplates: {
     菈菈: '/artsource/galbox/lala/wasya04_lala.png',
+    西连寺春菜: '/artsource/galbox/haruna/wasya05_haruna.png',
+    夕崎梨子: '/artsource/galbox/riko/wasya00_riko.png',
   } as Record<string, string>,
 } as const;
 
@@ -52,6 +54,20 @@ export const HARUNA_PORTRAIT_RIG: LayeredPortraitRig = {
     mouth: { x: 394, y: 349, width: 230, height: 57 },
   },
   nonBlinkingExpressions: new Set<LalaExpression>(['b', 'e']),
+};
+
+export const RIKO_PORTRAIT_RIG: LayeredPortraitRig = {
+  id: 'riko',
+  displayName: '夕崎梨子',
+  canvas: { width: 1024, height: 1024 },
+  body: '/artsource/riko/riko_body.png',
+  mask: '/artsource/riko/riko_mask.png',
+  facePrefix: '/artsource/riko/riko_',
+  regions: {
+    eyes: { x: 400, y: 142, width: 230, height: 100 },
+    mouth: { x: 440, y: 225, width: 170, height: 70 },
+  },
+  nonBlinkingExpressions: new Set<LalaExpression>(),
 };
 
 export function getSpeakerNameplateAsset(speaker: string | null): string | null {
