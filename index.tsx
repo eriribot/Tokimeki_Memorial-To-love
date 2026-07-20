@@ -7,6 +7,7 @@ import { useCardStore } from './stores/cardStore';
 import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
 import { getMainStoryEpisode } from './GalMainStory/storyRegistry';
+import { getEquippedSkillIds, getLearnedSkillIds, useSkillStore } from './skilllogic';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
@@ -19,6 +20,7 @@ window.toloveStoryMessages = (format = 'json') => {
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();
+  const skillProgression = useSkillStore.getState();
 
   const session = {
     screen: game.screen,
@@ -73,6 +75,12 @@ window.render_game_to_text = () => {
     activeTargetId: card.activeTargetId,
     activeMainStory,
     completedMainStoryEventIds: game.completedMainStoryEventIds,
+    skills: {
+      experience: skillProgression.experience,
+      learnedSkillIds: getLearnedSkillIds(skillProgression),
+      practicedSkillIds: getEquippedSkillIds(skillProgression),
+      managementTermId: skillProgression.getManagementTerm(game.date)?.id ?? null,
+    },
     visibleTargets,
   });
 };

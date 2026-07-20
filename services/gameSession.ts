@@ -3,10 +3,12 @@ import { usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
 import { gameSaveApi } from '../save';
 import { syncCharacterPresence } from './characterPresence';
+import { useSkillStore } from '../skilllogic';
 
 export function startNewSession() {
   useGameStore.getState().resetGameState();
   usePlayerStore.getState().resetPlayer();
+  useSkillStore.getState().reset();
 
   const cards = useCardStore.getState();
   cards.resetTargets();

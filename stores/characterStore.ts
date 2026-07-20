@@ -21,7 +21,7 @@ function readDefaultCardId(card: unknown): string | null {
 
 function migrateRikoCardChibi(card: CharacterCard): CharacterCard {
   const gameData = card.data.extensions.game_data;
-  if (gameData.id !== 'riko' || !RIKO_LEGACY_CHIBIS.has(gameData.chibi_image)) return card;
+  if (gameData.id !== 'riko' || !gameData.chibi_image || !RIKO_LEGACY_CHIBIS.has(gameData.chibi_image)) return card;
 
   return {
     ...card,

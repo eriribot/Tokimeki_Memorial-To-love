@@ -1,6 +1,7 @@
 import { useCardStore } from '../stores/cardStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { useSkillStore } from '../skilllogic';
 import { captureGameMessages, gameMessageApi } from '../message';
 import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
@@ -168,6 +169,7 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     useGameStore.subscribe(schedule),
     usePlayerStore.subscribe(schedule),
     useCardStore.subscribe(schedule),
+    useSkillStore.subscribe(schedule),
   ];
   globalThis.addEventListener('pagehide', flush);
 

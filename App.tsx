@@ -24,6 +24,7 @@ import './App.css';
 import './enhancements.css';
 import './map-enhancements.css';
 import './browserPageMode.css';
+import './components/SpecialSkillPanel.css';
 
 function App() {
   const { width, height, cellSize } = useMapStore();
@@ -53,6 +54,8 @@ function App() {
   const availableMapWidth = Math.max(320, viewportSize.width - 32);
   const availableMapHeight = Math.max(240, viewportSize.height - 240);
   const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
+  const skillFrameWidth = Math.min(mapWidth, availableMapWidth);
+  const skillFrameHeight = Math.min(mapHeight, Math.max(320, viewportSize.height - 124));
   const isPageMode = isNativePageMode;
   const isMainStoryActive = activeMainStoryEventId !== null;
   const hasMainStoryHistory = mainStoryArchives.some(
@@ -109,6 +112,10 @@ function App() {
   useEffect(() => {
     if (isMainStoryActive || !hasMainStoryHistory) setIsStoryHistoryOpen(false);
   }, [hasMainStoryHistory, isMainStoryActive]);
+
+  useEffect(() => {
+    if (isStoryOverlayOpen) setIsSkillPanelOpen(false);
+  }, [isStoryOverlayOpen]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -235,16 +242,16 @@ function App() {
           <main className="game-layout">
             <section className="play-section">
               <div
-                className="map-section"
+                className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''}`}
                 style={{
-                  width: mapWidth * mapScale,
-                  height: mapHeight * mapScale,
+                  width: isSkillPanelOpen ? skillFrameWidth : mapWidth * mapScale,
+                  height: isSkillPanelOpen ? skillFrameHeight : mapHeight * mapScale,
                 }}
               >
                 <div
                   className="map-stage"
-                  inert={isStoryOverlayOpen ? true : undefined}
-                  aria-hidden={isStoryOverlayOpen ? true : undefined}
+                  inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                  aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
                   style={{
                     width: mapWidth,
                     height: mapHeight,
@@ -260,7 +267,7 @@ function App() {
                     />
                   )}
                 </div>
-                {!currentSceneId && !isStoryOverlayOpen && (
+                {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
                   <CalendarCard
                     className="game-calendar-card"
                     date={calendarDate}
@@ -270,8 +277,8 @@ function App() {
                     showMonth
                   />
                 )}
-                {!isStoryOverlayOpen && <CharacterProfileModal />}
-                {!currentSceneId && !isStoryOverlayOpen && (
+                {!isStoryOverlayOpen && !isSkillPanelOpen && <CharacterProfileModal />}
+                {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
                   <MapMenu onOpenSave={() => setSaveSlotMode('save')} onOpenLoad={() => setSaveSlotMode('load')} />
                 )}
                 {!isStoryOverlayOpen && isSkillPanelOpen && (
@@ -281,9 +288,9 @@ function App() {
               </div>
 
               <div
-                className={`map-bottom-panel ${isStoryOverlayOpen ? 'is-story-locked' : ''}`}
-                inert={isStoryOverlayOpen ? true : undefined}
-                aria-hidden={isStoryOverlayOpen ? true : undefined}
+                className={`map-bottom-panel ${isStoryOverlayOpen || isSkillPanelOpen ? 'is-story-locked' : ''}`}
+                inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
               >
                 <StatPanel />
                 <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />

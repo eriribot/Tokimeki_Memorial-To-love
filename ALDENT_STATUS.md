@@ -1,59 +1,100 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: source_restructured_unverified_by_user_request
-current_loop: worldbook-authoritative-ai-directed-presentation
-authorized_by: user_worldbook_authority_ai_generated_directing_2026-07-20
+status: implementation_complete_human_review_pending
+current_loop: tokimemo4-special-skill-progression-and-map-drawer
+authorized_by: user_special_skill_panel_mobile_fidelity_and_unlock_flow_2026-07-20
 authorized_scope:
-  - make the selected worldbook section the only generated-plot authority
-  - require AI to generate validated scene, focus, portrait, expression and effect cues per GAL page
-  - model each character as an independent module with multiple portrait rigs
-  - remove the episode-specific director inference layer and Lala-shaped generic types
-  - replace the unpublished old beat and prompt formats without compatibility code
-  - render unregistered named speakers with the generic text nameplate while rejecting invented portrait resources
-  - split episode 01 plot lore into one disabled worldbook entry per act and select only the active act
-  - reject structurally incomplete acts and restart regeneration from the act opening
-  - delete local candidate floors with safe active-floor fallback
-  - restore episode 01 scene order and recognizable dialogue intents from the 2008 TV episode
-  - allow plot-worldbook prose edits without exact ending-sentence validation
+  - rebuild the special-skill data and prerequisite graph from public Tokimeki Memorial 4 references
+  - begin with no learned or practiced skills and enforce sequential AND prerequisites
+  - earn skill EXP from accepted AP actions, spend it during the current term, and commit at most six practiced skills
+  - persist skill progression, reset it with a new session, and expose concise text state
+  - render a real tree with state-aware edges and a generated nostalgic paper background
+  - keep portrait and landscape drawers strictly inside the map frame
 forbidden_scope:
-  - add episode 02 content or claim multi-episode runtime support
-  - add fixed Haruna or Riko plot beats instead of letting worldbook-guided AI generate them
-  - change AP/date settlement, Tavern host-message behavior or playable-text extraction
-  - change the one-shot World Info hook mechanism or saved worldbook enabled state
-  - change Galgame CSS, portrait coordinates, animation timing or visual layout
+  - apply skill effects to attributes, AP, affection, action success, or story settlement
+  - fabricate license-exam success or claim an exam system is connected
+  - change story prompts, worldbook selection, Galgame presentation, or Tavern generation
   - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins, or databases
   - claim behavior or human acceptance from source checks, builds or inline verification
-connection_state: source_only_restructured_verification_explicitly_skipped
-overall_connection_label: 分幕世界书剧情权威、实名通用名牌与逐页演出单、完整幕结构检查、重生成隔离和本地楼层删除已完成源码接线；未构建、未生成、未人工复验
-superseded_evidence:
-  - first production artifact 157468669E2EEF317A952EE5BC5BE9986AE25C8F6E53FB03A71A3BB8EB2BBAC6 was replaced before invitation finalization
-  - parallel review development artifact 5279B2ADCB453338CF74520A27A74F95E93B3246F9C2243524A2D71F51A470BC was never reviewable
-human_review: pending_worldbook_authoritative_ai_directing_acceptance
+connection_state: real_local_skill_progression_read_write_and_save
+overall_connection_label:
+  真实本地特技进度已接入行动 EXP、学习、学期实践提交、存档恢复与文本回读；技能效果和驾照考试尚未接入
+human_review: pending_special_skill_ui_and_progression_acceptance
 prior_pending_reviews:
+  - worldbook-authoritative-ai-directed-presentation
   - dual-map-landscape-overlay-responsiveness
   - story-progression-character-availability-and-raw-reader
   - merge-local-scenes-with-remote-story-display
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: human_review_episode01_fidelity_and_live_worldbook_copy
+next_loop: human_review_special_skill_tree_mobile_drawers_and_term_flow
 ```
 
-## 当前增量：世界书权威与 AI 导演式演出单
+## 当前增量：特技树、学期学习与 map 内手机抽屉
 
-- 第一集剧情世界书已经按幕拆开：第一幕扫描 UID `101` / `剧情第一集·第一幕`，第二幕扫描 UID `102` / `剧情第一集·第二幕`，不再把两幕整条注入同一次生成；两幕都会同时扫描菈菈人物条目 UID `1`。
-- prompt 要求 AI 每页生成 `scene/focus/portrait/expression/effect`；解析器用当前幕素材表、角色注册表和具体立绘表情集合严格校验。
-- prompt 动态提供当前幕真实立绘示例，并禁止把正在画面中或正在发言的已登记角色标为 `focus=none`；这条规则对未来注册角色通用。
-- 未登记人物可以用真实姓名或明确身份说话，并由现有 generic nameplate 显示姓名；他们不能带“临时角色”标签，也不能虚构 focus、portrait 或 expression。已登记但不在当前幕 cast 的角色仍会被拒绝。
-- 每幕新增最少正文行数和必经场景顺序；第一幕少于 17 行或没有走完 `space → school → schoolGate → home → washroom`，第二幕少于 23 行或没有走完 `washroom → home → bedroom → rooftop → nightStreet → park → schoolRoad`，都会作为不完整正文拒绝，不需要 AI 输出完成标记。
+- `data/skills.ts` 现有 127 项，分类数量为
+  `25/24/20/26/24/8`；130 条前置边在加载时检查重复 ID、缺失前置、重复前置、成本和环。
+- `skilllogic/` 单独负责图、日期、EXP、学习、六槽实践、快照校验和 Zustand store。初始普通根节点为
+  `available`，没有技能默认为已取得或实践。
+- 每次被 `settlePlayerAction()` 接受的 AP 行动获得 1
+  EXP；拒绝行动不增加。该值是本项目对“指令积累经验”的显式适配常量，不冒充原作未找到的精确换算公式。
+- 第一次管理窗口为
+  `2008-05-09`，之后按学期开放；当前窗口维持到下学期开始，漏过的旧学期不能在同一天连续补交。学习与实践配置分离，所有前置都是 AND，实践最多 6 项且每学期只提交一次。
+- 技能快照是 V1 兼容可选顶层字段。新存档保存 EXP、学习历史和学期提交；旧存档缺字段时重置技能进度，坏字段会显式拒绝。自动存档订阅技能 store，新游戏统一重置。
+- `SpecialSkillPanel` 使用真实四态和状态连线，依赖深度标为 `STEP`
+  而不是伪等级。驾照节点显示“通过驾照考试取得”，不会用 EXP 学习。
+- 面板仍是 `.map-section` 的直接子级；技能打开时 map 框获得独立可用高度。`390x844` 使用同框底部抽屉，`844x390`
+  使用同框右侧抽屉，遮罩可点、`Esc` 可退、焦点返回触发节点，关键触控目标不小于 44px。
+- `artsource/SkillUi/` 只保留最终 `skill-menu-paper-bg.png`。CLI fallback 临时环境和 Playwright 临时文件已删除。
+- 技能效果尚未接到属性、成功率、AP、好感或剧情结算；驾照考试没有运行时入口。这两点不属于本轮完成声明。
+
+| Check                              | Status  | Evidence                                                                                                              |
+| ---------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
+| Skill graph/data smoke             | passed  | 127 项、六分类、130 边、无环；根节点 available，前置/EXP/六槽/单次提交与跳学期校验通过                                |
+| Accepted-action EXP and save smoke | passed  | 接受行动 `0 -> 1`，随后拒绝行动保持 `1`；技能快照 `42 -> reset -> restore 42`，旧档恢复为 `0`                         |
+| Changed-file ESLint                | passed  | 本轮 TS/TSX 文件局部 ESLint 无 error                                                                                  |
+| Full subtree TypeScript            | failed  | 仍被未改动全局声明、VueUse Web Bluetooth 类型和 `global.d.ts` 重复声明阻断；本轮组件错误已修复，Webpack 类型构建通过  |
+| Development build                  | passed  | `pnpm build:dev` 成功，技能背景进入 fresh inline artifact                                                             |
+| Browser matrix                     | passed  | `1440x900`、`390x844`、`844x390` 的真实 game-frame；127 项、树线、抽屉几何、背景请求、遮罩、Esc、焦点与 44px 热区通过 |
+| Standalone console                 | passed  | 除缺少 Tavern Helper 存档事件接口的预期隔离错误外，无新增 console error 或资源失败                                    |
+| Production build / inline check    | not run | 最终文档完成后运行                                                                                                    |
+| Skill effects / license exam       | not run | 本轮明确未接入                                                                                                        |
+| Human acceptance                   | not run | 等待用户审查                                                                                                          |
+
+### 人工复现
+
+1. 新游戏在 4 月 7 日打开特技，确认 EXP/取得/实践均为 0；根技能只显示可学习，高阶技能锁定，操作显示“当前不可学习”。
+2. 在手机竖屏点击任一节点，确认详情从 map 框底部打开；点暗色遮罩或按 `Esc`
+   后焦点回到原节点。手机横屏重复操作，确认详情从 map 框右侧打开。
+3. 推进到 5 月 9 日并积累 EXP，依次学习一个根技能和其后继；确认后继在根技能取得前不能学习，学习后 EXP 扣除。
+4. 从已取得技能中选择不超过 6 项并确定配置；关闭重开、自动存档读取和新游戏重置后分别检查实践项保留、存档恢复和全清空。
+5. 查看轻便摩托驾照，确认只能看到考试取得提示；检查属性和行动结果，确认本轮没有暗中应用技能效果。
+
+## 保留的既有待审范围：世界书权威与 AI 导演式演出单
+
+- 第一集剧情世界书已经按幕拆开：第一幕扫描 UID `101` / `剧情第一集·第一幕`，第二幕扫描 UID `102` /
+  `剧情第一集·第二幕`，不再把两幕整条注入同一次生成；两幕都会同时扫描菈菈人物条目 UID `1`。
+- prompt 要求 AI 每页生成
+  `scene/focus/portrait/expression/effect`；解析器用当前幕素材表、角色注册表和具体立绘表情集合严格校验。
+- prompt 动态提供当前幕真实立绘示例，并禁止把正在画面中或正在发言的已登记角色标为
+  `focus=none`；这条规则对未来注册角色通用。
+- 未登记人物可以用真实姓名或明确身份说话，并由现有 generic
+  nameplate 显示姓名；他们不能带“临时角色”标签，也不能虚构 focus、portrait 或 expression。已登记但不在当前幕 cast 的角色仍会被拒绝。
+- 每幕新增最少正文行数和必经场景顺序；第一幕少于 17 行或没有走完
+  `space → school → schoolGate → home → washroom`，第二幕少于 23 行或没有走完
+  `washroom → home → bedroom → rooftop → nightStreet → park → schoolRoad`，都会作为不完整正文拒绝，不需要 AI 输出完成标记。
 - 重新生成按 `contextFloorIds` 只继承前面各幕当前采用楼层，不再把当前幕旧楼层送回模型续写。
 - 已读剧情的每个候选楼层可删除；删除当前采用版会回退到剩余的最新可播放版，没有候选时取消采用。删除仅作用于游戏本地楼层及其 messagesave 原文。
-- `characters/lala.ts`、`haruna.ts`、`riko.ts` 独立管理别名、人物 lore、姓名牌和多套立绘；当前 `a-f` 文件后缀只存在于角色资源模块内部。
-- `director.ts`、`lalaArrival.ts`、`LalaExpression`、`lalaExpression` 和旧正文格式已直接删除；项目未发布，因此不提供兼容适配。
+- `characters/lala.ts`、`haruna.ts`、`riko.ts` 独立管理别名、人物 lore、姓名牌和多套立绘；当前 `a-f`
+  文件后缀只存在于角色资源模块内部。
+- `director.ts`、`lalaArrival.ts`、`LalaExpression`、`lalaExpression`
+  和旧正文格式已直接删除；项目未发布，因此不提供兼容适配。
 - React 播放器直接消费 AI cue；背景、出镜角色、立绘、表情与效果不再由页数、关键词或角色特判推断。
 - 两幕世界书已撤销不属于 TV 第 1 话的旧校舍天台双向告白、保护春菜和校园疏散，恢复太空冷开场、校门退缩、回家电话、泡澡中爆炸、卧室说明、足球解围、屋顶逃跑和春菜遛狗目击。萨斯丁在公园乘飞船登场并被真空君卷走，次日误告白触发婚约；不再使用错误的婚约后太空收尾。代表性台词只以短句意图约束，不大段照抄。
-- 第一集地点已拆成独立语义场景槽位，并从 `D:\出包女王素材库\Texture2D` 选择九张 `1024x512` 背景复制到项目。夜间遛狗使用 `nightStreet/bg009_b`，次晨上学使用 `schoolRoad/bg006_a`，不再用一个标签掩盖两个时间段。
+- 第一集地点已拆成独立语义场景槽位，并从 `D:\出包女王素材库\Texture2D` 选择九张 `1024x512` 背景复制到项目。夜间遛狗使用
+  `nightStreet/bg009_b`，次晨上学使用 `schoolRoad/bg006_a`，不再用一个标签掩盖两个时间段。
 - 剧情世界书不再硬匹配某句结尾正文，只检查关闭状态、根标签和非空正文；用户追加“不写下一集内容”不会再被判为正文不完整。人物条目仍可保留可选身份标记。
 - 按用户要求，本增量未运行类型检查、构建、脚本验证或浏览器验证；下方内容是历史记录，不是当前实现证据。
 
@@ -88,7 +129,8 @@ next_loop: human_review_episode01_fidelity_and_live_worldbook_copy
 
 1. 读取重构前的第一集存档，确认当前幕、采用楼层、AI 原文和页位置仍可恢复。
 2. 新游戏在 2008-04-07 完成第一次有效行动，确认进入第一幕；完成第一幕后返回自由行动，再完成第二次行动进入第二幕。
-3. 确认第一幕场景依次为 `space -> school -> schoolGate -> home -> washroom`，第二幕依次为 `washroom -> home -> bedroom -> rooftop -> nightStreet -> park -> schoolRoad`。
+3. 确认第一幕场景依次为 `space -> school -> schoolGate -> home -> washroom`，第二幕依次为
+   `washroom -> home -> bedroom -> rooftop -> nightStreet -> park -> schoolRoad`。
 4. 确认菈菈在第一幕太空冷开场和第二幕主要段落使用登记立绘，春菜与梨子各自使用独立角色模块；未登记人物只显示实名通用名牌。
 5. 在真实 Tavern 中各生成一幕，确认选中的世界书保存条目继续保持关闭，生成后正文、fallback、重新生成和原文阅读器行为不变。
 

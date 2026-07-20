@@ -2,6 +2,14 @@ import { useCardStore } from '../stores/cardStore';
 import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
+import {
+  INITIAL_SKILL_PROGRESSION_STATE,
+  skillGraph,
+  toSkillProgressionSnapshot,
+  useSkillStore,
+  validateSkillProgressionSnapshot,
+  type SkillProgressionSnapshot,
+} from '../skilllogic';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
 import { EPISODE_01_ACT_IDS, EPISODE_01_EVENT_ID } from '../GalMainStory/episodes/episode01';
 import {
@@ -32,6 +40,7 @@ export interface GameSnapshotV1 {
   messageArchiveVersion?: 1;
   storyArchiveVersion?: 1;
   savedAt: string;
+  skills?: SkillProgressionSnapshot;
   game: {
     screen: GameScreen;
     hasSession: boolean;
@@ -302,12 +311,14 @@ export function createGameSnapshot(): GameSnapshotV1 {
   const game = useGameStore.getState();
   const player = usePlayerStore.getState();
   const cards = useCardStore.getState();
+  const skillProgression = useSkillStore.getState();
 
   return cloneJson({
     schemaVersion: 1,
     messageArchiveVersion: 1,
     storyArchiveVersion: 1,
     savedAt: new Date().toISOString(),
+    skills: skillProgression.createSnapshot(),
     game: {
       screen: game.screen,
       hasSession: game.hasSession,
@@ -370,6 +381,14 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
   }
 
   const snapshot = cloneJson(value) as unknown as GameSnapshotV1;
+  const normalizedSkillsResult =
+    snapshot.skills === undefined
+      ? { ok: true as const, value: toSkillProgressionSnapshot(INITIAL_SKILL_PROGRESSION_STATE) }
+      : validateSkillProgressionSnapshot(skillGraph, snapshot.skills);
+  if (!normalizedSkillsResult.ok) {
+    throw new Error(normalizedSkillsResult.error.message);
+  }
+  const normalizedSkills = normalizedSkillsResult.value;
   const date = isCalendarDateValue(snapshot.game.date)
     ? snapshot.game.date
     : getCalendarDateForGameDay(snapshot.game.day);
@@ -446,6 +465,7 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
       : null);
   const restoredSnapshot: GameSnapshotV1 = {
     ...snapshot,
+    skills: normalizedSkills,
     game: {
       ...snapshot.game,
       date,
@@ -475,6 +495,8 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
     isLoading: false,
     error: null,
   });
+  const skillHydration = useSkillStore.getState().hydrate(normalizedSkills);
+  if (!skillHydration.ok) throw new Error(skillHydration.error.message);
   syncCharacterPresence();
 
   // Old saves predate newer bundled characters (e.g. haruna); top up any that

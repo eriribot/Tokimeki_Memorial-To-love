@@ -7,6 +7,7 @@ import {
   getPendingEpisode01ActIndex,
 } from '../GalMainStory/episodes/episode01';
 import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
+import { getSkillExperienceReward, useSkillStore } from '../skilllogic';
 import type { GameEvent, GameState, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 
 export const PERIODS = [
@@ -237,6 +238,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       };
     });
 
+    if (settlement.accepted) {
+      const experienceResult = useSkillStore.getState().gainExperience(getSkillExperienceReward(request.kind));
+      if (!experienceResult.ok) {
+        console.error('[ToLove Skills] 已结算行动的特技 EXP 写入失败。', experienceResult.error);
+      }
+    }
+
     return settlement;
   },
 
@@ -390,7 +398,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const remainingFloors = archive.floors.filter(floor => floor.floorId !== floorId);
       const deletedActiveFloor = archive.activeFloorId === floorId;
       const replacementFloor = deletedActiveFloor
-        ? [...remainingFloors].reverse().find(floor => floor.outcome === 'accepted' && floor.act !== null) ?? null
+        ? ([...remainingFloors].reverse().find(floor => floor.outcome === 'accepted' && floor.act !== null) ?? null)
         : null;
       const nextArchive: GalStoryActArchive = {
         ...archive,
