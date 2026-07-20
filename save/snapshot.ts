@@ -3,7 +3,7 @@ import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { getCalendarDateForGameDay, isCalendarDateValue } from '../CalendarModule/date';
-import { LALA_ARRIVAL_ACT_IDS, LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/episodes/episode01';
+import { EPISODE_01_ACT_IDS, EPISODE_01_EVENT_ID } from '../GalMainStory/episodes/episode01';
 import {
   normalizeGalStoryActs,
   type GalStoryActArchive,
@@ -78,7 +78,7 @@ function normalizeStoryFloor(value: unknown, actIndex: number, actId: string): G
   if (
     typeof value.floorId !== 'string' ||
     value.floorId.trim().length === 0 ||
-    value.eventId !== LALA_ARRIVAL_EVENT_ID ||
+    value.eventId !== EPISODE_01_EVENT_ID ||
     value.actIndex !== actIndex ||
     value.actId !== actId ||
     (value.source !== 'tavern' && value.source !== 'fallback') ||
@@ -120,7 +120,7 @@ function normalizeStoryFloor(value: unknown, actIndex: number, actId: string): G
 
   return {
     floorId: value.floorId,
-    eventId: LALA_ARRIVAL_EVENT_ID,
+    eventId: EPISODE_01_EVENT_ID,
     actIndex,
     actId,
     source: value.source,
@@ -152,10 +152,10 @@ function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
       if (typeof actIndex !== 'number' || !Number.isInteger(actIndex) || actIndex < 0) {
         throw new Error('剧情幕编号无效');
       }
-      const actId = LALA_ARRIVAL_ACT_IDS[actIndex];
+      const actId = EPISODE_01_ACT_IDS[actIndex];
       if (
         !actId ||
-        rawArchive.eventId !== LALA_ARRIVAL_EVENT_ID ||
+        rawArchive.eventId !== EPISODE_01_EVENT_ID ||
         rawArchive.actId !== actId ||
         (rawArchive.activeFloorId !== null && typeof rawArchive.activeFloorId !== 'string')
       ) {
@@ -188,7 +188,7 @@ function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
         console.warn(`[ToLove Save] 第 ${actIndex + 1} 幕的采用楼层不可播放，已保留候选但取消采用。`);
       }
       archives.push({
-        eventId: LALA_ARRIVAL_EVENT_ID,
+        eventId: EPISODE_01_EVENT_ID,
         actIndex,
         actId,
         activeFloorId,
@@ -242,7 +242,7 @@ function createLegacyStoryArchives(
     const floorId =
       acceptedAssistant?.extra.floorId ??
       acceptedAssistant?.extra.generationId ??
-      `legacy-${LALA_ARRIVAL_EVENT_ID}-${act.id}`;
+      `legacy-${EPISODE_01_EVENT_ID}-${act.id}`;
     const generationMessages = acceptedAssistant
       ? messages.filter(
           message =>
@@ -254,7 +254,7 @@ function createLegacyStoryArchives(
     const contextFloorIds = [...activeFloorIds];
     const floor: GalStoryFloor = {
       floorId,
-      eventId: LALA_ARRIVAL_EVENT_ID,
+      eventId: EPISODE_01_EVENT_ID,
       actIndex,
       actId: act.id,
       source,
@@ -277,7 +277,7 @@ function createLegacyStoryArchives(
     };
     activeFloorIds.push(floorId);
     return {
-      eventId: LALA_ARRIVAL_EVENT_ID,
+      eventId: EPISODE_01_EVENT_ID,
       actIndex,
       actId: act.id,
       activeFloorId: floorId,
@@ -377,15 +377,15 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
     ? [...new Set(snapshot.game.completedMainStoryEventIds.filter((id): id is string => typeof id === 'string'))]
     : [];
   const activeMainStoryEventId =
-    snapshot.game.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
-    !completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
-      ? LALA_ARRIVAL_EVENT_ID
+    snapshot.game.activeMainStoryEventId === EPISODE_01_EVENT_ID &&
+    !completedMainStoryEventIds.includes(EPISODE_01_EVENT_ID)
+      ? EPISODE_01_EVENT_ID
       : null;
   let mainStoryActs: GalStoryAct[] = [];
   if (Array.isArray(snapshot.game.mainStoryActs) && snapshot.game.mainStoryActs.length > 0) {
     try {
       mainStoryActs = normalizeGalStoryActs(snapshot.game.mainStoryActs, {
-        expectedActIds: LALA_ARRIVAL_ACT_IDS,
+        expectedActIds: EPISODE_01_ACT_IDS,
         allowPartial: true,
       });
     } catch (error) {
@@ -425,8 +425,8 @@ export function restoreGameSnapshot(value: unknown, archivedMessages?: GalStoryM
       : activeMainStoryEventId
         ? 'after_first_action'
         : null;
-  const maxRestorableActIndex = Math.min(LALA_ARRIVAL_ACT_IDS.length - 1, mainStoryActs.length);
-  const mainStoryActIndex = completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
+  const maxRestorableActIndex = Math.min(EPISODE_01_ACT_IDS.length - 1, mainStoryActs.length);
+  const mainStoryActIndex = completedMainStoryEventIds.includes(EPISODE_01_EVENT_ID)
     ? 0
     : activeMainStoryEventId && typeof snapshot.game.mainStoryActIndex === 'number'
       ? Math.min(maxRestorableActIndex, Math.max(0, Math.trunc(snapshot.game.mainStoryActIndex)))

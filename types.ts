@@ -131,6 +131,7 @@ export interface GameActions {
   failMainStoryGeneration: (message: string, messages?: GalStoryMessageSave[], floor?: GalStoryFloor) => void;
   addMainStoryFloor: (floor: GalStoryFloor, messages?: GalStoryMessageSave[]) => void;
   selectMainStoryFloor: (floorId: string) => boolean;
+  deleteMainStoryFloor: (floorId: string) => boolean;
   setMainStoryPosition: (actIndex: number, pageIndex: number) => void;
   advanceMainStoryAct: () => boolean;
   completeMainStoryEvent: () => boolean;

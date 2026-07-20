@@ -838,6 +838,18 @@
   box-shadow: 0 0 0 3px rgba(232, 105, 154, 0.22);
 }
 
+.gal-story-archive button.is-danger {
+  border-color: rgba(173, 54, 74, 0.48);
+  color: #9f2940;
+}
+
+.gal-story-archive button.is-danger:hover,
+.gal-story-archive button.is-danger:focus-visible {
+  border-color: #c73854;
+  background: #fff0f2;
+  color: #8f1830;
+}
+
 .gal-story-archive button:disabled {
   cursor: default;
   opacity: 0.42;

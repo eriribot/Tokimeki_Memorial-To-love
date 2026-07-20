@@ -1,10 +1,10 @@
-import { LALA_ARRIVAL_EVENT_ID } from '../GalMainStory/episodes/episode01';
+import { EPISODE_01_EVENT_ID } from '../GalMainStory/episodes/episode01';
 import type { CharacterAvailabilityRule } from '../types';
 
 export const DEFAULT_CHARACTER_AVAILABILITY: Readonly<Record<string, CharacterAvailabilityRule>> = {
   riko: { kind: 'always' },
   haruna: { kind: 'always' },
-  sakura: { kind: 'after-event', eventId: LALA_ARRIVAL_EVENT_ID },
+  sakura: { kind: 'after-event', eventId: EPISODE_01_EVENT_ID },
   haruka: { kind: 'locked' },
   miyuki: { kind: 'locked' },
   rin: { kind: 'locked' },

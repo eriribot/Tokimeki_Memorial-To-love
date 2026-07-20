@@ -1,9 +1,20 @@
-export const LALA_EXPRESSIONS = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
-export const STORY_BACKGROUNDS = ['school', 'night', 'washroomDoor', 'washroom'] as const;
+export const STORY_SCENE_IDS = [
+  'space',
+  'school',
+  'schoolGate',
+  'home',
+  'washroomDoor',
+  'washroom',
+  'bedroom',
+  'rooftop',
+  'park',
+  'nightStreet',
+  'schoolRoad',
+  'night',
+] as const;
 export const STORY_EFFECTS = ['none', 'flash', 'shake'] as const;
 
-export type LalaExpression = (typeof LALA_EXPRESSIONS)[number];
-export type StoryBackgroundId = (typeof STORY_BACKGROUNDS)[number];
+export type StorySceneId = (typeof STORY_SCENE_IDS)[number];
 export type StoryEffect = (typeof STORY_EFFECTS)[number];
 export type MainStoryEntryReason = 'after_first_action' | 'after_second_action';
 export type StoryGenerationStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -11,33 +22,44 @@ export type StoryGenerationSource = 'tavern' | 'fallback';
 export type GalStoryMessageOutcome = 'accepted' | 'parse_error';
 export type GalStoryFloorOutcome = GalStoryMessageOutcome | 'request_error';
 
-export interface StoryBackgroundTransition {
-  atProgress: number;
-  background: StoryBackgroundId;
+export interface StoryPresentationCue {
+  sceneId: StorySceneId;
+  focusCharacterId: string | null;
+  portraitId: string | null;
+  expressionId: string | null;
+  effect: StoryEffect;
 }
 
-export interface StoryStagePresentation {
-  initialBackground: StoryBackgroundId;
-  transitions: readonly StoryBackgroundTransition[];
+export interface StoryActCastMember {
+  characterId: string;
+  portraitIds: readonly string[];
+}
+
+export interface StoryActPresentation {
+  sceneIds: readonly StorySceneId[];
+  cast: readonly StoryActCastMember[];
+}
+
+export interface StoryActGenerationContract {
+  minimumLineCount: number;
+  requiredSceneSequence: readonly StorySceneId[];
 }
 
 export interface StoryActDefinition {
   id: string;
   title: string;
   actionPointsRemaining: number;
-  opening: string;
-  ending: string;
-  charactersWithLore: readonly string[];
-  presentation: StoryStagePresentation;
+  loreSection: string;
+  characterLoreIds: readonly string[];
+  presentation: StoryActPresentation;
+  generation: StoryActGenerationContract;
   fallbackBeats: readonly GalStoryBeat[];
 }
 
 export interface GalStoryBeat {
   speaker: string | null;
   text: string;
-  lalaExpression: LalaExpression | null;
-  background: StoryBackgroundId;
-  effect: StoryEffect;
+  presentation: StoryPresentationCue;
 }
 
 export interface GalStoryAct {
@@ -89,6 +111,38 @@ function isOneOf<T extends string>(value: unknown, values: readonly T[]): value 
   return typeof value === 'string' && values.includes(value as T);
 }
 
+function normalizeNullableId(value: unknown, fieldName: string): string | null {
+  if (value === null) return null;
+  if (typeof value !== 'string') throw new Error(`剧情页的${fieldName}无效。`);
+  const normalized = value.normalize('NFKC').trim();
+  if (!normalized || normalized.length > 64 || /[\r\n]/u.test(normalized)) {
+    throw new Error(`剧情页的${fieldName}无效。`);
+  }
+  return normalized;
+}
+
+function normalizePresentation(value: unknown): StoryPresentationCue {
+  if (!isRecord(value)) throw new Error('剧情页缺少演出指令。');
+  if (!isOneOf(value.sceneId, STORY_SCENE_IDS)) throw new Error('剧情页包含未登记的场景。');
+  if (!isOneOf(value.effect, STORY_EFFECTS)) throw new Error('剧情页包含未登记的演出效果。');
+
+  const focusCharacterId = normalizeNullableId(value.focusCharacterId, '出镜角色');
+  const portraitId = normalizeNullableId(value.portraitId, '立绘版本');
+  const expressionId = normalizeNullableId(value.expressionId, '表情');
+  const hasPortrait = portraitId !== null || expressionId !== null;
+  if ((focusCharacterId === null && hasPortrait) || (focusCharacterId !== null && (portraitId === null || expressionId === null))) {
+    throw new Error('剧情页的出镜角色、立绘版本和表情必须同时填写或同时为 none。');
+  }
+
+  return {
+    sceneId: value.sceneId,
+    focusCharacterId,
+    portraitId,
+    expressionId,
+    effect: value.effect,
+  };
+}
+
 function normalizeBeat(value: unknown): GalStoryBeat {
   if (!isRecord(value)) throw new Error('剧情页必须是对象。');
 
@@ -104,19 +158,11 @@ function normalizeBeat(value: unknown): GalStoryBeat {
   if (typeof value.text !== 'string') throw new Error('剧情页缺少正文。');
   const text = value.text.trim();
   if (!text || text.length > 180) throw new Error('每页正文必须为 1 到 180 个字符。');
-  const lalaExpression = value.lalaExpression;
-  if (lalaExpression !== null && !isOneOf(lalaExpression, LALA_EXPRESSIONS)) {
-    throw new Error('剧情页包含未登记的菈菈表情。');
-  }
-  if (!isOneOf(value.background, STORY_BACKGROUNDS)) throw new Error('剧情页包含未登记的背景。');
-  if (!isOneOf(value.effect, STORY_EFFECTS)) throw new Error('剧情页包含未登记的演出效果。');
 
   return {
     speaker,
     text,
-    lalaExpression,
-    background: value.background,
-    effect: value.effect,
+    presentation: normalizePresentation(value.presentation),
   };
 }
 
@@ -129,8 +175,8 @@ export function normalizeGalStoryActs(value: unknown, options: StoryValidationOp
   if (!hasValidLength || !Array.isArray(value)) {
     throw new Error(
       options.allowPartial
-        ? `第一集存档必须包含 1 到 ${options.expectedActIds.length} 个连续幕。`
-        : `第一集必须包含 ${options.expectedActIds.length} 幕。`,
+        ? `主线存档必须包含 1 到 ${options.expectedActIds.length} 个连续幕。`
+        : `主线必须包含 ${options.expectedActIds.length} 幕。`,
     );
   }
 

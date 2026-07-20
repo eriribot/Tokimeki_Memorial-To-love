@@ -1,6 +1,6 @@
-import { LALA_ARRIVAL_STORY } from './episodes/episode01';
+import { EPISODE_01_STORY } from './episodes/episode01';
 
-export const MAIN_STORY_EPISODES = [LALA_ARRIVAL_STORY] as const;
+export const MAIN_STORY_EPISODES = [EPISODE_01_STORY] as const;
 
 export type MainStoryEpisodeDefinition = (typeof MAIN_STORY_EPISODES)[number];
 

@@ -1,20 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   actToPlainText,
-  createFallbackLalaArrivalMessages,
-  createLalaArrivalFloor,
-  createLalaArrivalFloorId,
-  generateLalaArrivalAct,
+  createFallbackStoryMessages,
+  createStoryFloor,
+  createStoryFloorId,
+  generateStoryAct,
 } from '../services/tavernStoryGeneration';
 import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { syncCharacterPresence } from '../services/characterPresence';
 import { resolveAssetPath } from '../utils/assetPath';
-import { getSpeakerNameplateAsset, getStoryPortraitCharacter, isStoryPortraitCharacterSpeaking } from './characters';
-import { getLalaArrivalPortraitCue, type LalaArrivalPortraitCue } from './episodes/episode01/director';
+import {
+  getSpeakerNameplateAsset,
+  getStoryCharacter,
+  getStoryPortraitRig,
+  isStoryCharacterId,
+  isStoryCharacterSpeaking,
+} from './characters';
 import { GALBOX_ASSETS } from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
-import { createLalaArrivalFallbackAct, LALA_ARRIVAL_EVENT_ID, LALA_ARRIVAL_STORY } from './episodes/episode01';
+import { createEpisode01FallbackAct, EPISODE_01_EVENT_ID, EPISODE_01_STORY } from './episodes/episode01';
 import RawStoryHistoryDialog from './RawStoryHistoryDialog';
 import { getStoryScene } from './scenes';
 import StoryHistoryArchive from './StoryHistoryArchive';
@@ -37,14 +42,6 @@ type RawHistoryTarget = { floorId: string | null } | null;
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function getPortraitNameplateSpeaker(
-  beatSpeaker: string | null | undefined,
-  portraitCue: LalaArrivalPortraitCue | null,
-): string | null {
-  if (beatSpeaker) return beatSpeaker;
-  return portraitCue?.characterId === 'riko' ? getStoryPortraitCharacter('riko').displayName : null;
 }
 
 export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
@@ -78,7 +75,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const liveAct = acts[actIndex];
   const liveBeat = liveAct?.beats[pageIndex];
   const isLastLivePage = Boolean(liveAct && pageIndex === liveAct.beats.length - 1);
-  const isLastLiveAct = actIndex === LALA_ARRIVAL_STORY.acts.length - 1;
+  const isLastLiveAct = actIndex === EPISODE_01_STORY.acts.length - 1;
   const liveReadCursors = useMemo<StoryCursor[]>(
     () =>
       acts.flatMap((savedAct, savedActIndex) => {
@@ -130,14 +127,18 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const visiblePageIndex = replayCursor?.pageIndex ?? pageIndex;
   const visibleAct = (historyMode ? historyActs : acts)[visibleActIndex];
   const visibleBeat = visibleAct?.beats[visiblePageIndex];
-  const portraitCue = getLalaArrivalPortraitCue(visibleBeat, visibleActIndex);
-  const portraitCharacter = portraitCue ? getStoryPortraitCharacter(portraitCue.characterId) : null;
-  const portraitRig = portraitCharacter?.rig ?? null;
-  const portraitExpression = portraitCue?.expression ?? null;
-  const rikoExpression = portraitCue?.characterId === 'riko' ? portraitCue.expression : null;
-  const harunaExpression = portraitCue?.characterId === 'haruna' ? portraitCue.expression : null;
-  const isPortraitSpeaking = isStoryPortraitCharacterSpeaking(portraitCharacter, visibleBeat?.speaker);
-  const nameplateSpeaker = getPortraitNameplateSpeaker(visibleBeat?.speaker, portraitCue);
+  const presentation = visibleBeat?.presentation;
+  const focusCharacterId =
+    presentation?.focusCharacterId && isStoryCharacterId(presentation.focusCharacterId)
+      ? presentation.focusCharacterId
+      : null;
+  const portraitCharacter = focusCharacterId ? getStoryCharacter(focusCharacterId) : null;
+  const portraitRig = focusCharacterId
+    ? getStoryPortraitRig(focusCharacterId, presentation?.portraitId)
+    : null;
+  const portraitExpressionId = presentation?.expressionId ?? null;
+  const isPortraitSpeaking = isStoryCharacterSpeaking(portraitCharacter, visibleBeat?.speaker);
+  const nameplateSpeaker = visibleBeat?.speaker ?? null;
   const speakerNameplate = getSpeakerNameplateAsset(nameplateSpeaker);
   const rawStoryArchive = useMemo(
     () => buildRawStoryArchive(storyArchives, messageHistory),
@@ -172,7 +173,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     if (!entryReason || !beginGeneration()) return;
     setRawHistoryTarget(null);
     const period = PERIODS[periodIndex] ?? PERIODS[0];
-    const floorId = createLalaArrivalFloorId(actIndex);
+    const floorId = createStoryFloorId(actIndex);
     const request = {
       floorId,
       actIndex,
@@ -186,7 +187,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     };
 
     try {
-      const generated = await generateLalaArrivalAct(request);
+      const generated = await generateStoryAct(request);
       if (!generated.ok) {
         console.warn('[ToLove Story] AI 返回未能转换成 GAL，已保留原文。', generated.error);
         failGeneration(generated.error, generated.messages, generated.floor);
@@ -196,7 +197,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     } catch (error) {
       console.error('[ToLove Story] 第一集生成失败。', error);
       const message = getErrorMessage(error);
-      const floor = createLalaArrivalFloor(request, null, 'tavern', [], 'request_error', message);
+      const floor = createStoryFloor(request, null, 'tavern', [], 'request_error', message);
       failGeneration(message, [], floor);
     }
   }, [
@@ -214,7 +215,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   ]);
 
   useEffect(() => {
-    if (activeEventId === LALA_ARRIVAL_EVENT_ID && generationStatus === 'idle') {
+    if (activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'idle') {
       void requestGeneration();
     }
   }, [activeEventId, generationStatus, requestGeneration]);
@@ -236,8 +237,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const useFallbackAct = useCallback(() => {
     if (!entryReason) return;
     const period = PERIODS[periodIndex] ?? PERIODS[0];
-    const floorId = createLalaArrivalFloorId(actIndex);
-    const fallbackAct = createLalaArrivalFallbackAct(entryReason, actIndex);
+    const floorId = createStoryFloorId(actIndex);
+    const fallbackAct = createEpisode01FallbackAct(entryReason, actIndex);
     const request = {
       floorId,
       actIndex,
@@ -249,8 +250,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       contextFloorIds,
       chatHistory: messageHistory,
     };
-    const messages = createFallbackLalaArrivalMessages(request, actToPlainText(fallbackAct));
-    const floor = createLalaArrivalFloor(request, fallbackAct, 'fallback', messages, 'accepted');
+    const messages = createFallbackStoryMessages(request, actToPlainText(fallbackAct));
+    const floor = createStoryFloor(request, fallbackAct, 'fallback', messages, 'accepted');
     setStoryActContent(floor, messages);
   }, [
     actIndex,
@@ -329,7 +330,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   useEffect(() => {
     const isReady = historyMode
       ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
-      : activeEventId === LALA_ARRIVAL_EVENT_ID && generationStatus === 'ready';
+      : activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'ready';
     if (!isReady) return;
     storyRef.current?.focus();
   }, [activeEventId, generationStatus, historyMode, historyPlaybackTarget, visibleAct, visibleBeat]);
@@ -337,7 +338,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   useEffect(() => {
     const isReady = historyMode
       ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
-      : activeEventId === LALA_ARRIVAL_EVENT_ID && generationStatus === 'ready';
+      : activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'ready';
     if (!isReady || isRawHistoryOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -377,7 +378,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     visibleBeat,
   ]);
 
-  const isLiveStoryActive = activeEventId === LALA_ARRIVAL_EVENT_ID;
+  const isLiveStoryActive = activeEventId === EPISODE_01_EVENT_ID;
   if (!isLiveStoryActive && !historyMode) return null;
 
   if (historyMode && historyPlaybackTarget === null) {
@@ -457,8 +458,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
 
   if (!visibleAct || !visibleBeat) return null;
 
-  const actMeta = LALA_ARRIVAL_STORY.acts[visibleActIndex];
-  const scene = getStoryScene(visibleBeat.background);
+  const actMeta = EPISODE_01_STORY.acts[visibleActIndex];
+  const scene = getStoryScene(visibleBeat.presentation.sceneId);
   const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
   const isLastReplayPage = !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
@@ -486,25 +487,24 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       ref={storyRef}
       role="dialog"
       aria-modal="true"
-      aria-label={historyMode ? `已读主线回放：${LALA_ARRIVAL_STORY.title}` : `主线事件：${LALA_ARRIVAL_STORY.title}`}
+      aria-label={historyMode ? `已读主线回放：${EPISODE_01_STORY.title}` : `主线事件：${EPISODE_01_STORY.title}`}
       tabIndex={-1}
       data-event-id={historyMode ? 'history-replay' : activeEventId}
       data-act-id={visibleAct.id}
       data-page-index={visiblePageIndex}
       data-speaker={visibleBeat.speaker ?? 'narration'}
       data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration'}
-      data-lala-expression={visibleBeat.lalaExpression ?? 'hidden'}
-      data-haruna-expression={harunaExpression ?? 'hidden'}
-      data-riko-expression={rikoExpression ?? 'hidden'}
-      data-portrait-character={portraitRig?.id ?? 'hidden'}
-      data-background={visibleBeat.background}
-      data-effect={visibleBeat.effect}
+      data-focus-character={focusCharacterId ?? 'hidden'}
+      data-portrait-id={portraitRig?.id ?? 'hidden'}
+      data-expression-id={portraitExpressionId ?? 'hidden'}
+      data-background={visibleBeat.presentation.sceneId}
+      data-effect={visibleBeat.presentation.effect}
       data-replay={isReplaying ? 'true' : 'false'}
       data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
       onClick={goNext}
     >
       <img
-        key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.background}`}
+        key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.presentation.sceneId}`}
         className="gal-main-story__background"
         src={resolveAssetPath(scene.asset)}
         alt={scene.alt}
@@ -515,11 +515,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
       </div>
 
-      {portraitRig && portraitExpression && (
+      {portraitRig && portraitExpressionId && (
         <LayeredPortrait
-          key={portraitRig.id}
+          key={`${portraitRig.characterId}-${portraitRig.id}`}
           rig={portraitRig}
-          expression={portraitExpression}
+          expressionId={portraitExpressionId}
           isSpeaking={isPortraitSpeaking}
           beatKey={visibleActIndex * 100 + visiblePageIndex}
         />
@@ -565,7 +565,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
           </button>
           <span className="gal-main-story__progress">
             {isReplaying && '回放 '}
-            {visibleActIndex + 1}-{visiblePageIndex + 1} / {LALA_ARRIVAL_STORY.acts.length}-{visibleAct.beats.length}
+            {visibleActIndex + 1}-{visiblePageIndex + 1} / {EPISODE_01_STORY.acts.length}-{visibleAct.beats.length}
           </span>
           <button
             type="button"

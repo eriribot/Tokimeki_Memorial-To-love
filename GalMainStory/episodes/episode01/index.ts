@@ -1,85 +1,58 @@
 import type { CalendarDateValue } from '../../../types';
 import type { DisabledWorldbookLoreReference } from '../../../data/storyLore';
-import { HARUNA_STORY_CHARACTER, LALA_STORY_CHARACTER, RIKO_STORY_CHARACTER } from '../../characters';
+import { getStoryCharacter, isStoryCharacterId } from '../../characters';
 import { STORY_SCENE_ASSETS } from '../../scenes';
 import type { GalStoryAct, MainStoryEntryReason } from '../../storyTypes';
-import { LALA_ARRIVAL_ACT_01 } from './acts/act01';
-import { LALA_ARRIVAL_ACT_02 } from './acts/act02';
+import { EPISODE_01_ACT_01 } from './acts/act01';
+import { EPISODE_01_ACT_02 } from './acts/act02';
 
-export const LALA_ARRIVAL_EVENT_ID = 'main.lala-arrival-2008-04-07';
+export const EPISODE_01_EVENT_ID = 'main.lala-arrival-2008-04-07';
 
-export const LALA_ARRIVAL_PLOT_LORE_REFERENCE = {
-  worldbookName: '出包王女',
-  entryUid: 2,
-  entryName: '剧情第一集',
-  rootTag: 'To LOVE-Ru TV Episode 01',
-  requiredContentMarker: '标题:从天而降的少女',
-  kind: 'plot',
-} as const satisfies DisabledWorldbookLoreReference;
+export const EPISODE_01_PLOT_LORE_REFERENCES = [
+  {
+    worldbookName: '出包王女',
+    entryUid: 101,
+    entryName: '剧情第一集·第一幕',
+    rootTag: 'To LOVE-Ru TV Episode 01 Act 01',
+    kind: 'plot',
+  },
+  {
+    worldbookName: '出包王女',
+    entryUid: 102,
+    entryName: '剧情第一集·第二幕',
+    rootTag: 'To LOVE-Ru TV Episode 01 Act 02',
+    kind: 'plot',
+  },
+] as const satisfies readonly DisabledWorldbookLoreReference[];
 
-const LALA_CHARACTER_LORE_REFERENCE = {
-  worldbookName: '出包王女',
-  entryUid: 1,
-  entryName: '菈菈.萨塔琳.戴比路克',
-  rootTag: 'Lala Satalin Deviluke',
-  requiredContentMarker: '姓名:菈菈·萨塔琳·戴比路克',
-  kind: 'character',
-} as const satisfies DisabledWorldbookLoreReference;
+export const EPISODE_01_ACTS = [EPISODE_01_ACT_01, EPISODE_01_ACT_02] as const;
 
-export const LALA_ARRIVAL_ACTS = [LALA_ARRIVAL_ACT_01, LALA_ARRIVAL_ACT_02] as const;
-
-const LALA_ARRIVAL_CHARACTER_LORE_REFERENCES = {
-  菈菈: LALA_CHARACTER_LORE_REFERENCE,
-} as const;
-
-export function getLalaArrivalLoreReferences(actIndex: number): DisabledWorldbookLoreReference[] {
-  const act = LALA_ARRIVAL_ACTS[actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+export function getEpisode01LoreReferences(actIndex: number): DisabledWorldbookLoreReference[] {
+  const act = EPISODE_01_ACTS[actIndex];
+  const plotLoreReference = EPISODE_01_PLOT_LORE_REFERENCES[actIndex];
+  if (!act || !plotLoreReference) throw new Error('第一集幕编号无效。');
 
   return [
-    LALA_ARRIVAL_PLOT_LORE_REFERENCE,
-    ...act.charactersWithLore.flatMap(characterName => {
-      const reference =
-        LALA_ARRIVAL_CHARACTER_LORE_REFERENCES[characterName as keyof typeof LALA_ARRIVAL_CHARACTER_LORE_REFERENCES];
-      return reference ? [reference] : [];
+    plotLoreReference,
+    ...act.characterLoreIds.flatMap(characterId => {
+      if (!isStoryCharacterId(characterId)) throw new Error(`第一集引用了未登记角色“${characterId}”。`);
+      return getStoryCharacter(characterId).loreReferences;
     }),
   ];
 }
 
-export const LALA_ARRIVAL_ACT_IDS = LALA_ARRIVAL_ACTS.map(act => act.id);
+export const EPISODE_01_ACT_IDS = EPISODE_01_ACTS.map(act => act.id);
 
-export const LALA_ARRIVAL_ALLOWED_SPEAKERS = [
-  '你',
-  LALA_STORY_CHARACTER.displayName,
-  HARUNA_STORY_CHARACTER.displayName,
-  RIKO_STORY_CHARACTER.displayName,
-  '猿山',
-  '沛凯',
-  '萨斯丁',
-  '亲卫队',
-] as const;
-
-export const LALA_ARRIVAL_SPEAKER_ALIAS_GROUPS = [
-  { speaker: '你', aliases: ['你', 'User', '玩家', '主角', '主人公', '男主角', '男主'] },
-  { speaker: LALA_STORY_CHARACTER.displayName, aliases: LALA_STORY_CHARACTER.speakerAliases },
-  { speaker: HARUNA_STORY_CHARACTER.displayName, aliases: HARUNA_STORY_CHARACTER.speakerAliases },
-  { speaker: RIKO_STORY_CHARACTER.displayName, aliases: RIKO_STORY_CHARACTER.speakerAliases },
-  { speaker: '猿山', aliases: ['猿山'] },
-  { speaker: '沛凯', aliases: ['沛凯', '佩凯', 'Peke', 'ペケ'] },
-  { speaker: '萨斯丁', aliases: ['萨斯丁', '萨斯汀', '扎斯丁', 'Zastin', 'ザスティン'] },
-  { speaker: '亲卫队', aliases: ['亲卫队', '親衛隊', '戴比路克亲卫队', '戴比路克親衛隊'] },
-] as const;
-
-export const LALA_ARRIVAL_STORY = {
-  id: LALA_ARRIVAL_EVENT_ID,
+export const EPISODE_01_STORY = {
+  id: EPISODE_01_EVENT_ID,
   episodeNumber: 1,
   title: '从天而降的少女',
   dateLabel: '2008 年 4 月 7 日',
   backgrounds: STORY_SCENE_ASSETS,
-  acts: LALA_ARRIVAL_ACTS,
+  acts: EPISODE_01_ACTS,
 } as const;
 
-interface LalaArrivalTriggerState {
+interface Episode01TriggerState {
   date: CalendarDateValue;
   actionPointsRemaining: number;
   activeMainStoryEventId: string | null;
@@ -87,40 +60,40 @@ interface LalaArrivalTriggerState {
   mainStoryActIndex: number;
 }
 
-function isLalaArrivalDate(date: CalendarDateValue): boolean {
+function isEpisode01Date(date: CalendarDateValue): boolean {
   return date.year === 2008 && date.month === 4 && date.day === 7;
 }
 
-export function getPendingLalaArrivalActIndex(state: LalaArrivalTriggerState): number | null {
+export function getPendingEpisode01ActIndex(state: Episode01TriggerState): number | null {
   if (
-    !isLalaArrivalDate(state.date) ||
+    !isEpisode01Date(state.date) ||
     state.activeMainStoryEventId !== null ||
-    state.completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)
+    state.completedMainStoryEventIds.includes(EPISODE_01_EVENT_ID)
   ) {
     return null;
   }
 
-  const actIndex = Math.min(LALA_ARRIVAL_ACTS.length - 1, Math.max(0, Math.trunc(state.mainStoryActIndex)));
-  const act = LALA_ARRIVAL_ACTS[actIndex];
+  const actIndex = Math.min(EPISODE_01_ACTS.length - 1, Math.max(0, Math.trunc(state.mainStoryActIndex)));
+  const act = EPISODE_01_ACTS[actIndex];
   return state.actionPointsRemaining <= act.actionPointsRemaining ? actIndex : null;
 }
 
-export function shouldTriggerLalaArrival(state: LalaArrivalTriggerState): boolean {
-  return getPendingLalaArrivalActIndex(state) !== null;
+export function shouldTriggerEpisode01(state: Episode01TriggerState): boolean {
+  return getPendingEpisode01ActIndex(state) !== null;
 }
 
-export function getLalaArrivalEntryReason(actIndex: number): MainStoryEntryReason {
+export function getEpisode01EntryReason(actIndex: number): MainStoryEntryReason {
   return actIndex <= 0 ? 'after_first_action' : 'after_second_action';
 }
 
-export function createLalaArrivalFallbackAct(entryReason: MainStoryEntryReason, actIndex: number): GalStoryAct {
-  const acts = createLalaArrivalFallback(entryReason);
-  return acts[Math.min(acts.length - 1, Math.max(0, Math.trunc(actIndex)))] ?? acts[0];
-}
-
-export function createLalaArrivalFallback(_entryReason: MainStoryEntryReason): GalStoryAct[] {
-  return LALA_ARRIVAL_ACTS.map(act => ({
+export function createEpisode01FallbackAct(_entryReason: MainStoryEntryReason, actIndex: number): GalStoryAct {
+  const act = EPISODE_01_ACTS[Math.min(EPISODE_01_ACTS.length - 1, Math.max(0, Math.trunc(actIndex)))];
+  if (!act) throw new Error('第一集幕编号无效。');
+  return {
     id: act.id,
-    beats: act.fallbackBeats.map(beat => ({ ...beat })),
-  }));
+    beats: act.fallbackBeats.map(beat => ({
+      ...beat,
+      presentation: { ...beat.presentation },
+    })),
+  };
 }

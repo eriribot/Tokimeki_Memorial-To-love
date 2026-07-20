@@ -1,27 +1,35 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: waiting_for_review
-current_loop: episode01-director-module-refactor
-authorized_by: user_episode_act_scene_character_modularization_2026-07-19
+status: source_restructured_unverified_by_user_request
+current_loop: worldbook-authoritative-ai-directed-presentation
+authorized_by: user_worldbook_authority_ai_generated_directing_2026-07-20
 authorized_scope:
-  - split episode 01 into episode and act modules without changing stable IDs or save/message shapes
-  - centralize scene assets, portrait-character assets and episode-specific director decisions
-  - add a minimal reproducible story-module contract check
-  - update current module, artifact and human-review records
+  - make the selected worldbook section the only generated-plot authority
+  - require AI to generate validated scene, focus, portrait, expression and effect cues per GAL page
+  - model each character as an independent module with multiple portrait rigs
+  - remove the episode-specific director inference layer and Lala-shaped generic types
+  - replace the unpublished old beat and prompt formats without compatibility code
+  - render unregistered named speakers with the generic text nameplate while rejecting invented portrait resources
+  - split episode 01 plot lore into one disabled worldbook entry per act and select only the active act
+  - reject structurally incomplete acts and restart regeneration from the act opening
+  - delete local candidate floors with safe active-floor fallback
+  - restore episode 01 scene order and recognizable dialogue intents from the 2008 TV episode
+  - allow plot-worldbook prose edits without exact ending-sentence validation
 forbidden_scope:
   - add episode 02 content or claim multi-episode runtime support
-  - change AP/date settlement, save schema, message protocol, prompt text or playable-text extraction
-  - change worldbook selection, the one-shot World Info hook or saved worldbook state
+  - add fixed Haruna or Riko plot beats instead of letting worldbook-guided AI generate them
+  - change AP/date settlement, Tavern host-message behavior or playable-text extraction
+  - change the one-shot World Info hook mechanism or saved worldbook enabled state
   - change Galgame CSS, portrait coordinates, animation timing or visual layout
   - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins, or databases
   - claim behavior or human acceptance from source checks, builds or inline verification
-connection_state: source_and_production_inline_artifact_updated_human_review_pending
-overall_connection_label: 第一集导演式模块重排已进入生产 inline artifact；真实剧情行为与 Tavern 链路尚未人工复验
+connection_state: source_only_restructured_verification_explicitly_skipped
+overall_connection_label: 分幕世界书剧情权威、实名通用名牌与逐页演出单、完整幕结构检查、重生成隔离和本地楼层删除已完成源码接线；未构建、未生成、未人工复验
 superseded_evidence:
   - first production artifact 157468669E2EEF317A952EE5BC5BE9986AE25C8F6E53FB03A71A3BB8EB2BBAC6 was replaced before invitation finalization
   - parallel review development artifact 5279B2ADCB453338CF74520A27A74F95E93B3246F9C2243524A2D71F51A470BC was never reviewable
-human_review: pending_episode01_director_module_refactor_acceptance
+human_review: pending_worldbook_authoritative_ai_directing_acceptance
 prior_pending_reviews:
   - dual-map-landscape-overlay-responsiveness
   - story-progression-character-availability-and-raw-reader
@@ -29,10 +37,27 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: frozen_after_episode01_module_review_invitation_until_new_explicit_feedback_or_completed_review_form
+next_loop: human_review_episode01_fidelity_and_live_worldbook_copy
 ```
 
-## 当前人工审查：第一集导演式模块重排
+## 当前增量：世界书权威与 AI 导演式演出单
+
+- 第一集剧情世界书已经按幕拆开：第一幕扫描 UID `101` / `剧情第一集·第一幕`，第二幕扫描 UID `102` / `剧情第一集·第二幕`，不再把两幕整条注入同一次生成；两幕都会同时扫描菈菈人物条目 UID `1`。
+- prompt 要求 AI 每页生成 `scene/focus/portrait/expression/effect`；解析器用当前幕素材表、角色注册表和具体立绘表情集合严格校验。
+- prompt 动态提供当前幕真实立绘示例，并禁止把正在画面中或正在发言的已登记角色标为 `focus=none`；这条规则对未来注册角色通用。
+- 未登记人物可以用真实姓名或明确身份说话，并由现有 generic nameplate 显示姓名；他们不能带“临时角色”标签，也不能虚构 focus、portrait 或 expression。已登记但不在当前幕 cast 的角色仍会被拒绝。
+- 每幕新增最少正文行数和必经场景顺序；第一幕少于 17 行或没有走完 `space → school → schoolGate → home → washroom`，第二幕少于 23 行或没有走完 `washroom → home → bedroom → rooftop → nightStreet → park → schoolRoad`，都会作为不完整正文拒绝，不需要 AI 输出完成标记。
+- 重新生成按 `contextFloorIds` 只继承前面各幕当前采用楼层，不再把当前幕旧楼层送回模型续写。
+- 已读剧情的每个候选楼层可删除；删除当前采用版会回退到剩余的最新可播放版，没有候选时取消采用。删除仅作用于游戏本地楼层及其 messagesave 原文。
+- `characters/lala.ts`、`haruna.ts`、`riko.ts` 独立管理别名、人物 lore、姓名牌和多套立绘；当前 `a-f` 文件后缀只存在于角色资源模块内部。
+- `director.ts`、`lalaArrival.ts`、`LalaExpression`、`lalaExpression` 和旧正文格式已直接删除；项目未发布，因此不提供兼容适配。
+- React 播放器直接消费 AI cue；背景、出镜角色、立绘、表情与效果不再由页数、关键词或角色特判推断。
+- 两幕世界书已撤销不属于 TV 第 1 话的旧校舍天台双向告白、保护春菜和校园疏散，恢复太空冷开场、校门退缩、回家电话、泡澡中爆炸、卧室说明、足球解围、屋顶逃跑和春菜遛狗目击。萨斯丁在公园乘飞船登场并被真空君卷走，次日误告白触发婚约；不再使用错误的婚约后太空收尾。代表性台词只以短句意图约束，不大段照抄。
+- 第一集地点已拆成独立语义场景槽位，并从 `D:\出包女王素材库\Texture2D` 选择九张 `1024x512` 背景复制到项目。夜间遛狗使用 `nightStreet/bg009_b`，次晨上学使用 `schoolRoad/bg006_a`，不再用一个标签掩盖两个时间段。
+- 剧情世界书不再硬匹配某句结尾正文，只检查关闭状态、根标签和非空正文；用户追加“不写下一集内容”不会再被判为正文不完整。人物条目仍可保留可选身份标记。
+- 按用户要求，本增量未运行类型检查、构建、脚本验证或浏览器验证；下方内容是历史记录，不是当前实现证据。
+
+## 历史记录：已被当前增量取代的导演模块重排
 
 本轮把第一集从单个 `lalaArrival.ts`
 和散落的 UI/service 判断中拆成可审查的集、幕、场景、角色与导演模块。现有 event/act/floor/message ID、`lalaExpression`
@@ -63,8 +88,8 @@ next_loop: frozen_after_episode01_module_review_invitation_until_new_explicit_fe
 
 1. 读取重构前的第一集存档，确认当前幕、采用楼层、AI 原文和页位置仍可恢复。
 2. 新游戏在 2008-04-07 完成第一次有效行动，确认进入第一幕；完成第一幕后返回自由行动，再完成第二次行动进入第二幕。
-3. 确认第一幕背景仍为 `school -> night -> washroomDoor -> washroom`，第二幕仍为 `washroom -> night -> school`。
-4. 确认第一幕校内段春菜默认出现，梨子发言或旁白提到梨子时切换梨子；带 `lalaExpression` 的页仍由菈菈优先。
+3. 确认第一幕场景依次为 `space -> school -> schoolGate -> home -> washroom`，第二幕依次为 `washroom -> home -> bedroom -> rooftop -> nightStreet -> park -> schoolRoad`。
+4. 确认菈菈在第一幕太空冷开场和第二幕主要段落使用登记立绘，春菜与梨子各自使用独立角色模块；未登记人物只显示实名通用名牌。
 5. 在真实 Tavern 中各生成一幕，确认选中的世界书保存条目继续保持关闭，生成后正文、fallback、重新生成和原文阅读器行为不变。
 
 ### 已知风险

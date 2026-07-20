@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LALA_ARRIVAL_STORY } from './episodes/episode01';
+import { EPISODE_01_STORY } from './episodes/episode01';
 import type { RawStoryActView, RawStoryVersionView } from './storyRawArchive';
 
 interface RawStoryHistoryDialogProps {
@@ -110,7 +110,7 @@ export default function RawStoryHistoryDialog({ acts, initialFloorId, onClose }:
               aria-pressed={act.actIndex === selectedAct?.actIndex}
               onClick={() => selectAct(act)}
             >
-              第 {act.actIndex + 1} 幕 · {LALA_ARRIVAL_STORY.acts[act.actIndex]?.title ?? act.actId}
+              第 {act.actIndex + 1} 幕 · {EPISODE_01_STORY.acts[act.actIndex]?.title ?? act.actId}
             </button>
           ))}
         </nav>

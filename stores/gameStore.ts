@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { GAME_START_DATE, getNextCalendarDate } from '../CalendarModule/date';
 import {
-  getLalaArrivalEntryReason,
-  getPendingLalaArrivalActIndex,
-  LALA_ARRIVAL_EVENT_ID,
-  LALA_ARRIVAL_STORY,
+  EPISODE_01_EVENT_ID,
+  EPISODE_01_STORY,
+  getEpisode01EntryReason,
+  getPendingEpisode01ActIndex,
 } from '../GalMainStory/episodes/episode01';
-import type { GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
+import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
 import type { GameEvent, GameState, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 
 export const PERIODS = [
@@ -100,22 +100,34 @@ function upsertStoryFloor(
   return archives.map((archive, index) => (index === archiveIndex ? nextArchive : archive));
 }
 
+function projectActiveStoryActs(archives: readonly GalStoryActArchive[]): GalStoryAct[] {
+  const acts: GalStoryAct[] = [];
+  const sortedArchives = [...archives].sort((left, right) => left.actIndex - right.actIndex);
+  for (const archive of sortedArchives) {
+    if (archive.actIndex !== acts.length) break;
+    const activeFloor = archive.floors.find(floor => floor.floorId === archive.activeFloorId);
+    if (!activeFloor?.act) break;
+    acts.push(activeFloor.act);
+  }
+  return acts;
+}
+
 const INITIAL_LOG = '新学期开始了，你站在校门口。';
 
-function getLalaArrivalProgressActIndex(state: GameState): number {
-  if (state.completedMainStoryEventIds.includes(LALA_ARRIVAL_EVENT_ID)) return 0;
-  const lastActIndex = LALA_ARRIVAL_STORY.acts.length - 1;
+function getEpisode01ProgressActIndex(state: GameState): number {
+  if (state.completedMainStoryEventIds.includes(EPISODE_01_EVENT_ID)) return 0;
+  const lastActIndex = EPISODE_01_STORY.acts.length - 1;
   return Math.min(lastActIndex, Math.max(state.mainStoryActIndex, state.mainStoryActs.length));
 }
 
-function createLalaArrivalEntryPatch(
+function createEpisode01EntryPatch(
   state: GameState,
   actIndex: number,
   log: readonly string[] = state.log,
 ): Partial<GameState> {
   return {
-    activeMainStoryEventId: LALA_ARRIVAL_EVENT_ID,
-    mainStoryEntryReason: getLalaArrivalEntryReason(actIndex),
+    activeMainStoryEventId: EPISODE_01_EVENT_ID,
+    mainStoryEntryReason: getEpisode01EntryReason(actIndex),
     mainStoryActIndex: actIndex,
     mainStoryPageIndex: 0,
     mainStoryActs: state.mainStoryActs.slice(0, actIndex),
@@ -123,7 +135,7 @@ function createLalaArrivalEntryPatch(
     mainStoryGenerationSource: null,
     mainStoryGenerationError: null,
     currentSceneId: null,
-    log: [...log, `主线事件「${LALA_ARRIVAL_STORY.title}」第 ${actIndex + 1} 幕开始。`].slice(-20),
+    log: [...log, `主线事件「${EPISODE_01_STORY.title}」第 ${actIndex + 1} 幕开始。`].slice(-20),
   };
 }
 
@@ -178,27 +190,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const actionPointsRemaining = state.actionPointsRemaining - 1;
       const periodIndex = actionPointsRemaining > 0 ? AFTER_SCHOOL_PERIOD_INDEX : EVENING_PERIOD_INDEX;
       const period = PERIODS[periodIndex] ?? PERIODS[0];
-      const mainStoryActIndex = getLalaArrivalProgressActIndex(state);
-      const nextMainStoryActIndex = getPendingLalaArrivalActIndex({
+      const mainStoryActIndex = getEpisode01ProgressActIndex(state);
+      const nextMainStoryActIndex = getPendingEpisode01ActIndex({
         ...state,
         actionPointsRemaining,
         mainStoryActIndex,
       });
-      const startsLalaArrival = nextMainStoryActIndex !== null;
+      const startsEpisode01 = nextMainStoryActIndex !== null;
       const log = [...state.log, request.message];
 
       settlement = {
         accepted: true,
-        startsMainStory: startsLalaArrival,
+        startsMainStory: startsEpisode01,
         dayAdvanced: false,
         periodKey: period.key,
       };
 
-      if (startsLalaArrival) {
+      if (startsEpisode01) {
         return {
           actionPointsRemaining,
           periodIndex,
-          ...createLalaArrivalEntryPatch(state, nextMainStoryActIndex, log),
+          ...createEpisode01EntryPatch(state, nextMainStoryActIndex, log),
         };
       }
 
@@ -241,14 +253,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(state => {
       if (!state.hasSession || state.screen !== 'game' || state.activeMainStoryEventId !== null) return state;
 
-      const mainStoryActIndex = getLalaArrivalProgressActIndex(state);
-      const pendingActIndex = getPendingLalaArrivalActIndex({ ...state, mainStoryActIndex });
+      const mainStoryActIndex = getEpisode01ProgressActIndex(state);
+      const pendingActIndex = getPendingEpisode01ActIndex({ ...state, mainStoryActIndex });
       if (pendingActIndex === null) {
         return mainStoryActIndex === state.mainStoryActIndex ? state : { mainStoryActIndex };
       }
 
       started = true;
-      return createLalaArrivalEntryPatch(state, pendingActIndex);
+      return createEpisode01EntryPatch(state, pendingActIndex);
     });
     return started;
   },
@@ -257,7 +269,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let started = false;
     set(state => {
       if (
-        state.activeMainStoryEventId !== LALA_ARRIVAL_EVENT_ID ||
+        state.activeMainStoryEventId !== EPISODE_01_EVENT_ID ||
         state.mainStoryGenerationStatus === 'loading' ||
         state.mainStoryGenerationStatus === 'ready'
       ) {
@@ -277,11 +289,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         .find(savedFloor => savedFloor.floorId === floor.floorId);
       if (existingFloor) return { mainStoryMessages };
 
-      const expectedAct = LALA_ARRIVAL_STORY.acts[state.mainStoryActIndex];
+      const expectedAct = EPISODE_01_STORY.acts[state.mainStoryActIndex];
       const acceptedAct = floor.act;
       const isValidAcceptedFloor =
         floor.floorId.trim().length > 0 &&
-        floor.eventId === LALA_ARRIVAL_EVENT_ID &&
+        floor.eventId === EPISODE_01_EVENT_ID &&
         floor.outcome === 'accepted' &&
         acceptedAct !== null &&
         acceptedAct.id === floor.actId;
@@ -290,13 +302,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const mainStoryArchives = upsertStoryFloor(
         state.mainStoryArchives,
         floor,
-        state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
+        state.activeMainStoryEventId === EPISODE_01_EVENT_ID &&
           Boolean(expectedAct) &&
           floor.actIndex === state.mainStoryActIndex &&
           floor.actId === expectedAct?.id,
       );
       if (
-        state.activeMainStoryEventId !== LALA_ARRIVAL_EVENT_ID ||
+        state.activeMainStoryEventId !== EPISODE_01_EVENT_ID ||
         !expectedAct ||
         floor.actIndex !== state.mainStoryActIndex ||
         floor.actId !== expectedAct.id
@@ -324,8 +336,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         mainStoryMessages: mergeStoryMessages(state.mainStoryMessages, messages),
       };
       const appliesToActiveAct =
-        state.activeMainStoryEventId === LALA_ARRIVAL_EVENT_ID &&
-        (!floor || (floor.eventId === LALA_ARRIVAL_EVENT_ID && floor.actIndex === state.mainStoryActIndex));
+        state.activeMainStoryEventId === EPISODE_01_EVENT_ID &&
+        (!floor || (floor.eventId === EPISODE_01_EVENT_ID && floor.actIndex === state.mainStoryActIndex));
       if (!appliesToActiveAct) return persisted;
       return {
         ...persisted,
@@ -362,9 +374,75 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return selected;
   },
 
+  deleteMainStoryFloor: floorId => {
+    let deleted = false;
+    set(state => {
+      const archiveIndex = state.mainStoryArchives.findIndex(archive =>
+        archive.floors.some(floor => floor.floorId === floorId),
+      );
+      if (archiveIndex < 0) return state;
+
+      const archive = state.mainStoryArchives[archiveIndex];
+      const deletedFloor = archive.floors.find(floor => floor.floorId === floorId);
+      if (!deletedFloor) return state;
+      deleted = true;
+
+      const remainingFloors = archive.floors.filter(floor => floor.floorId !== floorId);
+      const deletedActiveFloor = archive.activeFloorId === floorId;
+      const replacementFloor = deletedActiveFloor
+        ? [...remainingFloors].reverse().find(floor => floor.outcome === 'accepted' && floor.act !== null) ?? null
+        : null;
+      const nextArchive: GalStoryActArchive = {
+        ...archive,
+        activeFloorId: deletedActiveFloor ? (replacementFloor?.floorId ?? null) : archive.activeFloorId,
+        floors: remainingFloors,
+      };
+      const mainStoryArchives =
+        remainingFloors.length === 0
+          ? state.mainStoryArchives.filter((_, index) => index !== archiveIndex)
+          : state.mainStoryArchives.map((savedArchive, index) => (index === archiveIndex ? nextArchive : savedArchive));
+      const deletedMessageIds = new Set(deletedFloor.messageIds);
+      const mainStoryMessages = state.mainStoryMessages.filter(
+        message =>
+          !deletedMessageIds.has(message.id) &&
+          (message.extra.floorId ?? message.extra.generationId) !== deletedFloor.floorId,
+      );
+      const mainStoryActs = projectActiveStoryActs(mainStoryArchives);
+      const deletedCurrentActiveFloor =
+        deletedActiveFloor &&
+        state.activeMainStoryEventId === deletedFloor.eventId &&
+        state.mainStoryActIndex === deletedFloor.actIndex;
+
+      if (!deletedCurrentActiveFloor) {
+        return { mainStoryArchives, mainStoryMessages, mainStoryActs };
+      }
+      if (replacementFloor?.act) {
+        return {
+          mainStoryArchives,
+          mainStoryMessages,
+          mainStoryActs,
+          mainStoryPageIndex: 0,
+          mainStoryGenerationStatus: 'ready',
+          mainStoryGenerationSource: replacementFloor.source,
+          mainStoryGenerationError: null,
+        };
+      }
+      return {
+        mainStoryArchives,
+        mainStoryMessages,
+        mainStoryActs,
+        mainStoryPageIndex: 0,
+        mainStoryGenerationStatus: 'error',
+        mainStoryGenerationSource: null,
+        mainStoryGenerationError: '当前采用楼层已删除，请重新生成本幕或使用保底版。',
+      };
+    });
+    return deleted;
+  },
+
   setMainStoryPosition: (actIndex, pageIndex) =>
     set(state => {
-      const safeActIndex = Math.min(LALA_ARRIVAL_STORY.acts.length - 1, Math.max(0, Math.trunc(actIndex)));
+      const safeActIndex = Math.min(EPISODE_01_STORY.acts.length - 1, Math.max(0, Math.trunc(actIndex)));
       const act = state.mainStoryActs[safeActIndex];
       if (!act && safeActIndex === state.mainStoryActs.length) {
         return {
@@ -387,9 +465,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   advanceMainStoryAct: () => {
     let advanced = false;
     set(state => {
-      if (state.activeMainStoryEventId !== LALA_ARRIVAL_EVENT_ID) return state;
+      if (state.activeMainStoryEventId !== EPISODE_01_EVENT_ID) return state;
       const nextActIndex = state.mainStoryActIndex + 1;
-      if (nextActIndex >= LALA_ARRIVAL_STORY.acts.length) return state;
+      if (nextActIndex >= EPISODE_01_STORY.acts.length) return state;
       advanced = true;
       return {
         activeMainStoryEventId: null,
@@ -402,7 +480,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         currentSceneId: null,
         log: [
           ...state.log.slice(-19),
-          `主线事件「${LALA_ARRIVAL_STORY.title}」第 ${state.mainStoryActIndex + 1} 幕暂告一段落。`,
+          `主线事件「${EPISODE_01_STORY.title}」第 ${state.mainStoryActIndex + 1} 幕暂告一段落。`,
         ],
       };
     });
@@ -435,7 +513,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         mainStoryGenerationError: null,
         log: [
           ...state.log.slice(-18),
-          `主线事件「${LALA_ARRIVAL_STORY.title}」结束。`,
+          `主线事件「${EPISODE_01_STORY.title}」结束。`,
           `第 ${state.day} 天结束，第 ${nextDay} 天的早晨到了。`,
         ],
       };

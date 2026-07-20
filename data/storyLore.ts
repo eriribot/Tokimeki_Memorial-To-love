@@ -5,7 +5,7 @@ export interface DisabledWorldbookLoreReference {
   entryUid: number;
   entryName: string;
   rootTag: string;
-  requiredContentMarker: string;
+  requiredContentMarker?: string;
   kind: 'plot' | 'character';
 }
 
@@ -98,13 +98,19 @@ function selectDisabledWorldbookStoryLore(
   const content = entry.content.replace(/\r\n?/gu, '\n').trim();
   const openingTag = `<${reference.rootTag}>`;
   const closingTag = `</${reference.rootTag}>`;
-  if (
-    !content.startsWith(openingTag) ||
-    !content.endsWith(closingTag) ||
-    !content.includes(reference.requiredContentMarker)
-  ) {
+  if (!content.startsWith(openingTag) || !content.endsWith(closingTag)) {
     throw new Error(
-      `世界书「${reference.worldbookName}」的「${reference.entryName}」正文不完整，请检查首尾标签和必需内容。`,
+      `世界书「${reference.worldbookName}」的「${reference.entryName}」首尾标签应为 ${openingTag} 和 ${closingTag}。`,
+    );
+  }
+
+  const body = content.slice(openingTag.length, -closingTag.length).trim();
+  if (!body) {
+    throw new Error(`世界书「${reference.worldbookName}」的「${reference.entryName}」标签内没有正文。`);
+  }
+  if (reference.requiredContentMarker && !body.includes(reference.requiredContentMarker)) {
+    throw new Error(
+      `世界书「${reference.worldbookName}」的「${reference.entryName}」缺少身份标记“${reference.requiredContentMarker}”。`,
     );
   }
 

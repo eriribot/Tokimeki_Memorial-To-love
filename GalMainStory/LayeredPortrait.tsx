@@ -1,11 +1,10 @@
 import type { CSSProperties } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
-import { getPortraitFaceAssets, type LayeredPortraitRig } from './characters';
-import type { LalaExpression } from './storyTypes';
+import type { LayeredPortraitRig } from './characters';
 
 interface LayeredPortraitProps {
   rig: LayeredPortraitRig;
-  expression: LalaExpression;
+  expressionId: string;
   isSpeaking: boolean;
   beatKey: number;
 }
@@ -20,13 +19,13 @@ function getRegionStyle(rig: LayeredPortraitRig, region: 'eyes' | 'mouth'): CSSP
   };
 }
 
-export default function LayeredPortrait({ rig, expression, isSpeaking, beatKey }: LayeredPortraitProps) {
+export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey }: LayeredPortraitProps) {
   const maskUrl = resolveAssetPath(rig.mask);
-  const faceAssets = getPortraitFaceAssets(rig, expression);
-  const shouldBlink = !rig.nonBlinkingExpressions.has(expression);
+  const expression = rig.expressions[expressionId] ?? rig.expressions[rig.defaultExpressionId];
+  if (!expression) throw new Error(`立绘“${rig.id}”没有默认表情“${rig.defaultExpressionId}”。`);
 
   return (
-    <div className="layered-portrait-stage" role="img" aria-label={`${rig.displayName}，表情 ${expression}`}>
+    <div className="layered-portrait-stage" role="img" aria-label={`${rig.displayName}，表情 ${expression.id}`}>
       <div
         className="layered-portrait"
         style={{
@@ -41,7 +40,7 @@ export default function LayeredPortrait({ rig, expression, isSpeaking, beatKey }
           style={getRegionStyle(rig, 'eyes')}
           aria-hidden="true"
         >
-          <img className={shouldBlink ? 'is-blinking' : ''} src={resolveAssetPath(faceAssets.eyes)} alt="" />
+          <img className={expression.blinking ? 'is-blinking' : ''} src={resolveAssetPath(expression.eyes)} alt="" />
         </span>
 
         <span
@@ -50,9 +49,9 @@ export default function LayeredPortrait({ rig, expression, isSpeaking, beatKey }
           aria-hidden="true"
         >
           <img
-            key={`${rig.id}-mouth-${beatKey}-${expression}`}
+            key={`${rig.characterId}-${rig.id}-mouth-${beatKey}-${expression.id}`}
             className={isSpeaking ? 'is-speaking' : ''}
-            src={resolveAssetPath(faceAssets.mouth)}
+            src={resolveAssetPath(expression.mouth)}
             alt=""
           />
         </span>

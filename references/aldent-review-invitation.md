@@ -47,8 +47,8 @@
 
 1. 读取重构前的第一集存档，确认当前幕、采用楼层、AI 原文和页位置仍能恢复。
 2. 新游戏在 2008-04-07 完成第一次有效行动进入第一幕；返回自由行动后完成第二次行动进入第二幕。
-3. 确认背景顺序仍为第一幕 `school -> night -> washroomDoor -> washroom`、第二幕 `washroom -> night -> school`。
-4. 确认第一幕校内段春菜默认出现，梨子发言或旁白提到梨子时切换梨子；带 `lalaExpression` 的页由菈菈优先。
+3. 确认第一幕场景顺序为 `space -> school -> schoolGate -> home -> washroom`，第二幕为 `washroom -> home -> bedroom -> rooftop -> nightStreet -> park -> schoolRoad`。
+4. 确认菈菈、春菜和梨子只使用各自独立角色模块中登记的立绘；未登记人物只显示实名通用名牌。
 5. 在真实 Tavern 中各生成一幕，确认保存世界书条目仍关闭，生成、fallback、重新生成和 AI 原文阅读行为不变。
 
 预期看到：目录结构变清楚，但第一集的玩家可见行为、状态结算、生成输入和保存数据没有变化。

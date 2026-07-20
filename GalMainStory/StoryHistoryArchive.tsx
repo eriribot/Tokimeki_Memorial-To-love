@@ -1,12 +1,12 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  createLalaArrivalFloor,
-  createLalaArrivalFloorId,
-  generateLalaArrivalAct,
+  createStoryFloor,
+  createStoryFloorId,
+  generateStoryAct,
 } from '../services/tavernStoryGeneration';
 import { useGameStore } from '../stores/gameStore';
 import { resolveAssetPath } from '../utils/assetPath';
-import { LALA_ARRIVAL_STORY } from './episodes/episode01';
+import { EPISODE_01_STORY } from './episodes/episode01';
 import { getStoryScene } from './scenes';
 import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from './storyTypes';
 
@@ -62,6 +62,7 @@ export default function StoryHistoryArchive({
   const messageHistory = useGameStore(state => state.mainStoryMessages);
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
+  const deleteFloor = useGameStore(state => state.deleteMainStoryFloor);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const isMountedRef = useRef(true);
   const [regeneratingActIndex, setRegeneratingActIndex] = useState<number | null>(null);
@@ -109,6 +110,17 @@ export default function StoryHistoryArchive({
     [selectFloor],
   );
 
+  const removeFloor = useCallback(
+    (floor: GalStoryFloor, isActive: boolean) => {
+      const warning = isActive
+        ? '这是当前采用楼层。删除后会自动回退到剩余的最新可播放楼层；如果没有可回退版本，本幕将变为未采用。确定删除吗？'
+        : '删除后，这个楼层及其游戏内保存的 AI 原文将无法恢复。确定删除吗？';
+      if (!window.confirm(warning)) return;
+      setNotice(deleteFloor(floor.floorId) ? '楼层及其游戏内 AI 原文已删除。' : '没有找到要删除的楼层。');
+    },
+    [deleteFloor],
+  );
+
   const regenerateAct = useCallback(
     async (archive: GalStoryActArchive) => {
       if (regeneratingActIndex !== null) return;
@@ -130,7 +142,7 @@ export default function StoryHistoryArchive({
 
       setRegeneratingActIndex(archive.actIndex);
       setNotice(null);
-      const floorId = createLalaArrivalFloorId(archive.actIndex);
+      const floorId = createStoryFloorId(archive.actIndex);
       const request = {
         floorId,
         actIndex: archive.actIndex,
@@ -143,7 +155,7 @@ export default function StoryHistoryArchive({
         chatHistory: messageHistory,
       };
       try {
-        const generated = await generateLalaArrivalAct(request);
+        const generated = await generateStoryAct(request);
         addFloor(generated.floor, generated.messages);
         if (generated.ok) {
           if (isMountedRef.current) {
@@ -155,7 +167,7 @@ export default function StoryHistoryArchive({
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addFloor(createLalaArrivalFloor(request, null, 'tavern', [], 'request_error', message));
+        addFloor(createStoryFloor(request, null, 'tavern', [], 'request_error', message));
         if (isMountedRef.current) setNotice(`重新生成失败：${message}`);
       } finally {
         if (isMountedRef.current) setRegeneratingActIndex(null);
@@ -197,7 +209,7 @@ export default function StoryHistoryArchive({
           {sortedArchives.map(archive => {
             const activeFloor = getActiveFloor(archive);
             const activeFloorIndex = archive.floors.findIndex(floor => floor.floorId === archive.activeFloorId);
-            const actMeta = LALA_ARRIVAL_STORY.acts[archive.actIndex];
+            const actMeta = EPISODE_01_STORY.acts[archive.actIndex];
             const stale = isContextStale(archive, sortedArchives);
             return (
               <article className="gal-story-archive__act" key={archive.actId}>
@@ -263,6 +275,14 @@ export default function StoryHistoryArchive({
                               {activeFloorIndex >= 0 && floorIndex < activeFloorIndex ? '回退到此楼层' : '采用此楼层'}
                             </button>
                           )}
+                          <button
+                            type="button"
+                            className="is-danger"
+                            disabled={regeneratingActIndex !== null}
+                            onClick={() => removeFloor(floor, isActive)}
+                          >
+                            删除
+                          </button>
                         </div>
                       </li>
                     );

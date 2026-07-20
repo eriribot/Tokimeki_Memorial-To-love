@@ -45,8 +45,9 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 - `data/storyLore.ts` read-only loads the selected disabled plot/character entries from the real Tavern worldbook by
   stable UID/name, validates their content markers, and arms only their per-scan copies for the next native World Info
   scan. It never changes saved worldbook state.
-- `data/lore-books/tolove-tv-episode-01.txt` is the recovery source used to populate that Tavern entry; it is not
-  imported into the runtime bundle. `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
+- `data/lore-books/tolove-tv-episode-01-act01.txt` and `tolove-tv-episode-01-act02.txt` are the recovery sources used
+  to populate the two disabled act-specific Tavern entries; they are not imported into the runtime bundle.
+  `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
 - `save/` and `message/`: snapshots and the game-owned message mirror.
 
 Scene switching uses `currentSceneId`; there is no routing library. Three periods exist: morning, afterSchool, evening.
