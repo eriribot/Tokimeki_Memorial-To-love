@@ -1,4 +1,5 @@
 const TAG_PATTERN = /<(\/?)(([\p{L}_][\p{L}\p{N}_.:-]*))(?:\s[^<>]*?)?\s*(\/?)>/gu;
+const TAG_MARKUP_PATTERN = /<\/?[\p{L}_][^<>\r\n]*>/gu;
 
 const BLOCKED_TAGS = new Set([
   'analysis',
@@ -27,7 +28,18 @@ const BLOCKED_TAGS = new Set([
 ]);
 
 const PLAYABLE_TAG_GROUPS = [
-  new Set(['story_scene', 'gal_scene', 'story', 'scene', '正文', '剧情', 'narrative', 'dialogue', 'script']),
+  new Set([
+    'story_scene',
+    'story_scence',
+    'gal_scene',
+    'story',
+    'scene',
+    '正文',
+    '剧情',
+    'narrative',
+    'dialogue',
+    'script',
+  ]),
   new Set(['content', 'context', 'body', 'text']),
   new Set(['final', 'answer', 'output', 'response']),
 ] as const;
@@ -64,6 +76,10 @@ interface ParsedTags {
 interface PlayableCandidate {
   node: TagNode;
   priority: number;
+}
+
+export interface PlayableTextExtractionOptions {
+  requirePlayableWrapper?: boolean;
 }
 
 function normalizeTagName(value: string): string {
@@ -240,16 +256,42 @@ function extractOneLayer(text: string): string | null {
   return null;
 }
 
-export function extractPlayableText(raw: string): string {
+function extractRequiredWrapper(text: string): string {
+  const { tokens } = parseTags(text);
+  const wrapperTokens = tokens.filter(token => PLAYABLE_TAG_PRIORITIES.has(token.name));
+  const openings = wrapperTokens.filter(token => !token.closing && !token.selfClosing);
+
+  if (openings.length === 0) throw new Error('酒馆返回结果未包含受支持的正文容器。');
+  if (openings.length !== 1 || wrapperTokens.some(token => token.selfClosing)) {
+    throw new Error('酒馆返回结果只能包含一个受支持的正文容器。');
+  }
+
+  const opening = openings[0];
+  const closings = wrapperTokens.filter(token => token.closing);
+  const closing = closings.find(token => token.name === opening.name && token.start >= opening.end);
+  if (!closing) {
+    throw new Error(`酒馆返回结果中的 <${opening.name}> 正文容器没有用 </${opening.name}> 闭合。`);
+  }
+  if (closings.length !== 1) throw new Error('酒馆返回结果只能包含一个受支持的正文容器。');
+
+  return text.slice(opening.end, closing.start).trim();
+}
+
+function stripTagMarkup(text: string): string {
+  return text.replace(TAG_MARKUP_PATTERN, '').trim();
+}
+
+export function extractPlayableText(raw: string, options: PlayableTextExtractionOptions = {}): string {
   let current = unwrapCodeFence(raw.trim());
+  if (options.requirePlayableWrapper) current = extractRequiredWrapper(current);
 
   for (let depth = 0; depth < 8; depth += 1) {
     const extracted = extractOneLayer(current);
-    if (extracted === null) return current.trim();
+    if (extracted === null) return options.requirePlayableWrapper ? stripTagMarkup(current) : current.trim();
     const next = extracted.trim();
-    if (next === current) return next;
+    if (next === current) return options.requirePlayableWrapper ? stripTagMarkup(next) : next;
     current = next;
   }
 
-  return current.trim();
+  return options.requirePlayableWrapper ? stripTagMarkup(current) : current.trim();
 }

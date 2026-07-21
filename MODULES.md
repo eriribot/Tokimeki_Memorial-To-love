@@ -22,10 +22,10 @@
 - 2008-04-07 第一集由两次自由行动自动触发两幕 AI 生成，世界书剧情小节是情节唯一权威；支持加载/错误/保底、GAL 播放和本地 messagesave 镜像。
 - 主线恢复会从已采用幕数校正当前幕，并幂等补触发已经达到 AP 阈值但尚未进入的幕；第一幕结束时保存的 `AP=1 / actIndex=1`
   状态不会被旧的非活动事件存档重置为第一幕。
-- 默认角色按剧情进度决定是否在校内出现：夕崎梨子与西连寺春菜初始可见，菈菈在第一集完成后可见，梦梦、古手川唯与小暗在当前剧情范围内保持锁定。导入的未知角色默认可见。
+- 当前可执行的默认角色规则仍是：夕崎梨子与西连寺春菜初始可见，菈菈在第一集完成后可见，梦梦、古手川唯与小暗保持锁定，未知导入角色默认可见。菈菈这一解锁点早于第二集 4 月 11 日的转学生揭晓，是现行运行时与已校对剧情之间的已知缺口；只能在后续 EP02 登记、三幕完成状态和存档迁移一起落地时修正。
 - AI 每一页必须按受控格式给出
   `scene/focus/portrait/expression/effect`；当前幕的场景表、演员表、立绘版本和各立绘实际表情集合共同约束可用值。未登记人物可以用真实姓名或明确身份说话，并显示通用文字名牌，但不能带“临时角色”标签，也不能虚构立绘。渲染器直接消费通过校验的演出 cue，不再按页数、关键词或角色特判猜演出。
-- GAL 表现层用同一个分层立绘组件渲染菈菈、西连寺春菜和夕崎梨子。每名角色是独立模块，并可登记多套立绘；每套立绘拥有自己的 body、mask、眼嘴资源和表情集合。以后新增萨斯丁、猿山、校长等角色时新增角色模块并在需要的幕登记，不修改通用类型。
+- GAL 表现层用同一个分层立绘组件渲染菈菈、西连寺春菜、结城美柑和夕崎梨子。每名角色是独立模块，并可登记多套立绘；每套立绘拥有自己的 body、mask、眼嘴资源和表情集合。以后新增萨斯丁、猿山、校长等角色时新增角色模块并在需要的幕登记，不修改通用类型。
 - 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 - 已读剧情中的 AI 原文按“幕 -> 生成版本 -> 页”阅读；目录内的楼层按钮会直接打开对应版本，每次只显示一页，不再把所有 Assistant 正文堆叠在同一滚动区。
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
@@ -38,12 +38,16 @@
   `ep01.act2-bathroom`；floor/message ID 和保存形状不因目录重排改变。
 - 不存在专用
   `director.ts`。这里的“导演式编辑”指世界书、幕素材表、角色立绘模块和 AI 演出协议可以分别剪辑，而不是由一段导演代码猜剧情。
-- `scenes/index.ts` 统一场景 ID、资源路径和 alt；`characters/{lala,haruna,riko}.ts`
+- `scenes/index.ts` 统一场景 ID、资源路径和 alt；`characters/{lala,haruna,mikan,riko}.ts`
   分别登记角色别名、姓名牌、人物 lore 与多立绘集合，`characters/index.ts` 只负责注册和查询。
 - `storyRegistry.ts`
   是集目录入口，目前只登记第一集。新增第二集时应新建独立 episode/acts 目录并显式登记，不创建空占位集。
 - 未完成：运行时仍是单集正文投影；第二集接入前必须让 `mainStoryActs`、存档恢复、历史目录、重新生成上下文和
   `render_game_to_text()` 按 `eventId` 分集，不能仅增加 `episode02` 数据文件。
+- `data/lore-books/tolove-tv-episode-02-act01.txt`、`act02.txt`、`act03.txt`
+  是第二集三幕恢复源；第二集仍未登记。`tolove-character-mikan.txt` 与 `tolove-character-haruna.txt`
+  是人物条目的恢复源，不进入 bundle；当前人物模块分别按用户确认的 UID `7` 与 `6`
+  读取真实 Tavern 条目。第一幕会选择美柑和春菜人物 lore，但本地 fallback 画面不能证明真实 World Info 扫描已经命中。
 - 项目尚未发布，不保留 `lalaArrival.ts`、`LalaExpression`、`lalaExpression` 或旧正文格式兼容层。
 
 ## 模块登记
@@ -69,7 +73,9 @@
 | `GalMainStory/scenes/index.ts`             | GAL 场景 manifest                             | 背景 ID                             | 资源路径与 alt         | 幕时间线           |
 | `GalMainStory/characters/*.ts`             | 单角色别名、人物 lore、多立绘与表情资源       | 角色素材和世界书条目                | 可注册角色模块         | 当前幕是否可用     |
 | `GalMainStory/characters/index.ts`         | 角色注册、说话人匹配与立绘查询                | 独立角色模块                        | 角色/立绘查询 API      | 剧情出镜判断       |
-| `GalMainStory/storyPresentation.ts`        | 严格解析并校验 AI 逐页演出单                  | `@` 正文、当前幕素材表              | 正文与演出 cue         | 推测剧情           |
+| `GalMainStory/portraitRules.ts`            | 解析场景与角色唯一绑定的立绘                  | 当前幕场景立绘规则                  | 必选立绘 ID 或无绑定   | 选择剧情镜头       |
+| `GalMainStory/storyTextExtraction.ts`      | 从模型标签输出中结构化抽取正文                | Tavern Assistant 原文               | `<content>` 可播放文本 | 校验逐行演出字段   |
+| `GalMainStory/storyPresentation.ts`        | 严格解析并校验 AI 逐页演出单                  | `@` 正文、当前幕素材表与立绘绑定    | 正文与演出 cue         | 推测或改写演出字段 |
 | `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放和 GAL 播放           | Store、演出 cue、场景/角色 manifest | GAL 画面、翻页意图     | 选择画面或角色     |
 | `GalMainStory/StoryHistoryArchive.tsx`     | 候选重生成、采用、回放和删除                  | 各幕楼层档案                        | 版本管理意图           | 删除宿主聊天楼层   |
 | `GalMainStory/storyRawArchive.ts`          | 关联幕、楼层与 Tavern Assistant 原文并分页    | 剧情档案、messagesave               | 只读原文阅读模型       | 归一化或改写正文   |
@@ -79,6 +85,7 @@
 | `save/snapshot.ts`                         | V1 兼容快照                                   | Game/Player/Card/Skill store        | 本地/宿主存档数据      | 生成请求           |
 | `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 UID/名称、世界书条目           | 一次性 World Info 钩子 | 修改已保存世界书   |
 | `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥          | 游戏上下文、TavernHelper            | 显式读/诊断能力        | 剧情条目选择       |
+| `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                | 已校对剧情与人物资料                | 待导入的纯文本恢复源   | 运行时扫描和状态   |
 
 ## 权威状态
 
@@ -90,22 +97,31 @@
 - 当前地图不另存一份并行状态，而是由 `currentLocationId` 经 `getMapForLocation()`
   唯一推导；因此存档恢复地点后会自动恢复对应地图。跨地图按钮只把地点切到目标地图入口。
 - 地图边缘控件的布局契约为：学校“街”护法在左、档案在右；彩南町“学校”护法在右、档案在左；两者中心线镜像对齐。护法的圆形预览和恶魔图形均可点击，反馈不覆盖透明矩形区域。三档横屏尺寸的最新调整等待人工重新验收，不能沿用此前被撤回的通过结论。
-- 第一集剧情权威拆为真实 `出包王女` 世界书中两条保持关闭的条目：第一幕使用 UID `101` /
-  `剧情第一集·第一幕`，第二幕使用 UID `102` / `剧情第一集·第二幕`。两幕都会选择保持关闭的 UID `1` /
-  `菈菈.萨塔琳.戴比路克`
-  人物条目，因为第一幕的太空冷开场已有菈菈出镜。每次生成只扫描当前幕剧情条目。代码按稳定 UID/名称只读验证，并仅在下一次原生 World
+- 第一集剧情权威拆为真实 `出包王女` 世界书中两条保持关闭的条目：第一幕使用 UID `150` /
+  `剧情第一集·第一幕`，第二幕使用 UID `151` / `剧情第一集·第二幕`。两幕都会选择保持关闭的 UID `1` /
+  `菈菈.萨塔琳.戴比路克` 人物条目；第一幕还会选择 UID `6` 的西连寺春菜和 UID `7`
+  的结城美柑人物条目。每次生成只扫描当前幕剧情条目及该幕登记的人物条目。代码按稳定 UID/名称只读验证，并仅在下一次原生 World
   Info 扫描中启用这些条目的副本；已保存条目的关闭状态不变。本地 TXT 只是恢复源，不进入 bundle。
+- 第二集 UID `201/202/203` 当前仍只是恢复源，运行时没有选择或扫描这些剧情条目，也没有据此改变角色出场。
 - 当前 preset 实际激活的其他世界书可以补充人物和长期事实，但不能覆盖剧情世界书当前小节。代码不会另写 opening/ending 或替缺失、损坏的世界书编造剧情答案。
-- AI 返回的是正文候选，经本地分页和污染检查后才能进入 GAL。
+- AI 返回的是正文候选。新生成必须恰好包含一对受支持的同名正文开闭标签；登记值为
+  `story_scene/story_scence/gal_scene/story/scene/正文/剧情/narrative/dialogue/script/content/context/body/text/final/answer/output/response`。prompt 默认示例使用
+  `<content>...</content>`，但上层已指定 `<正文>`、`<story_scene>` 或 `<story_scence>` 等标签时可以沿用。
+  `storyTextExtraction.ts`
+  直接扫描登记标签的开闭 token，不让容器外标签树决定正文是否存在；容器外内容被丢弃，正文中的其他尖括号标签标记被过滤，再经逐行演出校验、完整性检查和分页后进入 GAL。正文标签只是结构容器，不是完成哨兵；容器缺失、未闭合、开闭名不一致、重复或并列多个会进入
+  `parse_error`。
 - AI 原文阅读器只对保存的 Tavern
   Assistant 字符串做视图切片；所有页按顺序拼接仍是原字符串。切页、切幕和切换生成版本不修改 messagesave、提示词历史、采用楼层或重新生成上下文。
-- 单看正文长度不是完成证明，也不需要模型输出完成标记。每幕用 `minimumLineCount` 与 `requiredSceneSequence`
-  拦截明显截断：行数不足或没有按顺序走完本幕场景会进入
+- 单看正文长度不是完成证明，也不需要模型输出完成标记。prompt 和本地解析器共同读取当前幕的 `minimumLineCount` 与
+  `requiredSceneSequence`；只有当前幕登记了必经场景时才生成并检查场景完成合同。行数不足或没有按顺序走完本幕场景会进入
   `parse_error`。这仍不能机器证明所有世界书语义点都已覆盖，最终剧情内容由世界书和人工阅读判断。
-- 新生成正文的标准协议是
+- 正文容器内每个非空行的标准协议是
   `@说话人【scene=...;focus=...;portrait=...;expression=...;effect=...】：正文`。每行完整声明演出，不继承上一页。旁白、玩家、当前幕演员和世界书中的未登记实名人物都能说话；未登记人物走通用文字名牌，不能使用不存在的角色 ID 或立绘。已经有角色模块但不在当前幕 cast 中的角色不能擅自说话。场景必须属于本幕场景表；出镜角色必须属于本幕演员表；立绘和表情必须真实登记在该角色模块中。只要画面展示已登记角色就不能使用
   `focus=none`，当前幕角色本人发言却使用 `focus=none` 同样进入
   `parse_error`。字段缺失、越界、JSON 或非协议正文也会被拒绝。
+- 场景专用立绘规则由 `portraitRules.ts` 同时提供给 prompt 示例和本地解析器。第二幕 `scene=washroom + focus=lala`
+  唯一允许 `portrait=washroom-swimsuit`，该幕其他场景的菈菈唯一允许 `portrait=arrival-default`；模型给出错误组合时进入
+  `parse_error`，解析器不得静默替换原始 portrait。
 - 超过单页长度的对白会在分页后保留原说话人，不能把后续页静默降级成旁白。
 - 重生成的聊天历史按 `contextFloorIds` 精确选择前面各幕当前采用楼层，不按 `actIndex <= currentActIndex`
   混入当前幕旧候选。楼层删除同时删除其游戏内消息；删除采用版会安全回退或取消采用，但不会删除尚未接通的宿主 hidden 消息。

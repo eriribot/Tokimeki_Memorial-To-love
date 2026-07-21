@@ -2,26 +2,35 @@
 
 ```yaml
 status: implementation_complete_human_review_pending
-current_loop: tokimemo4-special-skill-progression-and-map-drawer
-authorized_by: user_special_skill_panel_mobile_fidelity_and_unlock_flow_2026-07-20
+current_loop: layered-portrait-photoshop-processing-guide
+authorized_by: user_requested_reusable_photoshop_workflow_in_portrait_integration_guide_2026-07-21
 authorized_scope:
-  - rebuild the special-skill data and prerequisite graph from public Tokimeki Memorial 4 references
-  - begin with no learned or practiced skills and enforce sequential AND prerequisites
-  - earn skill EXP from accepted AP actions, spend it during the current term, and commit at most six practiced skills
-  - persist skill progression, reset it with a new session, and expose concise text state
-  - render a real tree with state-aware edges and a generated nostalgic paper background
-  - keep portrait and landscape drawers strictly inside the map frame
+  - document a character-agnostic Photoshop workflow for layered portrait seam repair
+  - separate coordinate, frame-edge, texture-bleed, subpixel and Alpha-mask failure classes
+  - document Difference alignment, shared edge-reference bands, integer atlas rebuilding, export and timeline review
+  - use Mikan only as a measured example without changing her runtime configuration or source art
 forbidden_scope:
-  - apply skill effects to attributes, AP, affection, action success, or story settlement
-  - fabricate license-exam success or claim an exam system is connected
-  - change story prompts, worldbook selection, Galgame presentation, or Tavern generation
-  - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins, or databases
-  - claim behavior or human acceptance from source checks, builds or inline verification
-connection_state: real_local_skill_progression_read_write_and_save
-overall_connection_label:
-  真实本地特技进度已接入行动 EXP、学习、学期实践提交、存档恢复与文本回读；技能效果和驾照考试尚未接入
-human_review: pending_special_skill_ui_and_progression_acceptance
+  - edit runtime TypeScript, CSS, character configuration, source PNG, PSD or generated atlas files
+  - build, reload or claim that the documentation changes runtime rendering
+  - import, enable or edit saved Tavern worldbook entries
+  - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins or databases
+connection_state: documentation_only_no_runtime_change
+overall_connection_label: 不涉及接通；本轮只补充分层立绘的 Photoshop 素材处理方法
+human_review: pending_photoshop_workflow_clarity_and_reproducibility_review
+counterevidence:
+  - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
+    are invalidated
+superseded_evidence:
+  - ep01-panc-contract invalidated by user runtime screenshot and existing content protocol documentation
+  - content-tree-parser acceptance invalidated by a complete content container hidden below malformed planning-tag
+    nesting
+  - single-content-wrapper acceptance invalidated by the existing 正文/story_scene tags and the user-provided
+    story_scence alias
 prior_pending_reviews:
+  - ep01-act01-mikan-runtime-rendering-alignment-fix
+  - ep02-act03-mikan-haruna-worldbook-recovery-sources
+  - ep01-supported-playable-wrapper-set
+  - tokimemo4-special-skill-progression-and-map-drawer
   - worldbook-authoritative-ai-directed-presentation
   - dual-map-landscape-overlay-responsiveness
   - story-progression-character-availability-and-raw-reader
@@ -29,10 +38,187 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: human_review_special_skill_tree_mobile_drawers_and_term_flow
+next_loop: human_review_layered_portrait_photoshop_processing_guide
 ```
 
-## 当前增量：特技树、学期学习与 map 内手机抽屉
+## 当前增量：Photoshop 通用分层立绘处理流程
+
+- `菈菈分层动态立绘制作与接入指南.md` 新增角色无关的 PS 流程，先按症状区分坐标错误、帧外圈差异、跨帧采样、小数像素与完整人物 mask 问题。
+- PSD 母板固定逻辑舞台、角色自己的 region 和层级；用 Difference 模式只测中性参考帧，所有表情继续共享同一组坐标。
+- 旧 `256x512 / 256x256` 三帧纹理先整图非等比重采样为 `230x393 / 230x171`，再按整数参考线切成 `230x131 / 230x57`，避免从旧图上猜 `170/171` 或 `85/86` 分界。
+- 每帧以同一份 body crop 作为 `edge-reference`，通过收缩选区与小范围 Feather 建立共同外圈；文档区分了 1024 母板中的 region 选区和独立单帧文档中的 `Select All`。
+- clean atlas、2x atlas、legacy 容器、独立帧/显式 rect 的职责分开记录；加入 Timeline、缩放、多背景与分层定位的验收清单及禁止做法。
+- 本轮没有修改 `mikan.ts`、共享组件、CSS、任何 PNG/PSD、构建产物或宿主链。
+
+| Check                    | Status  | Evidence                                                           |
+| ------------------------ | ------- | ------------------------------------------------------------------ |
+| Guide structure          | passed  | PS 流程包含诊断、母板、Difference、整数帧、安全带、导出与时间轴验收 |
+| Existing route coherence | passed  | “自己制作新表情”已改为角色自身 region，并区分 clean/legacy 路线     |
+| Prettier                 | not run | 最终文档与审查邀请完成后运行                                       |
+| Runtime build/tests      | not run | 纯文档增量，明确禁止把未改运行时写成重新验证                         |
+| Human reproducibility    | not run | 等待用户按 PS 步骤实际制作一组帧                                   |
+
+### 人工复现
+
+1. 在 PS 建立 1024x1024 母板，放入 body，并登记当前角色的眼嘴 region。
+2. 用 Difference 模式对齐第 0 帧；确认外圈接近黑色后锁定坐标，其他帧不得单独移动。
+3. 把旧 eyes/mouth 完整图集分别缩放为 230x393 与 230x171，再按整数参考线切出三帧。
+4. 给三帧复用同一个 `edge-reference`，mouth 从 3～4px Contract、2～3px Feather 起步；逐帧检查五官没有被蒙版侵蚀。
+5. 拼回 clean atlas，在 Timeline 和 50%/100%/125%/200% 下检查，再进入游戏实测。
+
+### 已知风险
+
+- Bilinear 是当前网页采样的实用起点，不代表所有原引擎都使用同一滤镜；原引擎证据不同时应记录并改用对应采样方式。
+- mouth 只有 57px 高，统一大羽化会侵蚀嘴型；应从小值开始，必要时只处理出现接缝的一条边。
+- PS 中静态无缝不能代替最终浏览器的动画、缩放和 mask 验收。
+
+## 保留的既有待审范围：第一集第一幕美柑实际渲染
+
+- `characters/mikan.ts` 保留用户草稿的
+  `arrival-default`、`neutral:c / worried:a / happy:b / serious:f / panic:e / shy:d`、禁眨眼 `worried/panic`
+  和人物世界书 UID `7`。含空格与 `#` 的 body URL 使用等价编码 `%20%23`，避免浏览器把文件名后半段当 fragment。
+- 美柑的实测眼窗为 `394,270,230,131`，嘴窗为 `394,398,230,57`；旧实现误用了菈菈的 `237/365`，已由用户截图证明错误。
+- `characters/index.ts` 已登记美柑；第一幕 cast 与 `characterLoreIds` 都加入 `mikan`。生成路线现在会按 UID `7`、名称
+  `结城美柑`、根标签 `Mikan Yuuki` 和姓名标记验证关闭条目，并将副本武装到下一次原生 World Info 扫描。
+- 第一幕保底回家页由美柑说“回来了？怎么一副又失败了的表情。”，演出 cue 为
+  `home / mikan / arrival-default / neutral / none`，因此本地环境也能完整检查姓名牌、body、mask、`c_eye`、`c_mouth`、眨眼和口型链。
+- 之前桌面与 `844x390` 截图仍使用旧坐标，已被用户提供的桌面截图否决，不能继续作为视觉通过证据。
+
+| Check                               | Status  | Evidence                                                                                         |
+| ----------------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| Runtime source Prettier / ESLint    | passed  | 美柑模块、角色注册表和第一幕定义无格式或 lint 错误                                               |
+| Webgame subtree TypeScript          | passed  | `pnpm exec tsc --noEmit -p src/webgame-ui/tsconfig.json --pretty false`                          |
+| Story generation contract           | passed  | `node src/webgame-ui/verify-story-generation.cjs`                                                |
+| Character / episode lore contracts  | passed  | `verify-character-lore.cjs` 与 `verify-episode02-lore.cjs` 均通过                                |
+| Character validator ESLint          | failed  | 既有 CJS `require()` 触发 3 条 error 和 3 条 warning；脚本执行本身通过                           |
+| Development build                   | passed  | `pnpm build:dev`; fresh inline artifact 包含美柑、UID 7 与全部素材 URL                           |
+| Prior desktop player flow           | failed  | 用户截图显示旧眼嘴窗口切过刘海、额头和脸部；旧坐标证据已失效                                     |
+| Prior mobile landscape player flow  | failed  | 使用同一错误坐标，不能证明修正版视觉                                                             |
+| Mikan source-pixel alignment        | passed  | `a-f` 六组表情三帧边缘复核；新坐标边缘 MAE 约 `5-6`，旧坐标约 `39/60`                            |
+| Corrected browser player flow       | not run | 当前浏览器 URL 策略阻止重新抓取本地页面；等待用户刷新实际页面                                    |
+| Fixed diagnostic composite          | passed  | `output/web-game-mikan/mikan-face-alignment-before-after.png` 与三帧诊断图                       |
+| Resource decode and animation state | passed  | body `1024x1024`、eye `256x512`、mouth `256x256`; mask/body/eye/mouth 请求成功，眼嘴动画名已命中 |
+| Standalone console                  | passed  | 仅有缺少 Tavern save/generate 接口的预期隔离错误；没有新增 React、资源解码或路径错误             |
+| Real Tavern UID 7 World Info scan   | not run | 本地页面没有 Tavern Helper；需要真实酒馆复验一次性扫描与关闭条目状态                             |
+| Human visual acceptance             | not run | 用户已否决旧画面；修正版仍等待实际页面确认坐标、表情语义和接缝                                   |
+
+### 人工复现
+
+1. 打开 `http://localhost:5500/dist/webgame-ui/`，点击“重新开始”。
+2. 点击一次“学习”；本地页面出现生成失败时点击“使用保底版”。
+3. 从第一幕第 1 页点击十次“下一页”，停在第 11/17 页。
+4. 确认页面显示结城美柑、美柑姓名牌和“回来了？怎么一副又失败了的表情。”，并人工检查眼嘴高度、接缝、闭眼 neutral 与口型是否符合你的素材配置。
+5. 在真实 Tavern 中重新生成第一幕，确认 UID `7` 的 `结城美柑` 条目保持关闭、扫描副本被临时启用且生成后没有改写保存状态。
+
+### 已知风险
+
+- 本地 fallback 只能证明角色注册和 UI 渲染，不能证明真实 Tavern 世界书 UID `7` 已命中。
+- 当前 neutral 按用户配置映射到 `c`，禁眨眼集合按用户配置仍为
+  `worried/panic`；是否符合表情语义和逐帧接缝由本轮人工画面审查决定。
+- standalone 页面缺少 Tavern save 与 generate 接口，因此控制台会记录对应隔离错误；这不是美柑资源失败。
+- `verify-character-lore.cjs` 仍使用项目既有的 CommonJS 脚本格式；将校验工具迁为 ESM 不属于本轮运行时接线范围。
+
+## 保留的既有待审范围：第二集第三幕与美柑、春菜人物世界书恢复源
+
+- 时间线采用当前企划的连续映射：4 月 7 日 20:43 首次触碰与公园对峙，4 月 8 日早晨误告白，4 月 9 日第二集开场与校内骚动，4 月 10 日 20:43 三日冷静期结束，4 月 11 日早晨菈菈作为转学生登场。
+- TBS 第 2 话简介确认婚约成立与三日内解除；日文字幕进一步给出“一昨日の20時43分”、再次触碰并宣告解除、最后一小时谈话、警报和转学生台词。恢复源没有写成 24 小时、八字不合或让菈菈讨厌 User。
+- 第三幕从 4 月 10 日家中最后一小时开始。字幕在倒计时前仍有做饭和递东西的声音，User 随即请菈菈坐下谈婚约；旧草稿中没有来源支撑的河边地点已删除。
+- 菈菈说出长期相亲、王室身份让人替她作决定、除沛凯外没人倾听，并感谢 User 曾经听她说话、相信她和保护她。User 只表现为几次开口未果，没有被正文规定成因为春菜、愧疚或爱意而犹豫。
+- 警报在 4 月 10 日 20:43 响起，User 未再次触碰也未完成解除宣言；次晨亲卫庆祝，User 到校后短暂以为菈菈不在，老师随即介绍她为转学生。第三幕停在春菜认出她和全班骚动，不续写第三集。
+- `tolove-character-mikan.txt` 与 `tolove-character-haruna.txt`
+  按菈菈人物书的分区方式保存基础资料、行为性格、经历、情感驱动、关系、前两集认知、称呼、口吻、台词和禁止偏移。两人都明确隔开原作男主、User 与夕崎梨子。
+- 美柑保持小学生与未成年边界，重点是家务、观察和责任提醒；春菜保持文静但有边界的普通同学，第二集更衣室反应来自惊吓，不写成争宠。春菜不知道三日规则、沛凯变装原理、家中尝试或最后谈话。
+- TBS 官方人物页只用于身份和核心性格。生日、血型、身高和体重来自已标明的二级资料；恢复源和 README 都明确说明 TBS 页面未列这些数值。
+- 此恢复源阶段的人物 UID 仍是“待确认”；该结论现已被本轮用户确认的美柑 UID `7`、春菜 UID `6`
+  及运行时登记取代。两条保存条目仍须保持关闭。
+- 当前代码仍在第一集完成后让菈菈校园可见，早于 4 月 11 日转学生揭晓。此缺口已写入
+  `MODULES.md`，但修复需要 EP02 登记、三幕状态与存档迁移，超出本轮授权。
+- `stores/mapStore.ts` 与 `components/MapMenu.tsx` 未修改；二者不拥有剧情日期或角色解锁。构建与 inline
+  artifact 不受这些未导入 bundle 的恢复源影响。
+
+| Check                        | Status  | Evidence                                                                                              |
+| ---------------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| Episode 02 lore contract     | passed  | `node src/webgame-ui/verify-episode02-lore.cjs`；三幕根标签、时间线、禁用错误说法与未接线边界通过     |
+| Character lore contract      | passed  | `node src/webgame-ui/verify-character-lore.cjs`；两份人物结构、资料等级、身份边界与非机械台词样例通过 |
+| Story generation regression  | passed  | `node src/webgame-ui/verify-story-generation.cjs`；既有生成与正文协议合同通过                         |
+| Validator syntax             | passed  | 两个新 lore validator 均通过 `node --check`                                                           |
+| Changed-file Prettier        | not run | 最终状态与审查邀请完成后运行                                                                          |
+| Build / inline verification  | not run | 本轮只改未进入 bundle 的恢复 TXT、校验脚本与文档；不生成新 inline artifact                            |
+| Real Tavern worldbook import | not run | 本轮禁止导入、启用或扫描；真实条目与人物 UID 尚未确认                                                 |
+| Human story and voice review | not run | 等待用户审阅第三幕节拍、美柑与春菜是否自然、是否符合当前企划                                          |
+
+### 人工复现
+
+1. 阅读三份第二集恢复源，确认时间依次为 4 月 9 日、4 月 10 日 20:43 前、4 月 10 日最后一小时至 4 月 11 日早晨；第三幕谈话在家中，不在河边。
+2. 检查第三幕：菈菈说起相亲、王室压力、沛凯例外并感谢 User；User 没有被写死内心理由，也没有再次触碰或完成解除宣言。
+3. 检查片尾：警报越线后才有亲卫庆祝；到校后老师介绍转学生，菈菈说自己也来学校，春菜只认出她，剧情随即结束。
+4. 阅读美柑人物书，确认她仍是未成年小学生，不承担恋爱或身体笑料；User 没有自动亲属关系，夕崎梨子没有默认亲属关系。
+5. 阅读春菜人物书，确认原作感情不迁移给 User；4 月 9 日更衣室反应来自受惊，她不知道家中解除规则和最后谈话。
+6. 此恢复源阶段原要求在真实 Tavern 导入前查询空闲 UID；当前用户已确认美柑为 `7`、春菜为
+   `6`，仍需检查两条保存条目保持关闭。
+
+### 已知风险
+
+- 4 月 7 日至 4 月 11 日是依据当前游戏锚点与字幕相对时间得到的内部映射，不是动画画面显示的官方日历。
+- TBS 官方人物页不含生日、血型、身高和体重；这些数值已经降级标注，但仍需人工决定是否保留二级资料。
+- 自动检查只能验证结构、关键词和禁用边界，不能证明人物说话自然或每个动画情绪点都写对。
+- 第二集、人物条目、角色解锁、保存恢复和历史投影尚未接入；本轮 TXT 完成不代表游戏已经能播放第二集。
+
+## 保留的既有待审范围：直接抽取唯一受支持正文容器与场景立绘唯一绑定
+
+- 用户截图明确指出运行时出现了错误的 `<panc>`，并确认协议应为 `<content>`。既有 `AI生文与GAL前端整合方案.md`
+  第 54-58 行也以 `<content>...</content>` 为标准示例；上一轮 panc 合同及其自动测试结论因此作废并已归档。
+- `storyGenerationPrompt.ts` 默认使用 `<content>...</content>`，同时明确上层提示已指定
+  `<正文>`、`<story_scene>`、`<story_scence>` 等正文标签时沿用一对同名开闭标签；运行时 prompt 中不包含 panc。
+- 用户随后提供的真实输出同时包含完整 `<content>` 和 `</content>`，但其前面存在不匹配的
+  `</konatan_planning~>`；旧实现按标签树遍历时把 content 视为 blocked
+  planning 的子节点，因而错误提示“未包含”。此前抽取通过和 artifact 哈希已被该反例推翻并归档。
+- 用户继续指出正文容器不只有 content：既有登记还包括 `<正文>` 与 `<story_scene>` 等，实际还需要兼容
+  `<story_scence>`。单 content 门禁因此是错误合同；修复前这三个正例都会误报“未包含 `<content>`”。
+- `storyTextExtraction.ts` 现在直接扫描既有 `PLAYABLE_TAG_GROUPS` 的开闭 token，并补登
+  `story_scence`。整份返回只能有一对受支持且同名的正文标签；容器外内容全部丢弃，正文中的其他 `<...>`
+  标签标记会被过滤；缺失、未闭合、错配、重复或并列多个受支持标签均进入 `parse_error`。
+- `tavernStoryGeneration.ts` 的候选门禁改为 `requirePlayableWrapper: true`，不再指定某一个标签名。最终 inline
+  artifact 中没有 panc 文本。
+- 场景与立绘修复保持：完成合同读取当前幕 `requiredSceneSequence`；第二幕
+  `washroom + lala -> washroom-swimsuit`，其余当前幕场景 `lala -> arrival-default`；错误 portrait 明确拒绝，不静默替换。
+- 世界书条目、剧情情节点、AP/日期、fallback、立绘素材、宿主消息和插件/数据库链均未改动。
+
+| Check                              | Status  | Evidence                                                                                                                                              |
+| ---------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User contract counterexample       | passed  | 用户指出正文容器是既有标签集合，不是 content 单标签，并明确补充 `<正文>` 与 `<story_scence>`                                                          |
+| Frozen before-failure reproduction | passed  | `<正文>`、`<story_scene>`、`<story_scence>` 三个完整正例在修复前均稳定抛出“未包含 `<content>`”                                                        |
+| Story generation contract          | passed  | `node src/webgame-ui/verify-story-generation.cjs`；全部 18 个登记标签、畸形外层标签、其他标签过滤、缺失/截断/错配/重复/并列反例及 portrait 正反例通过 |
+| Full subtree TypeScript            | passed  | `pnpm exec tsc --noEmit -p src/webgame-ui/tsconfig.json`                                                                                              |
+| Changed-file ESLint                | passed  | prompt、抽取、演出解析、生成 adapter、共享规则和合同检查脚本无 error                                                                                  |
+| Production build                   | passed  | `pnpm build`；最终 `dist/webgame-ui/index.html` 为 531402 bytes；仅有既有 asset-size 建议                                                             |
+| Exact inline artifact verification | passed  | fresh artifact 的 legacy entity/currency/replacement/syntax error 均为 0，单 inline script                                                            |
+| Artifact protocol scan             | passed  | fresh artifact 包含 content、`<正文>`、story_scene、story_scence 与受支持容器错误提示，不包含 panc                                                    |
+| Artifact identity                  | passed  | SHA-256 `B28E9967E2DE66FC873C1552B3626B6AC8D9EC959819DC84BA7ACE56C5502B47`                                                                            |
+| Corrected real Tavern generation   | not run | 尚未用本次正文标签集合 artifact 重新生成第二幕                                                                                                        |
+| Host/plugin/database routes        | not run | 本轮禁止触发；hidden floors、MESSAGE_SENT、shujuku/ACU 和数据库仍未接通                                                                               |
+| Human acceptance                   | not run | 等待用户用本次 artifact 重新验收                                                                                                                      |
+
+### 人工复现
+
+1. 用最终 artifact 在真实 Tavern 中重新生成第二幕，检查 User prompt 与原始 Assistant：默认可使用
+   `<content>...</content>`；上层指定其他登记标签时，应保留那一对同名标签；不得出现 panc。
+2. 分别用唯一的 `<content>`、`<正文>`、`<story_scene>`、`<story_scence>` 包裹同一段合法 GAL 正文，四种都应进入 GAL。
+3. 即使正文容器前存在不匹配的
+   `</konatan_planning~>`，只要唯一受支持标签对完整，正文仍应进入 GAL；容器外规划文字不得进入正文。
+4. 缺失、未闭合、开闭名错配、重复或并列多个受支持正文容器应显示 `parse_error`；正文内其他尖括号标签标记应被过滤。
+5. 浴室中菈菈只能显示 `washroom-swimsuit`；从 `home` 起显示菈菈时只能使用 `arrival-default`，错误字段不能被静默替换。
+6. 确认第二幕不少于 30 行，首次场景顺序为
+   `washroom -> home -> bedroom -> rooftop -> nightStreet -> park -> schoolRoad`，并人工确认世界书最后情节点完整演完后结束。
+
+### 已知风险
+
+- 正文标签集合抽取后的真实 Tavern 生成尚未运行；本地合同和 artifact 扫描不能替代这次复验。
+- 行数与场景顺序不能机器证明所有世界书语义情节点已覆盖，最终内容仍需人工阅读。
+- 最终 inline checker 由当前 `HEAD:verify-inline-bundle.mjs` 通过管道执行；工作区中该脚本的既有删除保持未恢复。
+- 生产构建仍报告现有 `index.html` 体积建议，本轮没有扩展到 bundle 拆分。
+
+## 保留的既有待审范围：特技树、学期学习与 map 内手机抽屉
 
 - `data/skills.ts` 现有 127 项，分类数量为
   `25/24/20/26/24/8`；130 条前置边在加载时检查重复 ID、缺失前置、重复前置、成本和环。
@@ -82,8 +268,8 @@ next_loop: human_review_special_skill_tree_mobile_drawers_and_term_flow
   `focus=none`；这条规则对未来注册角色通用。
 - 未登记人物可以用真实姓名或明确身份说话，并由现有 generic
   nameplate 显示姓名；他们不能带“临时角色”标签，也不能虚构 focus、portrait 或 expression。已登记但不在当前幕 cast 的角色仍会被拒绝。
-- 每幕新增最少正文行数和必经场景顺序；第一幕少于 17 行或没有走完
-  `space → school → schoolGate → home → washroom`，第二幕少于 23 行或没有走完
+- 每幕新增最少正文行数和必经场景顺序；第一幕少于 25 行或没有走完
+  `space → school → schoolGate → home → washroom`，第二幕少于 30 行或没有走完
   `washroom → home → bedroom → rooftop → nightStreet → park → schoolRoad`，都会作为不完整正文拒绝，不需要 AI 输出完成标记。
 - 重新生成按 `contextFloorIds` 只继承前面各幕当前采用楼层，不再把当前幕旧楼层送回模型续写。
 - 已读剧情的每个候选楼层可删除；删除当前采用版会回退到剩余的最新可播放版，没有候选时取消采用。删除仅作用于游戏本地楼层及其 messagesave 原文。

@@ -371,7 +371,7 @@ export async function generateStoryAct(request: GenerateStoryActRequest): Promis
 
   if (typeof result !== 'string') throw new Error('酒馆返回了工具调用，当前剧情生成只接受正文文本。');
   try {
-    const playableText = extractPlayableText(result);
+    const playableText = extractPlayableText(result, { requirePlayableWrapper: true });
     const parsedAct = parsePlainTextAct(playableText, request.actIndex, request.playerName);
     const messages = createStoryMessagePair({
       ...request,

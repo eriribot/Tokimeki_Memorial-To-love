@@ -16,14 +16,14 @@ export const EPISODE_01_EVENT_ID = 'main.lala-arrival-2008-04-07';
 export const EPISODE_01_PLOT_LORE_REFERENCES = [
   {
     worldbookName: '出包王女',
-    entryUid: 101,
+    entryUid: 150,
     entryName: '剧情第一集·第一幕',
     rootTag: 'To LOVE-Ru TV Episode 01 Act 01',
     kind: 'plot',
   },
   {
     worldbookName: '出包王女',
-    entryUid: 102,
+    entryUid: 151,
     entryName: '剧情第一集·第二幕',
     rootTag: 'To LOVE-Ru TV Episode 01 Act 02',
     kind: 'plot',

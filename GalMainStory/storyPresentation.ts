@@ -1,9 +1,5 @@
-import {
-  findStoryCharacterBySpeaker,
-  getStoryCharacter,
-  getStoryPortraitRig,
-  isStoryCharacterId,
-} from './characters';
+import { findStoryCharacterBySpeaker, getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from './characters';
+import { getRequiredStoryPortraitId } from './portraitRules';
 import {
   STORY_EFFECTS,
   STORY_SCENE_IDS,
@@ -77,7 +73,10 @@ function isStoryEffect(value: string): value is StoryEffect {
   return STORY_EFFECTS.includes(value as StoryEffect);
 }
 
-function parsePresentationCue(fields: ReturnType<typeof parseDirectiveFields>, act: StoryActPresentation): StoryPresentationCue {
+function parsePresentationCue(
+  fields: ReturnType<typeof parseDirectiveFields>,
+  act: StoryActPresentation,
+): StoryPresentationCue {
   if (!isStorySceneId(fields.scene) || !act.sceneIds.includes(fields.scene)) {
     throw new Error(`当前幕不能使用场景“${fields.scene}”。`);
   }
@@ -101,31 +100,24 @@ function parsePresentationCue(fields: ReturnType<typeof parseDirectiveFields>, a
   const castMember = act.cast.find(member => member.characterId === focusCharacterId);
   if (!castMember) throw new Error(`角色“${getStoryCharacter(focusCharacterId).displayName}”不在当前幕演员表中。`);
   const portraitRules = act.portraitRules ?? [];
-  const matchingPortraitRule = portraitRules.find(
-    rule => rule.sceneId === fields.scene && rule.characterId === focusCharacterId,
-  );
-  const outsideSceneRule = matchingPortraitRule
-    ? null
-    : portraitRules.find(
-        rule =>
-          rule.characterId === focusCharacterId &&
-          rule.portraitId === fields.portrait &&
-          rule.outsideScenePortraitId,
-      );
-  const resolvedPortraitId =
-    matchingPortraitRule?.portraitId ?? outsideSceneRule?.outsideScenePortraitId ?? fields.portrait;
-  if (!castMember.portraitIds.includes(resolvedPortraitId)) {
-    throw new Error(`当前幕不允许角色“${focusCharacterId}”使用立绘“${resolvedPortraitId}”。`);
+  const requiredPortraitId = getRequiredStoryPortraitId(portraitRules, fields.scene, focusCharacterId);
+  if (requiredPortraitId && fields.portrait !== requiredPortraitId) {
+    throw new Error(
+      `场景“${fields.scene}”中的角色“${focusCharacterId}”必须使用立绘“${requiredPortraitId}”，不能使用“${fields.portrait}”。`,
+    );
   }
-  const rig = getStoryPortraitRig(focusCharacterId, resolvedPortraitId);
+  if (!castMember.portraitIds.includes(fields.portrait)) {
+    throw new Error(`当前幕不允许角色“${focusCharacterId}”使用立绘“${fields.portrait}”。`);
+  }
+  const rig = getStoryPortraitRig(focusCharacterId, fields.portrait);
   if (!rig.expressions[fields.expression]) {
-    throw new Error(`立绘“${focusCharacterId}/${resolvedPortraitId}”没有表情“${fields.expression}”。`);
+    throw new Error(`立绘“${focusCharacterId}/${fields.portrait}”没有表情“${fields.expression}”。`);
   }
 
   return {
     sceneId: fields.scene,
     focusCharacterId,
-    portraitId: resolvedPortraitId,
+    portraitId: fields.portrait,
     expressionId: fields.expression,
     effect: fields.effect,
   };
@@ -135,7 +127,9 @@ export function parseStoryLine(value: string, context: StoryLineParseContext): P
   const line = value.trim();
   const match = line.match(DIRECTED_LINE_PATTERN);
   if (!match) {
-    throw new Error('剧情正文行必须使用“@说话人【scene=...;focus=...;portrait=...;expression=...;effect=...】：正文”格式。');
+    throw new Error(
+      '剧情正文行必须使用“@说话人【scene=...;focus=...;portrait=...;expression=...;effect=...】：正文”格式。',
+    );
   }
 
   const text = match[3].trim();

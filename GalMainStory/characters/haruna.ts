@@ -34,5 +34,14 @@ export const HARUNA_STORY_CHARACTER = {
   nameplate: '/artsource/galbox/haruna/wasya05_haruna.png',
   defaultPortraitId: HARUNA_SCHOOL_PORTRAIT.id,
   portraits: { [HARUNA_SCHOOL_PORTRAIT.id]: HARUNA_SCHOOL_PORTRAIT },
-  loreReferences: [],
+  loreReferences: [
+    {
+      worldbookName: '出包王女',
+      entryUid: 6,
+      entryName: '西连寺春菜',
+      rootTag: 'Haruna Sairenji',
+      requiredContentMarker: '姓名:西连寺春菜',
+      kind: 'character',
+    },
+  ],
 } as const satisfies StoryCharacterDefinition;

@@ -5,12 +5,13 @@ export const EPISODE_01_ACT_01 = {
   title: '说不出口的放学后',
   actionPointsRemaining: 1,
   loreSection: '第一幕·说不出口的放学后',
-  characterLoreIds: ['lala'],
+  characterLoreIds: ['lala', 'haruna', 'mikan'],
   presentation: {
     sceneIds: ['space', 'school', 'schoolGate', 'home', 'washroom'],
     cast: [
       { characterId: 'lala', portraitIds: ['arrival-default'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
+      { characterId: 'mikan', portraitIds: ['arrival-default'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
     ],
   },
@@ -130,13 +131,13 @@ export const EPISODE_01_ACT_01 = {
       },
     },
     {
-      speaker: null,
-      text: '回到家时，门厅传来美柑的招呼。你含糊应了一声，满脑子还是校门前那次失败。',
+      speaker: '美柑',
+      text: '回来了？怎么一副又失败了的表情。',
       presentation: {
         sceneId: 'home',
-        focusCharacterId: null,
-        portraitId: null,
-        expressionId: null,
+        focusCharacterId: 'mikan',
+        portraitId: 'arrival-default',
+        expressionId: 'neutral',
         effect: 'none',
       },
     },

@@ -1,16 +1,19 @@
 import { HARUNA_STORY_CHARACTER } from './haruna';
 import { LALA_STORY_CHARACTER } from './lala';
+import { MIKAN_STORY_CHARACTER } from './mikan';
 import { RIKO_STORY_CHARACTER } from './riko';
 import type { LayeredPortraitRig, StoryCharacterDefinition } from './types';
 
 export { HARUNA_STORY_CHARACTER } from './haruna';
 export { LALA_STORY_CHARACTER } from './lala';
+export { MIKAN_STORY_CHARACTER } from './mikan';
 export { RIKO_STORY_CHARACTER } from './riko';
 export type { LayeredPortraitExpression, LayeredPortraitRig, PortraitRegion, StoryCharacterDefinition } from './types';
 
 export const STORY_CHARACTERS = {
   lala: LALA_STORY_CHARACTER,
   haruna: HARUNA_STORY_CHARACTER,
+  mikan: MIKAN_STORY_CHARACTER,
   riko: RIKO_STORY_CHARACTER,
 } as const satisfies Record<string, StoryCharacterDefinition>;
 

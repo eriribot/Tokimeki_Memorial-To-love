@@ -1,3 +1,6 @@
+import { getRequiredStoryPortraitId, validateStoryPortraitRules } from '../GalMainStory/portraitRules';
+import type { StorySceneId, StoryScenePortraitRule } from '../GalMainStory/storyTypes';
+
 export interface StoryPromptPortraitOption {
   characterId: string;
   displayName: string;
@@ -5,19 +8,14 @@ export interface StoryPromptPortraitOption {
   expressionIds: readonly string[];
 }
 
-export interface StoryPromptPortraitRule {
-  sceneId: string;
-  characterId: string;
-  portraitId: string;
-  outsideScenePortraitId?: string;
-}
+export type StoryPromptPortraitRule = StoryScenePortraitRule;
 
 export interface StoryGenerationPromptContext {
   eventTitle: string;
   loreSection: string;
-  sceneIds: readonly string[];
+  sceneIds: readonly StorySceneId[];
   minimumLineCount: number;
-  requiredSceneSequence: readonly string[];
+  requiredSceneSequence: readonly StorySceneId[];
   portraitOptions: readonly StoryPromptPortraitOption[];
   portraitRules?: readonly StoryPromptPortraitRule[];
   continuityMode?: 'fresh' | 'continue';
@@ -41,17 +39,65 @@ function buildPortraitOptionList(options: readonly StoryPromptPortraitOption[]):
     .join('\n');
 }
 
-function buildPortraitRuleSection(rules: readonly StoryPromptPortraitRule[]): string {
+function validatePromptContext(context: StoryGenerationPromptContext): void {
+  if (context.sceneIds.length === 0) throw new Error('当前幕至少要登记一个场景。');
+  if (!Number.isInteger(context.minimumLineCount) || context.minimumLineCount <= 0) {
+    throw new Error('当前幕最少正文行数必须是正整数。');
+  }
+
+  const sceneIds = new Set<StorySceneId>();
+  for (const sceneId of context.sceneIds) {
+    if (sceneIds.has(sceneId)) throw new Error(`当前幕重复登记了场景“${sceneId}”。`);
+    sceneIds.add(sceneId);
+  }
+  for (const sceneId of context.requiredSceneSequence) {
+    if (!sceneIds.has(sceneId)) throw new Error(`完成合同引用了当前幕未登记的场景“${sceneId}”。`);
+  }
+
+  const optionPairs = new Set<string>();
+  for (const option of context.portraitOptions) {
+    const pair = `${option.characterId}\u0000${option.portraitId}`;
+    if (optionPairs.has(pair)) {
+      throw new Error(`角色“${option.characterId}”重复登记了立绘“${option.portraitId}”。`);
+    }
+    if (option.expressionIds.length === 0) {
+      throw new Error(`立绘“${option.characterId}/${option.portraitId}”没有登记表情。`);
+    }
+    optionPairs.add(pair);
+  }
+
+  const rules = context.portraitRules ?? [];
+  validateStoryPortraitRules(rules);
+  for (const rule of rules) {
+    if (!sceneIds.has(rule.sceneId)) throw new Error(`立绘规则引用了当前幕未登记的场景“${rule.sceneId}”。`);
+    for (const portraitId of [rule.portraitId, rule.outsideScenePortraitId].filter(Boolean) as string[]) {
+      if (!optionPairs.has(`${rule.characterId}\u0000${portraitId}`)) {
+        throw new Error(`立绘规则引用了当前幕未登记的立绘“${rule.characterId}/${portraitId}”。`);
+      }
+    }
+  }
+}
+
+function buildPortraitRuleSection(context: StoryGenerationPromptContext): string {
+  const rules = context.portraitRules ?? [];
   if (rules.length === 0) return '';
-  const ruleList = rules
-    .map(rule => {
-      const outsideRule = rule.outsideScenePortraitId
-        ? `；该 portrait 只能用于此场景，其他场景的同一角色必须使用 portrait=${rule.outsideScenePortraitId}`
-        : '';
-      return `- scene=${rule.sceneId} 且 focus=${rule.characterId} 时，portrait 必须写 ${rule.portraitId}${outsideRule}。`;
-    })
-    .join('\n');
-  return `- 以下场景专用立绘绑定是强制规则，优先级高于普通立绘列表：\n${ruleList}`;
+
+  const ruleLines: string[] = [];
+  for (const characterId of [...new Set(rules.map(rule => rule.characterId))]) {
+    const scenesByPortrait = new Map<string, string[]>();
+    for (const sceneId of context.sceneIds) {
+      const portraitId = getRequiredStoryPortraitId(rules, sceneId, characterId);
+      if (!portraitId) continue;
+      const sceneIds = scenesByPortrait.get(portraitId) ?? [];
+      sceneIds.push(sceneId);
+      scenesByPortrait.set(portraitId, sceneIds);
+    }
+    for (const [portraitId, sceneIds] of scenesByPortrait) {
+      ruleLines.push(`- IF scene=${sceneIds.join('|')} AND focus=${characterId}, THEN portrait=${portraitId}。`);
+    }
+  }
+
+  return `- 下列场景分支决定唯一合法 portrait，优先级高于上面的登记值总表：\n${ruleLines.join('\n')}`;
 }
 
 function buildContinuityInstruction(mode: StoryGenerationPromptContext['continuityMode']): string {
@@ -60,8 +106,19 @@ function buildContinuityInstruction(mode: StoryGenerationPromptContext['continui
 }
 
 function buildDirectedExample(context: StoryGenerationPromptContext): string {
-  const option = context.portraitOptions[0];
-  const sceneId = context.sceneIds[0] ?? 'scene';
+  const sceneId = context.requiredSceneSequence[0] ?? context.sceneIds[0];
+  const rules = context.portraitRules ?? [];
+  const sceneRule = rules.find(rule => rule.sceneId === sceneId);
+  const option = sceneRule
+    ? context.portraitOptions.find(
+        candidate =>
+          candidate.characterId === sceneRule.characterId &&
+          candidate.portraitId === getRequiredStoryPortraitId(rules, sceneId, sceneRule.characterId),
+      )
+    : context.portraitOptions.find(candidate => {
+        const requiredPortraitId = getRequiredStoryPortraitId(rules, sceneId, candidate.characterId);
+        return requiredPortraitId === null || requiredPortraitId === candidate.portraitId;
+      });
   if (!option) {
     return `@旁白【scene=${sceneId};focus=none;portrait=none;expression=none;effect=none】：空镜展示当前环境。`;
   }
@@ -72,16 +129,22 @@ function buildDirectedExample(context: StoryGenerationPromptContext): string {
   ].join('\n');
 }
 
+function buildRequiredSceneContract(requiredSceneSequence: readonly StorySceneId[]): string {
+  if (requiredSceneSequence.length === 0) return '';
+  return `- 场景首次推进必须完整覆盖：${requiredSceneSequence.join(' → ')}。`;
+}
+
 function buildAllowedSpeakerList(options: readonly StoryPromptPortraitOption[]): string {
   const characterNames = [...new Set(options.map(option => `@${option.displayName}`))];
   return ['@旁白', '@你', ...characterNames].join('、');
 }
 
 export function buildStoryOutputProtocol(context: StoryGenerationPromptContext): string {
+  validatePromptContext(context);
   return `
-只输出 GAL 正文，不输出规划、分析、摘要、标题、标签、JSON 或阶段标记。
+只输出一个正文容器，不使用 Markdown 代码块。默认使用 <content>...</content>；如果上层提示已指定其他正文标签，例如 <正文>...</正文>、<story_scene>...</story_scene> 或 <story_scence>...</story_scence>，则沿用那一对同名开闭标签。不得并列或嵌套多个正文容器；容器外不输出任何文字，容器内不输出规划、分析、摘要、标题、其他标签、JSON 或阶段标记。
 
-每个非空行必须严格使用：
+正文容器内每个非空行必须严格使用：
 @说话人【scene=场景ID;focus=角色ID或none;portrait=立绘ID或none;expression=表情ID或none;effect=效果ID】：正文
 
 - 固定说话人和本幕已登记角色是：${buildAllowedSpeakerList(context.portraitOptions)}。
@@ -96,18 +159,20 @@ export function buildStoryOutputProtocol(context: StoryGenerationPromptContext):
 - 同一角色连续在场时，每一行都重复填写该角色的 focus、portrait 和 expression，不得用 none 表示“沿用上一页”。
 - focus=none 只用于真正没有任何已登记角色出现在画面中的环境空镜。
 - focus=none 时 portrait 与 expression 必须同时为 none。
-- focus 为角色 ID 时，portrait 与 expression 必须使用下列同一角色登记值：
+- focus 为角色 ID 时，portrait 与 expression 必须使用下列同一角色登记值；登记值总表不代表每个场景都能使用该角色的全部立绘：
 ${buildPortraitOptionList(context.portraitOptions)}
-${buildPortraitRuleSection(context.portraitRules ?? [])}
+${buildPortraitRuleSection(context)}
 - 每行正文只承载一个镜头或一句短台词；不要在正文中解释演出字段。
 - 涉及洗浴、更衣或其他私密场景时严格使用上述场景专用立绘绑定。
 
-合法示例（使用当前幕真实登记值）：
+合法完整外层示例（使用当前幕首个必经场景的真实登记值）：
+<content>
 ${buildDirectedExample(context)}
+</content>
 
 完成合同：
 - 至少输出 ${context.minimumLineCount} 行上述 GAL 正文。
-- 场景首次推进必须完整覆盖：${context.requiredSceneSequence.join(' → ')}。
+${buildRequiredSceneContract(context.requiredSceneSequence)}
 - 写完世界书“${context.loreSection}”最后一个情节点后立即结束；禁止用缩短、总结或跳过情节点的方式凑齐行数和场景。
   `.trim();
 }
