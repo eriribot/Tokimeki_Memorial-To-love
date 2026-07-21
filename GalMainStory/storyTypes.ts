@@ -35,9 +35,17 @@ export interface StoryActCastMember {
   portraitIds: readonly string[];
 }
 
+export interface StoryScenePortraitRule {
+  sceneId: StorySceneId;
+  characterId: string;
+  portraitId: string;
+  outsideScenePortraitId?: string;
+}
+
 export interface StoryActPresentation {
   sceneIds: readonly StorySceneId[];
   cast: readonly StoryActCastMember[];
+  portraitRules?: readonly StoryScenePortraitRule[];
 }
 
 export interface StoryActGenerationContract {

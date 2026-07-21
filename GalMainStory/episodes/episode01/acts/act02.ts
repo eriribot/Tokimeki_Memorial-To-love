@@ -9,9 +9,17 @@ export const EPISODE_01_ACT_02 = {
   presentation: {
     sceneIds: ['washroom', 'home', 'bedroom', 'rooftop', 'nightStreet', 'park', 'schoolRoad'],
     cast: [
-      { characterId: 'lala', portraitIds: ['arrival-default'] },
+      { characterId: 'lala', portraitIds: ['arrival-default', 'washroom-swimsuit'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'washroom',
+        characterId: 'lala',
+        portraitId: 'washroom-swimsuit',
+        outsideScenePortraitId: 'arrival-default',
+      },
     ],
   },
   generation: {
@@ -25,7 +33,7 @@ export const EPISODE_01_ACT_02 = {
       presentation: {
         sceneId: 'washroom',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'washroom-swimsuit',
         expressionId: 'happy',
         effect: 'flash',
       },
@@ -36,7 +44,7 @@ export const EPISODE_01_ACT_02 = {
       presentation: {
         sceneId: 'washroom',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'washroom-swimsuit',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -47,7 +55,7 @@ export const EPISODE_01_ACT_02 = {
       presentation: {
         sceneId: 'washroom',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'washroom-swimsuit',
         expressionId: 'neutral',
         effect: 'shake',
       },

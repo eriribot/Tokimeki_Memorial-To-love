@@ -100,18 +100,32 @@ function parsePresentationCue(fields: ReturnType<typeof parseDirectiveFields>, a
   if (!isStoryCharacterId(focusCharacterId)) throw new Error(`剧情页引用了未登记角色“${focusCharacterId}”。`);
   const castMember = act.cast.find(member => member.characterId === focusCharacterId);
   if (!castMember) throw new Error(`角色“${getStoryCharacter(focusCharacterId).displayName}”不在当前幕演员表中。`);
-  if (!castMember.portraitIds.includes(fields.portrait)) {
-    throw new Error(`当前幕不允许角色“${focusCharacterId}”使用立绘“${fields.portrait}”。`);
+  const portraitRules = act.portraitRules ?? [];
+  const matchingPortraitRule = portraitRules.find(
+    rule => rule.sceneId === fields.scene && rule.characterId === focusCharacterId,
+  );
+  const outsideSceneRule = matchingPortraitRule
+    ? null
+    : portraitRules.find(
+        rule =>
+          rule.characterId === focusCharacterId &&
+          rule.portraitId === fields.portrait &&
+          rule.outsideScenePortraitId,
+      );
+  const resolvedPortraitId =
+    matchingPortraitRule?.portraitId ?? outsideSceneRule?.outsideScenePortraitId ?? fields.portrait;
+  if (!castMember.portraitIds.includes(resolvedPortraitId)) {
+    throw new Error(`当前幕不允许角色“${focusCharacterId}”使用立绘“${resolvedPortraitId}”。`);
   }
-  const rig = getStoryPortraitRig(focusCharacterId, fields.portrait);
+  const rig = getStoryPortraitRig(focusCharacterId, resolvedPortraitId);
   if (!rig.expressions[fields.expression]) {
-    throw new Error(`立绘“${focusCharacterId}/${fields.portrait}”没有表情“${fields.expression}”。`);
+    throw new Error(`立绘“${focusCharacterId}/${resolvedPortraitId}”没有表情“${fields.expression}”。`);
   }
 
   return {
     sceneId: fields.scene,
     focusCharacterId,
-    portraitId: fields.portrait,
+    portraitId: resolvedPortraitId,
     expressionId: fields.expression,
     effect: fields.effect,
   };

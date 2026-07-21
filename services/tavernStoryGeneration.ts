@@ -15,6 +15,7 @@ import {
   type GalStoryMessageSave,
   type GalStoryMessageSource,
   type MainStoryEntryReason,
+  type StoryActDefinition,
   type StoryPresentationCue,
 } from '../GalMainStory/storyTypes';
 import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
@@ -88,7 +89,7 @@ function getActPortraitOptions(actIndex: number): StoryPromptPortraitOption[] {
 }
 
 function buildGenerationPrompt(request: GenerateStoryActRequest): string {
-  const act = EPISODE_01_ACTS[request.actIndex];
+  const act: StoryActDefinition | undefined = EPISODE_01_ACTS[request.actIndex];
   if (!act) throw new Error('第一集幕编号无效。');
 
   return buildStoryGenerationPrompt({
@@ -98,6 +99,8 @@ function buildGenerationPrompt(request: GenerateStoryActRequest): string {
     minimumLineCount: act.generation.minimumLineCount,
     requiredSceneSequence: act.generation.requiredSceneSequence,
     portraitOptions: getActPortraitOptions(request.actIndex),
+    portraitRules: act.presentation.portraitRules ?? [],
+    continuityMode: request.contextFloorIds.length > 0 ? 'continue' : 'fresh',
   });
 }
 

@@ -5,6 +5,13 @@ export interface StoryPromptPortraitOption {
   expressionIds: readonly string[];
 }
 
+export interface StoryPromptPortraitRule {
+  sceneId: string;
+  characterId: string;
+  portraitId: string;
+  outsideScenePortraitId?: string;
+}
+
 export interface StoryGenerationPromptContext {
   eventTitle: string;
   loreSection: string;
@@ -12,6 +19,8 @@ export interface StoryGenerationPromptContext {
   minimumLineCount: number;
   requiredSceneSequence: readonly string[];
   portraitOptions: readonly StoryPromptPortraitOption[];
+  portraitRules?: readonly StoryPromptPortraitRule[];
+  continuityMode?: 'fresh' | 'continue';
 }
 
 function normalizeInline(value: string, fallback: string): string {
@@ -30,6 +39,24 @@ function buildPortraitOptionList(options: readonly StoryPromptPortraitOption[]):
         `- ${option.displayName}: focus=${option.characterId}; portrait=${option.portraitId}; expression=${option.expressionIds.join('|')}`,
     )
     .join('\n');
+}
+
+function buildPortraitRuleSection(rules: readonly StoryPromptPortraitRule[]): string {
+  if (rules.length === 0) return '';
+  const ruleList = rules
+    .map(rule => {
+      const outsideRule = rule.outsideScenePortraitId
+        ? `；该 portrait 只能用于此场景，其他场景的同一角色必须使用 portrait=${rule.outsideScenePortraitId}`
+        : '';
+      return `- scene=${rule.sceneId} 且 focus=${rule.characterId} 时，portrait 必须写 ${rule.portraitId}${outsideRule}。`;
+    })
+    .join('\n');
+  return `- 以下场景专用立绘绑定是强制规则，优先级高于普通立绘列表：\n${ruleList}`;
+}
+
+function buildContinuityInstruction(mode: StoryGenerationPromptContext['continuityMode']): string {
+  if (mode !== 'continue') return '';
+  return '- 延续已提供的前序剧情中已经发生的事实、人物状态与关系；不要复述前幕，也不要重新演绎已经完成的情节点。';
 }
 
 function buildDirectedExample(context: StoryGenerationPromptContext): string {
@@ -71,8 +98,9 @@ export function buildStoryOutputProtocol(context: StoryGenerationPromptContext):
 - focus=none 时 portrait 与 expression 必须同时为 none。
 - focus 为角色 ID 时，portrait 与 expression 必须使用下列同一角色登记值：
 ${buildPortraitOptionList(context.portraitOptions)}
+${buildPortraitRuleSection(context.portraitRules ?? [])}
 - 每行正文只承载一个镜头或一句短台词；不要在正文中解释演出字段。
-- 涉及洗浴、更衣或其他私密场景时，不要再和之前的动画一样用圣光雾气遮挡，现在是成人向的新企划了。
+- 涉及洗浴、更衣或其他私密场景时严格使用上述场景专用立绘绑定。
 
 合法示例（使用当前幕真实登记值）：
 ${buildDirectedExample(context)}
@@ -96,6 +124,7 @@ export function buildStoryGenerationPrompt(context: StoryGenerationPromptContext
 - 写完该小节最后一个情节点立即结束，不续写下一幕。
 - 人物世界书只补充性格、口吻和身份，不能改写剧情世界书规定的事件与关系。
 - 玩家统一写成第二人称“你”。不解释行动点、存档、世界书、生成或资源路径。
+${buildContinuityInstruction(context.continuityMode)}
 
 ${buildStoryOutputProtocol(context)}
 `.trim();

@@ -9,14 +9,26 @@ interface LayeredPortraitProps {
   beatKey: number;
 }
 
-function getRegionStyle(rig: LayeredPortraitRig, region: 'eyes' | 'mouth'): CSSProperties {
+type FaceWindowStyle = CSSProperties & {
+  '--portrait-feather-x'?: string;
+  '--portrait-feather-y'?: string;
+};
+
+function getRegionStyle(rig: LayeredPortraitRig, region: 'eyes' | 'mouth'): FaceWindowStyle {
   const rect = rig.regions[region];
-  return {
+  const style: FaceWindowStyle = {
     top: `${(rect.y / rig.canvas.height) * 100}%`,
     left: `${(rect.x / rig.canvas.width) * 100}%`,
     width: `${(rect.width / rig.canvas.width) * 100}%`,
     height: `${(rect.height / rig.canvas.height) * 100}%`,
   };
+
+  if (rect.feather) {
+    style['--portrait-feather-x'] = `${(rect.feather / rect.width) * 100}%`;
+    style['--portrait-feather-y'] = `${(rect.feather / rect.height) * 100}%`;
+  }
+
+  return style;
 }
 
 export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey }: LayeredPortraitProps) {
@@ -37,6 +49,7 @@ export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey
 
         <span
           className="layered-portrait__face-window layered-portrait__eyes"
+          data-feathered={rig.regions.eyes.feather ? 'true' : undefined}
           style={getRegionStyle(rig, 'eyes')}
           aria-hidden="true"
         >
@@ -45,6 +58,7 @@ export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey
 
         <span
           className="layered-portrait__face-window layered-portrait__mouth"
+          data-feathered={rig.regions.mouth.feather ? 'true' : undefined}
           style={getRegionStyle(rig, 'mouth')}
           aria-hidden="true"
         >

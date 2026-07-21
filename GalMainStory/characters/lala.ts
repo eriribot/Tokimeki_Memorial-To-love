@@ -27,6 +27,32 @@ const LALA_DEFAULT_PORTRAIT = {
   ),
 } as const;
 
+const LALA_WASHROOM_PORTRAIT = {
+  id: 'washroom-swimsuit',
+  characterId: 'lala',
+  displayName: '菈菈',
+  canvas: { width: 1024, height: 1024 },
+  body: '/artsource/lala/lala_washroom/lalawashroom.png',
+  mask: '/artsource/lala/lala_washroom/004_01_08_a.png',
+  regions: {
+    eyes: { x: 394, y: 217, width: 230, height: 131, feather: 10 },
+    mouth: { x: 394, y: 346, width: 230, height: 57, feather: 6 },
+  },
+  defaultExpressionId: 'neutral',
+  expressions: createFaceAtlasExpressions(
+    '/artsource/lala/lala_washroom/004_01_08_',
+    {
+      neutral: 'a',
+      worried: 'e',
+      happy: 'b',
+      serious: 'd',
+      panic: 'c',
+      shy: 'f',
+    },
+    ['happy'],
+  ),
+} as const;
+
 export const LALA_STORY_CHARACTER = {
   id: 'lala',
   displayName: '菈菈',
@@ -41,7 +67,10 @@ export const LALA_STORY_CHARACTER = {
   ],
   nameplate: '/artsource/galbox/lala/wasya04_lala.png',
   defaultPortraitId: LALA_DEFAULT_PORTRAIT.id,
-  portraits: { [LALA_DEFAULT_PORTRAIT.id]: LALA_DEFAULT_PORTRAIT },
+  portraits: {
+    [LALA_DEFAULT_PORTRAIT.id]: LALA_DEFAULT_PORTRAIT,
+    [LALA_WASHROOM_PORTRAIT.id]: LALA_WASHROOM_PORTRAIT,
+  },
   loreReferences: [
     {
       worldbookName: '出包王女',

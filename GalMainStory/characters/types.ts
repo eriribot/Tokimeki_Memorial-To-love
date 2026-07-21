@@ -5,6 +5,8 @@ export interface PortraitRegion {
   y: number;
   width: number;
   height: number;
+  /** Softens opaque atlas edges against the body, measured in source-canvas pixels. */
+  feather?: number;
 }
 
 export interface LayeredPortraitExpression {

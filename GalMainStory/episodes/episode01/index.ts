@@ -2,7 +2,12 @@ import type { CalendarDateValue } from '../../../types';
 import type { DisabledWorldbookLoreReference } from '../../../data/storyLore';
 import { getStoryCharacter, isStoryCharacterId } from '../../characters';
 import { STORY_SCENE_ASSETS } from '../../scenes';
-import type { GalStoryAct, MainStoryEntryReason } from '../../storyTypes';
+import type {
+  GalStoryAct,
+  MainStoryEntryReason,
+  StoryActDefinition,
+  StoryPresentationCue,
+} from '../../storyTypes';
 import { EPISODE_01_ACT_01 } from './acts/act01';
 import { EPISODE_01_ACT_02 } from './acts/act02';
 
@@ -42,6 +47,27 @@ export function getEpisode01LoreReferences(actIndex: number): DisabledWorldbookL
 }
 
 export const EPISODE_01_ACT_IDS = EPISODE_01_ACTS.map(act => act.id);
+
+export function resolveEpisode01PortraitId(
+  actId: string | undefined,
+  presentation: StoryPresentationCue | undefined,
+): string | null {
+  const requestedPortraitId = presentation?.portraitId ?? null;
+  if (!presentation) return requestedPortraitId;
+  const act: StoryActDefinition | undefined = EPISODE_01_ACTS.find(candidate => candidate.id === actId);
+  const portraitRules = act?.presentation.portraitRules ?? [];
+  const matchingRule = portraitRules.find(
+    rule => rule.sceneId === presentation.sceneId && rule.characterId === presentation.focusCharacterId,
+  );
+  if (matchingRule) return matchingRule.portraitId;
+  const outsideSceneRule = portraitRules.find(
+    rule =>
+      rule.characterId === presentation.focusCharacterId &&
+      rule.portraitId === requestedPortraitId &&
+      rule.outsideScenePortraitId,
+  );
+  return outsideSceneRule?.outsideScenePortraitId ?? requestedPortraitId;
+}
 
 export const EPISODE_01_STORY = {
   id: EPISODE_01_EVENT_ID,

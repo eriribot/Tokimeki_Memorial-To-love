@@ -19,7 +19,12 @@ import {
 } from './characters';
 import { GALBOX_ASSETS } from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
-import { createEpisode01FallbackAct, EPISODE_01_EVENT_ID, EPISODE_01_STORY } from './episodes/episode01';
+import {
+  createEpisode01FallbackAct,
+  EPISODE_01_EVENT_ID,
+  EPISODE_01_STORY,
+  resolveEpisode01PortraitId,
+} from './episodes/episode01';
 import RawStoryHistoryDialog from './RawStoryHistoryDialog';
 import { getStoryScene } from './scenes';
 import StoryHistoryArchive from './StoryHistoryArchive';
@@ -133,8 +138,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       ? presentation.focusCharacterId
       : null;
   const portraitCharacter = focusCharacterId ? getStoryCharacter(focusCharacterId) : null;
+  const resolvedPortraitId = resolveEpisode01PortraitId(visibleAct?.id, presentation);
   const portraitRig = focusCharacterId
-    ? getStoryPortraitRig(focusCharacterId, presentation?.portraitId)
+    ? getStoryPortraitRig(focusCharacterId, resolvedPortraitId)
     : null;
   const portraitExpressionId = presentation?.expressionId ?? null;
   const isPortraitSpeaking = isStoryCharacterSpeaking(portraitCharacter, visibleBeat?.speaker);
