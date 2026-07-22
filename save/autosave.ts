@@ -5,13 +5,13 @@ import { useSkillStore } from '../skilllogic';
 import { captureGameMessages, gameMessageApi } from '../message';
 import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
-import { createGameSnapshot, createSavePreview, type GameSnapshotV1 } from './snapshot';
+import { createGameSnapshot, createSavePreview, type GameSnapshot } from './snapshot';
 
 const DEFAULT_AUTOSAVE_DELAY_MS = 600;
 
 interface TavernAutosaveOptions {
   delayMs?: number;
-  onSaved?: (save: SaveRecord<GameSnapshotV1>) => void;
+  onSaved?: (save: SaveRecord<GameSnapshot>) => void;
   onError?: (error: Error) => void;
 }
 
@@ -31,7 +31,7 @@ function canAutosave(): boolean {
   return game.hasSession && game.screen === 'game';
 }
 
-function createAutosaveFingerprint(snapshot: GameSnapshotV1, messages: ReturnType<typeof captureGameMessages>): string {
+function createAutosaveFingerprint(snapshot: GameSnapshot, messages: ReturnType<typeof captureGameMessages>): string {
   return JSON.stringify({
     snapshot: {
       ...snapshot,
@@ -39,7 +39,10 @@ function createAutosaveFingerprint(snapshot: GameSnapshotV1, messages: ReturnTyp
       game: {
         ...snapshot.game,
         // GAL 翻页只改变本地阅读位置，不值得反复上传两份酒馆文件。
-        mainStoryPageIndex: 0,
+        mainStory: {
+          ...snapshot.game.mainStory,
+          run: snapshot.game.mainStory.run ? { ...snapshot.game.mainStory.run, pageIndex: 0 } : null,
+        },
       },
     },
     messages,

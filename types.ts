@@ -1,12 +1,4 @@
-import type {
-  GalStoryActArchive,
-  GalStoryAct,
-  GalStoryFloor,
-  MainStoryEntryReason,
-  StoryGenerationSource,
-  StoryGenerationStatus,
-  GalStoryMessageSave,
-} from './GalMainStory/storyTypes';
+import type { GalStoryFloor, GalStoryMessageSave, MainStoryState } from './GalMainStory/storyTypes';
 
 export type GameScreen = 'start' | 'game';
 
@@ -19,9 +11,7 @@ export interface CalendarDateValue {
 export type PeriodKey = 'morning' | 'afterSchool' | 'evening';
 
 export type CharacterAvailabilityRule =
-  | { kind: 'always' }
-  | { kind: 'after-event'; eventId: string }
-  | { kind: 'locked' };
+  { kind: 'always' } | { kind: 'after-event'; eventId: string } | { kind: 'locked' };
 
 export interface CharacterPresenceContext {
   periodKey: PeriodKey;
@@ -86,17 +76,7 @@ export interface GameState {
   isPlaying: boolean;
   log: string[];
   events: GameEvent[];
-  activeMainStoryEventId: string | null;
-  completedMainStoryEventIds: string[];
-  mainStoryEntryReason: MainStoryEntryReason | null;
-  mainStoryActIndex: number;
-  mainStoryPageIndex: number;
-  mainStoryActs: GalStoryAct[];
-  mainStoryArchives: GalStoryActArchive[];
-  mainStoryMessages: GalStoryMessageSave[];
-  mainStoryGenerationStatus: StoryGenerationStatus;
-  mainStoryGenerationSource: StoryGenerationSource | null;
-  mainStoryGenerationError: string | null;
+  mainStory: MainStoryState;
 }
 
 export type PlayerActionKind = 'activity' | 'talk';
@@ -126,15 +106,14 @@ export interface GameActions {
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
   reconcilePendingMainStoryEntry: () => boolean;
-  beginMainStoryGeneration: () => boolean;
+  beginMainStoryGeneration: (requestId: string) => boolean;
   setMainStoryActContent: (floor: GalStoryFloor, messages: GalStoryMessageSave[]) => void;
   failMainStoryGeneration: (message: string, messages?: GalStoryMessageSave[], floor?: GalStoryFloor) => void;
-  addMainStoryFloor: (floor: GalStoryFloor, messages?: GalStoryMessageSave[]) => void;
+  addMainStoryFloor: (floor: GalStoryFloor, messages: GalStoryMessageSave[], basedOnFloorId: string) => boolean;
   selectMainStoryFloor: (floorId: string) => boolean;
   deleteMainStoryFloor: (floorId: string) => boolean;
-  setMainStoryPosition: (actIndex: number, pageIndex: number) => void;
-  advanceMainStoryAct: () => boolean;
-  completeMainStoryEvent: () => boolean;
+  setMainStoryPosition: (actId: string, pageIndex: number) => void;
+  finishMainStoryAct: () => boolean;
   resetGameState: () => void;
 }
 

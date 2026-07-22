@@ -1,20 +1,17 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  createStoryFloor,
-  createStoryFloorId,
-  generateStoryAct,
-} from '../services/tavernStoryGeneration';
+import { createStoryFloor, createStoryFloorId, generateStoryAct } from '../services/tavernStoryGeneration';
 import { useGameStore } from '../stores/gameStore';
 import { resolveAssetPath } from '../utils/assetPath';
-import { EPISODE_01_STORY } from './episodes/episode01';
+import { getPreviousActiveStoryFloors } from './storyArchive';
+import { getMainStoryActIndex, getMainStoryEpisode } from './storyRegistry';
 import { getStoryScene } from './scenes';
-import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from './storyTypes';
+import type { GalStoryActArchive, GalStoryFloor } from './storyTypes';
 
 interface StoryHistoryArchiveProps {
   isRawHistoryOpen: boolean;
   onExit: () => void;
   onOpenRawHistory: (floorId: string | null) => void;
-  onPlayAll: () => void;
+  onPlayAll: (eventId: string) => void;
   onPreviewFloor: (floorId: string) => void;
   children?: ReactNode;
 }
@@ -23,22 +20,12 @@ function getActiveFloor(archive: GalStoryActArchive): GalStoryFloor | null {
   return archive.floors.find(floor => floor.floorId === archive.activeFloorId) ?? null;
 }
 
-function getPreviousActiveFloors(
-  archives: readonly GalStoryActArchive[],
-  actIndex: number,
-): { floors: GalStoryFloor[]; acts: GalStoryAct[] } {
-  const floors = archives
-    .filter(archive => archive.actIndex < actIndex)
-    .sort((left, right) => left.actIndex - right.actIndex)
-    .map(getActiveFloor)
-    .filter((floor): floor is GalStoryFloor => floor !== null && floor.act !== null);
-  return { floors, acts: floors.map(floor => floor.act as GalStoryAct) };
-}
-
 function isContextStale(archive: GalStoryActArchive, archives: readonly GalStoryActArchive[]): boolean {
   const activeFloor = getActiveFloor(archive);
   if (!activeFloor) return false;
-  const expectedFloorIds = getPreviousActiveFloors(archives, archive.actIndex).floors.map(floor => floor.floorId);
+  const expectedFloorIds = getPreviousActiveStoryFloors(archives, archive.eventId, archive.actId).map(
+    floor => floor.floorId,
+  );
   return (
     expectedFloorIds.length !== activeFloor.contextFloorIds.length ||
     expectedFloorIds.some((floorId, index) => activeFloor.contextFloorIds[index] !== floorId)
@@ -58,17 +45,32 @@ export default function StoryHistoryArchive({
   onPreviewFloor,
   children,
 }: StoryHistoryArchiveProps) {
-  const archives = useGameStore(state => state.mainStoryArchives);
-  const messageHistory = useGameStore(state => state.mainStoryMessages);
+  const archives = useGameStore(state => state.mainStory.archives);
+  const messageHistory = useGameStore(state => state.mainStory.messages);
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
   const deleteFloor = useGameStore(state => state.deleteMainStoryFloor);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const isMountedRef = useRef(true);
-  const [regeneratingActIndex, setRegeneratingActIndex] = useState<number | null>(null);
+  const [regeneratingActKey, setRegeneratingActKey] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const sortedArchives = useMemo(() => [...archives].sort((left, right) => left.actIndex - right.actIndex), [archives]);
+  const sortedArchives = useMemo(
+    () =>
+      [...archives].sort((left, right) => {
+        const episodeDifference =
+          (getMainStoryEpisode(left.eventId)?.episodeNumber ?? Number.MAX_SAFE_INTEGER) -
+          (getMainStoryEpisode(right.eventId)?.episodeNumber ?? Number.MAX_SAFE_INTEGER);
+        return (
+          episodeDifference ||
+          getMainStoryActIndex(left.eventId, left.actId) - getMainStoryActIndex(right.eventId, right.actId)
+        );
+      }),
+    [archives],
+  );
   const hasPlayableStory = sortedArchives.some(archive => Boolean(getActiveFloor(archive)?.act));
+  const latestPlayableEventId = [...sortedArchives]
+    .reverse()
+    .find(archive => Boolean(getActiveFloor(archive)?.act))?.eventId;
   const rawAssistantMessageIds = useMemo(
     () =>
       new Set(
@@ -116,14 +118,16 @@ export default function StoryHistoryArchive({
         ? '这是当前采用楼层。删除后会自动回退到剩余的最新可播放楼层；如果没有可回退版本，本幕将变为未采用。确定删除吗？'
         : '删除后，这个楼层及其游戏内保存的 AI 原文将无法恢复。确定删除吗？';
       if (!window.confirm(warning)) return;
-      setNotice(deleteFloor(floor.floorId) ? '楼层及其游戏内 AI 原文已删除。' : '没有找到要删除的楼层。');
+      setNotice(
+        deleteFloor(floor.floorId) ? '楼层及其游戏内 AI 原文已删除。' : '楼层未删除；它可能仍被后续剧情版本引用。',
+      );
     },
     [deleteFloor],
   );
 
   const regenerateAct = useCallback(
     async (archive: GalStoryActArchive) => {
-      if (regeneratingActIndex !== null) return;
+      if (regeneratingActKey !== null) return;
       const baseFloor =
         getActiveFloor(archive) ??
         archive.floors.find(floor => floor.act !== null) ??
@@ -134,29 +138,35 @@ export default function StoryHistoryArchive({
         return;
       }
 
-      const previous = getPreviousActiveFloors(sortedArchives, archive.actIndex);
-      if (previous.floors.length !== archive.actIndex) {
+      const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
+      const previousFloors = getPreviousActiveStoryFloors(sortedArchives, archive.eventId, archive.actId);
+      if (actIndex < 0 || previousFloors.length !== actIndex) {
         setNotice('前面的幕还没有采用版本，暂时不能重新生成这一幕。');
         return;
       }
 
-      setRegeneratingActIndex(archive.actIndex);
+      const actKey = `${archive.eventId}:${archive.actId}`;
+      setRegeneratingActKey(actKey);
       setNotice(null);
-      const floorId = createStoryFloorId(archive.actIndex);
+      const floorId = createStoryFloorId(archive.eventId, archive.actId);
       const request = {
+        eventId: archive.eventId,
+        actId: archive.actId,
         floorId,
-        actIndex: archive.actIndex,
-        entryReason: baseFloor.context.entryReason,
         playerName: baseFloor.context.playerName,
         day: baseFloor.context.day,
         period: baseFloor.context.period,
         location: baseFloor.context.location,
-        contextFloorIds: previous.floors.map(floor => floor.floorId),
+        contextFloorIds: previousFloors.map(floor => floor.floorId),
         chatHistory: messageHistory,
       };
       try {
         const generated = await generateStoryAct(request);
-        addFloor(generated.floor, generated.messages);
+        const added = addFloor(generated.floor, generated.messages, baseFloor.floorId);
+        if (!added) {
+          if (isMountedRef.current) setNotice('生成期间剧情档案已经变化，这个过期结果没有写入。');
+          return;
+        }
         if (generated.ok) {
           if (isMountedRef.current) {
             setNotice('新楼层已保存为候选，尚未替换当前采用版。');
@@ -167,13 +177,19 @@ export default function StoryHistoryArchive({
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addFloor(createStoryFloor(request, null, 'tavern', [], 'request_error', message));
-        if (isMountedRef.current) setNotice(`重新生成失败：${message}`);
+        const added = addFloor(
+          createStoryFloor(request, null, 'tavern', [], 'request_error', message),
+          [],
+          baseFloor.floorId,
+        );
+        if (isMountedRef.current) {
+          setNotice(added ? `重新生成失败：${message}` : '生成期间剧情档案已经变化，这个过期错误没有写入。');
+        }
       } finally {
-        if (isMountedRef.current) setRegeneratingActIndex(null);
+        if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, regeneratingActIndex, sortedArchives],
+    [addFloor, messageHistory, onPreviewFloor, regeneratingActKey, sortedArchives],
   );
 
   return (
@@ -191,7 +207,11 @@ export default function StoryHistoryArchive({
             <h2>已读剧情</h2>
           </div>
           <div className="gal-story-archive__header-actions">
-            <button type="button" disabled={!hasPlayableStory} onClick={onPlayAll}>
+            <button
+              type="button"
+              disabled={!hasPlayableStory || !latestPlayableEventId}
+              onClick={() => latestPlayableEventId && onPlayAll(latestPlayableEventId)}
+            >
               从头回放
             </button>
             <button type="button" disabled={rawAssistantMessageIds.size === 0} onClick={() => onOpenRawHistory(null)}>
@@ -209,13 +229,18 @@ export default function StoryHistoryArchive({
           {sortedArchives.map(archive => {
             const activeFloor = getActiveFloor(archive);
             const activeFloorIndex = archive.floors.findIndex(floor => floor.floorId === archive.activeFloorId);
-            const actMeta = EPISODE_01_STORY.acts[archive.actIndex];
+            const episode = getMainStoryEpisode(archive.eventId);
+            const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
+            const actMeta = episode?.acts.find(act => act.id === archive.actId);
             const stale = isContextStale(archive, sortedArchives);
+            const actKey = `${archive.eventId}:${archive.actId}`;
             return (
-              <article className="gal-story-archive__act" key={archive.actId}>
+              <article className="gal-story-archive__act" key={actKey}>
                 <div className="gal-story-archive__act-heading">
                   <div>
-                    <span>第 {archive.actIndex + 1} 幕</span>
+                    <span>
+                      第 {episode?.episodeNumber ?? '?'} 集 · 第 {actIndex + 1} 幕
+                    </span>
                     <h3>{actMeta?.title ?? archive.actId}</h3>
                   </div>
                   <div className="gal-story-archive__act-actions">
@@ -228,11 +253,16 @@ export default function StoryHistoryArchive({
                     </button>
                     <button
                       type="button"
-                      disabled={regeneratingActIndex !== null}
+                      disabled={regeneratingActKey !== null}
                       onClick={() => void regenerateAct(archive)}
                     >
-                      {regeneratingActIndex === archive.actIndex ? '生成中…' : '重新生成'}
+                      {regeneratingActKey === actKey ? '生成中…' : '重新生成'}
                     </button>
+                    {actIndex === 0 && (
+                      <button type="button" disabled={!activeFloor?.act} onClick={() => onPlayAll(archive.eventId)}>
+                        回放本集
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -278,7 +308,7 @@ export default function StoryHistoryArchive({
                           <button
                             type="button"
                             className="is-danger"
-                            disabled={regeneratingActIndex !== null}
+                            disabled={regeneratingActKey !== null}
                             onClick={() => removeFloor(floor, isActive)}
                           >
                             删除

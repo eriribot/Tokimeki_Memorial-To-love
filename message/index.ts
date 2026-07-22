@@ -1,7 +1,7 @@
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
 import { useGameStore } from '../stores/gameStore';
 import type { SaveRecord } from '../save/protocol';
-import type { GameSnapshotV1 } from '../save/snapshot';
+import type { GameSnapshot } from '../save/snapshot';
 import { messageClient } from './client';
 import { MESSAGE_SCHEMA_VERSION, type MessageArchive } from './protocol';
 
@@ -13,13 +13,10 @@ function cloneJson<T>(value: T): T {
 }
 
 export function captureGameMessages(): GalStoryMessageSave[] {
-  return cloneJson(useGameStore.getState().mainStoryMessages);
+  return cloneJson(useGameStore.getState().mainStory.messages);
 }
 
-export function createMessageArchive(
-  save: SaveRecord<GameSnapshotV1>,
-  messages: GalStoryMessageSave[],
-): MessageArchive {
+export function createMessageArchive(save: SaveRecord<GameSnapshot>, messages: GalStoryMessageSave[]): MessageArchive {
   return {
     schemaVersion: MESSAGE_SCHEMA_VERSION,
     slotId: save.slotId,
@@ -33,9 +30,9 @@ export function createMessageArchive(
 
 export const gameMessageApi = {
   probe: () => messageClient.probe(),
-  saveFor: (save: SaveRecord<GameSnapshotV1>, messages: GalStoryMessageSave[]) =>
+  saveFor: (save: SaveRecord<GameSnapshot>, messages: GalStoryMessageSave[]) =>
     messageClient.write(createMessageArchive(save, messages)),
-  loadFor: async (save: SaveRecord<GameSnapshotV1>, strict: boolean): Promise<MessageArchive | null> => {
+  loadFor: async (save: SaveRecord<GameSnapshot>, strict: boolean): Promise<MessageArchive | null> => {
     const { archive } = await messageClient.load(save.slotId, save.saveUuid);
     if (!archive) return null;
     if (archive.saveUuid !== save.saveUuid || archive.saveRevision !== save.revision) {

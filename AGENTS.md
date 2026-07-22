@@ -15,7 +15,7 @@ action points, meet characters, build affection, and play generated GAL story sc
 
 ## Commands
 
-Run from `D:\webgame\tavern_helper_template-main`, where `package.json`, webpack config, TypeScript config, lockfile,
+Run from `D:\card\tolove\tavern_helper_template-main`, where `package.json`, webpack config, TypeScript config, lockfile,
 and dependencies live.
 
 | Command          | Purpose                      |
@@ -34,19 +34,25 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 
 ## Architecture
 
-- `stores/gameStore.ts`: date, period, action points, location/scene, main story, lifecycle.
+- `stores/gameStore.ts`: date, period, action points, location/scene, lifecycle, and the stable story-slice wiring.
+- `stores/mainStoryStore.ts`: generic main-story Zustand actions. It may query templates but must not branch on episode IDs.
 - `stores/cardStore.ts`: SillyTavern V2 cards, targets, locations, affection.
 - `stores/characterStore.ts`, `mapStore.ts`, `playerStore.ts`: presentation and player/map state.
 - `services/storyGenerationPrompt.ts`: reusable stage-opening/stage-ending and GAL output contracts. It contains no
   episode plot or character lore.
 - `services/tavernStoryGeneration.ts`: current event adapter, accepted-history context, Tavern generation, and
   plain-text parsing. It does not settle AP, affection, dates, or host floors.
-- `GalMainStory/`: story definitions, loading/error/fallback state, GAL rendering. It does not recalculate game state.
+- `GalMainStory/episodeTemplate.ts` and `episodes/index.ts`: the data-only episode contract and production registry.
+  Adding an episode that reuses existing assets means adding act definitions, one episode `index.ts`, and one registry item;
+  shared store, snapshot, generation, history, and renderer files must not gain episode branches.
+- `GalMainStory/storyRegistry.ts`, `storyArchive.ts`, and `storyPersistence.ts`: generic trigger/query, archive projection,
+  and strict schema-v2 restoration. Persistent identity is `eventId + actId`; act indexes are display-only derivatives.
+- `GalMainStory/GalMainStory.tsx`: loading/error/fallback state and GAL rendering. It does not recalculate game state.
 - `data/storyLore.ts` read-only loads the selected disabled plot/character entries from the real Tavern worldbook by
-  stable UID/name, validates their content markers, and arms only their per-scan copies for the next native World Info
+  stable order/name, validates their content markers, and arms only their per-scan copies for the next native World Info
   scan. It never changes saved worldbook state.
-- `data/lore-books/tolove-tv-episode-01-act01.txt` and `tolove-tv-episode-01-act02.txt` are the recovery sources used
-  to populate the two disabled act-specific Tavern entries; they are not imported into the runtime bundle.
+- `data/lore-books/tolove-tv-episode-*.txt` are recovery sources for the disabled act-specific Tavern entries; they are
+  not imported into the runtime bundle. Episodes 01 and 02 are both registered at runtime.
   `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
 - `save/` and `message/`: snapshots and the game-owned message mirror.
 
@@ -55,6 +61,10 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 ## Invariants
 
 - Zustand plus the save snapshot owns AP, date, event completion, and the current act.
+- Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do not
+  reintroduce parallel `active/progress/actIndex/acts` fields or episode-specific store actions.
+- Development snapshots before schema v2 are intentionally incompatible; do not add migration branches unless the
+  product requirement changes explicitly.
 - AI output is a story candidate. It must pass local extraction/normalization before GAL rendering.
 - AI responses do not need a model-emitted completion sentinel. AP, date, and the current act in Zustand select the
   stage; local acceptance validates the playable-text protocol, not a response suffix. Semantic coverage of every

@@ -74,7 +74,7 @@ export const LALA_STORY_CHARACTER = {
   loreReferences: [
     {
       worldbookName: '出包王女',
-      entryUid: 1,
+      entryOrder: 100,
       entryName: '菈菈.萨塔琳.戴比路克',
       rootTag: 'Lala Satalin Deviluke',
       requiredContentMarker: '姓名:菈菈·萨塔琳·戴比路克',

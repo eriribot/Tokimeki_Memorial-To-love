@@ -2,7 +2,7 @@ import { readWorldbook } from './worldbook';
 
 export interface DisabledWorldbookLoreReference {
   worldbookName: string;
-  entryUid: number;
+  entryOrder: number;
   entryName: string;
   rootTag: string;
   requiredContentMarker?: string;
@@ -68,25 +68,18 @@ function selectDisabledWorldbookStoryLore(
   reference: DisabledWorldbookLoreReference,
 ): LoadedStoryLore {
   const expectedName = normalizeName(reference.entryName);
-  const namedEntries = entries.filter(entry => normalizeName(entry.name) === expectedName);
-
-  if (namedEntries.length > 1) {
+  const orderedEntries = entries.filter(entry => entry.position.order === reference.entryOrder);
+  if (orderedEntries.length > 1) {
     throw new Error(
-      `世界书「${reference.worldbookName}」中存在多个「${reference.entryName}」条目，无法安全选择剧情资料。`,
+      `世界书「${reference.worldbookName}」中存在多个排序值为 ${reference.entryOrder} 的条目，无法安全选择剧情资料。`,
     );
   }
 
-  const uidEntry = entries.find(entry => entry.uid === reference.entryUid);
-  const entry =
-    uidEntry && normalizeName(uidEntry.name) === expectedName
-      ? uidEntry
-      : namedEntries.length === 1
-        ? namedEntries[0]
-        : null;
+  const entry = orderedEntries[0] && normalizeName(orderedEntries[0].name) === expectedName ? orderedEntries[0] : null;
 
   if (!entry) {
     throw new Error(
-      `找不到世界书「${reference.worldbookName}」中的「${reference.entryName}」条目（预期 UID ${reference.entryUid}）。`,
+      `找不到世界书「${reference.worldbookName}」中的「${reference.entryName}」条目（排序值 ${reference.entryOrder}）。`,
     );
   }
   if (entry.enabled) {

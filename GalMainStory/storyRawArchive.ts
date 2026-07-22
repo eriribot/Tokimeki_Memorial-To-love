@@ -1,4 +1,5 @@
 import type { GalStoryActArchive, GalStoryFloor, GalStoryMessageSave } from './storyTypes';
+import { getMainStoryActIndex, getMainStoryEpisode } from './storyRegistry';
 
 export interface RawStoryTextPage {
   pageIndex: number;
@@ -16,6 +17,7 @@ export interface RawStoryVersionView {
 }
 
 export interface RawStoryActView {
+  eventId: string;
   actIndex: number;
   actId: string;
   versions: RawStoryVersionView[];
@@ -24,10 +26,7 @@ export interface RawStoryActView {
 const RAW_PAGE_MAX_CHARACTERS = 900;
 const RAW_PAGE_BREAK_MARKERS = ['\r\n\r\n', '\n\n', '\r\n', '\n', '。', '！', '？', '!', '?'] as const;
 
-export function paginateRawStoryText(
-  text: string,
-  maxCharacters = RAW_PAGE_MAX_CHARACTERS,
-): RawStoryTextPage[] {
+export function paginateRawStoryText(text: string, maxCharacters = RAW_PAGE_MAX_CHARACTERS): RawStoryTextPage[] {
   const pageSize = Math.max(200, Math.trunc(maxCharacters));
   const pages: RawStoryTextPage[] = [];
   let start = 0;
@@ -59,12 +58,7 @@ function getRawAssistantMessage(
 ): GalStoryMessageSave | null {
   for (const messageId of floor.messageIds) {
     const message = messagesById.get(messageId);
-    if (
-      message &&
-      !message.is_user &&
-      message.extra.role === 'assistant' &&
-      message.extra.source === 'tavern'
-    ) {
+    if (message && !message.is_user && message.extra.role === 'assistant' && message.extra.source === 'tavern') {
       return message;
     }
   }
@@ -78,7 +72,15 @@ export function buildRawStoryArchive(
   const messagesById = new Map(messages.map(message => [message.id, message]));
 
   return [...archives]
-    .sort((left, right) => left.actIndex - right.actIndex)
+    .sort((left, right) => {
+      const episodeDifference =
+        (getMainStoryEpisode(left.eventId)?.episodeNumber ?? Number.MAX_SAFE_INTEGER) -
+        (getMainStoryEpisode(right.eventId)?.episodeNumber ?? Number.MAX_SAFE_INTEGER);
+      return (
+        episodeDifference ||
+        getMainStoryActIndex(left.eventId, left.actId) - getMainStoryActIndex(right.eventId, right.actId)
+      );
+    })
     .flatMap(archive => {
       const versions = archive.floors.flatMap((floor, floorIndex): RawStoryVersionView[] => {
         const message = getRawAssistantMessage(floor, messagesById);
@@ -93,6 +95,7 @@ export function buildRawStoryArchive(
           },
         ];
       });
-      return versions.length > 0 ? [{ actIndex: archive.actIndex, actId: archive.actId, versions }] : [];
+      const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
+      return versions.length > 0 ? [{ eventId: archive.eventId, actIndex, actId: archive.actId, versions }] : [];
     });
 }

@@ -19,10 +19,10 @@
 - 特技面板直接渲染在 `.map-section` 内。桌面使用同框详情栏，手机竖屏使用同框底部抽屉，手机横屏使用同框右侧抽屉；背景使用
   `artsource/SkillUi/skill-menu-paper-bg.png`，所有资源路径经 `resolveAssetPath()`。
 - 行动点是时间推进权威；有效行动自动改变时段，AP 用完自动跨日，不再提供独立推进时间按钮。
-- 2008-04-07 第一集由两次自由行动自动触发两幕 AI 生成，世界书剧情小节是情节唯一权威；支持加载/错误/保底、GAL 播放和本地 messagesave 镜像。
-- 主线恢复会从已采用幕数校正当前幕，并幂等补触发已经达到 AP 阈值但尚未进入的幕；第一幕结束时保存的 `AP=1 / actIndex=1`
-  状态不会被旧的非活动事件存档重置为第一幕。
-- 当前可执行的默认角色规则仍是：夕崎梨子与西连寺春菜初始可见，菈菈在第一集完成后可见，梦梦、古手川唯与小暗保持锁定，未知导入角色默认可见。菈菈这一解锁点早于第二集 4 月 11 日的转学生揭晓，是现行运行时与已校对剧情之间的已知缺口；只能在后续 EP02 登记、三幕完成状态和存档迁移一起落地时修正。
+- 2008-04-07 第一集由两次自由行动触发两幕；2008-04-09 至 04-10 第二集按 `1 AP / 0 AP / 次日 0 AP`
+  触发三幕。两集都从真实世界书读取当前幕，支持加载、错误、保底、GAL 播放和本地 messagesave 镜像。
+- 主线运行态只保存 `eventId + actId + phase + pageIndex`。恢复时按剧集模板和当前行动次数幂等检查等待中的幕；当前幕正文只从对应档案的采用楼层读取，不另存一份正文投影。
+- 当前可执行的默认角色规则是：夕崎梨子与西连寺春菜初始可见，菈菈在第二集完成、以转学生身份登场后可见，梦梦、古手川唯与小暗保持锁定，未知导入角色默认可见。
 - AI 每一页必须按受控格式给出
   `scene/focus/portrait/expression/effect`；当前幕的场景表、演员表、立绘版本和各立绘实际表情集合共同约束可用值。未登记人物可以用真实姓名或明确身份说话，并显示通用文字名牌，但不能带“临时角色”标签，也不能虚构立绘。渲染器直接消费通过校验的演出 cue，不再按页数、关键词或角色特判猜演出。
 - GAL 表现层用同一个分层立绘组件渲染菈菈、西连寺春菜、结城美柑和夕崎梨子。每名角色是独立模块，并可登记多套立绘；每套立绘拥有自己的 body、mask、眼嘴资源和表情集合。以后新增萨斯丁、猿山、校长等角色时新增角色模块并在需要的幕登记，不修改通用类型。
@@ -33,28 +33,25 @@
 ## 剧情编辑目录
 
 - 第一集拆为 `episodes/episode01/acts/act01.ts` 与
-  `act02.ts`。每幕只保存稳定 ID、AP 阈值、世界书小节名、人物 lore 选择、可用场景、演员/立绘表和保底页；不重复保存剧情 opening/ending。
+  `act02.ts`。每幕只保存稳定 ID、日期/行动序号触发器、剧情世界书 order、人物 lore 选择、可用场景、演员/立绘表、生成合同和保底页；不重复保存剧情 opening/ending。
 - 稳定标识保持为 event `main.lala-arrival-2008-04-07`、第一幕 `ep01.act1-falling-star`、第二幕
   `ep01.act2-bathroom`；floor/message ID 和保存形状不因目录重排改变。
 - 不存在专用
   `director.ts`。这里的“导演式编辑”指世界书、幕素材表、角色立绘模块和 AI 演出协议可以分别剪辑，而不是由一段导演代码猜剧情。
 - `scenes/index.ts` 统一场景 ID、资源路径和 alt；`characters/{lala,haruna,mikan,riko}.ts`
   分别登记角色别名、姓名牌、人物 lore 与多立绘集合，`characters/index.ts` 只负责注册和查询。
-- `storyRegistry.ts`
-  是集目录入口，目前只登记第一集。新增第二集时应新建独立 episode/acts 目录并显式登记，不创建空占位集。
-- 未完成：运行时仍是单集正文投影；第二集接入前必须让 `mainStoryActs`、存档恢复、历史目录、重新生成上下文和
-  `render_game_to_text()` 按 `eventId` 分集，不能仅增加 `episode02` 数据文件。
+- `episodeTemplate.ts` 定义唯一分集接口；`episodes/index.ts` 是注册清单，目前只登记第一集和第二集。共享触发器、生成、存档、历史和渲染只按 `eventId + actId` 查询模板，没有分集特判。复用既有角色与场景时，新增一集只需新增幕定义、该集 `index.ts`，再在注册清单增加一项。
 - `data/lore-books/tolove-tv-episode-02-act01.txt`、`act02.txt`、`act03.txt`
-  是第二集三幕恢复源；第二集仍未登记。`tolove-character-mikan.txt` 与 `tolove-character-haruna.txt`
-  是人物条目的恢复源，不进入 bundle；当前人物模块分别按用户确认的 UID `7` 与 `6`
-  读取真实 Tavern 条目。第一幕会选择美柑和春菜人物 lore，但本地 fallback 画面不能证明真实 World Info 扫描已经命中。
+  是第二集三幕恢复源，不进入 bundle。第二集运行时按 `order 152/153/154` 读取真实 Tavern 条目；人物条目按
+  `order 100/101/102` 读取。第一幕会选择美柑和春菜人物 lore，但本地 fallback 画面不能证明真实 World Info 扫描已经命中。
 - 项目尚未发布，不保留 `lalaArrival.ts`、`LalaExpression`、`lalaExpression` 或旧正文格式兼容层。
 
 ## 模块登记
 
 | 模块                                       | 负责                                          | 权威输入                            | 输出或副作用           | 不负责             |
 | ------------------------------------------ | --------------------------------------------- | ----------------------------------- | ---------------------- | ------------------ |
-| `stores/gameStore.ts`                      | 行动、时段、日期、主线与生成状态              | 玩家行动意图                        | AP、事件节点、完成记录 | AI 正文措辞        |
+| `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配            | 玩家行动意图、主线模板触发结果       | AP、日期、事件节点     | 分集或楼层实现     |
+| `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和完成结算      | 模板查询、剧情楼层、Game store      | 主线状态变更           | 识别具体集数       |
 | `stores/cardStore.ts`                      | 目标卡、位置与好感                            | 角色卡、已结算交谈                  | 角色地图状态           | 主线触发           |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引             | 当前地点 ID                         | 地图背景和当前区域地点 | AP 与剧情结算      |
 | `components/MapMenu.tsx`                   | 地图边缘护法与区域切换                        | 当前地图、另一地图入口              | 切换当前地点           | 消耗 AP            |
@@ -67,9 +64,14 @@
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉           | `skilllogic`、当前日期              | 学习/实践提交意图      | 重算前置或结算效果 |
 | `services/storyGenerationPrompt.ts`        | 世界书幕选择和受控 GAL 演出格式               | lore 小节、场景/立绘可用值          | 可复用生成契约         | 重述具体剧情       |
 | `services/tavernStoryGeneration.ts`        | 生成、消息连续性和受控正文解析                | 幕定义、已存消息、世界书资料        | `GalStoryAct`          | 猜测画面与角色     |
-| `GalMainStory/storyRegistry.ts`            | 已登记剧情集查询                              | `eventId`                           | 集定义或 `null`        | 自动支持多集存档   |
-| `GalMainStory/episodes/episode01/index.ts` | 第一集组装、稳定 ID、lore 选择和触发判断      | 日期、AP、当前幕                    | 第一集定义             | 生成调用和状态结算 |
+| `GalMainStory/episodeTemplate.ts`           | 分集/分幕模板合同与注册期不变量               | 集元数据、幕定义                    | 合法剧情模板           | 运行态结算         |
+| `GalMainStory/episodes/index.ts`            | 生产剧集注册清单                              | 各集模板                            | 通用剧情目录           | 分集控制流         |
+| `GalMainStory/storyRegistry.ts`             | 通用模板查询、触发匹配、lore 与保底投影        | `eventId + actId`、日期、行动序号   | 当前幕定义或触发结果   | 保存重复进度       |
+| `GalMainStory/storyArchive.ts`              | 楼层采用、前文上下文与正文投影                 | 剧情档案、模板幕 ID                 | 当前正文/前文楼层      | 分集触发           |
+| `GalMainStory/storyPersistence.ts`          | 严格校验主线 schema v2                        | 游标、完成集、楼层、messagesave     | 可恢复主线状态         | 迁移旧存档         |
+| `GalMainStory/episodes/episode01/index.ts` | 第一集元数据与两幕组装                        | 两个幕定义                          | 第一集模板             | 生成调用和状态结算 |
 | `GalMainStory/episodes/episode01/acts/`    | 世界书小节、素材表、结构完成合同和保底页      | 本幕编辑合同                        | 两个独立幕定义         | 重写世界书剧情     |
+| `GalMainStory/episodes/episode02/`         | 第二集元数据、三幕触发与 lore order           | 三个幕定义                          | 第二集模板             | 跨日结算和正文措辞 |
 | `GalMainStory/scenes/index.ts`             | GAL 场景 manifest                             | 背景 ID                             | 资源路径与 alt         | 幕时间线           |
 | `GalMainStory/characters/*.ts`             | 单角色别名、人物 lore、多立绘与表情资源       | 角色素材和世界书条目                | 可注册角色模块         | 当前幕是否可用     |
 | `GalMainStory/characters/index.ts`         | 角色注册、说话人匹配与立绘查询                | 独立角色模块                        | 角色/立绘查询 API      | 剧情出镜判断       |
@@ -82,8 +84,8 @@
 | `GalMainStory/RawStoryHistoryDialog.tsx`   | 按幕、版本和页展示 AI 原文                    | 只读原文阅读模型                    | 阅读器选择状态         | 修改消息或采用楼层 |
 | `GalMainStory/galAssets.ts`                | 共享 GAL 窗口素材                             | GALBOX 文件                         | 窗口/翻页资源路径      | 角色资产           |
 | `GalMainStory/LayeredPortrait.tsx`         | body、mask、眼嘴图集和共享动画渲染            | rig、表情、当前发言状态             | 分层立绘画面           | 选择说话人或结算   |
-| `save/snapshot.ts`                         | V1 兼容快照                                   | Game/Player/Card/Skill store        | 本地/宿主存档数据      | 生成请求           |
-| `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 UID/名称、世界书条目           | 一次性 World Info 钩子 | 修改已保存世界书   |
+| `save/snapshot.ts`                         | 严格 schema v2 快照                           | Game/Player/Card/Skill store        | 本地/宿主存档数据      | 旧存档迁移         |
+| `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 order/名称、世界书条目         | 一次性 World Info 钩子 | 修改已保存世界书   |
 | `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥          | 游戏上下文、TavernHelper            | 显式读/诊断能力        | 剧情条目选择       |
 | `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                | 已校对剧情与人物资料                | 待导入的纯文本恢复源   | 运行时扫描和状态   |
 
@@ -92,17 +94,16 @@
 - 数值、日期、事件和当前幕以 Zustand + 存档为权威。
 - 特技权威状态位于
   `skilllogic/skillStore.ts`，存档只保存 EXP、学习历史和学期实践提交；节点状态与当前实践集合由图和最后一次提交派生。面板关闭会丢弃尚未提交的实践草案，但不会丢失已取得技能或已提交配置。技能效果当前只是说明文字，不能称为已作用于游戏结算。
-- 第一集 event ID 和两个 act
-  ID 保持不变；项目尚未发布，本轮直接替换 beat/message 正文协议，不提供旧存档或旧 AI 正文兼容。
+- 第一集 event ID 和两个 act ID 保持不变；第二集 event ID 为
+  `main.engagement-cancellation-2008-04-09`。项目仍在开发期，旧存档不兼容；schema v2 的运行游标、楼层和消息都用稳定的 `eventId + actId` 关联，幕序号只在显示时由模板推导。
 - 当前地图不另存一份并行状态，而是由 `currentLocationId` 经 `getMapForLocation()`
   唯一推导；因此存档恢复地点后会自动恢复对应地图。跨地图按钮只把地点切到目标地图入口。
 - 地图边缘控件的布局契约为：学校“街”护法在左、档案在右；彩南町“学校”护法在右、档案在左；两者中心线镜像对齐。护法的圆形预览和恶魔图形均可点击，反馈不覆盖透明矩形区域。三档横屏尺寸的最新调整等待人工重新验收，不能沿用此前被撤回的通过结论。
-- 第一集剧情权威拆为真实 `出包王女` 世界书中两条保持关闭的条目：第一幕使用 UID `150` /
-  `剧情第一集·第一幕`，第二幕使用 UID `151` / `剧情第一集·第二幕`。两幕都会选择保持关闭的 UID `1` /
-  `菈菈.萨塔琳.戴比路克` 人物条目；第一幕还会选择 UID `6` 的西连寺春菜和 UID `7`
-  的结城美柑人物条目。每次生成只扫描当前幕剧情条目及该幕登记的人物条目。代码按稳定 UID/名称只读验证，并仅在下一次原生 World
+- 第一集剧情使用真实 `出包王女` 世界书中两条保持关闭的条目：第一幕 `order 150` / `剧情第一集·第一幕`，第二幕 `order 151`
+  / `剧情第一集·第二幕`。人物条目依次为菈菈 `order 100`、春菜 `order 101`、美柑 `order 102`。第二集三幕使用
+  `order 152/153/154`。每次生成只扫描当前幕剧情条目及该幕登记的人物条目。代码按稳定 `order`
+  和名称只读验证，并仅在下一次原生 World
   Info 扫描中启用这些条目的副本；已保存条目的关闭状态不变。本地 TXT 只是恢复源，不进入 bundle。
-- 第二集 UID `201/202/203` 当前仍只是恢复源，运行时没有选择或扫描这些剧情条目，也没有据此改变角色出场。
 - 当前 preset 实际激活的其他世界书可以补充人物和长期事实，但不能覆盖剧情世界书当前小节。代码不会另写 opening/ending 或替缺失、损坏的世界书编造剧情答案。
 - AI 返回的是正文候选。新生成必须恰好包含一对受支持的同名正文开闭标签；登记值为
   `story_scene/story_scence/gal_scene/story/scene/正文/剧情/narrative/dialogue/script/content/context/body/text/final/answer/output/response`。prompt 默认示例使用
@@ -123,8 +124,7 @@
   唯一允许 `portrait=washroom-swimsuit`，该幕其他场景的菈菈唯一允许 `portrait=arrival-default`；模型给出错误组合时进入
   `parse_error`，解析器不得静默替换原始 portrait。
 - 超过单页长度的对白会在分页后保留原说话人，不能把后续页静默降级成旁白。
-- 重生成的聊天历史按 `contextFloorIds` 精确选择前面各幕当前采用楼层，不按 `actIndex <= currentActIndex`
-  混入当前幕旧候选。楼层删除同时删除其游戏内消息；删除采用版会安全回退或取消采用，但不会删除尚未接通的宿主 hidden 消息。
+- 重生成的聊天历史按 `contextFloorIds` 精确选择模板中前面各幕的当前采用楼层，不靠持久化幕序号猜顺序，也不混入当前幕旧候选。仍被后续版本引用的楼层不能删除；删除其他楼层会同步删除其游戏内消息。删除采用版会安全回退或取消采用，但不会删除尚未接通的宿主 hidden 消息。
 - 渲染器只按当前页 `focusCharacterId/portraitId/expressionId`
   查询注册表并绘制；focus 不要求等于说话人，因此 AI 可以剪出反应镜头。口型只在当前出镜角色本人发言时启用；眨眼规则属于具体立绘表情资源。
 - 第一集已经把 `space/school/schoolGate/home/washroom/bedroom/rooftop/nightStreet/park/schoolRoad`

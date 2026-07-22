@@ -1,9 +1,16 @@
-import type { StoryActDefinition } from '../../../storyTypes';
+import type { StoryEpisodeActDefinition } from '../../../episodeTemplate';
 
 export const EPISODE_01_ACT_01 = {
   id: 'ep01.act1-falling-star',
   title: '说不出口的放学后',
-  actionPointsRemaining: 1,
+  trigger: { date: { year: 2008, month: 4, day: 7 }, actionNumber: 1 },
+  plotLore: {
+    worldbookName: '出包王女',
+    entryOrder: 150,
+    entryName: '剧情第一集·第一幕',
+    rootTag: 'To LOVE-Ru TV Episode 01 Act 01',
+    kind: 'plot',
+  },
   loreSection: '第一幕·说不出口的放学后',
   characterLoreIds: ['lala', 'haruna', 'mikan'],
   presentation: {
@@ -208,4 +215,4 @@ export const EPISODE_01_ACT_01 = {
       },
     },
   ],
-} as const satisfies StoryActDefinition;
+} as const satisfies StoryEpisodeActDefinition;

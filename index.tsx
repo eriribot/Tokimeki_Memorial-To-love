@@ -6,7 +6,8 @@ import { PERIODS, useGameStore } from './stores/gameStore';
 import { useCardStore } from './stores/cardStore';
 import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
-import { getMainStoryEpisode } from './GalMainStory/storyRegistry';
+import { getMainStoryActIndex, getMainStoryEpisode } from './GalMainStory/storyRegistry';
+import { getActiveStoryAct } from './GalMainStory/storyArchive';
 import { getEquippedSkillIds, getLearnedSkillIds, useSkillStore } from './skilllogic';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
@@ -14,7 +15,7 @@ installRuntimeFonts();
 window.advanceTime = () => undefined;
 window.toloveWorldbook = worldbookReader; // 暴露显式调试入口，但不在页面加载时自动读取、注入或监听世界书。
 window.toloveStoryMessages = (format = 'json') => {
-  const messages = useGameStore.getState().mainStoryMessages;
+  const messages = useGameStore.getState().mainStory.messages;
   return format === 'jsonl' ? messages.map(message => JSON.stringify(message)).join('\n') : JSON.stringify(messages);
 };
 window.render_game_to_text = () => {
@@ -33,27 +34,30 @@ window.render_game_to_text = () => {
   }
 
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
-  const currentStoryAct = game.mainStoryActs[game.mainStoryActIndex];
-  const currentStoryBeat = currentStoryAct?.beats[game.mainStoryPageIndex];
-  const activeStory = getMainStoryEpisode(game.activeMainStoryEventId);
-  const activeMainStory = activeStory
-    ? {
-        id: activeStory.id,
-        title: activeStory.title,
-        entryReason: game.mainStoryEntryReason,
-        generationStatus: game.mainStoryGenerationStatus,
-        generationSource: game.mainStoryGenerationSource,
-        generationError: game.mainStoryGenerationError,
-        actIndex: game.mainStoryActIndex,
-        actCount: game.mainStoryActs.length,
-        messageCount: game.mainStoryMessages.length,
-        actId: currentStoryAct?.id ?? null,
-        pageIndex: game.mainStoryPageIndex,
-        pageCount: currentStoryAct?.beats.length ?? 0,
-        speaker: currentStoryBeat?.speaker ?? null,
-        text: currentStoryBeat?.text ?? '',
-      }
+  const storyRun = game.mainStory.run?.phase === 'playing' ? game.mainStory.run : null;
+  const currentStoryAct = storyRun
+    ? getActiveStoryAct(game.mainStory.archives, storyRun.eventId, storyRun.actId)
     : null;
+  const currentStoryBeat = currentStoryAct?.beats[storyRun?.pageIndex ?? 0];
+  const activeStory = getMainStoryEpisode(storyRun?.eventId);
+  const activeMainStory =
+    activeStory && storyRun
+      ? {
+          id: activeStory.id,
+          title: activeStory.title,
+          generationStatus: game.mainStory.generation.status,
+          generationSource: game.mainStory.generation.source,
+          generationError: game.mainStory.generation.error,
+          actIndex: getMainStoryActIndex(storyRun.eventId, storyRun.actId),
+          actCount: activeStory.acts.length,
+          messageCount: game.mainStory.messages.length,
+          actId: currentStoryAct?.id ?? null,
+          pageIndex: storyRun.pageIndex,
+          pageCount: currentStoryAct?.beats.length ?? 0,
+          speaker: currentStoryBeat?.speaker ?? null,
+          text: currentStoryBeat?.text ?? '',
+        }
+      : null;
   const visibleTargets = card.targets
     .filter(target => target.currentLocationId)
     .map(target => ({
@@ -74,7 +78,7 @@ window.render_game_to_text = () => {
     scene: game.currentSceneId ?? 'school-map',
     activeTargetId: card.activeTargetId,
     activeMainStory,
-    completedMainStoryEventIds: game.completedMainStoryEventIds,
+    completedMainStoryEventIds: game.mainStory.completedEventIds,
     skills: {
       experience: skillProgression.experience,
       learnedSkillIds: getLearnedSkillIds(skillProgression),

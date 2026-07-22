@@ -6,6 +6,6 @@ export function syncCharacterPresence(): void {
   const period = PERIODS[game.periodIndex] ?? PERIODS[0];
   useCardStore.getState().syncTargetLocations({
     periodKey: period.key,
-    completedMainStoryEventIds: game.completedMainStoryEventIds,
+    completedMainStoryEventIds: game.mainStory.completedEventIds,
   });
 }

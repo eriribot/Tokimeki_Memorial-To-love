@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, import-x/no-nodejs-modules -- Node-only lore contract check. */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -77,9 +78,9 @@ for (const character of characters) {
   assert.ok(readme.includes(character.rootTag), `README 缺少根标签 ${character.rootTag}`);
 }
 assert.match(readme, /## 人物条目/u);
-assert.match(readme, /\| 结城美柑\s+\| 7\s+\| `结城美柑`/u);
-assert.match(readme, /\| 西连寺春菜\s+\| 6\s+\| `西连寺春菜`/u);
-assert.match(readme, /第一集第一幕.{0,160}(?:读取|扫描).{0,80}人物 lore/su);
+assert.match(readme, /\| 结城美柑\s+\|\s+102\s+\| `结城美柑`/u);
+assert.match(readme, /\| 西连寺春菜\s+\|\s+101\s+\| `西连寺春菜`/u);
+assert.match(readme, /生成每一幕时.{0,100}人物条目/su);
 assert.match(readme, /本地 fallback 渲染不等于真实 Tavern 扫描成功/u);
 
-console.log('Character lore contract passed: Mikan and Haruna recovery sources and configured runtime UIDs.');
+console.log('Character lore contract passed: Mikan and Haruna recovery sources and configured runtime orders.');

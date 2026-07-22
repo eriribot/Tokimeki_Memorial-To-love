@@ -67,6 +67,16 @@ export const STORY_SCENES = {
     asset: '/artsource/backgrounds/bg006_a.png',
     alt: '清晨上学路',
   },
+  changingRoom: {
+    id: 'changingRoom',
+    asset: '/artsource/backgrounds/bg020_a.png',
+    alt: '彩南高校更衣室',
+  },
+  riverbank: {
+    id: 'riverbank',
+    asset: '/artsource/backgrounds/bg009_b.png',
+    alt: '夜晚河堤',
+  },
 } as const satisfies Record<StorySceneId, StorySceneDefinition>;
 
 export const STORY_SCENE_ASSETS = {
@@ -82,6 +92,8 @@ export const STORY_SCENE_ASSETS = {
   park: STORY_SCENES.park.asset,
   nightStreet: STORY_SCENES.nightStreet.asset,
   schoolRoad: STORY_SCENES.schoolRoad.asset,
+  changingRoom: STORY_SCENES.changingRoom.asset,
+  riverbank: STORY_SCENES.riverbank.asset,
 } as const satisfies Record<StorySceneId, string>;
 
 export function getStoryScene(id: StorySceneId): StorySceneDefinition {

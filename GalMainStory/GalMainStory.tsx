@@ -19,12 +19,13 @@ import {
 } from './characters';
 import { GALBOX_ASSETS } from './galAssets';
 import LayeredPortrait from './LayeredPortrait';
+import { getEpisodeStoryActs, getPreviousActiveStoryFloors } from './storyArchive';
 import {
-  createEpisode01FallbackAct,
-  EPISODE_01_EVENT_ID,
-  EPISODE_01_STORY,
-  resolveEpisode01PortraitId,
-} from './episodes/episode01';
+  createMainStoryFallbackAct,
+  getMainStoryActIndex,
+  getMainStoryEpisode,
+  resolveMainStoryPortraitId,
+} from './storyRegistry';
 import RawStoryHistoryDialog from './RawStoryHistoryDialog';
 import { getStoryScene } from './scenes';
 import StoryHistoryArchive from './StoryHistoryArchive';
@@ -42,7 +43,8 @@ interface GalMainStoryProps {
   onExitHistory?: () => void;
 }
 
-type HistoryPlaybackTarget = { kind: 'all' } | { kind: 'floor'; floorId: string } | null;
+type HistoryPlaybackTarget =
+  { kind: 'all'; eventId: string } | { kind: 'floor'; eventId: string; floorId: string } | null;
 type RawHistoryTarget = { floorId: string | null } | null;
 
 function getErrorMessage(error: unknown): string {
@@ -50,16 +52,10 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function GalMainStory({ historyMode = false, onExitHistory }: GalMainStoryProps) {
-  const activeEventId = useGameStore(state => state.activeMainStoryEventId);
-  const entryReason = useGameStore(state => state.mainStoryEntryReason);
-  const actIndex = useGameStore(state => state.mainStoryActIndex);
-  const pageIndex = useGameStore(state => state.mainStoryPageIndex);
-  const acts = useGameStore(state => state.mainStoryActs);
-  const storyArchives = useGameStore(state => state.mainStoryArchives);
-  const generationStatus = useGameStore(state => state.mainStoryGenerationStatus);
-  const generationSource = useGameStore(state => state.mainStoryGenerationSource);
-  const generationError = useGameStore(state => state.mainStoryGenerationError);
-  const messageHistory = useGameStore(state => state.mainStoryMessages);
+  const storyRun = useGameStore(state => state.mainStory.run);
+  const storyArchives = useGameStore(state => state.mainStory.archives);
+  const generation = useGameStore(state => state.mainStory.generation);
+  const messageHistory = useGameStore(state => state.mainStory.messages);
   const day = useGameStore(state => state.day);
   const periodIndex = useGameStore(state => state.periodIndex);
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -68,22 +64,41 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const failGeneration = useGameStore(state => state.failMainStoryGeneration);
   const setStoryPosition = useGameStore(state => state.setMainStoryPosition);
   const selectStoryFloor = useGameStore(state => state.selectMainStoryFloor);
-  const advanceMainStoryAct = useGameStore(state => state.advanceMainStoryAct);
-  const completeMainStoryEvent = useGameStore(state => state.completeMainStoryEvent);
+  const finishMainStoryAct = useGameStore(state => state.finishMainStoryAct);
   const playerName = usePlayerStore(state => state.name);
   const storyRef = useRef<HTMLElement | null>(null);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [historyPlaybackTarget, setHistoryPlaybackTarget] = useState<HistoryPlaybackTarget>(null);
   const [rawHistoryTarget, setRawHistoryTarget] = useState<RawHistoryTarget>(null);
   const isRawHistoryOpen = rawHistoryTarget !== null;
+  const activeEventId = storyRun?.phase === 'playing' ? storyRun.eventId : null;
+  const activeActId = storyRun?.phase === 'playing' ? storyRun.actId : null;
+  const activeEpisode = getMainStoryEpisode(activeEventId);
+  const actIndex = activeEventId && activeActId ? getMainStoryActIndex(activeEventId, activeActId) : 0;
+  const pageIndex = storyRun?.phase === 'playing' ? storyRun.pageIndex : 0;
+  const acts = useMemo(
+    () =>
+      activeEpisode
+        ? getEpisodeStoryActs(
+            storyArchives,
+            activeEpisode.id,
+            activeEpisode.acts.map(act => act.id),
+          )
+        : [],
+    [activeEpisode, storyArchives],
+  );
+  const generationStatus = generation.status;
+  const generationSource = generation.source;
+  const generationError = generation.error;
 
   const liveAct = acts[actIndex];
   const liveBeat = liveAct?.beats[pageIndex];
   const isLastLivePage = Boolean(liveAct && pageIndex === liveAct.beats.length - 1);
-  const isLastLiveAct = actIndex === EPISODE_01_STORY.acts.length - 1;
+  const isLastLiveAct = Boolean(activeEpisode && actIndex === activeEpisode.acts.length - 1);
   const liveReadCursors = useMemo<StoryCursor[]>(
     () =>
       acts.flatMap((savedAct, savedActIndex) => {
+        if (!savedAct) return [];
         if (savedActIndex > actIndex) return [];
         const lastPageIndex =
           savedActIndex < actIndex ? savedAct.beats.length - 1 : Math.min(pageIndex, savedAct.beats.length - 1);
@@ -98,30 +113,44 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const historyFloor = useMemo<GalStoryFloor | null>(() => {
     if (historyPlaybackTarget?.kind !== 'floor') return null;
     for (const archive of storyArchives) {
+      if (archive.eventId !== historyPlaybackTarget.eventId) continue;
       const floor = archive.floors.find(candidate => candidate.floorId === historyPlaybackTarget.floorId);
       if (floor) return floor;
     }
     return null;
   }, [historyPlaybackTarget, storyArchives]);
   const historyActs = useMemo(() => {
-    if (!historyFloor?.act) return acts;
-    const previewActs = [...acts];
-    previewActs[historyFloor.actIndex] = historyFloor.act;
+    const eventId = historyPlaybackTarget?.eventId;
+    if (!eventId) return [];
+    const episode = getMainStoryEpisode(eventId);
+    if (!episode) return [];
+    const previewActs = getEpisodeStoryActs(
+      storyArchives,
+      eventId,
+      episode.acts.map(act => act.id),
+    );
+    if (!historyFloor?.act) return previewActs;
+    const historyActIndex = getMainStoryActIndex(historyFloor.eventId, historyFloor.actId);
+    if (historyActIndex >= 0) previewActs[historyActIndex] = historyFloor.act;
     return previewActs;
-  }, [acts, historyFloor]);
+  }, [historyFloor, historyPlaybackTarget, storyArchives]);
   const historyCursors = useMemo<StoryCursor[]>(() => {
     if (!historyPlaybackTarget) return [];
     if (historyPlaybackTarget.kind === 'floor' && historyFloor?.act) {
+      const historyActIndex = getMainStoryActIndex(historyFloor.eventId, historyFloor.actId);
+      if (historyActIndex < 0) return [];
       return historyFloor.act.beats.map((_, savedPageIndex) => ({
-        actIndex: historyFloor.actIndex,
+        actIndex: historyActIndex,
         pageIndex: savedPageIndex,
       }));
     }
     return historyActs.flatMap((savedAct, savedActIndex) =>
-      savedAct.beats.map((_, savedPageIndex) => ({
-        actIndex: savedActIndex,
-        pageIndex: savedPageIndex,
-      })),
+      savedAct
+        ? savedAct.beats.map((_, savedPageIndex) => ({
+            actIndex: savedActIndex,
+            pageIndex: savedPageIndex,
+          }))
+        : [],
     );
   }, [historyActs, historyFloor, historyPlaybackTarget]);
   const readCursors = historyMode ? historyCursors : liveReadCursors;
@@ -138,10 +167,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       ? presentation.focusCharacterId
       : null;
   const portraitCharacter = focusCharacterId ? getStoryCharacter(focusCharacterId) : null;
-  const resolvedPortraitId = resolveEpisode01PortraitId(visibleAct?.id, presentation);
-  const portraitRig = focusCharacterId
-    ? getStoryPortraitRig(focusCharacterId, resolvedPortraitId)
-    : null;
+  const visibleEventId = historyPlaybackTarget?.eventId ?? activeEventId;
+  const visibleEpisode = getMainStoryEpisode(visibleEventId);
+  const resolvedPortraitId = visibleEventId
+    ? resolveMainStoryPortraitId(visibleEventId, visibleAct?.id, presentation)
+    : (presentation?.portraitId ?? null);
+  const portraitRig = focusCharacterId ? getStoryPortraitRig(focusCharacterId, resolvedPortraitId) : null;
   const portraitExpressionId = presentation?.expressionId ?? null;
   const isPortraitSpeaking = isStoryCharacterSpeaking(portraitCharacter, visibleBeat?.speaker);
   const nameplateSpeaker = visibleBeat?.speaker ?? null;
@@ -151,8 +182,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     [messageHistory, storyArchives],
   );
   const hasRawStoryHistory = rawStoryArchive.some(act => act.versions.length > 0);
-  const currentRawAct = rawStoryArchive.find(act => act.actIndex === actIndex);
-  const activeCurrentFloorId = storyArchives.find(archive => archive.actIndex === actIndex)?.activeFloorId ?? null;
+  const currentRawAct = rawStoryArchive.find(act => act.eventId === activeEventId && act.actIndex === actIndex);
+  const activeCurrentFloorId =
+    storyArchives.find(archive => archive.eventId === activeEventId && archive.actId === activeActId)?.activeFloorId ??
+    null;
   const activeRawVersion = currentRawAct?.versions.find(version => version.floor.floorId === activeCurrentFloorId);
   const currentRawFloorId =
     activeRawVersion?.floor.floorId ??
@@ -161,11 +194,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       : null);
   const contextFloorIds = useMemo(
     () =>
-      storyArchives
-        .filter(archive => archive.actIndex < actIndex && archive.activeFloorId !== null)
-        .sort((left, right) => left.actIndex - right.actIndex)
-        .map(archive => archive.activeFloorId as string),
-    [actIndex, storyArchives],
+      activeEventId && activeActId
+        ? getPreviousActiveStoryFloors(storyArchives, activeEventId, activeActId).map(floor => floor.floorId)
+        : [],
+    [activeActId, activeEventId, storyArchives],
   );
 
   const closeRawHistory = useCallback(() => {
@@ -176,14 +208,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const exitHistory = useCallback(() => onExitHistory?.(), [onExitHistory]);
 
   const requestGeneration = useCallback(async () => {
-    if (!entryReason || !beginGeneration()) return;
+    if (!activeEventId || !activeActId) return;
+    const floorId = createStoryFloorId(activeEventId, activeActId);
+    if (!beginGeneration(floorId)) return;
     setRawHistoryTarget(null);
     const period = PERIODS[periodIndex] ?? PERIODS[0];
-    const floorId = createStoryFloorId(actIndex);
     const request = {
+      eventId: activeEventId,
+      actId: activeActId,
       floorId,
-      actIndex,
-      entryReason,
       playerName,
       day,
       period: period.key,
@@ -201,18 +234,18 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       }
       setStoryActContent(generated.floor, generated.messages);
     } catch (error) {
-      console.error('[ToLove Story] 第一集生成失败。', error);
+      console.error('[ToLove Story] 主线生成失败。', error);
       const message = getErrorMessage(error);
       const floor = createStoryFloor(request, null, 'tavern', [], 'request_error', message);
       failGeneration(message, [], floor);
     }
   }, [
     beginGeneration,
-    actIndex,
+    activeActId,
+    activeEventId,
     currentLocationId,
     contextFloorIds,
     day,
-    entryReason,
     failGeneration,
     messageHistory,
     periodIndex,
@@ -221,10 +254,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   ]);
 
   useEffect(() => {
-    if (activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'idle') {
+    if (activeEpisode && generationStatus === 'idle') {
       void requestGeneration();
     }
-  }, [activeEventId, generationStatus, requestGeneration]);
+  }, [activeEpisode, generationStatus, requestGeneration]);
 
   useEffect(() => {
     setReplayIndex(historyMode ? 0 : null);
@@ -233,22 +266,19 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   }, [activeEventId, actIndex, historyMode]);
 
   const finishCurrentAct = useCallback(() => {
-    if (!isLastLiveAct) {
-      advanceMainStoryAct();
-      return;
-    }
-    if (completeMainStoryEvent()) syncCharacterPresence();
-  }, [advanceMainStoryAct, completeMainStoryEvent, isLastLiveAct]);
+    if (finishMainStoryAct()) syncCharacterPresence();
+  }, [finishMainStoryAct]);
 
   const useFallbackAct = useCallback(() => {
-    if (!entryReason) return;
+    if (!activeEventId || !activeActId) return;
     const period = PERIODS[periodIndex] ?? PERIODS[0];
-    const floorId = createStoryFloorId(actIndex);
-    const fallbackAct = createEpisode01FallbackAct(entryReason, actIndex);
+    const floorId = createStoryFloorId(activeEventId, activeActId);
+    if (!beginGeneration(floorId)) return;
+    const fallbackAct = createMainStoryFallbackAct(activeEventId, activeActId);
     const request = {
+      eventId: activeEventId,
+      actId: activeActId,
       floorId,
-      actIndex,
-      entryReason,
       playerName,
       day,
       period: period.key,
@@ -260,26 +290,32 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     const floor = createStoryFloor(request, fallbackAct, 'fallback', messages, 'accepted');
     setStoryActContent(floor, messages);
   }, [
-    actIndex,
+    activeActId,
+    activeEventId,
+    beginGeneration,
     contextFloorIds,
     currentLocationId,
     day,
-    entryReason,
     messageHistory,
     periodIndex,
     playerName,
     setStoryActContent,
   ]);
 
-  const playAllHistory = useCallback(() => {
-    setHistoryPlaybackTarget({ kind: 'all' });
+  const playAllHistory = useCallback((eventId: string) => {
+    setHistoryPlaybackTarget({ kind: 'all', eventId });
     setReplayIndex(0);
   }, []);
 
-  const previewHistoryFloor = useCallback((floorId: string) => {
-    setHistoryPlaybackTarget({ kind: 'floor', floorId });
-    setReplayIndex(0);
-  }, []);
+  const previewHistoryFloor = useCallback(
+    (floorId: string) => {
+      const floor = storyArchives.flatMap(archive => archive.floors).find(candidate => candidate.floorId === floorId);
+      if (!floor) return;
+      setHistoryPlaybackTarget({ kind: 'floor', eventId: floor.eventId, floorId });
+      setReplayIndex(0);
+    },
+    [storyArchives],
+  );
 
   const returnToHistoryArchive = useCallback(() => {
     setHistoryPlaybackTarget(null);
@@ -300,12 +336,12 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     }
     if (!liveAct || !liveBeat) return;
     if (!isLastLivePage) {
-      setStoryPosition(actIndex, pageIndex + 1);
+      if (activeActId) setStoryPosition(activeActId, pageIndex + 1);
       return;
     }
     finishCurrentAct();
   }, [
-    actIndex,
+    activeActId,
     finishCurrentAct,
     isLastLivePage,
     liveAct,
@@ -336,15 +372,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   useEffect(() => {
     const isReady = historyMode
       ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
-      : activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'ready';
+      : activeEpisode !== null && generationStatus === 'ready';
     if (!isReady) return;
     storyRef.current?.focus();
-  }, [activeEventId, generationStatus, historyMode, historyPlaybackTarget, visibleAct, visibleBeat]);
+  }, [activeEpisode, generationStatus, historyMode, historyPlaybackTarget, visibleAct, visibleBeat]);
 
   useEffect(() => {
     const isReady = historyMode
       ? historyPlaybackTarget !== null && Boolean(visibleAct && visibleBeat)
-      : activeEventId === EPISODE_01_EVENT_ID && generationStatus === 'ready';
+      : activeEpisode !== null && generationStatus === 'ready';
     if (!isReady || isRawHistoryOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -372,7 +408,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
-    activeEventId,
+    activeEpisode,
     generationStatus,
     goNext,
     goPrevious,
@@ -384,7 +420,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     visibleBeat,
   ]);
 
-  const isLiveStoryActive = activeEventId === EPISODE_01_EVENT_ID;
+  const isLiveStoryActive = activeEpisode !== null;
   if (!isLiveStoryActive && !historyMode) return null;
 
   if (historyMode && historyPlaybackTarget === null) {
@@ -415,7 +451,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         ref={storyRef}
         role="dialog"
         aria-modal="true"
-        aria-label={isError ? '第一集生成失败' : '第一集生成中'}
+        aria-label={isError ? `${activeEpisode?.title ?? '主线'}生成失败` : `${activeEpisode?.title ?? '主线'}生成中`}
         tabIndex={-1}
         data-generation-status={generationStatus}
       >
@@ -464,7 +500,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
 
   if (!visibleAct || !visibleBeat) return null;
 
-  const actMeta = EPISODE_01_STORY.acts[visibleActIndex];
+  const actMeta = visibleEpisode?.acts[visibleActIndex];
   const scene = getStoryScene(visibleBeat.presentation.sceneId);
   const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
@@ -493,7 +529,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       ref={storyRef}
       role="dialog"
       aria-modal="true"
-      aria-label={historyMode ? `已读主线回放：${EPISODE_01_STORY.title}` : `主线事件：${EPISODE_01_STORY.title}`}
+      aria-label={
+        historyMode
+          ? `已读主线回放：${visibleEpisode?.title ?? '未知主线'}`
+          : `主线事件：${activeEpisode?.title ?? '未知主线'}`
+      }
       tabIndex={-1}
       data-event-id={historyMode ? 'history-replay' : activeEventId}
       data-act-id={visibleAct.id}
@@ -571,7 +611,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
           </button>
           <span className="gal-main-story__progress">
             {isReplaying && '回放 '}
-            {visibleActIndex + 1}-{visiblePageIndex + 1} / {EPISODE_01_STORY.acts.length}-{visibleAct.beats.length}
+            {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
+            {visibleAct.beats.length}
           </span>
           <button
             type="button"

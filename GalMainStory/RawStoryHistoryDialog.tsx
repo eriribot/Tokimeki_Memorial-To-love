@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { EPISODE_01_STORY } from './episodes/episode01';
+import { getMainStoryEpisode } from './storyRegistry';
 import type { RawStoryActView, RawStoryVersionView } from './storyRawArchive';
 
 interface RawStoryHistoryDialogProps {
@@ -104,13 +104,16 @@ export default function RawStoryHistoryDialog({ acts, initialFloorId, onClose }:
         <nav className="gal-main-story__raw-act-tabs" aria-label="选择剧情幕">
           {acts.map(act => (
             <button
-              key={act.actId}
+              key={`${act.eventId}:${act.actId}`}
               type="button"
-              className={act.actIndex === selectedAct?.actIndex ? 'is-active' : ''}
-              aria-pressed={act.actIndex === selectedAct?.actIndex}
+              className={
+                act.eventId === selectedAct?.eventId && act.actIndex === selectedAct?.actIndex ? 'is-active' : ''
+              }
+              aria-pressed={act.eventId === selectedAct?.eventId && act.actIndex === selectedAct?.actIndex}
               onClick={() => selectAct(act)}
             >
-              第 {act.actIndex + 1} 幕 · {EPISODE_01_STORY.acts[act.actIndex]?.title ?? act.actId}
+              第 {getMainStoryEpisode(act.eventId)?.episodeNumber ?? '?'} 集 · 第 {act.actIndex + 1} 幕 ·{' '}
+              {getMainStoryEpisode(act.eventId)?.acts[act.actIndex]?.title ?? act.actId}
             </button>
           ))}
         </nav>
@@ -138,7 +141,7 @@ export default function RawStoryHistoryDialog({ acts, initialFloorId, onClose }:
                 <header>
                   <div>
                     <strong>
-                      第 {selectedVersion.floor.actIndex + 1} 幕 · 版本 {selectedVersion.floorIndex + 1}
+                      第 {(selectedAct?.actIndex ?? 0) + 1} 幕 · 版本 {selectedVersion.floorIndex + 1}
                     </strong>
                     <span>{getVersionStatus(selectedVersion)}</span>
                   </div>

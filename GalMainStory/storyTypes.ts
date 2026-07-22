@@ -10,13 +10,14 @@ export const STORY_SCENE_IDS = [
   'park',
   'nightStreet',
   'schoolRoad',
+  'changingRoom',
+  'riverbank',
   'night',
 ] as const;
 export const STORY_EFFECTS = ['none', 'flash', 'shake'] as const;
 
 export type StorySceneId = (typeof STORY_SCENE_IDS)[number];
 export type StoryEffect = (typeof STORY_EFFECTS)[number];
-export type MainStoryEntryReason = 'after_first_action' | 'after_second_action';
 export type StoryGenerationStatus = 'idle' | 'loading' | 'ready' | 'error';
 export type StoryGenerationSource = 'tavern' | 'fallback';
 export type GalStoryMessageOutcome = 'accepted' | 'parse_error';
@@ -56,7 +57,6 @@ export interface StoryActGenerationContract {
 export interface StoryActDefinition {
   id: string;
   title: string;
-  actionPointsRemaining: number;
   loreSection: string;
   characterLoreIds: readonly string[];
   presentation: StoryActPresentation;
@@ -76,7 +76,6 @@ export interface GalStoryAct {
 }
 
 export interface GalStoryGenerationContext {
-  entryReason: MainStoryEntryReason;
   playerName: string;
   day: number;
   period: string;
@@ -86,7 +85,6 @@ export interface GalStoryGenerationContext {
 export interface GalStoryFloor {
   floorId: string;
   eventId: string;
-  actIndex: number;
   actId: string;
   source: StoryGenerationSource;
   createdAt: string;
@@ -100,7 +98,6 @@ export interface GalStoryFloor {
 
 export interface GalStoryActArchive {
   eventId: string;
-  actIndex: number;
   actId: string;
   activeFloorId: string | null;
   floors: GalStoryFloor[];
@@ -138,7 +135,10 @@ function normalizePresentation(value: unknown): StoryPresentationCue {
   const portraitId = normalizeNullableId(value.portraitId, '立绘版本');
   const expressionId = normalizeNullableId(value.expressionId, '表情');
   const hasPortrait = portraitId !== null || expressionId !== null;
-  if ((focusCharacterId === null && hasPortrait) || (focusCharacterId !== null && (portraitId === null || expressionId === null))) {
+  if (
+    (focusCharacterId === null && hasPortrait) ||
+    (focusCharacterId !== null && (portraitId === null || expressionId === null))
+  ) {
     throw new Error('剧情页的出镜角色、立绘版本和表情必须同时填写或同时为 none。');
   }
 
@@ -209,20 +209,17 @@ export type GalStoryMessageSource = 'tavern' | 'fallback';
 export interface GalStoryMessageExtra {
   type: 'tolove-main-story';
   eventId: string;
-  actIndex: number;
   actId: string;
-  entryReason: MainStoryEntryReason;
   source: GalStoryMessageSource;
-  generationId: string;
-  floorId?: string;
+  floorId: string;
   period: string;
   location: string;
-  day?: number;
-  playerName?: string;
-  contextFloorIds?: string[];
+  day: number;
+  playerName: string;
+  contextFloorIds: string[];
   role: GalStoryMessageRole;
   renderable: boolean;
-  outcome?: GalStoryMessageOutcome;
+  outcome: GalStoryMessageOutcome;
   error?: string;
 }
 
@@ -234,4 +231,26 @@ export interface GalStoryMessageSave {
   mes: string;
   send_date: string;
   extra: GalStoryMessageExtra;
+}
+
+export interface MainStoryRun {
+  eventId: string;
+  actId: string;
+  phase: 'waiting' | 'playing';
+  pageIndex: number;
+}
+
+export interface MainStoryGenerationState {
+  status: StoryGenerationStatus;
+  requestId: string | null;
+  source: StoryGenerationSource | null;
+  error: string | null;
+}
+
+export interface MainStoryState {
+  run: MainStoryRun | null;
+  generation: MainStoryGenerationState;
+  completedEventIds: string[];
+  archives: GalStoryActArchive[];
+  messages: GalStoryMessageSave[];
 }

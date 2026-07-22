@@ -37,7 +37,7 @@ export const MIKAN_STORY_CHARACTER = {
   loreReferences: [
     {
       worldbookName: '出包王女',
-      entryUid: 7,
+      entryOrder: 102,
       entryName: '结城美柑',
       rootTag: 'Mikan Yuuki',
       requiredContentMarker: '姓名:结城美柑',

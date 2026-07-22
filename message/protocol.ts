@@ -1,7 +1,7 @@
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
 
 export const MESSAGE_PROTOCOL_VERSION = 1 as const;
-export const MESSAGE_SCHEMA_VERSION = 1 as const;
+export const MESSAGE_SCHEMA_VERSION = 2 as const;
 export const MESSAGE_REQUEST_EVENT = 'tolove:message:request:v1';
 export const MESSAGE_RESPONSE_EVENT = 'tolove:message:response:v1';
 export const MESSAGE_FILE_FORMAT = 'tokimeki-to-love-gal-messages' as const;
@@ -88,26 +88,21 @@ function isStoryMessage(value: unknown): value is GalStoryMessageSave {
     typeof value.send_date === 'string' &&
     extra.type === 'tolove-main-story' &&
     typeof extra.eventId === 'string' &&
-    typeof extra.actIndex === 'number' &&
-    Number.isInteger(extra.actIndex) &&
-    extra.actIndex >= 0 &&
     typeof extra.actId === 'string' &&
-    (extra.entryReason === 'after_first_action' || extra.entryReason === 'after_second_action') &&
     (extra.source === 'tavern' || extra.source === 'fallback') &&
-    typeof extra.generationId === 'string' &&
-    extra.generationId.trim().length > 0 &&
-    (extra.floorId === undefined || (typeof extra.floorId === 'string' && extra.floorId.trim().length > 0)) &&
+    typeof extra.floorId === 'string' &&
+    extra.floorId.trim().length > 0 &&
     typeof extra.period === 'string' &&
     typeof extra.location === 'string' &&
-    (extra.day === undefined || (typeof extra.day === 'number' && Number.isFinite(extra.day))) &&
-    (extra.playerName === undefined || typeof extra.playerName === 'string') &&
-    (extra.contextFloorIds === undefined ||
-      (Array.isArray(extra.contextFloorIds) &&
-        extra.contextFloorIds.every(id => typeof id === 'string' && id.trim().length > 0) &&
-        new Set(extra.contextFloorIds).size === extra.contextFloorIds.length)) &&
+    typeof extra.day === 'number' &&
+    Number.isFinite(extra.day) &&
+    typeof extra.playerName === 'string' &&
+    Array.isArray(extra.contextFloorIds) &&
+    extra.contextFloorIds.every(id => typeof id === 'string' && id.trim().length > 0) &&
+    new Set(extra.contextFloorIds).size === extra.contextFloorIds.length &&
     (extra.role === 'user' || extra.role === 'assistant') &&
     typeof extra.renderable === 'boolean' &&
-    (extra.outcome === undefined || extra.outcome === 'accepted' || extra.outcome === 'parse_error') &&
+    (extra.outcome === 'accepted' || extra.outcome === 'parse_error') &&
     (extra.error === undefined || typeof extra.error === 'string')
   );
 }
@@ -116,7 +111,6 @@ function hasConsistentFloorPairs(messages: readonly GalStoryMessageSave[]): bool
   const pairs = new Map<string, { signature: string; roles: Set<'user' | 'assistant'> }>();
   for (const message of messages) {
     const floorId = message.extra.floorId;
-    if (floorId === undefined) continue;
     const role = message.extra.role;
     const hasCompleteFloorMetadata =
       (message.extra.outcome === 'accepted' || message.extra.outcome === 'parse_error') &&
@@ -124,13 +118,11 @@ function hasConsistentFloorPairs(messages: readonly GalStoryMessageSave[]): bool
       Number.isFinite(message.extra.day) &&
       typeof message.extra.playerName === 'string' &&
       Array.isArray(message.extra.contextFloorIds) &&
-      message.extra.contextFloorIds.length === message.extra.actIndex &&
       (message.extra.outcome === 'accepted'
         ? message.extra.error === undefined
         : typeof message.extra.error === 'string' && message.extra.error.trim().length > 0);
     if (
       !hasCompleteFloorMetadata ||
-      floorId !== message.extra.generationId ||
       message.id !== `${floorId}-${role}` ||
       message.is_system ||
       (role === 'user' ? !message.is_user : message.is_user) ||
@@ -141,16 +133,14 @@ function hasConsistentFloorPairs(messages: readonly GalStoryMessageSave[]): bool
 
     const signature = JSON.stringify([
       message.extra.eventId,
-      message.extra.actIndex,
       message.extra.actId,
-      message.extra.entryReason,
       message.extra.source,
       message.extra.period,
       message.extra.location,
-      message.extra.day ?? null,
-      message.extra.playerName ?? null,
-      message.extra.contextFloorIds ?? null,
-      message.extra.outcome ?? null,
+      message.extra.day,
+      message.extra.playerName,
+      message.extra.contextFloorIds,
+      message.extra.outcome,
       message.extra.error ?? null,
     ]);
     const pair = pairs.get(floorId);

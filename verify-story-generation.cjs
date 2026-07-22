@@ -8,12 +8,16 @@ require('ts-node').register({
     moduleResolution: 'Node',
     target: 'ES2022',
     esModuleInterop: true,
+    ignoreDeprecations: '6.0',
   },
 });
 
 const { getStoryCharacter, getStoryPortraitRig } = require('./GalMainStory/characters');
 const { EPISODE_01_ACT_01 } = require('./GalMainStory/episodes/episode01/acts/act01');
 const { EPISODE_01_ACT_02 } = require('./GalMainStory/episodes/episode01/acts/act02');
+const { EPISODE_02_ACT_01 } = require('./GalMainStory/episodes/episode02/acts/act01');
+const { EPISODE_02_ACT_02 } = require('./GalMainStory/episodes/episode02/acts/act02');
+const { EPISODE_02_ACT_03 } = require('./GalMainStory/episodes/episode02/acts/act03');
 const { parseStoryLine } = require('./GalMainStory/storyPresentation');
 const { extractPlayableText } = require('./GalMainStory/storyTextExtraction');
 const { buildStoryGenerationPrompt, buildStoryOutputProtocol } = require('./services/storyGenerationPrompt');
@@ -41,8 +45,10 @@ const act01Context = createPromptContext(EPISODE_01_ACT_01);
 const act02Context = createPromptContext(EPISODE_01_ACT_02);
 const act01Prompt = buildStoryGenerationPrompt(act01Context);
 const act02Prompt = buildStoryGenerationPrompt(act02Context);
+const episode02Contexts = [EPISODE_02_ACT_01, EPISODE_02_ACT_02, EPISODE_02_ACT_03].map(createPromptContext);
+const episode02Prompts = episode02Contexts.map(buildStoryGenerationPrompt);
 
-for (const prompt of [act01Prompt, act02Prompt]) {
+for (const prompt of [act01Prompt, act02Prompt, ...episode02Prompts]) {
   assert.match(prompt, /<content>[\s\S]*<\/content>/u);
   assert.ok(prompt.includes('<正文>...</正文>'));
   assert.ok(prompt.includes('<story_scene>...</story_scene>'));
@@ -60,6 +66,9 @@ assert.ok(
     'IF scene=home|bedroom|rooftop|nightStreet|park|schoolRoad AND focus=lala, THEN portrait=arrival-default',
   ),
 );
+assert.ok(episode02Prompts[0].includes('bedroom → home → school → changingRoom'));
+assert.ok(episode02Prompts[1].includes('home → washroomDoor → bedroom → school → riverbank'));
+assert.ok(episode02Prompts[2].includes('riverbank → home → schoolRoad → school'));
 
 function parseAct02(line) {
   return parseStoryLine(line, { playerName: 'User', presentation: EPISODE_01_ACT_02.presentation });

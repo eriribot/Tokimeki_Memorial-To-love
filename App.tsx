@@ -30,8 +30,8 @@ function App() {
   const { width, height, cellSize } = useMapStore();
   const screen = useGameStore((state: { screen: string }) => state.screen);
   const currentSceneId = useGameStore((state: { currentSceneId: string | null }) => state.currentSceneId);
-  const activeMainStoryEventId = useGameStore(state => state.activeMainStoryEventId);
-  const mainStoryArchives = useGameStore(state => state.mainStoryArchives);
+  const mainStoryRun = useGameStore(state => state.mainStory.run);
+  const storyArchives = useGameStore(state => state.mainStory.archives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
@@ -57,8 +57,8 @@ function App() {
   const skillFrameWidth = Math.min(mapWidth, availableMapWidth);
   const skillFrameHeight = Math.min(mapHeight, Math.max(320, viewportSize.height - 124));
   const isPageMode = isNativePageMode;
-  const isMainStoryActive = activeMainStoryEventId !== null;
-  const hasMainStoryHistory = mainStoryArchives.some(
+  const isMainStoryActive = mainStoryRun?.phase === 'playing';
+  const hasMainStoryHistory = storyArchives.some(
     archive =>
       archive.activeFloorId !== null &&
       archive.floors.some(floor => floor.floorId === archive.activeFloorId && floor.act !== null),

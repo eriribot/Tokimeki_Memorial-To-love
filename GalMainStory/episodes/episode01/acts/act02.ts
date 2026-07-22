@@ -1,9 +1,16 @@
-import type { StoryActDefinition } from '../../../storyTypes';
+import type { StoryEpisodeActDefinition } from '../../../episodeTemplate';
 
 export const EPISODE_01_ACT_02 = {
   id: 'ep01.act2-bathroom',
   title: '浴室里的王女',
-  actionPointsRemaining: 0,
+  trigger: { date: { year: 2008, month: 4, day: 7 }, actionNumber: 2 },
+  plotLore: {
+    worldbookName: '出包王女',
+    entryOrder: 151,
+    entryName: '剧情第一集·第二幕',
+    rootTag: 'To LOVE-Ru TV Episode 01 Act 02',
+    kind: 'plot',
+  },
   loreSection: '第二幕·浴室里的王女',
   characterLoreIds: ['lala'],
   presentation: {
@@ -12,6 +19,7 @@ export const EPISODE_01_ACT_02 = {
       { characterId: 'lala', portraitIds: ['arrival-default', 'washroom-swimsuit'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+      { characterId: 'mikan', portraitIds: ['arrival-default'] },
     ],
     portraitRules: [
       {
@@ -303,4 +311,4 @@ export const EPISODE_01_ACT_02 = {
       },
     },
   ],
-} as const satisfies StoryActDefinition;
+} as const satisfies StoryEpisodeActDefinition;

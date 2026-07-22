@@ -1,6 +1,6 @@
 import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
-import { createGameSnapshot, createSavePreview, restoreGameSnapshot, type GameSnapshotV1 } from './snapshot';
+import { createGameSnapshot, createSavePreview, restoreGameSnapshot, type GameSnapshot } from './snapshot';
 import { captureGameMessages, gameMessageApi } from '../message';
 import { withTavernAutosavePaused } from './autosave';
 
@@ -26,14 +26,13 @@ export const gameSaveApi = {
     await gameMessageApi.saveFor(result.save, messages);
     return result;
   },
-  load: async (slotId = DEFAULT_SAVE_SLOT, saveUuid?: string): Promise<SaveRecord<GameSnapshotV1>> => {
-    const { save } = await saveClient.load<GameSnapshotV1>(slotId, saveUuid);
+  load: async (slotId = DEFAULT_SAVE_SLOT, saveUuid?: string): Promise<SaveRecord<GameSnapshot>> => {
+    const { save } = await saveClient.load<GameSnapshot>(slotId, saveUuid);
     if (!save) {
       throw new Error(`没有找到存档：${saveUuid ?? slotId}`);
     }
-    const requiresMessageArchive = save.data.messageArchiveVersion === 1;
-    const archive = await gameMessageApi.loadFor(save, requiresMessageArchive);
-    if (!archive && requiresMessageArchive) {
+    const archive = await gameMessageApi.loadFor(save, true);
+    if (!archive) {
       throw new Error(`存档 ${save.slotId} 缺少对应的对话档`);
     }
     restoreGameSnapshot(save.data, archive?.messages);

@@ -2,21 +2,23 @@
 
 ```yaml
 status: implementation_complete_human_review_pending
-current_loop: layered-portrait-photoshop-processing-guide
-authorized_by: user_requested_reusable_photoshop_workflow_in_portrait_integration_guide_2026-07-21
+current_loop: data_driven_episode_template_runtime
+authorized_by: user_confirmed_order_locator_and_no_legacy_save_compatibility_2026-07-22
 authorized_scope:
-  - document a character-agnostic Photoshop workflow for layered portrait seam repair
-  - separate coordinate, frame-edge, texture-bleed, subpixel and Alpha-mask failure classes
-  - document Difference alignment, shared edge-reference bands, integer atlas rebuilding, export and timeline review
-  - use Mikan only as a measured example without changing her runtime configuration or source art
+  - humanize the three episode02 recovery drafts without changing plot direction
+  - register episode02 as three acts and connect triggering, generation, GAL playback, history and saves
+  - locate real Tavern worldbook entries by stable order and exact name
+  - use the user-confirmed riverbank ending and bg020_a.png as the provisional changing-room background
+  - replace per-episode Store/snapshot growth with one generic episode template runtime
+  - break old save compatibility and remove duplicated persisted act indexes
 forbidden_scope:
-  - edit runtime TypeScript, CSS, character configuration, source PNG, PSD or generated atlas files
-  - build, reload or claim that the documentation changes runtime rendering
+  - create or connect new Lala portraits
+  - edit source PNG, PSD or generated portrait atlases
   - import, enable or edit saved Tavern worldbook entries
   - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins or databases
-connection_state: documentation_only_no_runtime_change
-overall_connection_label: 不涉及接通；本轮只补充分层立绘的 Photoshop 素材处理方法
-human_review: pending_photoshop_workflow_clarity_and_reproducibility_review
+connection_state: local_runtime_connected_real_tavern_scan_pending
+overall_connection_label: 第二集本地运行链已完整接通；真实酒馆仍需验证 order 扫描证据
+human_review: pending_episode02_story_voice_and_real_tavern_scan
 counterevidence:
   - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
     are invalidated
@@ -38,25 +40,52 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: human_review_layered_portrait_photoshop_processing_guide
+next_loop: human_review_episode02_and_real_tavern_order_scan
 ```
 
-## 当前增量：Photoshop 通用分层立绘处理流程
+本轮台式机验收按 `references/aldent-review-invitation.md` 执行，结果填写在
+`references/aldent-human-review-form.md`。手册已经单独标出真实 Tavern order 扫描、schema v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路径不再作为本轮证据。
 
-- `菈菈分层动态立绘制作与接入指南.md` 新增角色无关的 PS 流程，先按症状区分坐标错误、帧外圈差异、跨帧采样、小数像素与完整人物 mask 问题。
+## 本轮结构改造
+
+- `episodeTemplate.ts` 统一登记日期/行动序号触发器、剧情世界书 order、人物 lore、演出素材、生成合同和 fallback；`episodes/index.ts` 是唯一生产注册清单。
+- 共享触发、生成、GAL、历史和存档只认 `eventId + actId`。Store 不再并列保存 active/progress/actIndex/acts，快照也不再重建旧第一集结构。
+- 通用主线动作移到 `stores/mainStoryStore.ts`；`gameStore.ts` 只装配行动结算和稳定 slice 接口，不再随着剧集增加而增长。
+- 主线快照升级为 schema v2，对话档升级为 schema v2；旧开发存档明确不兼容。
+- 新增未注册虚构剧集契约，证明通用触发器可以只读取模板工作；新增剧集复用现有素材时不改 `gameStore.ts`、`snapshot.ts` 或渲染器。
+- 防止删除仍被后续版本引用的楼层，并拒绝历史页异步生成返回后的过期写入。
+
+| Check                              | Status | Evidence                                                                 |
+| ---------------------------------- | ------ | ------------------------------------------------------------------------ |
+| TypeScript                         | passed | `npm run typecheck:tolove`                                               |
+| Generic episode template contract  | passed | `node verify-story-template.cjs`                                         |
+| Episode 02 lore/runtime contracts  | passed | `verify-episode02-lore.cjs`、`verify-episode02-runtime.cjs`               |
+| Existing story contracts           | passed | `verify-story-generation.cjs`、`verify-character-lore.cjs`、21 项正文测试 |
+| Development build                  | passed | `npm run build:dev`                                                      |
+| Tavern message bridge artifact     | passed | 已重建；无 `entryReason/generationId/extra.actIndex`                     |
+| Real Tavern order scan             | not run | 仍需在真实酒馆确认下一次 World Info 扫描命中 152/153/154                 |
+
+## 保留的上一轮增量：Photoshop 通用分层立绘处理流程
+
+- `菈菈分层动态立绘制作与接入指南.md`
+  新增角色无关的 PS 流程，先按症状区分坐标错误、帧外圈差异、跨帧采样、小数像素与完整人物 mask 问题。
 - PSD 母板固定逻辑舞台、角色自己的 region 和层级；用 Difference 模式只测中性参考帧，所有表情继续共享同一组坐标。
-- 旧 `256x512 / 256x256` 三帧纹理先整图非等比重采样为 `230x393 / 230x171`，再按整数参考线切成 `230x131 / 230x57`，避免从旧图上猜 `170/171` 或 `85/86` 分界。
-- 每帧以同一份 body crop 作为 `edge-reference`，通过收缩选区与小范围 Feather 建立共同外圈；文档区分了 1024 母板中的 region 选区和独立单帧文档中的 `Select All`。
-- clean atlas、2x atlas、legacy 容器、独立帧/显式 rect 的职责分开记录；加入 Timeline、缩放、多背景与分层定位的验收清单及禁止做法。
+- 旧 `256x512 / 256x256` 三帧纹理先整图非等比重采样为 `230x393 / 230x171`，再按整数参考线切成
+  `230x131 / 230x57`，避免从旧图上猜 `170/171` 或 `85/86` 分界。
+- 每帧以同一份 body crop 作为
+  `edge-reference`，通过收缩选区与小范围 Feather 建立共同外圈；文档区分了 1024 母板中的 region 选区和独立单帧文档中的
+  `Select All`。
+- clean atlas、2x
+  atlas、legacy 容器、独立帧/显式 rect 的职责分开记录；加入 Timeline、缩放、多背景与分层定位的验收清单及禁止做法。
 - 本轮没有修改 `mikan.ts`、共享组件、CSS、任何 PNG/PSD、构建产物或宿主链。
 
-| Check                    | Status  | Evidence                                                           |
-| ------------------------ | ------- | ------------------------------------------------------------------ |
+| Check                    | Status  | Evidence                                                            |
+| ------------------------ | ------- | ------------------------------------------------------------------- |
 | Guide structure          | passed  | PS 流程包含诊断、母板、Difference、整数帧、安全带、导出与时间轴验收 |
 | Existing route coherence | passed  | “自己制作新表情”已改为角色自身 region，并区分 clean/legacy 路线     |
-| Prettier                 | not run | 最终文档与审查邀请完成后运行                                       |
-| Runtime build/tests      | not run | 纯文档增量，明确禁止把未改运行时写成重新验证                         |
-| Human reproducibility    | not run | 等待用户按 PS 步骤实际制作一组帧                                   |
+| Prettier                 | not run | 最终文档与审查邀请完成后运行                                        |
+| Runtime build/tests      | not run | 纯文档增量，明确禁止把未改运行时写成重新验证                        |
+| Human reproducibility    | not run | 等待用户按 PS 步骤实际制作一组帧                                    |
 
 ### 人工复现
 
@@ -118,51 +147,49 @@ next_loop: human_review_layered_portrait_photoshop_processing_guide
 - standalone 页面缺少 Tavern save 与 generate 接口，因此控制台会记录对应隔离错误；这不是美柑资源失败。
 - `verify-character-lore.cjs` 仍使用项目既有的 CommonJS 脚本格式；将校验工具迁为 ESM 不属于本轮运行时接线范围。
 
-## 保留的既有待审范围：第二集第三幕与美柑、春菜人物世界书恢复源
+## 2026-07-22：第二集完整接线与河边版本
 
 - 时间线采用当前企划的连续映射：4 月 7 日 20:43 首次触碰与公园对峙，4 月 8 日早晨误告白，4 月 9 日第二集开场与校内骚动，4 月 10 日 20:43 三日冷静期结束，4 月 11 日早晨菈菈作为转学生登场。
 - TBS 第 2 话简介确认婚约成立与三日内解除；日文字幕进一步给出“一昨日の20時43分”、再次触碰并宣告解除、最后一小时谈话、警报和转学生台词。恢复源没有写成 24 小时、八字不合或让菈菈讨厌 User。
-- 第三幕从 4 月 10 日家中最后一小时开始。字幕在倒计时前仍有做饭和递东西的声音，User 随即请菈菈坐下谈婚约；旧草稿中没有来源支撑的河边地点已删除。
+- 用户提供的动画截图确认最后一小时谈话发生在河边。第二幕以 User 请菈菈去河边收尾，第三幕从河堤开始，沛凯仍在场；20:43 警报也在河边响起。
 - 菈菈说出长期相亲、王室身份让人替她作决定、除沛凯外没人倾听，并感谢 User 曾经听她说话、相信她和保护她。User 只表现为几次开口未果，没有被正文规定成因为春菜、愧疚或爱意而犹豫。
 - 警报在 4 月 10 日 20:43 响起，User 未再次触碰也未完成解除宣言；次晨亲卫庆祝，User 到校后短暂以为菈菈不在，老师随即介绍她为转学生。第三幕停在春菜认出她和全班骚动，不续写第三集。
 - `tolove-character-mikan.txt` 与 `tolove-character-haruna.txt`
   按菈菈人物书的分区方式保存基础资料、行为性格、经历、情感驱动、关系、前两集认知、称呼、口吻、台词和禁止偏移。两人都明确隔开原作男主、User 与夕崎梨子。
-- 美柑保持小学生与未成年边界，重点是家务、观察和责任提醒；春菜保持文静但有边界的普通同学，第二集更衣室反应来自惊吓，不写成争宠。春菜不知道三日规则、沛凯变装原理、家中尝试或最后谈话。
+- 美柑保持小学生与未成年边界，重点是家务、观察和责任提醒；春菜保持文静但有边界的普通同学，第二集更衣室反应来自惊吓，不写成争宠。春菜不知道三日规则、沛凯变装原理、解除婚约的尝试或河边最后谈话。
 - TBS 官方人物页只用于身份和核心性格。生日、血型、身高和体重来自已标明的二级资料；恢复源和 README 都明确说明 TBS 页面未列这些数值。
-- 此恢复源阶段的人物 UID 仍是“待确认”；该结论现已被本轮用户确认的美柑 UID `7`、春菜 UID `6`
-  及运行时登记取代。两条保存条目仍须保持关闭。
-- 当前代码仍在第一集完成后让菈菈校园可见，早于 4 月 11 日转学生揭晓。此缺口已写入
-  `MODULES.md`，但修复需要 EP02 登记、三幕状态与存档迁移，超出本轮授权。
+- 世界书条目不再依赖不可控 UID；人物使用 `order 100/101/102`，两集剧情使用 `order 150-154`。所有保存条目仍须保持关闭。
+- 菈菈校园常驻已经改为 EP02 三幕完成后解锁，与 4 月 11 日转学生登场一致。
 - `stores/mapStore.ts` 与 `components/MapMenu.tsx` 未修改；二者不拥有剧情日期或角色解锁。构建与 inline
   artifact 不受这些未导入 bundle 的恢复源影响。
 
-| Check                        | Status  | Evidence                                                                                              |
-| ---------------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| Episode 02 lore contract     | passed  | `node src/webgame-ui/verify-episode02-lore.cjs`；三幕根标签、时间线、禁用错误说法与未接线边界通过     |
-| Character lore contract      | passed  | `node src/webgame-ui/verify-character-lore.cjs`；两份人物结构、资料等级、身份边界与非机械台词样例通过 |
-| Story generation regression  | passed  | `node src/webgame-ui/verify-story-generation.cjs`；既有生成与正文协议合同通过                         |
-| Validator syntax             | passed  | 两个新 lore validator 均通过 `node --check`                                                           |
-| Changed-file Prettier        | not run | 最终状态与审查邀请完成后运行                                                                          |
-| Build / inline verification  | not run | 本轮只改未进入 bundle 的恢复 TXT、校验脚本与文档；不生成新 inline artifact                            |
-| Real Tavern worldbook import | not run | 本轮禁止导入、启用或扫描；真实条目与人物 UID 尚未确认                                                 |
-| Human story and voice review | not run | 等待用户审阅第三幕节拍、美柑与春菜是否自然、是否符合当前企划                                          |
+| Check                        | Status  | Evidence                                                                                         |
+| ---------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| Episode 02 lore contract     | passed  | 三幕根标签、河边版本、order 定位、日期/AP 触发与场景登记通过                                     |
+| Episode 02 runtime contract  | passed  | 4 月 9 日至 11 日的行动触发、跨日、完成记录与菈菈解锁通过                                        |
+| Character lore contract      | passed  | `node src/Tokimeki_Memorial-To-love/verify-character-lore.cjs`；人物结构、身份边界与自然台词通过 |
+| Story generation regression  | passed  | `node src/Tokimeki_Memorial-To-love/verify-story-generation.cjs`；两集生成与正文协议合同通过     |
+| Story text regression        | passed  | `npm run test:story-text`；21 项正文抽取与提示合同测试通过                                       |
+| Changed-file Prettier        | passed  | 运行时、校验脚本、测试与当前文档已按项目 Prettier 整理                                           |
+| Build / inline verification  | passed  | `npm run build:dev`；TypeScript 与 webpack 开发构建通过                                          |
+| Real Tavern worldbook scan   | not run | 代码按 order 武装扫描副本；仍须在真实酒馆核对 `WORLDINFO_ENTRIES_LOADED`                         |
+| Human story and voice review | not run | 等待用户审阅第三幕节拍、美柑与春菜是否自然、是否符合当前企划                                     |
 
 ### 人工复现
 
-1. 阅读三份第二集恢复源，确认时间依次为 4 月 9 日、4 月 10 日 20:43 前、4 月 10 日最后一小时至 4 月 11 日早晨；第三幕谈话在家中，不在河边。
+1. 阅读三份第二集恢复源，确认时间依次为 4 月 9 日、4 月 10 日 20:43 前、4 月 10 日最后一小时至 4 月 11 日早晨；第三幕谈话发生在河边。
 2. 检查第三幕：菈菈说起相亲、王室压力、沛凯例外并感谢 User；User 没有被写死内心理由，也没有再次触碰或完成解除宣言。
 3. 检查片尾：警报越线后才有亲卫庆祝；到校后老师介绍转学生，菈菈说自己也来学校，春菜只认出她，剧情随即结束。
 4. 阅读美柑人物书，确认她仍是未成年小学生，不承担恋爱或身体笑料；User 没有自动亲属关系，夕崎梨子没有默认亲属关系。
 5. 阅读春菜人物书，确认原作感情不迁移给 User；4 月 9 日更衣室反应来自受惊，她不知道家中解除规则和最后谈话。
-6. 此恢复源阶段原要求在真实 Tavern 导入前查询空闲 UID；当前用户已确认美柑为 `7`、春菜为
-   `6`，仍需检查两条保存条目保持关闭。
+6. 在真实 Tavern 中检查 `order 100-102` 人物条目和 `order 150-154` 剧情条目保持关闭，并核对一次性扫描证据。
 
 ### 已知风险
 
 - 4 月 7 日至 4 月 11 日是依据当前游戏锚点与字幕相对时间得到的内部映射，不是动画画面显示的官方日历。
 - TBS 官方人物页不含生日、血型、身高和体重；这些数值已经降级标注，但仍需人工决定是否保留二级资料。
 - 自动检查只能验证结构、关键词和禁用边界，不能证明人物说话自然或每个动画情绪点都写对。
-- 第二集、人物条目、角色解锁、保存恢复和历史投影尚未接入；本轮 TXT 完成不代表游戏已经能播放第二集。
+- 第二集、角色解锁、保存恢复、历史投影和重新生成上下文已经按 `eventId` 接入；真实酒馆扫描仍需人工证据。
 
 ## 保留的既有待审范围：直接抽取唯一受支持正文容器与场景立绘唯一绑定
 
@@ -322,8 +349,7 @@ next_loop: human_review_layered_portrait_photoshop_processing_guide
 
 ### 已知风险
 
-- 第二集不能只靠新增目录接入；store 当前正文投影、存档恢复、历史目录、重新生成上下文和文本导出仍需按 `eventId`
-  分集，这属于下一轮独立范围。
+- 第二集已经完成多集接线；store 正文投影、存档恢复、历史目录、重新生成上下文和文本导出均按 `eventId` 分集。
 - 全量 TypeScript 尚被未改动的 `characterStore.ts` 既有空值类型错误阻断；本轮改动文件没有剩余 TypeScript 报错。
 - 构建、lint 和 contract check 不能证明剧情语义、视觉节奏、旧存档或真实 Tavern World Info 行为。
 
@@ -352,14 +378,13 @@ next_loop: human_review_layered_portrait_photoshop_processing_guide
 
 ## 仍待人工验收的既有范围
 
-- 主线当前幕从已采用正文进度恢复；非活动事件存档不再无条件把 `mainStoryActIndex` 清零。
-- 恢复或继续游戏时会幂等检查 4 月 7 日的 AP 阈值，补回已经到点但尚未进入的幕；普通正确的 `AP=1 / actIndex=1`
-  状态仍等待下一次行动触发第二幕。
+- 主线当前幕由 schema v2 的单一 `run(eventId, actId, phase, pageIndex)` 恢复；采用正文从相应楼层档案投影，不再保存并行的幕序号或正文数组。
+- 恢复或继续游戏时会按模板的日期与行动序号幂等检查等待中的幕；例如第一幕结束后的 `AP=1 + waiting act2` 仍等待下一次行动触发第二幕。
 - 角色卡继续保存在 Card
-  store，出现位置由独立规则同步：梨子和春菜初始可见，菈菈完成第一集后可见，梦梦、唯和小暗当前锁定；未知导入角色默认可见。
+  store，出现位置由独立规则同步：梨子和春菜初始可见，菈菈完成第二集后可见，梦梦、唯和小暗当前锁定；未知导入角色默认可见。
 - AI 原文通过既有楼层 `messageIds` 关联 Tavern
   Assistant 消息，按幕和楼层版本组织，并对原字符串做只读分页。已读目录中的每个楼层可直接打开其原文版本。
-- 没有修改提示词、世界书、Tavern 宿主消息、生成协议、shujuku、插件或数据库链。
+- 本轮修改了本地主线模板、消息镜像协议和存档结构；没有创建 Tavern 宿主消息，也没有接入 shujuku、插件或数据库链。
 
 ## 验证证据
 

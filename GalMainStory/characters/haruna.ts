@@ -37,7 +37,7 @@ export const HARUNA_STORY_CHARACTER = {
   loreReferences: [
     {
       worldbookName: '出包王女',
-      entryUid: 6,
+      entryOrder: 101,
       entryName: '西连寺春菜',
       rootTag: 'Haruna Sairenji',
       requiredContentMarker: '姓名:西连寺春菜',

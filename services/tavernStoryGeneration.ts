@@ -1,10 +1,10 @@
-import {
-  EPISODE_01_ACTS,
-  EPISODE_01_EVENT_ID,
-  EPISODE_01_STORY,
-  getEpisode01LoreReferences,
-} from '../GalMainStory/episodes/episode01';
 import { getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
+import {
+  getMainStoryActIndex,
+  getMainStoryActOrThrow,
+  getMainStoryEpisodeOrThrow,
+  getMainStoryLoreReferences,
+} from '../GalMainStory/storyRegistry';
 import { parseStoryParagraphs, type ParsedStoryLine } from '../GalMainStory/storyPresentation';
 import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
 import {
@@ -14,8 +14,6 @@ import {
   type GalStoryFloorOutcome,
   type GalStoryMessageSave,
   type GalStoryMessageSource,
-  type MainStoryEntryReason,
-  type StoryActDefinition,
   type StoryPresentationCue,
 } from '../GalMainStory/storyTypes';
 import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
@@ -23,9 +21,9 @@ import { createSaveUuid } from '../save/uuid';
 import { buildStoryGenerationPrompt, type StoryPromptPortraitOption } from './storyGenerationPrompt';
 
 export interface GenerateStoryActRequest {
+  eventId: string;
+  actId: string;
   floorId: string;
-  actIndex: number;
-  entryReason: MainStoryEntryReason;
   playerName: string;
   day: number;
   period: string;
@@ -68,9 +66,8 @@ function getTavernGenerateApi(): Pick<Window['TavernHelper'], 'generate'> {
   return api;
 }
 
-function getActPortraitOptions(actIndex: number): StoryPromptPortraitOption[] {
-  const act = EPISODE_01_ACTS[actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+function getActPortraitOptions(eventId: string, actId: string): StoryPromptPortraitOption[] {
+  const act = getMainStoryActOrThrow(eventId, actId);
 
   return act.presentation.cast.flatMap(member => {
     const characterId = member.characterId;
@@ -89,16 +86,16 @@ function getActPortraitOptions(actIndex: number): StoryPromptPortraitOption[] {
 }
 
 function buildGenerationPrompt(request: GenerateStoryActRequest): string {
-  const act: StoryActDefinition | undefined = EPISODE_01_ACTS[request.actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+  const episode = getMainStoryEpisodeOrThrow(request.eventId);
+  const act = getMainStoryActOrThrow(request.eventId, request.actId);
 
   return buildStoryGenerationPrompt({
-    eventTitle: EPISODE_01_STORY.title,
+    eventTitle: episode.title,
     loreSection: act.loreSection,
     sceneIds: act.presentation.sceneIds,
     minimumLineCount: act.generation.minimumLineCount,
     requiredSceneSequence: act.generation.requiredSceneSequence,
-    portraitOptions: getActPortraitOptions(request.actIndex),
+    portraitOptions: getActPortraitOptions(request.eventId, request.actId),
     portraitRules: act.presentation.portraitRules ?? [],
     continuityMode: request.contextFloorIds.length > 0 ? 'continue' : 'fresh',
   });
@@ -106,6 +103,7 @@ function buildGenerationPrompt(request: GenerateStoryActRequest): string {
 
 function buildGenerationChatHistory(
   messages: readonly GalStoryMessageSave[],
+  eventId: string,
   contextFloorIds: readonly string[],
 ): RolePrompt[] {
   const floorOrder = new Map(contextFloorIds.map((floorId, index) => [floorId, index]));
@@ -113,14 +111,14 @@ function buildGenerationChatHistory(
     .filter(
       message =>
         message.extra.type === 'tolove-main-story' &&
-        message.extra.eventId === EPISODE_01_EVENT_ID &&
-        floorOrder.has(message.extra.floorId ?? message.extra.generationId) &&
+        message.extra.eventId === eventId &&
+        floorOrder.has(message.extra.floorId) &&
         !message.is_system &&
         message.mes.trim().length > 0,
     )
     .sort((left, right) => {
-      const leftOrder = floorOrder.get(left.extra.floorId ?? left.extra.generationId) ?? 0;
-      const rightOrder = floorOrder.get(right.extra.floorId ?? right.extra.generationId) ?? 0;
+      const leftOrder = floorOrder.get(left.extra.floorId) ?? 0;
+      const rightOrder = floorOrder.get(right.extra.floorId) ?? 0;
       if (leftOrder !== rightOrder) return leftOrder - rightOrder;
       return left.extra.role === right.extra.role ? 0 : left.extra.role === 'user' ? -1 : 1;
     })
@@ -135,8 +133,11 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function createStoryFloorId(actIndex: number): string {
-  return `tolove-ep01-act-${actIndex + 1}-${createSaveUuid()}`;
+export function createStoryFloorId(eventId: string, actId: string): string {
+  const episode = getMainStoryEpisodeOrThrow(eventId);
+  const actIndex = getMainStoryActIndex(eventId, actId);
+  if (actIndex < 0) throw new Error('主线幕 ID 无效。');
+  return `tolove-ep${String(episode.episodeNumber).padStart(2, '0')}-act-${actIndex + 1}-${createSaveUuid()}`;
 }
 
 function createMessageId(floorId: string, role: 'user' | 'assistant'): string {
@@ -144,18 +145,14 @@ function createMessageId(floorId: string, role: 'user' | 'assistant'): string {
 }
 
 export function createStoryMessagePair(request: BuildMessagePairRequest): GalStoryMessageSave[] {
-  const act = EPISODE_01_ACTS[request.actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+  const act = getMainStoryActOrThrow(request.eventId, request.actId);
   const sendDate = new Date().toISOString();
   const outcome = request.outcome ?? 'accepted';
   const baseExtra = {
     type: 'tolove-main-story' as const,
-    eventId: EPISODE_01_EVENT_ID,
-    actIndex: request.actIndex,
+    eventId: request.eventId,
     actId: act.id,
-    entryReason: request.entryReason,
     source: request.source,
-    generationId: request.floorId,
     floorId: request.floorId,
     period: request.period,
     location: request.location,
@@ -208,11 +205,9 @@ export function createStoryFloor(
   outcome: GalStoryFloorOutcome,
   error?: string,
 ): GalStoryFloor {
-  const actMeta = EPISODE_01_ACTS[request.actIndex];
-  if (!actMeta) throw new Error('第一集幕编号无效。');
+  const actMeta = getMainStoryActOrThrow(request.eventId, request.actId);
   if (
     request.floorId.trim().length === 0 ||
-    request.contextFloorIds.length !== request.actIndex ||
     (outcome === 'accepted' ? act === null || error !== undefined : act !== null || !error?.trim()) ||
     (outcome === 'parse_error' && messages.length !== 2) ||
     (outcome === 'request_error' && messages.length !== 0)
@@ -222,15 +217,13 @@ export function createStoryFloor(
   const createdAt = messages.find(message => message.extra.role === 'assistant')?.send_date ?? new Date().toISOString();
   return {
     floorId: request.floorId,
-    eventId: EPISODE_01_EVENT_ID,
-    actIndex: request.actIndex,
+    eventId: request.eventId,
     actId: actMeta.id,
     source,
     createdAt,
     outcome,
     act,
     context: {
-      entryReason: request.entryReason,
       playerName: request.playerName,
       day: request.day,
       period: request.period,
@@ -281,9 +274,8 @@ function looksLikeJsonStory(text: string): boolean {
   );
 }
 
-function parsePlainTextAct(raw: string, actIndex: number, playerName: string): GalStoryAct {
-  const act = EPISODE_01_ACTS[actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+function parsePlainTextAct(raw: string, eventId: string, actId: string, playerName: string): GalStoryAct {
+  const act = getMainStoryActOrThrow(eventId, actId);
   const trimmed = raw.trim();
   if (!trimmed) throw new Error('酒馆没有返回本幕正文。');
 
@@ -343,11 +335,12 @@ export function actToPlainText(act: GalStoryAct): string {
 }
 
 export async function generateStoryAct(request: GenerateStoryActRequest): Promise<GeneratedStoryAct> {
-  const act = EPISODE_01_ACTS[request.actIndex];
-  if (!act) throw new Error('第一集幕编号无效。');
+  getMainStoryActOrThrow(request.eventId, request.actId);
   const api = getTavernGenerateApi();
   const userInput = buildGenerationPrompt(request);
-  const selectedLores = await readDisabledWorldbookStoryLores(getEpisode01LoreReferences(request.actIndex));
+  const selectedLores = await readDisabledWorldbookStoryLores(
+    getMainStoryLoreReferences(request.eventId, request.actId),
+  );
   const stopWorldInfoScanHook = armStoryLoresForNextWorldInfoScan(selectedLores);
   let result: Awaited<ReturnType<typeof api.generate>>;
   try {
@@ -361,7 +354,7 @@ export async function generateStoryAct(request: GenerateStoryActRequest): Promis
       overrides: {
         chat_history: {
           with_depth_entries: true,
-          prompts: buildGenerationChatHistory(request.chatHistory, request.contextFloorIds),
+          prompts: buildGenerationChatHistory(request.chatHistory, request.eventId, request.contextFloorIds),
         },
       },
     });
@@ -372,7 +365,7 @@ export async function generateStoryAct(request: GenerateStoryActRequest): Promis
   if (typeof result !== 'string') throw new Error('酒馆返回了工具调用，当前剧情生成只接受正文文本。');
   try {
     const playableText = extractPlayableText(result, { requirePlayableWrapper: true });
-    const parsedAct = parsePlainTextAct(playableText, request.actIndex, request.playerName);
+    const parsedAct = parsePlainTextAct(playableText, request.eventId, request.actId, request.playerName);
     const messages = createStoryMessagePair({
       ...request,
       userInput,
