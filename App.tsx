@@ -9,6 +9,7 @@ import MapMenu from './components/MapMenu';
 import SchoolMap from './components/SchoolMap';
 import CharacterProfileModal from './components/CharacterProfileModal';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
+import ContextPreviewModal from './components/ContextPreviewModal';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
 import GalMainStory from './GalMainStory/GalMainStory';
@@ -37,6 +38,7 @@ function App() {
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
+  const [isContextPreviewOpen, setIsContextPreviewOpen] = useState(false);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -207,7 +209,7 @@ function App() {
     >
       <button
         type="button"
-        className="browser-page-mode-button"
+        className={`browser-page-mode-button ${isContextPreviewOpen ? 'is-hidden-by-dialog' : ''}`}
         aria-pressed={isPageMode}
         title={isPageMode ? '退出浏览器全屏（Esc）' : '进入浏览器原生全屏'}
         onClick={() => {
@@ -226,96 +228,103 @@ function App() {
         </p>
       )}
 
-      {screen === 'start' ? (
-        <StartScreen
-          hasPersistedSave={hasPersistedSave}
-          isCheckingSaves={isCheckingSaves}
-          onContinue={handleContinue}
-          saveError={saveError}
-        />
-      ) : (
-        <div className="app">
-          <header className="game-header" aria-label="To LOVE-Ru">
-            <img className="game-header-title" src={resolveAssetPath('/artsource/ui/title.png')} alt="To LOVE-Ru" />
-          </header>
+      <div inert={isContextPreviewOpen ? true : undefined} aria-hidden={isContextPreviewOpen ? true : undefined}>
+        {screen === 'start' ? (
+          <StartScreen
+            hasPersistedSave={hasPersistedSave}
+            isCheckingSaves={isCheckingSaves}
+            onContinue={handleContinue}
+            saveError={saveError}
+          />
+        ) : (
+          <div className="app">
+            <header className="game-header" aria-label="To LOVE-Ru">
+              <img className="game-header-title" src={resolveAssetPath('/artsource/ui/title.png')} alt="To LOVE-Ru" />
+            </header>
 
-          <main className="game-layout">
-            <section className="play-section">
-              <div
-                className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''}`}
-                style={{
-                  width: isSkillPanelOpen ? skillFrameWidth : mapWidth * mapScale,
-                  height: isSkillPanelOpen ? skillFrameHeight : mapHeight * mapScale,
-                }}
-              >
+            <main className="game-layout">
+              <section className="play-section">
                 <div
-                  className="map-stage"
-                  inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
-                  aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                  className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''}`}
                   style={{
-                    width: mapWidth,
-                    height: mapHeight,
-                    transform: `scale(${mapScale})`,
+                    width: isSkillPanelOpen ? skillFrameWidth : mapWidth * mapScale,
+                    height: isSkillPanelOpen ? skillFrameHeight : mapHeight * mapScale,
                   }}
                 >
-                  {currentSceneId ? (
-                    <ClassroomScene />
-                  ) : (
-                    <SchoolMap
-                      hasStoryHistory={hasMainStoryHistory}
-                      onOpenStoryHistory={() => setIsStoryHistoryOpen(true)}
+                  <div
+                    className="map-stage"
+                    inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                    aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                    style={{
+                      width: mapWidth,
+                      height: mapHeight,
+                      transform: `scale(${mapScale})`,
+                    }}
+                  >
+                    {currentSceneId ? (
+                      <ClassroomScene />
+                    ) : (
+                      <SchoolMap
+                        hasStoryHistory={hasMainStoryHistory}
+                        onOpenStoryHistory={() => setIsStoryHistoryOpen(true)}
+                      />
+                    )}
+                  </div>
+                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
+                    <CalendarCard
+                      className="game-calendar-card"
+                      date={calendarDate}
+                      actionsRemaining={actionPointsRemaining}
+                      animateCorner={actionPointsRemaining === 0}
+                      dayUnit="日"
+                      showMonth
                     />
                   )}
+                  {!isStoryOverlayOpen && !isSkillPanelOpen && <CharacterProfileModal />}
+                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
+                    <MapMenu
+                      onOpenSave={() => setSaveSlotMode('save')}
+                      onOpenLoad={() => setSaveSlotMode('load')}
+                      onOpenData={() => setIsContextPreviewOpen(true)}
+                    />
+                  )}
+                  {!isStoryOverlayOpen && isSkillPanelOpen && (
+                    <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
+                  )}
+                  <GalMainStory historyMode={isStoryHistoryMode} onExitHistory={() => setIsStoryHistoryOpen(false)} />
                 </div>
-                {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
-                  <CalendarCard
-                    className="game-calendar-card"
-                    date={calendarDate}
-                    actionsRemaining={actionPointsRemaining}
-                    animateCorner={actionPointsRemaining === 0}
-                    dayUnit="日"
-                    showMonth
-                  />
-                )}
-                {!isStoryOverlayOpen && !isSkillPanelOpen && <CharacterProfileModal />}
-                {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
-                  <MapMenu onOpenSave={() => setSaveSlotMode('save')} onOpenLoad={() => setSaveSlotMode('load')} />
-                )}
-                {!isStoryOverlayOpen && isSkillPanelOpen && (
-                  <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
-                )}
-                <GalMainStory historyMode={isStoryHistoryMode} onExitHistory={() => setIsStoryHistoryOpen(false)} />
-              </div>
 
-              <div
-                className={`map-bottom-panel ${isStoryOverlayOpen || isSkillPanelOpen ? 'is-story-locked' : ''}`}
-                inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
-                aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
-              >
-                <StatPanel />
-                <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
-              </div>
-            </section>
-          </main>
+                <div
+                  className={`map-bottom-panel ${isStoryOverlayOpen || isSkillPanelOpen ? 'is-story-locked' : ''}`}
+                  inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                  aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                >
+                  <StatPanel />
+                  <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
+                </div>
+              </section>
+            </main>
 
-          <CardImporter />
-          <EventLog />
-          {calendarTransition && (
-            <DayTransition
-              open
-              from={calendarTransition.from}
-              to={calendarTransition.to}
-              currentActionsRemaining={0}
-              nextActionsRemaining={2}
-              onComplete={() => setCalendarTransition(null)}
-            />
-          )}
-        </div>
-      )}
+            <CardImporter />
+            <EventLog />
+            {calendarTransition && (
+              <DayTransition
+                open
+                from={calendarTransition.from}
+                to={calendarTransition.to}
+                currentActionsRemaining={0}
+                nextActionsRemaining={2}
+                onComplete={() => setCalendarTransition(null)}
+              />
+            )}
+          </div>
+        )}
 
-      {saveSlotMode && (
-        <SaveSlotModal mode={saveSlotMode} onClose={closeSaveSlots} onSavesChanged={updateSaveAvailability} />
-      )}
+        {saveSlotMode && (
+          <SaveSlotModal mode={saveSlotMode} onClose={closeSaveSlots} onSavesChanged={updateSaveAvailability} />
+        )}
+      </div>
+      {isContextPreviewOpen && <ContextPreviewModal onClose={() => setIsContextPreviewOpen(false)} />}
     </div>
   );
 

@@ -8,7 +8,6 @@ require('ts-node').register({
     moduleResolution: 'Node',
     target: 'ES2022',
     esModuleInterop: true,
-    ignoreDeprecations: '6.0',
   },
 });
 
@@ -21,6 +20,10 @@ const { EPISODE_02_ACT_03 } = require('./GalMainStory/episodes/episode02/acts/ac
 const { parseStoryLine } = require('./GalMainStory/storyPresentation');
 const { extractPlayableText } = require('./GalMainStory/storyTextExtraction');
 const { buildStoryGenerationPrompt, buildStoryOutputProtocol } = require('./services/storyGenerationPrompt');
+const {
+  STORY_CHAT_HISTORY_LIMIT,
+  createStoryGenerationContextProjection,
+} = require('./services/storyGenerationContext');
 
 function createPromptContext(act) {
   return {
@@ -173,5 +176,58 @@ assert.throws(
     }),
   /重复立绘规则/u,
 );
+
+function createContextMessage(eventId, floorId, role, content) {
+  return {
+    id: `${floorId}-${role}`,
+    name: role === 'user' ? 'User' : 'Assistant',
+    is_user: role === 'user',
+    is_system: false,
+    mes: content,
+    send_date: '2008-04-07T00:00:00.000Z',
+    extra: {
+      type: 'tolove-main-story',
+      eventId,
+      actId: EPISODE_01_ACT_01.id,
+      source: 'tavern',
+      floorId,
+      period: 'afterSchool',
+      location: 'classroom',
+      day: 1,
+      playerName: 'User',
+      contextFloorIds: [],
+      role,
+      renderable: role === 'assistant',
+      outcome: 'accepted',
+    },
+  };
+}
+
+const contextEventId = 'main.lala-arrival-2008-04-07';
+const contextFloorIds = ['floor-1', 'floor-2', 'floor-3', 'floor-4'];
+const contextMessages = contextFloorIds.flatMap(floorId => [
+  createContextMessage(contextEventId, floorId, 'user', `${floorId} user`),
+  createContextMessage(contextEventId, floorId, 'assistant', `${floorId} assistant`),
+]);
+contextMessages.push(createContextMessage('other-event', 'decoy-floor', 'assistant', 'must not enter context'));
+const generationContext = createStoryGenerationContextProjection({
+  eventId: contextEventId,
+  actId: EPISODE_01_ACT_02.id,
+  contextFloorIds,
+  chatHistory: contextMessages,
+});
+assert.equal(generationContext.maxChatHistory, STORY_CHAT_HISTORY_LIMIT);
+assert.equal(generationContext.chatHistory.length, STORY_CHAT_HISTORY_LIMIT);
+assert.deepEqual(generationContext.messageIds, [
+  'floor-2-user',
+  'floor-2-assistant',
+  'floor-3-user',
+  'floor-3-assistant',
+  'floor-4-user',
+  'floor-4-assistant',
+]);
+assert.equal(generationContext.chatHistory[0].content, 'floor-2 user');
+assert.equal(generationContext.chatHistory.at(-1).content, 'floor-4 assistant');
+assert.ok(!generationContext.chatHistory.some(message => message.content === 'must not enter context'));
 
 console.log('story generation contract: passed');

@@ -9,6 +9,7 @@ import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
 import { getMainStoryActIndex, getMainStoryEpisode } from './GalMainStory/storyRegistry';
 import { getActiveStoryAct } from './GalMainStory/storyArchive';
 import { getEquippedSkillIds, getLearnedSkillIds, useSkillStore } from './skilllogic';
+import { createLocalContextPreview } from './services/localContextPreview';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
@@ -18,6 +19,7 @@ window.toloveStoryMessages = (format = 'json') => {
   const messages = useGameStore.getState().mainStory.messages;
   return format === 'jsonl' ? messages.map(message => JSON.stringify(message)).join('\n') : JSON.stringify(messages);
 };
+window.toloveContextPreview = () => JSON.stringify(createLocalContextPreview());
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();

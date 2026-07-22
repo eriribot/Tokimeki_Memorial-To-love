@@ -47,7 +47,7 @@ export const MAP_MENU_ITEMS = [
   { id: 'save', label: '保存', icon: `${MENU_ROOT}/menu_icon01.png`, placeholder: false },
   { id: 'load', label: '读取', icon: `${MENU_ROOT}/menu_icon02.png`, placeholder: false },
   { id: 'index', label: '目录', icon: `${MENU_ROOT}/menu_icon03.png`, placeholder: true },
-  { id: 'data', label: '数据', icon: `${MENU_ROOT}/menu_icon04.png`, placeholder: true },
+  { id: 'data', label: '数据', icon: `${MENU_ROOT}/menu_icon04.png`, placeholder: false },
   { id: 'dictionary', label: '辞典', icon: `${MENU_ROOT}/menu_icon05.png`, placeholder: true },
   { id: 'settings', label: '系统设定', icon: `${MENU_ROOT}/menu_icon06.png`, placeholder: true },
   { id: 'title', label: '返回标题', icon: `${MENU_ROOT}/menu_icon07.png`, placeholder: false },

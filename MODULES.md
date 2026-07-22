@@ -29,6 +29,7 @@
 - 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 - 已读剧情中的 AI 原文按“幕 -> 生成版本 -> 页”阅读；目录内的楼层按钮会直接打开对应版本，每次只显示一页，不再把所有 Assistant 正文堆叠在同一滚动区。
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
+- 地图菜单的“数据”入口打开只读上下文预览：显示当前 GameSnapshot v2、MessageArchive 原文镜像、生成器实际使用的最多 6 条历史消息、生成提示和本幕世界书引用。预览与 `TavernHelper.generate()` 共用同一个上下文投影，不代表真实宿主消息或 shujuku 扫描。
 
 ## 剧情编辑目录
 
@@ -63,7 +64,9 @@
 | `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store | 技能静态表、日期、已结算行动        | 本地技能进度           | 应用技能效果       |
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉           | `skilllogic`、当前日期              | 学习/实践提交意图      | 重算前置或结算效果 |
 | `services/storyGenerationPrompt.ts`        | 世界书幕选择和受控 GAL 演出格式               | lore 小节、场景/立绘可用值          | 可复用生成契约         | 重述具体剧情       |
+| `services/storyGenerationContext.ts`       | 生成请求的提示/历史窗口确定性投影             | 幕定义、上下文 floor、messagesave   | `userInput`、6 条历史、消息 ID       | 改写游戏状态或世界书 |
 | `services/tavernStoryGeneration.ts`        | 生成、消息连续性和受控正文解析                | 幕定义、已存消息、世界书资料        | `GalStoryAct`          | 猜测画面与角色     |
+| `services/localContextPreview.ts`          | 本地快照、原文和当前生成投影的只读汇总         | Game/Card/Player/Skill store、messagesave | 上下文预览模型       | 写回状态或触发生成 |
 | `GalMainStory/episodeTemplate.ts`           | 分集/分幕模板合同与注册期不变量               | 集元数据、幕定义                    | 合法剧情模板           | 运行态结算         |
 | `GalMainStory/episodes/index.ts`            | 生产剧集注册清单                              | 各集模板                            | 通用剧情目录           | 分集控制流         |
 | `GalMainStory/storyRegistry.ts`             | 通用模板查询、触发匹配、lore 与保底投影        | `eventId + actId`、日期、行动序号   | 当前幕定义或触发结果   | 保存重复进度       |
@@ -85,6 +88,9 @@
 | `GalMainStory/galAssets.ts`                | 共享 GAL 窗口素材                             | GALBOX 文件                         | 窗口/翻页资源路径      | 角色资产           |
 | `GalMainStory/LayeredPortrait.tsx`         | body、mask、眼嘴图集和共享动画渲染            | rig、表情、当前发言状态             | 分层立绘画面           | 选择说话人或结算   |
 | `save/snapshot.ts`                         | 严格 schema v2 快照                           | Game/Player/Card/Skill store        | 本地/宿主存档数据      | 旧存档迁移         |
+| `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                  | `gameSaveApi`                        | 槽位操作意图           | 修改快照内容       |
+| `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                         | `MessageRequest`、本地文件接口       | MessageArchive 文件    | 真实宿主消息楼层     |
+| `components/ContextPreviewModal.tsx`       | 快照/原文/生成上下文只读可视化                | `localContextPreview`                | 数据审查界面           | 改写状态、摘要或生成 |
 | `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 order/名称、世界书条目         | 一次性 World Info 钩子 | 修改已保存世界书   |
 | `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥          | 游戏上下文、TavernHelper            | 显式读/诊断能力        | 剧情条目选择       |
 | `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                | 已校对剧情与人物资料                | 待导入的纯文本恢复源   | 运行时扫描和状态   |
@@ -132,6 +138,7 @@
   `nightStreet` 与 `schoolRoad`，不再共用一张图。资源映射只由 `scenes/index.ts` 管理，不进入世界书。
 - `TavernHelper.generate()` 返回值只证明生成 API 路线；当前没有创建真实聊天楼层，也没有触发 shujuku/database。
 - 保底正文必须显式标记为 `fallback`，不能冒充宿主成功。
+- “数据”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
 
 ## 当前接通标签
 
@@ -145,3 +152,4 @@
 - 宿主消息链：未创建真实 hidden user/assistant floors。
 - 插件/数据库链：未接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
 - UI 镜像链：游戏内 messagesave/file bridge 是本地游戏协议，不冒充宿主聊天权威。
+- 上下文预览链：本地状态演示；当前生成时可显示实际调用投影，空闲时只显示最近原文窗口，不升级任何宿主/插件接通标签。

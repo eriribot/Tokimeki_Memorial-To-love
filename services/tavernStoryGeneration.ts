@@ -1,4 +1,3 @@
-import { getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
 import {
   getMainStoryActIndex,
   getMainStoryActOrThrow,
@@ -18,7 +17,7 @@ import {
 } from '../GalMainStory/storyTypes';
 import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
 import { createSaveUuid } from '../save/uuid';
-import { buildStoryGenerationPrompt, type StoryPromptPortraitOption } from './storyGenerationPrompt';
+import { createStoryGenerationContextProjection } from './storyGenerationContext';
 
 export interface GenerateStoryActRequest {
   eventId: string;
@@ -31,8 +30,6 @@ export interface GenerateStoryActRequest {
   contextFloorIds: string[];
   chatHistory: readonly GalStoryMessageSave[];
 }
-
-const STORY_CHAT_HISTORY_LIMIT = 6;
 
 interface BuildMessagePairRequest extends GenerateStoryActRequest {
   userInput: string;
@@ -64,69 +61,6 @@ function getTavernGenerateApi(): Pick<Window['TavernHelper'], 'generate'> {
     throw new Error('没有检测到 TavernHelper.generate，请在 SillyTavern 酒馆助手环境中重试。');
   }
   return api;
-}
-
-function getActPortraitOptions(eventId: string, actId: string): StoryPromptPortraitOption[] {
-  const act = getMainStoryActOrThrow(eventId, actId);
-
-  return act.presentation.cast.flatMap(member => {
-    const characterId = member.characterId;
-    if (!isStoryCharacterId(characterId)) throw new Error(`当前幕引用了未登记角色“${characterId}”。`);
-    const character = getStoryCharacter(characterId);
-    return member.portraitIds.map(portraitId => {
-      const rig = getStoryPortraitRig(characterId, portraitId);
-      return {
-        characterId,
-        displayName: character.displayName,
-        portraitId,
-        expressionIds: Object.keys(rig.expressions),
-      };
-    });
-  });
-}
-
-function buildGenerationPrompt(request: GenerateStoryActRequest): string {
-  const episode = getMainStoryEpisodeOrThrow(request.eventId);
-  const act = getMainStoryActOrThrow(request.eventId, request.actId);
-
-  return buildStoryGenerationPrompt({
-    eventTitle: episode.title,
-    loreSection: act.loreSection,
-    sceneIds: act.presentation.sceneIds,
-    minimumLineCount: act.generation.minimumLineCount,
-    requiredSceneSequence: act.generation.requiredSceneSequence,
-    portraitOptions: getActPortraitOptions(request.eventId, request.actId),
-    portraitRules: act.presentation.portraitRules ?? [],
-    continuityMode: request.contextFloorIds.length > 0 ? 'continue' : 'fresh',
-  });
-}
-
-function buildGenerationChatHistory(
-  messages: readonly GalStoryMessageSave[],
-  eventId: string,
-  contextFloorIds: readonly string[],
-): RolePrompt[] {
-  const floorOrder = new Map(contextFloorIds.map((floorId, index) => [floorId, index]));
-  return messages
-    .filter(
-      message =>
-        message.extra.type === 'tolove-main-story' &&
-        message.extra.eventId === eventId &&
-        floorOrder.has(message.extra.floorId) &&
-        !message.is_system &&
-        message.mes.trim().length > 0,
-    )
-    .sort((left, right) => {
-      const leftOrder = floorOrder.get(left.extra.floorId) ?? 0;
-      const rightOrder = floorOrder.get(right.extra.floorId) ?? 0;
-      if (leftOrder !== rightOrder) return leftOrder - rightOrder;
-      return left.extra.role === right.extra.role ? 0 : left.extra.role === 'user' ? -1 : 1;
-    })
-    .slice(-STORY_CHAT_HISTORY_LIMIT)
-    .map(message => ({
-      role: message.extra.role,
-      content: message.mes,
-    }));
 }
 
 function getErrorMessage(error: unknown): string {
@@ -189,9 +123,10 @@ export function createFallbackStoryMessages(
   request: GenerateStoryActRequest,
   assistantText: string,
 ): GalStoryMessageSave[] {
+  const context = createStoryGenerationContextProjection(request);
   return createStoryMessagePair({
     ...request,
-    userInput: buildGenerationPrompt(request),
+    userInput: context.userInput,
     assistantText,
     source: 'fallback',
   });
@@ -337,7 +272,8 @@ export function actToPlainText(act: GalStoryAct): string {
 export async function generateStoryAct(request: GenerateStoryActRequest): Promise<GeneratedStoryAct> {
   getMainStoryActOrThrow(request.eventId, request.actId);
   const api = getTavernGenerateApi();
-  const userInput = buildGenerationPrompt(request);
+  const generationContext = createStoryGenerationContextProjection(request);
+  const userInput = generationContext.userInput;
   const selectedLores = await readDisabledWorldbookStoryLores(
     getMainStoryLoreReferences(request.eventId, request.actId),
   );
@@ -348,13 +284,13 @@ export async function generateStoryAct(request: GenerateStoryActRequest): Promis
       preset_name: 'in_use',
       generation_id: request.floorId,
       user_input: userInput,
-      max_chat_history: STORY_CHAT_HISTORY_LIMIT,
+      max_chat_history: generationContext.maxChatHistory,
       should_stream: false,
       should_silence: false,
       overrides: {
         chat_history: {
           with_depth_entries: true,
-          prompts: buildGenerationChatHistory(request.chatHistory, request.eventId, request.contextFloorIds),
+          prompts: generationContext.chatHistory,
         },
       },
     });

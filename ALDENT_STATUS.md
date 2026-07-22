@@ -2,7 +2,7 @@
 
 ```yaml
 status: implementation_complete_human_review_pending
-current_loop: data_driven_episode_template_runtime
+current_loop: local_snapshot_message_archive_context_preview
 authorized_by: user_confirmed_order_locator_and_no_legacy_save_compatibility_2026-07-22
 authorized_scope:
   - humanize the three episode02 recovery drafts without changing plot direction
@@ -11,6 +11,7 @@ authorized_scope:
   - use the user-confirmed riverbank ending and bg020_a.png as the provisional changing-room background
   - replace per-episode Store/snapshot growth with one generic episode template runtime
   - break old save compatibility and remove duplicated persisted act indexes
+  - add a read-only local snapshot/message archive/context preview without changing host or shujuku chains
 forbidden_scope:
   - create or connect new Lala portraits
   - edit source PNG, PSD or generated portrait atlases
@@ -18,7 +19,7 @@ forbidden_scope:
   - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins or databases
 connection_state: local_runtime_connected_real_tavern_scan_pending
 overall_connection_label: 第二集本地运行链已完整接通；真实酒馆仍需验证 order 扫描证据
-human_review: pending_episode02_story_voice_and_real_tavern_scan
+human_review: pending_local_context_preview_and_existing_reviews
 counterevidence:
   - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
     are invalidated
@@ -431,3 +432,22 @@ next_loop: human_review_episode02_and_real_tavern_order_scan
 - 背景顺序、春菜跨页眨眼以及前次合并后的真实 Tavern 扫描仍是前序待验收项，本轮不自动接受它们。
 
 本状态更新后只剩审查邀请；邀请发出后冻结修改。
+
+## 本轮本地记忆闭环
+
+- 新增 `AI记忆与自主规划调研报告.md`，记录自主规划不能直接取得游戏权威、成熟记忆方案的取舍，以及本轮明确不接通的宿主链。
+- `services/storyGenerationContext.ts` 把提示词和最多 6 条历史消息的选择抽成共享投影；Tavern 生成和“数据”预览使用同一份结果。
+- `components/ContextPreviewModal.tsx` 从地图菜单“数据”打开，只读展示 GameSnapshot v2、当前消息镜像、提示词、历史窗口和世界书引用。
+- `window.toloveContextPreview()` 提供本地调试 JSON；不创建聊天楼层、不触发 shujuku/database。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Changed-file ESLint | passed | `pnpm lint -- src/webgame-ui/...` 无输出错误 |
+| Story generation/context contract | passed | `node src/webgame-ui/verify-story-generation.cjs` 输出 `story generation contract: passed` |
+| Diff whitespace | passed | `git diff --check` |
+| TypeScript full workspace | failed | 仓库现有 Vue/Tavern 类型声明错误；另有根 `global.d.ts` duplicate `content`，不是本轮新增模块 |
+| Development build / watch artifact | not run | 用户本轮未要求 build；应在 `pnpm watch` 产物上做人工截图验收 |
+| Browser visual interaction | not run | 数据面板需人工打开地图菜单“数据”验收 |
+| Real host floors / shujuku / database | not run | 本轮明确禁止接通 |
+
+当前最强接通标签仍是：**本地状态演示**。本地 messagesave 镜像和真实 `TavernHelper.generate()` 的既有标签不升级；数据面板不能证明 World Info 实际命中或任何宿主/插件链成功。

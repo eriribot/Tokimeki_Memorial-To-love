@@ -10,9 +10,10 @@ import './Menu.css';
 interface MapMenuProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
+  onOpenData: () => void;
 }
 
-export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
+export default function MapMenu({ onOpenSave, onOpenLoad, onOpenData }: MapMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('save');
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -22,9 +23,7 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
   const currentMap = getMapForLocation(currentLocationId);
   const targetMap = currentMap.id === 'sainanHigh' ? maps.sainanTown : maps.sainanHigh;
   const targetMapButton =
-    targetMap.id === 'sainanTown'
-      ? '/artsource/backgrounds/map_next02.png'
-      : '/artsource/backgrounds/map_next01.png';
+    targetMap.id === 'sainanTown' ? '/artsource/backgrounds/map_next02.png' : '/artsource/backgrounds/map_next01.png';
 
   const selectMap = (map: GameMapDefinition) => {
     if (map.id === currentMap.id) return;
@@ -52,6 +51,12 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
       return;
     }
 
+    if (item.id === 'data') {
+      setIsOpen(false);
+      onOpenData();
+      return;
+    }
+
     if (item.placeholder) return;
 
     if (item.id === 'title') {
@@ -63,15 +68,8 @@ export default function MapMenu({ onOpenSave, onOpenLoad }: MapMenuProps) {
 
   return (
     <div className={`map-menu ${isOpen ? 'open' : ''}`}>
-      <div
-        className={`map-edge-switcher ${targetMap.id === 'sainanTown' ? 'is-left' : 'is-right'}`}
-      >
-        <img
-          className="map-edge-switcher__art"
-          src={resolveAssetPath(targetMapButton)}
-          alt=""
-          aria-hidden="true"
-        />
+      <div className={`map-edge-switcher ${targetMap.id === 'sainanTown' ? 'is-left' : 'is-right'}`}>
+        <img className="map-edge-switcher__art" src={resolveAssetPath(targetMapButton)} alt="" aria-hidden="true" />
         <button
           type="button"
           className="map-edge-switcher__trigger"

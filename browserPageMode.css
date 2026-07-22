@@ -51,7 +51,11 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
     0 7px 22px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(10px);
-  font: 700 14px/1 'Tokimeki Seurat', 'Tokimeki Arial', system-ui, sans-serif;
+  font:
+    700 14px/1 'Tokimeki Seurat',
+    'Tokimeki Arial',
+    system-ui,
+    sans-serif;
   letter-spacing: 0.04em;
   cursor: pointer;
   transform: none;
@@ -78,6 +82,11 @@
 .browser-page-mode-button:active {
   filter: brightness(0.98);
   transform: translateY(0);
+}
+
+.browser-page-mode-button.is-hidden-by-dialog {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .browser-page-mode-icon {

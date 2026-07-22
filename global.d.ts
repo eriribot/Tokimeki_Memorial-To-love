@@ -14,6 +14,8 @@ declare global {
     toloveWorldbook?: WorldbookReader;
     /** 调试用：读取本地模拟酒馆楼层的主线正文记录，不进入 render_game_to_text。 */
     toloveStoryMessages?: (format?: 'json' | 'jsonl') => string;
+    /** 调试用：读取当前本地快照、原文镜像与可重建的生成上下文。 */
+    toloveContextPreview?: () => string;
   }
 }
 
