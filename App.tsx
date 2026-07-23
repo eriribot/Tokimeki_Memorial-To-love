@@ -10,6 +10,7 @@ import SchoolMap from './components/SchoolMap';
 import CharacterProfileModal from './components/CharacterProfileModal';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
 import ContextPreviewModal from './components/ContextPreviewModal';
+import SystemSettingsModal from './components/SystemSettingsModal';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
 import GalMainStory from './GalMainStory/GalMainStory';
@@ -39,6 +40,7 @@ function App() {
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [isContextPreviewOpen, setIsContextPreviewOpen] = useState(false);
+  const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -67,6 +69,7 @@ function App() {
   );
   const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
+  const isBlockingDialogOpen = isContextPreviewOpen || isSystemSettingsOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -209,7 +212,7 @@ function App() {
     >
       <button
         type="button"
-        className={`browser-page-mode-button ${isContextPreviewOpen ? 'is-hidden-by-dialog' : ''}`}
+        className={`browser-page-mode-button ${isBlockingDialogOpen ? 'is-hidden-by-dialog' : ''}`}
         aria-pressed={isPageMode}
         title={isPageMode ? '退出浏览器全屏（Esc）' : '进入浏览器原生全屏'}
         onClick={() => {
@@ -253,8 +256,8 @@ function App() {
                 >
                   <div
                     className="map-stage"
-                    inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
-                    aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                    inert={isStoryOverlayOpen || isSkillPanelOpen || isSystemSettingsOpen ? true : undefined}
+                    aria-hidden={isStoryOverlayOpen || isSkillPanelOpen || isSystemSettingsOpen ? true : undefined}
                     style={{
                       width: mapWidth,
                       height: mapHeight,
@@ -270,7 +273,7 @@ function App() {
                       />
                     )}
                   </div>
-                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
+                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && !isSystemSettingsOpen && (
                     <CalendarCard
                       className="game-calendar-card"
                       date={calendarDate}
@@ -280,24 +283,26 @@ function App() {
                       showMonth
                     />
                   )}
-                  {!isStoryOverlayOpen && !isSkillPanelOpen && <CharacterProfileModal />}
-                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && (
+                  {!isStoryOverlayOpen && !isSkillPanelOpen && !isSystemSettingsOpen && <CharacterProfileModal />}
+                  {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && !isSystemSettingsOpen && (
                     <MapMenu
                       onOpenSave={() => setSaveSlotMode('save')}
                       onOpenLoad={() => setSaveSlotMode('load')}
-                      onOpenData={() => setIsContextPreviewOpen(true)}
+                      onOpenIndex={() => setIsContextPreviewOpen(true)}
+                      onOpenSettings={() => setIsSystemSettingsOpen(true)}
                     />
                   )}
                   {!isStoryOverlayOpen && isSkillPanelOpen && (
                     <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
                   )}
                   <GalMainStory historyMode={isStoryHistoryMode} onExitHistory={() => setIsStoryHistoryOpen(false)} />
+                  {isSystemSettingsOpen && <SystemSettingsModal onClose={() => setIsSystemSettingsOpen(false)} />}
                 </div>
 
                 <div
-                  className={`map-bottom-panel ${isStoryOverlayOpen || isSkillPanelOpen ? 'is-story-locked' : ''}`}
-                  inert={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
-                  aria-hidden={isStoryOverlayOpen || isSkillPanelOpen ? true : undefined}
+                  className={`map-bottom-panel ${isStoryOverlayOpen || isSkillPanelOpen || isSystemSettingsOpen ? 'is-story-locked' : ''}`}
+                  inert={isStoryOverlayOpen || isSkillPanelOpen || isSystemSettingsOpen ? true : undefined}
+                  aria-hidden={isStoryOverlayOpen || isSkillPanelOpen || isSystemSettingsOpen ? true : undefined}
                 >
                   <StatPanel />
                   <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />

@@ -29,7 +29,8 @@
 - 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 - 已读剧情中的 AI 原文按“幕 -> 生成版本 -> 页”阅读；目录内的楼层按钮会直接打开对应版本，每次只显示一页，不再把所有 Assistant 正文堆叠在同一滚动区。
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
-- 地图菜单的“数据”入口打开只读上下文预览：显示当前 GameSnapshot v2、MessageArchive 原文镜像、生成器实际使用的最多 6 条历史消息、生成提示和本幕世界书引用。预览与 `TavernHelper.generate()` 共用同一个上下文投影，不代表真实宿主消息或 shujuku 扫描。
+- 地图菜单的“目录”入口打开只读上下文预览；原“数据”入口暂时停用。预览显示当前 GameSnapshot v2、MessageArchive 原文镜像、生成器实际使用的最多 6 条历史消息、生成提示和本幕世界书引用。预览与 `TavernHelper.generate()` 共用同一个上下文投影，不代表真实宿主消息或 shujuku 扫描。
+- 地图菜单“系统设定”只配置记忆用 OpenAI 兼容 API：弹层限制在地图框中央，`window_kani.png` 是完整窗口主体，原生 `midashi_op.png` 按 255:49 比例叠在左上承载“系统设定”标题；该弹层不再混用 `window_system.png`。一级页只显示“AI 记忆设定”，点击后才挂载输入表单；两个页面都不建立独立滚动区。用户填写的地址与酒馆“自定义（兼容 OpenAI）”一样被视为完整 API 基址，客户端直接追加 `/models` 与 `/chat/completions`，不会擅自插入 `/v1`。拉取模型先尝试浏览器直连；若被跨域或网络层拦截且当前处于 SillyTavern，则改用酒馆现成的只读状态接口代发，不写酒馆设置或密钥库。模型名称仍可手动输入。启用状态、地址、模型和密钥长期保存在当前浏览器；拉取列表和手动连接测试都不写入游戏存档、剧情消息或宿主楼层。自动摘要仍未接入。
 
 ## 剧情编辑目录
 
@@ -55,7 +56,7 @@
 | `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和完成结算      | 模板查询、剧情楼层、Game store      | 主线状态变更           | 识别具体集数       |
 | `stores/cardStore.ts`                      | 目标卡、位置与好感                            | 角色卡、已结算交谈                  | 角色地图状态           | 主线触发           |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引             | 当前地点 ID                         | 地图背景和当前区域地点 | AP 与剧情结算      |
-| `components/MapMenu.tsx`                   | 地图边缘护法与区域切换                        | 当前地图、另一地图入口              | 切换当前地点           | 消耗 AP            |
+| `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发           | 当前地图、另一地图入口、菜单选择     | 切换地点或打开本地界面 | 消耗 AP、改写快照  |
 | `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                | 当前地图                            | 档案入口/弹窗状态      | 改写角色状态       |
 | `data/characterAvailability.ts`            | 默认角色的出场条件                            | 角色 ID、主线完成记录               | 可见/锁定判断          | 地图位置分配       |
 | `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                | Game/Card store                     | 角色出现位置与当前目标 | 改写角色卡         |
@@ -91,6 +92,10 @@
 | `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                  | `gameSaveApi`                        | 槽位操作意图           | 修改快照内容       |
 | `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                         | `MessageRequest`、本地文件接口       | MessageArchive 文件    | 真实宿主消息楼层     |
 | `components/ContextPreviewModal.tsx`       | 快照/原文/生成上下文只读可视化                | `localContextPreview`                | 数据审查界面           | 改写状态、摘要或生成 |
+| `components/SystemSettingsModal.tsx`       | 地图内两级设置导航、记忆 API 配置、模型拉取与连接测试 | `config/openaiCompatible`      | 本地设置意图、列表/测试请求 | 自动摘要、存档写入 |
+| `config/openaiCompatible/defaults.ts`      | 默认值、`/v1` 校验、请求地址和脱敏投影         | 用户配置                             | 规范化配置与安全视图   | 浏览器存储或网络请求 |
+| `config/openaiCompatible/storage.ts`       | OpenAI 兼容配置的浏览器长期保存                | 规范化配置、`localStorage`           | 配置读写/清空          | GameSnapshot 或消息  |
+| `config/openaiCompatible/client.ts`        | `/models`、`/chat/completions` 请求、响应解析和连接探测 | API 配置、记忆提示             | 模型列表、文本结果或显式错误 | 自动选择摘要时机 |
 | `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 order/名称、世界书条目         | 一次性 World Info 钩子 | 修改已保存世界书   |
 | `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥          | 游戏上下文、TavernHelper            | 显式读/诊断能力        | 剧情条目选择       |
 | `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                | 已校对剧情与人物资料                | 待导入的纯文本恢复源   | 运行时扫描和状态   |
@@ -138,7 +143,8 @@
   `nightStreet` 与 `schoolRoad`，不再共用一张图。资源映射只由 `scenes/index.ts` 管理，不进入世界书。
 - `TavernHelper.generate()` 返回值只证明生成 API 路线；当前没有创建真实聊天楼层，也没有触发 shujuku/database。
 - 保底正文必须显式标记为 `fallback`，不能冒充宿主成功。
-- “数据”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
+- “目录”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
+- 记忆 API 配置和临时模型候选不属于 GameSnapshot 或 MessageArchive。设置页的“拉取”调用用户填写的 OpenAI 兼容地址；浏览器直连失败时可经 SillyTavern 的 `/api/backends/chat-completions/status` 只读代发，但不写宿主设置、密钥库或消息。没有真实可用地址的证据时，不得宣称副 API 已接通。模型列表失败不得抹掉用户手填的模型名称。
 
 ## 当前接通标签
 
@@ -153,3 +159,4 @@
 - 插件/数据库链：未接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
 - UI 镜像链：游戏内 messagesave/file bridge 是本地游戏协议，不冒充宿主聊天权威。
 - 上下文预览链：本地状态演示；当前生成时可显示实际调用投影，空闲时只显示最近原文窗口，不升级任何宿主/插件接通标签。
+- 记忆 API 链：设置 UI、浏览器长期保存、`{API 基址}/models` 模型拉取、`{API 基址}/chat/completions` 客户端和可见失败提示已实现；真实外部接口成功、自动摘要、摘要缓存与剧情上下文注入尚未验收或接通。

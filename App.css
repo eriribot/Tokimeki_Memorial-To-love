@@ -93,7 +93,8 @@ html::-webkit-scrollbar {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  overflow: hidden;
+  /* 地图框只负责裁切；禁止焦点把缩放前的地图内容滚动出画框。 */
+  overflow: clip;
   padding: 0;
   background: #86efac;
   border: 4px solid #fbbf24;

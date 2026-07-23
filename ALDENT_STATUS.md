@@ -2,25 +2,37 @@
 
 ```yaml
 status: implementation_complete_human_review_pending
-current_loop: local_snapshot_message_archive_context_preview
-authorized_by: user_confirmed_order_locator_and_no_legacy_save_compatibility_2026-07-22
+current_loop: memory_api_tavern_root_url_compatibility
+authorized_by: user_reported_tavern_root_url_can_fetch_but_current_ui_rejects_it_2026-07-23
 authorized_scope:
-  - humanize the three episode02 recovery drafts without changing plot direction
-  - register episode02 as three acts and connect triggering, generation, GAL playback, history and saves
-  - locate real Tavern worldbook entries by stable order and exact name
-  - use the user-confirmed riverbank ending and bg020_a.png as the provisional changing-room background
-  - replace per-episode Store/snapshot growth with one generic episode template runtime
-  - break old save compatibility and remove duplicated persisted act indexes
-  - add a read-only local snapshot/message archive/context preview without changing host or shujuku chains
+  - render window_kani.png as the only settings body and midashi_op.png as the native title nameplate
+  - remove window_system.png from the settings component
+  - preserve the menu body's 478:281 ratio
+  - preserve the title asset's 255:49 ratio and scale its overlaid title with the map frame
+  - keep only 系统设定 in the title area and remove provisional English/subtitle copy
+  - reduce the map footprint and adapt the shell to PC, tablet and phone game frames
+  - confine settings to the map frame and show the API form only after selecting AI memory settings
+  - add a system settings UI only for the memory API
+  - persist the enabled flag, v1 base URL, model and API key in the current browser
+  - add a reusable OpenAI-compatible chat-completions client and a manual connection probe
+  - fetch model IDs from the configured OpenAI-compatible base plus /models
+  - keep manual model entry available when discovery is unsupported, rejected or blocked by browser CORS
+  - treat the entered URL as the complete custom API base, matching Tavern's custom OpenAI-compatible connection
+  - use Tavern's read-only status proxy only when a direct browser model request fails at the network layer
 forbidden_scope:
-  - create or connect new Lala portraits
-  - edit source PNG, PSD or generated portrait atlases
-  - import, enable or edit saved Tavern worldbook entries
-  - create host messages or connect MESSAGE_SENT, shujuku, ACU, plugins or databases
-connection_state: local_runtime_connected_real_tavern_scan_pending
-overall_connection_label: 第二集本地运行链已完整接通；真实酒馆仍需验证 order 扫描证据
-human_review: pending_local_context_preview_and_existing_reviews
+  - automatically summarize or inject memory into story generation
+  - change contextFloorIds, the save/message schemas or relationship settlement
+  - create host messages or connect shujuku, ACU, plugins or databases
+  - modify the map read-story entry, context preview or character profile
+connection_state: memory_api_ui_and_local_persistence_connected_real_endpoint_unverified
+overall_connection_label: OpenAI-compatible memory API settings are locally usable; real external success is unverified
+human_review: pending_memory_api_settings_and_existing_reviews
 counterevidence:
+  - user screenshots show Tavern accepting a custom OpenAI-compatible service URL ending at the bare domain; requiring the player to type /v1 is incompatible with that flow
+  - user screenshot proved that window_system.png still produced unwanted thick blue bands; the previous body-asset visual pass is invalidated
+  - user rejected window_kani.png as the title asset and identified midashi_op.png as the native title nameplate; the previous title visual pass is invalidated
+  - user rejected the prior oversized shell and reported that window_system.png was not visibly used; its visual pass is invalidated
+  - user rejected the viewport-wide settings overlay and immediate form; the prior browser UI pass is invalidated
   - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
     are invalidated
 superseded_evidence:
@@ -41,8 +53,71 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: human_review_episode02_and_real_tavern_order_scan
+next_loop: human_review_memory_api_settings_then_authorize_summary_integration
 ```
+
+## 2026-07-23：OpenAI 兼容记忆 API 设置
+
+- 地图菜单“系统设定”已启用。弹层挂在地图容器内并居中，不再覆盖整个浏览器；地图框使用 `overflow: clip`，不会因缩放前内容或焦点产生内部滑动。
+- 一级页只显示“AI 记忆设定”，点击后才渲染 API 表单；表单“返回”回到一级页，右上角关闭按钮退出设置。两个页面都没有独立滚动区。
+- `window_kani.png` 现在是弹层唯一的窗口主体；原生 `midashi_op.png` 保持 255:49 比例并叠在左上承载“系统设定”。设置组件不再引用会产生上下粗蓝带的 `window_system.png`。
+- 一级菜单在 800×480 地图中约占 64%×51%；输入页约占 75%×77%。小地图切换为紧凑的双列或三列字段布局，不新增滚动区。
+- API 地址现在与酒馆“自定义（兼容 OpenAI）”同义：把输入值直接作为完整 API 基址，只追加 `/models` 或 `/chat/completions`，不自动插入 `/v1`。模型直连在网络层失败时，若检测到 SillyTavern 请求头接口，则回退到酒馆 `/api/backends/chat-completions/status` 只读代发；密钥只随本次请求进入 Authorization header，不写酒馆密钥库。
+- 模型字段新增“拉取”：直接 `GET {baseUrl}/models`，按 OpenAI 标准读取 `data[].id`，也兼容常见的 `models` 数组与字符串条目；结果只作为当前弹层的候选，不自动改写已填模型。
+- OpenCode 官方 issue #6231 记录的缺口是自定义 OpenAI 兼容 provider 没有自动查询自身 `/models`，不是标准端点不存在。本实现绕过那条自动发现路径，直接请求用户填写的地址；遇到 401/403、404/405、非 JSON、非标准结构、超时、网络或 CORS 失败时显示原因并保留手动输入。
+- 配置以版本化键长期保存在当前浏览器的 `localStorage`。密钥不会进入 GameSnapshot、MessageArchive、上下文预览或剧情请求；页面明确提示浏览器长期保存的边界。
+- `requestOpenAICompatibleCompletion()` 提供后续记忆业务调用，`probeOpenAICompatibleApi()` 只发送一条要求回复 `OK` 的手动测试。测试结果不写入剧情消息或宿主楼层。
+- 本轮没有接自动摘要、摘要缓存、跨集楼层修复、关系提示注入或真实宿主链。真实外部 API 成功仍需用户使用自己的地址、模型和密钥验收。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| TypeScript | passed | `npm run typecheck:tolove`；开发构建内 `tsc` 也通过 |
+| Changed-file ESLint | passed | 新配置模块、设置弹窗、菜单和 App 无 lint 错误 |
+| New-file Prettier | passed | `config/openaiCompatible/*` 与 `SystemSettingsModal` 已格式化 |
+| Model-list contract | passed | `npm run test:memory-models`；6 项覆盖标准/兼容响应、去重排序、GET/Bearer、无密钥本地服务与 404 手动退路 |
+| Tavern-compatible URL/proxy change | not run | 用户明确要求本轮不要测试，只修改代码 |
+| Development build | passed | `npm run build:dev`；目标 `index.html` 更新为 2.09 MiB |
+| Inline artifact model discovery | passed | `dist/Tokimeki_Memorial-To-love/index.html` 同时包含 `/models` 请求与“拉取模型列表”入口 |
+| Browser UI | passed | 新游戏 → 展开菜单 → 系统设定；一级页输入框数量为 0，点击“AI 记忆设定”后为 4 |
+| Asset composition | passed | 最新 `index.html` 中 `window_kani.png` 与 `midashi_op.png` 各引用 1 次，`window_system.png` 为 0 次；两张构建产物与源文件 SHA-256 一致 |
+| Body geometry | passed | 主体固定为 478:281：800×480 地图为 520×306、767×460 为 506×298、400×240 为 335×197、358×215 为 300×176 |
+| Title geometry | passed | 按 255:49 固定比例计算：800px 地图为 382×73、767px 为 368×71、400px 为 192×37、358px 为 172×33；标题字号分别为 32/31/16/16px |
+| Latest composition browser visual | not run | 内置浏览器停留在旧的本地连接错误页，URL 安全策略阻止返回本地地址；不得把旧截图当作本轮证据 |
+| PC game frame | passed | 800×480 地图；输入页 602×371，内容无溢出 |
+| Tablet game frame | passed | 900×700 iframe 内地图 767×460；输入页 576×354，完全位于地图内且无溢出 |
+| Phone landscape | passed | 844×390 iframe 内地图 400×240；输入页 376×216，空表单与错误提示均无溢出 |
+| Phone portrait | passed | 390×844 iframe 内地图 358×215；输入页 334×191，空表单与错误提示均无溢出 |
+| Back/close navigation | passed | 输入页“返回”恢复一级页且卸载输入框；右上角关闭后弹层数量为 0 |
+| Empty validation | passed | 空配置测试会逐项提示地址、模型和密钥 |
+| Long-term persistence | passed | 假配置保存后刷新页面仍能回读；验收结束后已清空 |
+| Visible request failure | passed | 本地非 JSON 响应显示“接口没有返回可读取的 JSON”且未写入剧情状态 |
+| Real external API success | not run | 未使用用户的真实地址、模型或密钥 |
+| Real external model discovery | not run | 未使用用户的真实 OpenCode、自建服务或密钥；跨域能力仍取决于目标服务 |
+| Automatic memory summary | not implemented | 不在本轮授权范围 |
+
+当前最强接通标签：**本地设置与浏览器长期保存已接通；OpenAI 兼容请求客户端已实现，真实外部接口成功尚未验证。**
+
+## 2026-07-23：目录入口与记忆后续计划
+
+- 地图菜单“目录”现在打开只读的“上下文预览”；原“数据”入口暂时禁用。地图顶部“已读剧情”和角色档案均未改动。
+- 已确认当前的“6”指六条消息，不是六轮：每个已采用版本由一条 User 提示和一条 Assistant 原文组成，因此窗口最多是三轮。
+- 已定位第二集第三幕的少算原因：历史楼层先按当前 `eventId` 过滤，所以只会拿到第二集前两幕的四条消息；若按全主线顺序包含第一集两幕，应有四轮、八条消息（从 0 编号即 0—7），再由最近六条原文窗口与待总结区分工。
+- 本轮只写清修复方案，没有改 `contextFloorIds`、重生成校验或 schema v2。真正实施时必须把跨集楼层选择、成对裁剪、存档恢复和重生成校验一起修改，不能只放宽一个过滤条件。
+- `relationship.ts` 只借“关系阶段短提示 + 身份隔离”的结构；不复制整份人物小传、强制规则和执念轴。认知边界改为代码按已采用的 `eventId + actId` 投影，不再让角色世界书常驻未来集认知。
+- 本段记录形成时副 API 尚未实现；配置 UI、长期保存和手动连接测试现已由上方同日新一轮实现取代，自动摘要仍未接入。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| TypeScript | passed | `npm run typecheck:tolove` |
+| Changed-file ESLint | passed | `App.tsx`、`MapMenu.tsx`、`menuAssets.ts` 无 lint 错误 |
+| Development build | passed | `npm run build:dev`；所有 webpack 构建成功 |
+| Diff whitespace | passed | `git diff --check` |
+| Prettier | not applied | 目标文件原有整体格式与当前配置不一致；避免无关全文件重排 |
+| Story generation contract | blocked before assertions | `ts-node` 被 TypeScript 6 的 `moduleResolution=node10` 弃用错误拦截；未改全局配置 |
+| Browser menu interaction | passed | 新游戏 → 展开菜单 → “目录”唯一按钮 → 打开“上下文预览” |
+| Memory step 1 / side API | not implemented | 本轮授权仅为诊断、分析和待办 |
+
+当前最强接通标签仍是：**本地状态演示**。浏览器验收只证明入口和只读面板可用，不证明真实 Tavern 世界书命中、宿主消息、shujuku 或副 API 已接通。
 
 本轮台式机验收按 `references/aldent-review-invitation.md` 执行，结果填写在
 `references/aldent-human-review-form.md`。手册已经单独标出真实 Tavern order 扫描、schema v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路径不再作为本轮证据。

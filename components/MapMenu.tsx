@@ -10,10 +10,11 @@ import './Menu.css';
 interface MapMenuProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
-  onOpenData: () => void;
+  onOpenIndex: () => void;
+  onOpenSettings: () => void;
 }
 
-export default function MapMenu({ onOpenSave, onOpenLoad, onOpenData }: MapMenuProps) {
+export default function MapMenu({ onOpenSave, onOpenLoad, onOpenIndex, onOpenSettings }: MapMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('save');
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -39,6 +40,8 @@ export default function MapMenu({ onOpenSave, onOpenLoad, onOpenData }: MapMenuP
   const handleMenuAction = (item: (typeof MAP_MENU_ITEMS)[number]) => {
     setSelectedId(item.id);
 
+    if (item.placeholder) return;
+
     if (item.id === 'save') {
       setIsOpen(false);
       onOpenSave();
@@ -51,13 +54,17 @@ export default function MapMenu({ onOpenSave, onOpenLoad, onOpenData }: MapMenuP
       return;
     }
 
-    if (item.id === 'data') {
+    if (item.id === 'index') {
       setIsOpen(false);
-      onOpenData();
+      onOpenIndex();
       return;
     }
 
-    if (item.placeholder) return;
+    if (item.id === 'settings') {
+      setIsOpen(false);
+      onOpenSettings();
+      return;
+    }
 
     if (item.id === 'title') {
       returnToStart();

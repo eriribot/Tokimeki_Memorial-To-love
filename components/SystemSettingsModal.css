@@ -1,0 +1,593 @@
+.system-settings__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 520;
+  display: grid;
+  overflow: hidden;
+  padding: 10px;
+  place-items: center;
+  background: rgb(5 31 54 / 48%);
+}
+
+.system-settings {
+  position: relative;
+  z-index: 0;
+  color: #143c54;
+  filter: drop-shadow(0 14px 28px rgb(0 22 39 / 42%));
+}
+
+.system-settings.is-menu {
+  width: min(520px, 66%);
+  aspect-ratio: 478 / 281;
+}
+
+.system-settings.is-memory-api {
+  width: min(680px, 78%);
+  height: min(390px, 82%);
+}
+
+.system-settings__window-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 7px;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.system-settings__header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 4;
+  height: 64px;
+  pointer-events: none;
+}
+
+.system-settings__nameplate {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  display: flex;
+  width: min(382px, 48cqw);
+  aspect-ratio: 255 / 49;
+  align-items: center;
+  filter: drop-shadow(3px 5px 2px rgb(22 72 99 / 28%));
+}
+
+.system-settings__nameplate img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.system-settings__nameplate h2 {
+  position: absolute;
+  inset: 0 5% 2% 17%;
+  z-index: 1;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  place-items: center start;
+  color: #173c50;
+  font-family: 'FOT Seurat Pro', STKaiti, KaiTi, 'Microsoft YaHei', sans-serif;
+  font-size: clamp(16px, 4cqw, 32px);
+  font-weight: 900;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-shadow:
+    0 2px 0 rgb(255 255 255 / 96%),
+    0 0 1px rgb(8 41 58 / 42%);
+  white-space: nowrap;
+}
+
+.system-settings__header > button {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  padding: 0 0 3px;
+  place-items: center;
+  border: 2px solid #64b7e5;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  color: #236b98;
+  font-size: 26px;
+  line-height: 1;
+  box-shadow: 0 3px 0 rgb(29 124 180 / 22%);
+  pointer-events: auto;
+}
+
+.system-settings__menu,
+.system-settings__form {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.system-settings__menu {
+  padding: 68px 34px 16px;
+}
+
+.system-settings__menu nav {
+  display: grid;
+  align-content: start;
+  min-height: 0;
+  padding: 12px 18px;
+}
+
+.system-settings__menu nav > button {
+  width: 100%;
+  min-height: 50px;
+  padding: 9px 22px;
+  border: 2px solid #71c0e9;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgb(201 246 225 / 94%), rgb(236 255 248 / 84%));
+  color: #154f69;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: left;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 8px rgb(40 128 169 / 14%);
+}
+
+.system-settings__menu-actions,
+.system-settings__actions {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+}
+
+.system-settings__menu-actions {
+  justify-content: flex-end;
+}
+
+.system-settings__form {
+  padding: 58px 26px 12px;
+}
+
+.system-settings__form-content {
+  display: grid;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 22px 6px;
+  border: 1px solid rgb(111 190 229 / 56%);
+  border-radius: 5px;
+  background: rgb(255 255 255 / 62%);
+}
+
+.system-settings__toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #8fd0f0;
+  cursor: pointer;
+}
+
+.system-settings__toggle-row > span {
+  display: grid;
+  gap: 1px;
+}
+
+.system-settings__toggle-row b {
+  color: #174965;
+  font-size: 14px;
+}
+
+.system-settings__toggle-row small,
+.system-settings__field small {
+  color: #54788d;
+  font-size: 9px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.system-settings__toggle-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.system-settings__toggle-row i {
+  position: relative;
+  width: 46px;
+  height: 25px;
+  border: 2px solid #67add4;
+  border-radius: 999px;
+  background: #d9edf7;
+  box-shadow: inset 0 2px 4px rgb(22 81 112 / 20%);
+}
+
+.system-settings__toggle-row i::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(15 74 105 / 35%);
+  content: '';
+  transition: transform 140ms ease-out;
+}
+
+.system-settings__toggle-row input:checked + i {
+  background: #68d3a0;
+}
+
+.system-settings__toggle-row input:checked + i::after {
+  transform: translateX(21px);
+}
+
+.system-settings__toggle-row input:focus-visible + i {
+  outline: 3px solid #ffd84d;
+  outline-offset: 2px;
+}
+
+.system-settings__field {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: center;
+}
+
+.system-settings__field > span:first-child {
+  color: #1b5877;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.system-settings__field > small {
+  grid-column: 2;
+}
+
+.system-settings__field input {
+  width: 100%;
+  min-width: 0;
+  height: 31px;
+  padding: 5px 9px;
+  border: 2px solid #8bc8e8;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 92%);
+  color: #173c50;
+  font: inherit;
+  font-size: 11px;
+  box-shadow: inset 0 2px 4px rgb(30 91 124 / 10%);
+}
+
+.system-settings__field input:focus {
+  border-color: #269bd7;
+  outline: 2px solid rgb(255 216 77 / 82%);
+  outline-offset: 1px;
+}
+
+.system-settings__field input[aria-invalid='true'] {
+  border-color: #dc5b68;
+}
+
+.system-settings__field small.is-error {
+  color: #a92839;
+  font-weight: 700;
+}
+
+.system-settings__model-input,
+.system-settings__key-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.system-settings__model-input button,
+.system-settings__key-input button {
+  min-height: 31px;
+  padding: 4px 10px;
+  border: 2px solid #8bc8e8;
+  border-radius: 5px;
+  background: #effaff;
+  color: #226b92;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.system-settings__status {
+  min-height: 27px;
+  margin: 0;
+  padding: 6px 9px;
+  border: 1px solid #acd5e9;
+  border-radius: 5px;
+  background: rgb(235 249 255 / 88%);
+  color: #37657d;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.system-settings__status.is-saved,
+.system-settings__status.is-success {
+  border-color: #79cba4;
+  background: rgb(232 255 243 / 92%);
+  color: #216844;
+}
+
+.system-settings__status.is-error {
+  border-color: #e0979e;
+  background: rgb(255 239 241 / 94%);
+  color: #982c3a;
+}
+
+.system-settings__status.is-loading-models,
+.system-settings__status.is-testing {
+  color: #226b92;
+}
+
+.system-settings__actions {
+  display: grid;
+  grid-template-columns: auto minmax(8px, 1fr) repeat(3, auto);
+  gap: 6px;
+  padding-top: 5px;
+}
+
+.system-settings__actions button,
+.system-settings__menu-actions button {
+  min-height: 32px;
+  padding: 5px 14px;
+  border: 2px solid #53aadd;
+  border-radius: 999px;
+  background: linear-gradient(#fff, #dff5ff);
+  color: #185a7f;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 3px 0 rgb(26 104 148 / 22%);
+}
+
+.system-settings__menu nav > button:hover,
+.system-settings__menu nav > button:focus-visible,
+.system-settings__actions button:hover,
+.system-settings__actions button:focus-visible,
+.system-settings__menu-actions button:hover,
+.system-settings__menu-actions button:focus-visible,
+.system-settings__header > button:hover,
+.system-settings__header > button:focus-visible,
+.system-settings__model-input button:hover,
+.system-settings__model-input button:focus-visible,
+.system-settings__key-input button:hover,
+.system-settings__key-input button:focus-visible {
+  border-color: #f2b83d;
+  outline: 2px solid #ffe075;
+  outline-offset: 1px;
+}
+
+.system-settings__actions button.is-secondary {
+  border-color: #a8c8d9;
+  color: #557688;
+}
+
+.system-settings__model-input button:disabled,
+.system-settings__actions button:disabled {
+  cursor: wait;
+  opacity: 0.56;
+}
+
+@container game-frame (max-width: 620px) or (max-height: 340px) {
+  .system-settings__overlay {
+    padding: 4px;
+  }
+
+  .system-settings.is-menu {
+    width: min(430px, 88%, 139.5cqh);
+    aspect-ratio: 478 / 281;
+  }
+
+  .system-settings.is-memory-api {
+    width: calc(100% - 8px);
+    height: calc(100% - 8px);
+  }
+
+  .system-settings__header {
+    height: 40px;
+  }
+
+  .system-settings__nameplate {
+    top: 1px;
+    left: 7px;
+  }
+
+  .system-settings__header > button {
+    top: 4px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    font-size: 23px;
+  }
+
+  .system-settings__menu {
+    padding: 44px 18px 8px;
+  }
+
+  .system-settings__menu nav {
+    padding: 7px 10px;
+  }
+
+  .system-settings__menu nav > button {
+    min-height: 38px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .system-settings__form {
+    padding: 40px 8px 3px;
+  }
+
+  .system-settings__form-content {
+    grid-template-areas:
+      'toggle toggle'
+      'base-url base-url'
+      'model api-key'
+      'status status';
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3px 6px;
+    padding: 3px 6px;
+  }
+
+  .system-settings__toggle-row {
+    grid-area: toggle;
+    min-height: 22px;
+    padding-bottom: 2px;
+  }
+
+  .system-settings__field--base-url {
+    grid-area: base-url;
+  }
+
+  .system-settings__field--model {
+    grid-area: model;
+  }
+
+  .system-settings__field--key {
+    grid-area: api-key;
+  }
+
+  .system-settings__toggle-row b {
+    font-size: 11px;
+  }
+
+  .system-settings__toggle-row small,
+  .system-settings__field > small:not(.is-error) {
+    display: none;
+  }
+
+  .system-settings__toggle-row i {
+    width: 38px;
+    height: 20px;
+  }
+
+  .system-settings__toggle-row i::after {
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .system-settings__toggle-row input:checked + i::after {
+    transform: translateX(18px);
+  }
+
+  .system-settings__field {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 2px 4px;
+  }
+
+  .system-settings__field > span:first-child {
+    font-size: 9px;
+  }
+
+  .system-settings__field > small {
+    grid-column: 1 / -1;
+    font-size: 8px;
+  }
+
+  .system-settings__field input,
+  .system-settings__model-input button,
+  .system-settings__key-input button {
+    height: 28px;
+    min-height: 28px;
+    padding: 2px 5px;
+    font-size: 9px;
+  }
+
+  .system-settings__model-input,
+  .system-settings__key-input {
+    gap: 3px;
+  }
+
+  .system-settings__model-input button,
+  .system-settings__key-input button {
+    padding-inline: 5px;
+  }
+
+  .system-settings__status {
+    grid-area: status;
+    min-height: 20px;
+    padding: 3px 5px;
+    overflow: hidden;
+    font-size: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .system-settings__menu-actions,
+  .system-settings__actions {
+    min-height: 30px;
+  }
+
+  .system-settings__actions {
+    gap: 3px;
+    padding-top: 3px;
+  }
+
+  .system-settings__actions button,
+  .system-settings__menu-actions button {
+    min-height: 30px;
+    padding: 2px 8px;
+    font-size: 9px;
+  }
+}
+
+@container game-frame (max-width: 390px) {
+  .system-settings__form-content {
+    grid-template-areas:
+      'toggle toggle toggle'
+      'base-url model api-key'
+      'status status status';
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .system-settings__field {
+    grid-template-columns: 1fr;
+    align-content: start;
+  }
+
+  .system-settings__field > span:first-child {
+    line-height: 1;
+  }
+
+  .system-settings__field input {
+    height: 24px;
+  }
+
+  .system-settings__key-input {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .system-settings__model-input button {
+    height: 24px;
+    min-height: 24px;
+    padding-inline: 4px;
+  }
+
+  .system-settings__key-input button {
+    display: none;
+  }
+
+  .system-settings__actions button,
+  .system-settings__menu-actions button {
+    min-height: 26px;
+  }
+}
