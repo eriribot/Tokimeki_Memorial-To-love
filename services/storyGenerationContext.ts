@@ -1,14 +1,16 @@
 import { getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
 import { getMainStoryActOrThrow, getMainStoryEpisodeOrThrow } from '../GalMainStory/storyRegistry';
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
+import { RECENT_CONTEXT_MESSAGE_LIMIT } from '../memory/summaryPolicy';
 import { buildStoryGenerationPrompt, type StoryPromptPortraitOption } from './storyGenerationPrompt';
 
-export const STORY_CHAT_HISTORY_LIMIT = 6 as const;
+export const STORY_CHAT_HISTORY_LIMIT = RECENT_CONTEXT_MESSAGE_LIMIT;
 
 export interface StoryGenerationContextRequest {
   eventId: string;
   actId: string;
   contextFloorIds: readonly string[];
+  historyFloorIds?: readonly string[];
   chatHistory: readonly GalStoryMessageSave[];
 }
 
@@ -18,6 +20,7 @@ export interface StoryGenerationContextProjection {
   eventTitle: string;
   actTitle: string;
   contextFloorIds: string[];
+  historyFloorIds: string[];
   continuityMode: 'fresh' | 'continue';
   userInput: string;
   maxChatHistory: typeof STORY_CHAT_HISTORY_LIMIT;
@@ -46,15 +49,13 @@ function getActPortraitOptions(eventId: string, actId: string): StoryPromptPortr
 
 function selectGenerationMessages(
   messages: readonly GalStoryMessageSave[],
-  eventId: string,
-  contextFloorIds: readonly string[],
+  historyFloorIds: readonly string[],
 ): GalStoryMessageSave[] {
-  const floorOrder = new Map(contextFloorIds.map((floorId, index) => [floorId, index]));
+  const floorOrder = new Map(historyFloorIds.map((floorId, index) => [floorId, index]));
   return messages
     .filter(
       message =>
         message.extra.type === 'tolove-main-story' &&
-        message.extra.eventId === eventId &&
         floorOrder.has(message.extra.floorId) &&
         !message.is_system &&
         message.mes.trim().length > 0,
@@ -70,10 +71,10 @@ function selectGenerationMessages(
 
 export function buildGenerationChatHistory(
   messages: readonly GalStoryMessageSave[],
-  eventId: string,
+  _eventId: string,
   contextFloorIds: readonly string[],
 ): Array<{ role: 'user' | 'assistant'; content: string }> {
-  return selectGenerationMessages(messages, eventId, contextFloorIds).map(message => ({
+  return selectGenerationMessages(messages, contextFloorIds).map(message => ({
     role: message.extra.role,
     content: message.mes,
   }));
@@ -91,7 +92,7 @@ function buildGenerationPrompt(request: StoryGenerationContextRequest): string {
     requiredSceneSequence: act.generation.requiredSceneSequence,
     portraitOptions: getActPortraitOptions(request.eventId, request.actId),
     portraitRules: act.presentation.portraitRules ?? [],
-    continuityMode: request.contextFloorIds.length > 0 ? 'continue' : 'fresh',
+    continuityMode: (request.historyFloorIds ?? request.contextFloorIds).length > 0 ? 'continue' : 'fresh',
   });
 }
 
@@ -100,7 +101,8 @@ export function createStoryGenerationContextProjection(
 ): StoryGenerationContextProjection {
   const episode = getMainStoryEpisodeOrThrow(request.eventId);
   const act = getMainStoryActOrThrow(request.eventId, request.actId);
-  const selectedMessages = selectGenerationMessages(request.chatHistory, request.eventId, request.contextFloorIds);
+  const historyFloorIds = request.historyFloorIds ?? request.contextFloorIds;
+  const selectedMessages = selectGenerationMessages(request.chatHistory, historyFloorIds);
 
   return {
     eventId: request.eventId,
@@ -108,7 +110,8 @@ export function createStoryGenerationContextProjection(
     eventTitle: episode.title,
     actTitle: act.title,
     contextFloorIds: [...request.contextFloorIds],
-    continuityMode: request.contextFloorIds.length > 0 ? 'continue' : 'fresh',
+    historyFloorIds: [...historyFloorIds],
+    continuityMode: historyFloorIds.length > 0 ? 'continue' : 'fresh',
     userInput: buildGenerationPrompt(request),
     maxChatHistory: STORY_CHAT_HISTORY_LIMIT,
     messageIds: selectedMessages.map(message => message.id),

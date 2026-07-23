@@ -23,7 +23,7 @@
 
 .system-settings.is-memory-api {
   width: min(680px, 78%);
-  height: min(390px, 82%);
+  height: min(450px, calc(100% - 20px));
 }
 
 .system-settings__window-art {
@@ -165,7 +165,7 @@
   display: grid;
   gap: 6px;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   padding: 8px 22px 6px;
   border: 1px solid rgb(111 190 229 / 56%);
   border-radius: 5px;
@@ -307,6 +307,57 @@
   font-weight: 700;
 }
 
+.system-settings__cadence {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 3px 10px;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 5px 0 0;
+  border: 0;
+  border-top: 1px solid rgb(111 190 229 / 56%);
+}
+
+.system-settings__cadence legend {
+  float: left;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  color: #1b5877;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.system-settings__cadence label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  color: #37657d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.system-settings__cadence output {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #173c50;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.system-settings__cadence > small {
+  grid-column: 2 / -1;
+  color: #54788d;
+  font-size: 9px;
+  line-height: 1.25;
+}
+
 .system-settings__status {
   min-height: 27px;
   margin: 0;
@@ -440,6 +491,7 @@
       'toggle toggle'
       'base-url base-url'
       'model api-key'
+      'cadence cadence'
       'status status';
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 3px 6px;
@@ -462,6 +514,31 @@
 
   .system-settings__field--key {
     grid-area: api-key;
+  }
+
+  .system-settings__cadence {
+    grid-area: cadence;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2px 5px;
+    padding-top: 2px;
+  }
+
+  .system-settings__cadence legend {
+    font-size: 9px;
+  }
+
+  .system-settings__cadence label {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 3px;
+    font-size: 8px;
+  }
+
+  .system-settings__cadence output {
+    font-size: 8px;
+  }
+
+  .system-settings__cadence > small {
+    display: none;
   }
 
   .system-settings__toggle-row b {
@@ -555,6 +632,7 @@
     grid-template-areas:
       'toggle toggle toggle'
       'base-url model api-key'
+      'cadence cadence cadence'
       'status status status';
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -583,6 +661,14 @@
   }
 
   .system-settings__key-input button {
+    display: none;
+  }
+
+  .system-settings__cadence {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .system-settings__cadence legend {
     display: none;
   }
 

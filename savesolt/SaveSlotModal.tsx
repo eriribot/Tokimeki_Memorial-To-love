@@ -1,5 +1,7 @@
 import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_SAVE_SLOT, gameSaveApi, toSaveSummary, type SaveProbeResult, type SaveSummary } from '../save';
+import { captureGameMessages } from '../message';
+import { beginMemorySummaryContextTransition } from '../memory/summaryRuntime';
 import { PERIODS } from '../stores/gameStore';
 import { LOCATIONS } from '../stores/mapStore';
 import './SaveSlotModal.css';
@@ -189,7 +191,16 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
       if (action.kind === 'delete') {
         const saveUuid = slot.save?.saveUuid;
         if (!saveUuid) throw new Error(`${getSlotLabel(slot)}没有可删除的存档`);
-        const result = await gameSaveApi.delete(slot.id, saveUuid);
+        const transition =
+          slot.id === DEFAULT_SAVE_SLOT
+            ? beginMemorySummaryContextTransition('当前自动存档正在删除。')
+            : null;
+        const result = await gameSaveApi.delete(slot.id, saveUuid).catch(error => {
+          transition?.commitInvalidated();
+          throw error;
+        });
+        if (result.deleted) transition?.commitInvalidated();
+        else transition?.rollback();
         const refreshedSaves = await refreshSaveList();
         const replacement = refreshedSaves.find(save => save.slotId === slot.id);
         setNotice({
@@ -201,13 +212,29 @@ export default function SaveSlotModal({ mode, onClose, onSavesChanged }: SaveSlo
               : `${getSlotLabel(slot)}已经为空，列表已刷新`,
         });
       } else if (action.kind === 'save') {
-        const result = await gameSaveApi.save(slot.id, slot.save?.saveUuid);
+        const messages = slot.id === DEFAULT_SAVE_SLOT ? captureGameMessages() : null;
+        const transition =
+          slot.id === DEFAULT_SAVE_SLOT
+            ? beginMemorySummaryContextTransition('权威自动存档正在手动写入。')
+            : null;
+        const result = await gameSaveApi.save(slot.id, slot.save?.saveUuid).catch(error => {
+          transition?.commitInvalidated();
+          throw error;
+        });
+        if (messages) transition?.adopt(result.save, messages);
         const summary = toSaveSummary(result.save);
         setSaves(current => [summary, ...current.filter(save => save.saveUuid !== summary.saveUuid)]);
         onSavesChanged?.(true);
         setNotice({ kind: 'success', text: `已保存到${getSlotLabel(slot)}` });
       } else {
-        await gameSaveApi.load(slot.id, slot.save?.saveUuid);
+        const transition = beginMemorySummaryContextTransition('正在载入另一份权威存档。');
+        try {
+          const save = await gameSaveApi.load(slot.id, slot.save?.saveUuid);
+          transition.adopt(save, captureGameMessages(), false);
+        } catch (error) {
+          transition.rollback();
+          throw error;
+        }
         onSavesChanged?.(true);
         onClose();
       }

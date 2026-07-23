@@ -6,21 +6,49 @@ import { captureGameMessages, gameMessageApi } from '../message';
 import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
 import { createGameSnapshot, createSavePreview, type GameSnapshot } from './snapshot';
+import { createSaveUuid } from './uuid';
 
 const DEFAULT_AUTOSAVE_DELAY_MS = 600;
 
 interface TavernAutosaveOptions {
   delayMs?: number;
-  onSaved?: (save: SaveRecord<GameSnapshot>) => void;
+  onSaved?: (save: SaveRecord<GameSnapshot>, messages: ReturnType<typeof captureGameMessages>) => void;
   onError?: (error: Error) => void;
 }
 
 interface TavernAutosaveRuntime {
   pause: () => Promise<string | null>;
   resume: (fingerprint: string | null) => void;
+  invalidatePersistedFingerprint: () => void;
 }
 
 let activeAutosaveRuntime: TavernAutosaveRuntime | null = null;
+let autosaveSaveUuid: string | undefined;
+let autosaveIdentityGeneration = 0;
+
+export function beginNewTavernAutosaveIdentity(): string {
+  const saveUuid = createSaveUuid();
+  autosaveSaveUuid = saveUuid;
+  autosaveIdentityGeneration += 1;
+  activeAutosaveRuntime?.invalidatePersistedFingerprint();
+  return saveUuid;
+}
+
+export function getTavernAutosaveIdentityGeneration(): number {
+  return autosaveIdentityGeneration;
+}
+
+export function getTavernAutosaveSaveUuid(): string | undefined {
+  return autosaveSaveUuid;
+}
+
+export function adoptTavernAutosaveIdentity(saveUuid: string | null, expectedGeneration?: number): boolean {
+  if (expectedGeneration !== undefined && expectedGeneration !== autosaveIdentityGeneration) return false;
+  autosaveSaveUuid = saveUuid?.trim() || undefined;
+  autosaveIdentityGeneration += 1;
+  activeAutosaveRuntime?.invalidatePersistedFingerprint();
+  return true;
+}
 
 function toError(value: unknown): Error {
   return value instanceof Error ? value : new Error(String(value));
@@ -52,18 +80,21 @@ function createAutosaveFingerprint(snapshot: GameSnapshot, messages: ReturnType<
 export async function withTavernAutosavePaused<T>(
   operation: () => Promise<T>,
   shouldAdoptFingerprintOnError: () => boolean = () => false,
+  shouldAdoptFingerprintOnSuccess: (result: T) => boolean = () => true,
 ): Promise<T> {
   const runtime = activeAutosaveRuntime;
   if (!runtime) return operation();
 
   const fingerprint = await runtime.pause();
-  let completed = false;
+  let completedResult: { value: T } | null = null;
   try {
     const result = await operation();
-    completed = true;
+    completedResult = { value: result };
     return result;
   } finally {
-    runtime.resume(completed || shouldAdoptFingerprintOnError() ? fingerprint : null);
+    const adoptSuccessfulFingerprint =
+      completedResult !== null && shouldAdoptFingerprintOnSuccess(completedResult.value);
+    runtime.resume(adoptSuccessfulFingerprint || shouldAdoptFingerprintOnError() ? fingerprint : null);
   }
 }
 
@@ -98,12 +129,22 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     dirty = false;
     pendingFingerprint = null;
     writing = true;
+    const requestedSaveUuid = autosaveSaveUuid;
+    const writeIdentityGeneration = autosaveIdentityGeneration;
     const write = (async () => {
       try {
-        const { save } = await saveClient.write(DEFAULT_SAVE_SLOT, snapshot, undefined, createSavePreview(snapshot));
+        const { save } = await saveClient.write(
+          DEFAULT_SAVE_SLOT,
+          snapshot,
+          requestedSaveUuid,
+          createSavePreview(snapshot),
+        );
         await gameMessageApi.saveFor(save, messages);
-        persistedFingerprint = fingerprint;
-        options.onSaved?.(save);
+        if (autosaveIdentityGeneration === writeIdentityGeneration) {
+          persistedFingerprint = fingerprint;
+          autosaveSaveUuid = save.saveUuid;
+          options.onSaved?.(save, messages);
+        }
       } catch (error) {
         options.onError?.(toError(error));
       } finally {
@@ -148,6 +189,9 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
 
   const runtime: TavernAutosaveRuntime = {
     pause: async () => {
+      const fingerprint = canAutosave()
+        ? createAutosaveFingerprint(createGameSnapshot(), captureGameMessages())
+        : null;
       suspended = true;
       dirty = false;
       pendingFingerprint = null;
@@ -156,14 +200,17 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
         timer = null;
       }
       await currentWrite;
-      if (disposed || !canAutosave()) return null;
-      return createAutosaveFingerprint(createGameSnapshot(), captureGameMessages());
+      return disposed ? null : fingerprint;
     },
     resume: fingerprint => {
       if (disposed) return;
       if (fingerprint !== null) persistedFingerprint = fingerprint;
       suspended = false;
       schedule();
+    },
+    invalidatePersistedFingerprint: () => {
+      persistedFingerprint = null;
+      pendingFingerprint = null;
     },
   };
   activeAutosaveRuntime = runtime;
@@ -175,6 +222,7 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     useSkillStore.subscribe(schedule),
   ];
   globalThis.addEventListener('pagehide', flush);
+  schedule();
 
   return () => {
     disposed = true;

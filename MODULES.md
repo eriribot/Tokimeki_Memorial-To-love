@@ -21,7 +21,8 @@
 - 行动点是时间推进权威；有效行动自动改变时段，AP 用完自动跨日，不再提供独立推进时间按钮。
 - 2008-04-07 第一集由两次自由行动触发两幕；2008-04-09 至 04-10 第二集按 `1 AP / 0 AP / 次日 0 AP`
   触发三幕。两集都从真实世界书读取当前幕，支持加载、错误、保底、GAL 播放和本地 messagesave 镜像。
-- 主线运行态只保存 `eventId + actId + phase + pageIndex`。恢复时按剧集模板和当前行动次数幂等检查等待中的幕；当前幕正文只从对应档案的采用楼层读取，不另存一份正文投影。
+- 主线运行态只保存
+  `eventId + actId + phase + pageIndex`。恢复时按剧集模板和当前行动次数幂等检查等待中的幕；当前幕正文只从对应档案的采用楼层读取，不另存一份正文投影。
 - 当前可执行的默认角色规则是：夕崎梨子与西连寺春菜初始可见，菈菈在第二集完成、以转学生身份登场后可见，梦梦、古手川唯与小暗保持锁定，未知导入角色默认可见。
 - AI 每一页必须按受控格式给出
   `scene/focus/portrait/expression/effect`；当前幕的场景表、演员表、立绘版本和各立绘实际表情集合共同约束可用值。未登记人物可以用真实姓名或明确身份说话，并显示通用文字名牌，但不能带“临时角色”标签，也不能虚构立绘。渲染器直接消费通过校验的演出 cue，不再按页数、关键词或角色特判猜演出。
@@ -29,8 +30,22 @@
 - 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 - 已读剧情中的 AI 原文按“幕 -> 生成版本 -> 页”阅读；目录内的楼层按钮会直接打开对应版本，每次只显示一页，不再把所有 Assistant 正文堆叠在同一滚动区。
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
-- 地图菜单的“目录”入口打开只读上下文预览；原“数据”入口暂时停用。预览显示当前 GameSnapshot v2、MessageArchive 原文镜像、生成器实际使用的最多 6 条历史消息、生成提示和本幕世界书引用。预览与 `TavernHelper.generate()` 共用同一个上下文投影，不代表真实宿主消息或 shujuku 扫描。
-- 地图菜单“系统设定”只配置记忆用 OpenAI 兼容 API：弹层限制在地图框中央，`window_kani.png` 是完整窗口主体，原生 `midashi_op.png` 按 255:49 比例叠在左上承载“系统设定”标题；该弹层不再混用 `window_system.png`。一级页只显示“AI 记忆设定”，点击后才挂载输入表单；两个页面都不建立独立滚动区。用户填写的地址与酒馆“自定义（兼容 OpenAI）”一样被视为完整 API 基址，客户端直接追加 `/models` 与 `/chat/completions`，不会擅自插入 `/v1`。拉取模型先尝试浏览器直连；若被跨域或网络层拦截且当前处于 SillyTavern，则改用酒馆现成的只读状态接口代发，不写酒馆设置或密钥库。模型名称仍可手动输入。启用状态、地址、模型和密钥长期保存在当前浏览器；拉取列表和手动连接测试都不写入游戏存档、剧情消息或宿主楼层。自动摘要仍未接入。
+- 地图菜单的“目录”入口打开本地上下文与总结审查。当前幕运行时按该幕投影的 `messageIds` 显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”，两者都最多保留最近 6 条完整原文。历史楼层没有持久化跨集 history 回执，因此空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。原文默认折叠且列表与弹窗正文都可独立滚动；快照、生成提示、本幕世界书引用和全部原文仍为只读。
+  `historyFloorIds` 只负责跨集生成历史，存档中的同集 `contextFloorIds` 契约不变。该界面不代表真实宿主消息或 shujuku 扫描。
+- 地图菜单“系统设定”只配置记忆用 OpenAI 兼容 API：弹层限制在地图框中央，`window_kani.png` 是完整窗口主体，原生
+  `midashi_op.png` 按 255:49 比例叠在左上承载“系统设定”标题；该弹层不再混用
+  `window_system.png`。一级页只显示“AI 记忆设定”，点击后才挂载输入表单；两个页面都不建立独立滚动区。用户填写的地址与酒馆“自定义（兼容 OpenAI）”一样被视为完整 API 基址，客户端直接追加
+  `/models` 与 `/chat/completions`，不会擅自插入
+  `/v1`。拉取模型先尝试浏览器直连；若被跨域或网络层拦截且当前处于 SillyTavern，则改用酒馆现成的只读状态接口代发，不写酒馆设置或密钥库。模型名称仍可手动输入。启用状态、地址、模型和密钥长期保存在当前浏览器；总结合同不是用户配置：固定保留最近 6 条消息，每 2 个更旧完整楼层形成 1 个小总结，每 5 条已接受小总结形成 1 个大总结，正文上限分别为 600/1200 字。自动存档运行器挂载时也会立即检查当前游戏态，因此保存配置后能复查本页最近一次配对成功的权威自动存档。
+- 大小总结的 TIDD-EC 提示词、自动调度、纯文本规范化、本地候选封装和人工审查已经接通：只有主存档与
+  MessageArchive 同次写入成功后才排队；每次保存或显式设置刷新最多处理一个批次，不会连续清空旧档积压。最近 6 条消息（3 个完整楼层）不参与摘要，前方恰好 2 个未覆盖完整楼层才形成一个小总结，因此首次触发需要 5 个规范楼层。当前来源存在失败任务时后续自动批次暂停，失败任务不会自动循环，重试会重新校验已保存锚点、当前采用楼层和原文。
+  每次调度先处理已经凑齐的 5 条大总结批次，再处理新的 2 楼层小总结批次；同一批大总结的来源指纹、楼层和消息必须互不重复。
+  副 API 只提供摘要正文；标题、来源指纹、来源 ID、状态、模型、时间戳及 JSON 存储外壳全部由本地代码生成，新候选的 `facts` 固定为空，不从普通文本伪造结构化证据。玩家可接受、编辑或拒绝候选；已拒绝候选可以从同一组冻结来源显式重新生成，但后续任务或候选出现后，旧记录不再重复生成。候选和失败任务的冻结来源默认折叠：小总结按原顺序展示 2 个楼层的 4 条本地 User/Assistant 原文及幕、楼层、Tavern/fallback 标签，大总结展示 5 条来源小总结的标题和正文；展开区自身滚动，缺失来源不会被静默过滤。请求落盘要求 `saveUuid + exact revision + sourceFingerprint` 仍一致；接受、编辑、重新生成和大总结复用前还会同时重验已保存来源与当前 live 采用版。jobs 和候选按 `saveUuid` 完整保存在当前浏览器 `memory-summary-archive:v3`；加载器只接受 v3，空白活动身份会归一为 `null` 而不删除其余合法记录，candidate/job 自身必须使用非空 `saveUuid` 与 `revision >= 1`，来源形状无效、悬空或错配的记录会被丢弃；遗留 v1/v2 即使仍留在浏览器存储中也不会加载或迁移。新游戏会为默认自动档申请新 `saveUuid`；普通自动存档只有在主档与原文档成对成功后才替换记忆锚点，写入失败会继续保留上一份已配对上下文；手动默认档和读档仍使用可失效、可回滚的切换。存档槽可共用 UUID，因此删除或覆盖槽位不会按 UUID 猜测清空浏览器摘要；孤立记录由当前身份和来源重验隔离。该 archive 不是 Tavern
+  文件侧档；接受结果尚未注入剧情生成，也不结算 AP、日期、好感、`friendship/romance/hurt` 或约会资格。
+- 地图框内已经挂载非阻塞的摘要进度条，复用 `push_0.png`～`push_3.png`
+  四帧动画；真实网络等待使用不定进度，只有调用者提供可计数进度时才显示百分比。进度状态不持久化、不进入
+  `gameStore`，`window.toloveMemorySummaryProgressPreview()` 和 `?toloveMemorySummaryPreview=`
+  只用于本地 UI 取证，不代表副 API 或 fallback 已运行。
 
 ## 剧情编辑目录
 
@@ -42,7 +57,9 @@
   `director.ts`。这里的“导演式编辑”指世界书、幕素材表、角色立绘模块和 AI 演出协议可以分别剪辑，而不是由一段导演代码猜剧情。
 - `scenes/index.ts` 统一场景 ID、资源路径和 alt；`characters/{lala,haruna,mikan,riko}.ts`
   分别登记角色别名、姓名牌、人物 lore 与多立绘集合，`characters/index.ts` 只负责注册和查询。
-- `episodeTemplate.ts` 定义唯一分集接口；`episodes/index.ts` 是注册清单，目前只登记第一集和第二集。共享触发器、生成、存档、历史和渲染只按 `eventId + actId` 查询模板，没有分集特判。复用既有角色与场景时，新增一集只需新增幕定义、该集 `index.ts`，再在注册清单增加一项。
+- `episodeTemplate.ts` 定义唯一分集接口；`episodes/index.ts`
+  是注册清单，目前只登记第一集和第二集。共享触发器、生成、存档、历史和渲染只按 `eventId + actId`
+  查询模板，没有分集特判。复用既有角色与场景时，新增一集只需新增幕定义、该集 `index.ts`，再在注册清单增加一项。
 - `data/lore-books/tolove-tv-episode-02-act01.txt`、`act02.txt`、`act03.txt`
   是第二集三幕恢复源，不进入 bundle。第二集运行时按 `order 152/153/154` 读取真实 Tavern 条目；人物条目按
   `order 100/101/102` 读取。第一幕会选择美柑和春菜人物 lore，但本地 fallback 画面不能证明真实 World Info 扫描已经命中。
@@ -50,55 +67,63 @@
 
 ## 模块登记
 
-| 模块                                       | 负责                                          | 权威输入                            | 输出或副作用           | 不负责             |
-| ------------------------------------------ | --------------------------------------------- | ----------------------------------- | ---------------------- | ------------------ |
-| `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配            | 玩家行动意图、主线模板触发结果       | AP、日期、事件节点     | 分集或楼层实现     |
-| `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和完成结算      | 模板查询、剧情楼层、Game store      | 主线状态变更           | 识别具体集数       |
-| `stores/cardStore.ts`                      | 目标卡、位置与好感                            | 角色卡、已结算交谈                  | 角色地图状态           | 主线触发           |
-| `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引             | 当前地点 ID                         | 地图背景和当前区域地点 | AP 与剧情结算      |
-| `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发           | 当前地图、另一地图入口、菜单选择     | 切换地点或打开本地界面 | 消耗 AP、改写快照  |
-| `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                | 当前地图                            | 档案入口/弹窗状态      | 改写角色状态       |
-| `data/characterAvailability.ts`            | 默认角色的出场条件                            | 角色 ID、主线完成记录               | 可见/锁定判断          | 地图位置分配       |
-| `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                | Game/Card store                     | 角色出现位置与当前目标 | 改写角色卡         |
-| `components/Controls.tsx`                  | 展示并提交行动                                | Store 当前状态                      | 行动意图               | 自行推进剧情       |
-| `data/skills.ts`                           | 127 项特技定义与六分类                        | 公开原作资料                        | 技能静态表             | 玩家进度           |
-| `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store | 技能静态表、日期、已结算行动        | 本地技能进度           | 应用技能效果       |
-| `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉           | `skilllogic`、当前日期              | 学习/实践提交意图      | 重算前置或结算效果 |
-| `services/storyGenerationPrompt.ts`        | 世界书幕选择和受控 GAL 演出格式               | lore 小节、场景/立绘可用值          | 可复用生成契约         | 重述具体剧情       |
-| `services/storyGenerationContext.ts`       | 生成请求的提示/历史窗口确定性投影             | 幕定义、上下文 floor、messagesave   | `userInput`、6 条历史、消息 ID       | 改写游戏状态或世界书 |
-| `services/tavernStoryGeneration.ts`        | 生成、消息连续性和受控正文解析                | 幕定义、已存消息、世界书资料        | `GalStoryAct`          | 猜测画面与角色     |
-| `services/localContextPreview.ts`          | 本地快照、原文和当前生成投影的只读汇总         | Game/Card/Player/Skill store、messagesave | 上下文预览模型       | 写回状态或触发生成 |
-| `GalMainStory/episodeTemplate.ts`           | 分集/分幕模板合同与注册期不变量               | 集元数据、幕定义                    | 合法剧情模板           | 运行态结算         |
-| `GalMainStory/episodes/index.ts`            | 生产剧集注册清单                              | 各集模板                            | 通用剧情目录           | 分集控制流         |
-| `GalMainStory/storyRegistry.ts`             | 通用模板查询、触发匹配、lore 与保底投影        | `eventId + actId`、日期、行动序号   | 当前幕定义或触发结果   | 保存重复进度       |
-| `GalMainStory/storyArchive.ts`              | 楼层采用、前文上下文与正文投影                 | 剧情档案、模板幕 ID                 | 当前正文/前文楼层      | 分集触发           |
-| `GalMainStory/storyPersistence.ts`          | 严格校验主线 schema v2                        | 游标、完成集、楼层、messagesave     | 可恢复主线状态         | 迁移旧存档         |
-| `GalMainStory/episodes/episode01/index.ts` | 第一集元数据与两幕组装                        | 两个幕定义                          | 第一集模板             | 生成调用和状态结算 |
-| `GalMainStory/episodes/episode01/acts/`    | 世界书小节、素材表、结构完成合同和保底页      | 本幕编辑合同                        | 两个独立幕定义         | 重写世界书剧情     |
-| `GalMainStory/episodes/episode02/`         | 第二集元数据、三幕触发与 lore order           | 三个幕定义                          | 第二集模板             | 跨日结算和正文措辞 |
-| `GalMainStory/scenes/index.ts`             | GAL 场景 manifest                             | 背景 ID                             | 资源路径与 alt         | 幕时间线           |
-| `GalMainStory/characters/*.ts`             | 单角色别名、人物 lore、多立绘与表情资源       | 角色素材和世界书条目                | 可注册角色模块         | 当前幕是否可用     |
-| `GalMainStory/characters/index.ts`         | 角色注册、说话人匹配与立绘查询                | 独立角色模块                        | 角色/立绘查询 API      | 剧情出镜判断       |
-| `GalMainStory/portraitRules.ts`            | 解析场景与角色唯一绑定的立绘                  | 当前幕场景立绘规则                  | 必选立绘 ID 或无绑定   | 选择剧情镜头       |
-| `GalMainStory/storyTextExtraction.ts`      | 从模型标签输出中结构化抽取正文                | Tavern Assistant 原文               | `<content>` 可播放文本 | 校验逐行演出字段   |
-| `GalMainStory/storyPresentation.ts`        | 严格解析并校验 AI 逐页演出单                  | `@` 正文、当前幕素材表与立绘绑定    | 正文与演出 cue         | 推测或改写演出字段 |
-| `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放和 GAL 播放           | Store、演出 cue、场景/角色 manifest | GAL 画面、翻页意图     | 选择画面或角色     |
-| `GalMainStory/StoryHistoryArchive.tsx`     | 候选重生成、采用、回放和删除                  | 各幕楼层档案                        | 版本管理意图           | 删除宿主聊天楼层   |
-| `GalMainStory/storyRawArchive.ts`          | 关联幕、楼层与 Tavern Assistant 原文并分页    | 剧情档案、messagesave               | 只读原文阅读模型       | 归一化或改写正文   |
-| `GalMainStory/RawStoryHistoryDialog.tsx`   | 按幕、版本和页展示 AI 原文                    | 只读原文阅读模型                    | 阅读器选择状态         | 修改消息或采用楼层 |
-| `GalMainStory/galAssets.ts`                | 共享 GAL 窗口素材                             | GALBOX 文件                         | 窗口/翻页资源路径      | 角色资产           |
-| `GalMainStory/LayeredPortrait.tsx`         | body、mask、眼嘴图集和共享动画渲染            | rig、表情、当前发言状态             | 分层立绘画面           | 选择说话人或结算   |
-| `save/snapshot.ts`                         | 严格 schema v2 快照                           | Game/Player/Card/Skill store        | 本地/宿主存档数据      | 旧存档迁移         |
-| `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                  | `gameSaveApi`                        | 槽位操作意图           | 修改快照内容       |
-| `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                         | `MessageRequest`、本地文件接口       | MessageArchive 文件    | 真实宿主消息楼层     |
-| `components/ContextPreviewModal.tsx`       | 快照/原文/生成上下文只读可视化                | `localContextPreview`                | 数据审查界面           | 改写状态、摘要或生成 |
-| `components/SystemSettingsModal.tsx`       | 地图内两级设置导航、记忆 API 配置、模型拉取与连接测试 | `config/openaiCompatible`      | 本地设置意图、列表/测试请求 | 自动摘要、存档写入 |
-| `config/openaiCompatible/defaults.ts`      | 默认值、`/v1` 校验、请求地址和脱敏投影         | 用户配置                             | 规范化配置与安全视图   | 浏览器存储或网络请求 |
-| `config/openaiCompatible/storage.ts`       | OpenAI 兼容配置的浏览器长期保存                | 规范化配置、`localStorage`           | 配置读写/清空          | GameSnapshot 或消息  |
-| `config/openaiCompatible/client.ts`        | `/models`、`/chat/completions` 请求、响应解析和连接探测 | API 配置、记忆提示             | 模型列表、文本结果或显式错误 | 自动选择摘要时机 |
-| `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本      | 稳定 order/名称、世界书条目         | 一次性 World Info 钩子 | 修改已保存世界书   |
-| `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥          | 游戏上下文、TavernHelper            | 显式读/诊断能力        | 剧情条目选择       |
-| `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                | 已校对剧情与人物资料                | 待导入的纯文本恢复源   | 运行时扫描和状态   |
+| 模块                                       | 负责                                                    | 权威输入                                  | 输出或副作用                   | 不负责               |
+| ------------------------------------------ | ------------------------------------------------------- | ----------------------------------------- | ------------------------------ | -------------------- |
+| `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配                      | 玩家行动意图、主线模板触发结果            | AP、日期、事件节点             | 分集或楼层实现       |
+| `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和完成结算                | 模板查询、剧情楼层、Game store            | 主线状态变更                   | 识别具体集数         |
+| `stores/cardStore.ts`                      | 目标卡、位置与好感                                      | 角色卡、已结算交谈                        | 角色地图状态                   | 主线触发             |
+| `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引                       | 当前地点 ID                               | 地图背景和当前区域地点         | AP 与剧情结算        |
+| `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发                    | 当前地图、另一地图入口、菜单选择          | 切换地点或打开本地界面         | 消耗 AP、改写快照    |
+| `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                          | 当前地图                                  | 档案入口/弹窗状态              | 改写角色状态         |
+| `data/characterAvailability.ts`            | 默认角色的出场条件                                      | 角色 ID、主线完成记录                     | 可见/锁定判断                  | 地图位置分配         |
+| `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                          | Game/Card store                           | 角色出现位置与当前目标         | 改写角色卡           |
+| `components/Controls.tsx`                  | 展示并提交行动                                          | Store 当前状态                            | 行动意图                       | 自行推进剧情         |
+| `data/skills.ts`                           | 127 项特技定义与六分类                                  | 公开原作资料                              | 技能静态表                     | 玩家进度             |
+| `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store           | 技能静态表、日期、已结算行动              | 本地技能进度                   | 应用技能效果         |
+| `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉                     | `skilllogic`、当前日期                    | 学习/实践提交意图              | 重算前置或结算效果   |
+| `services/storyGenerationPrompt.ts`        | 世界书幕选择和受控 GAL 演出格式                         | lore 小节、场景/立绘可用值                | 可复用生成契约                 | 重述具体剧情         |
+| `services/storyGenerationContext.ts`       | 生成请求的提示/跨集历史窗口确定性投影                   | 幕定义、规范 history floor、messagesave   | `userInput`、6 条历史、消息 ID | 改写游戏状态或世界书 |
+| `services/tavernStoryGeneration.ts`        | 生成、消息连续性和受控正文解析                          | 幕定义、已存消息、世界书资料              | `GalStoryAct`                  | 猜测画面与角色       |
+| `services/localContextPreview.ts`          | 本地快照、原文和当前生成投影的只读汇总                  | Game/Card/Player/Skill store、messagesave | 上下文预览模型                 | 写回状态或触发生成   |
+| `memory/storyTimeline.ts`                  | 跨集规范时间线、最近 6 条与更旧完整消息对选择           | 主线档案、messagesave、生产剧集注册表     | 楼层和消息只读投影             | 写档或改 active floor |
+| `memory/summaryPolicy.ts`                  | 固定 6 消息窗口、2/5 总结批次与 600/1200 字上限         | 产品记忆协议                              | 共享确定性常量                 | 调 API 或保存候选     |
+| `memory/summaryPrompts.ts`                 | 大小总结 TIDD-EC 提示词和输入边界校验                   | 完整消息对/已接受小总结、只读状态锚点     | 提示词投影与来源 ID            | 调 API、解析或结算   |
+| `memory/summaryAnalyzer.ts`                | 规范化副 API 纯文本并创建本地摘要 payload               | 副 API 文本、本地来源批次                 | 本地标题、正文、空 facts       | 推断事实或保存候选   |
+| `memory/summaryArchive.ts`                 | 按存档隔离的浏览器候选、任务和人工决定记录              | 已校验候选、审查命令                     | 浏览器本地摘要记录             | Tavern 文件侧档      |
+| `memory/summaryRuntime.ts`                 | 自动存档后按固定层级排队、去重、取消、迟到校验和重试    | SaveRecord、MessageArchive、API 配置      | 副 API 请求与本地候选运行态    | 注入剧情或写游戏数值 |
+| `memory/summaryProgress.ts`                | 非持久化摘要阶段与真实/不定进度                         | 摘要执行器阶段通知                        | 地图 UI 运行态                 | 业务编排或持久化     |
+| `components/MemorySummaryProgress.tsx`     | 地图内 `push_0~3` 摘要进度与错误回显                    | `summaryProgress`                         | 非阻塞进度条                   | 启动摘要或模拟完成   |
+| `GalMainStory/episodeTemplate.ts`          | 分集/分幕模板合同与注册期不变量                         | 集元数据、幕定义                          | 合法剧情模板                   | 运行态结算           |
+| `GalMainStory/episodes/index.ts`           | 生产剧集注册清单                                        | 各集模板                                  | 通用剧情目录                   | 分集控制流           |
+| `GalMainStory/storyRegistry.ts`            | 通用模板查询、触发匹配、lore 与保底投影                 | `eventId + actId`、日期、行动序号         | 当前幕定义或触发结果           | 保存重复进度         |
+| `GalMainStory/storyArchive.ts`             | 楼层采用、前文上下文与正文投影                          | 剧情档案、模板幕 ID                       | 当前正文/前文楼层              | 分集触发             |
+| `GalMainStory/storyPersistence.ts`         | 严格校验主线 schema v2                                  | 游标、完成集、楼层、messagesave           | 可恢复主线状态                 | 迁移旧存档           |
+| `GalMainStory/episodes/episode01/index.ts` | 第一集元数据与两幕组装                                  | 两个幕定义                                | 第一集模板                     | 生成调用和状态结算   |
+| `GalMainStory/episodes/episode01/acts/`    | 世界书小节、素材表、结构完成合同和保底页                | 本幕编辑合同                              | 两个独立幕定义                 | 重写世界书剧情       |
+| `GalMainStory/episodes/episode02/`         | 第二集元数据、三幕触发与 lore order                     | 三个幕定义                                | 第二集模板                     | 跨日结算和正文措辞   |
+| `GalMainStory/scenes/index.ts`             | GAL 场景 manifest                                       | 背景 ID                                   | 资源路径与 alt                 | 幕时间线             |
+| `GalMainStory/characters/*.ts`             | 单角色别名、人物 lore、多立绘与表情资源                 | 角色素材和世界书条目                      | 可注册角色模块                 | 当前幕是否可用       |
+| `GalMainStory/characters/index.ts`         | 角色注册、说话人匹配与立绘查询                          | 独立角色模块                              | 角色/立绘查询 API              | 剧情出镜判断         |
+| `GalMainStory/portraitRules.ts`            | 解析场景与角色唯一绑定的立绘                            | 当前幕场景立绘规则                        | 必选立绘 ID 或无绑定           | 选择剧情镜头         |
+| `GalMainStory/storyTextExtraction.ts`      | 从模型标签输出中结构化抽取正文                          | Tavern Assistant 原文                     | `<content>` 可播放文本         | 校验逐行演出字段     |
+| `GalMainStory/storyPresentation.ts`        | 严格解析并校验 AI 逐页演出单                            | `@` 正文、当前幕素材表与立绘绑定          | 正文与演出 cue                 | 推测或改写演出字段   |
+| `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放和 GAL 播放                     | Store、演出 cue、场景/角色 manifest       | GAL 画面、翻页意图             | 选择画面或角色       |
+| `GalMainStory/StoryHistoryArchive.tsx`     | 候选重生成、采用、回放和删除                            | 各幕楼层档案                              | 版本管理意图                   | 删除宿主聊天楼层     |
+| `GalMainStory/storyRawArchive.ts`          | 关联幕、楼层与 Tavern Assistant 原文并分页              | 剧情档案、messagesave                     | 只读原文阅读模型               | 归一化或改写正文     |
+| `GalMainStory/RawStoryHistoryDialog.tsx`   | 按幕、版本和页展示 AI 原文                              | 只读原文阅读模型                          | 阅读器选择状态                 | 修改消息或采用楼层   |
+| `GalMainStory/galAssets.ts`                | 共享 GAL 窗口素材                                       | GALBOX 文件                               | 窗口/翻页资源路径              | 角色资产             |
+| `GalMainStory/LayeredPortrait.tsx`         | body、mask、眼嘴图集和共享动画渲染                      | rig、表情、当前发言状态                   | 分层立绘画面                   | 选择说话人或结算     |
+| `save/snapshot.ts`                         | 严格 schema v2 快照                                     | Game/Player/Card/Skill store              | 本地/宿主存档数据              | 旧存档迁移           |
+| `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                            | `gameSaveApi`                             | 槽位操作意图                   | 修改快照内容         |
+| `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                                   | `MessageRequest`、本地文件接口            | MessageArchive 文件            | 真实宿主消息楼层     |
+| `components/ContextPreviewModal.tsx`       | 快照/原文/上下文阅读及总结候选审查、失败重试            | 本地预览、摘要 archive/runtime            | 数据阅读与人工审查意图         | 直接调用剧情生成     |
+| `components/SystemSettingsModal.tsx`       | 记忆 API、固定记忆层级说明、模型拉取与连接测试          | `config/openaiCompatible`、summary policy | 本地设置意图、调度刷新         | 摘要解析或游戏存档   |
+| `config/openaiCompatible/defaults.ts`      | 默认值、`/v1` 校验、请求地址和脱敏投影                  | 用户配置                                  | 规范化配置与安全视图           | 浏览器存储或网络请求 |
+| `config/openaiCompatible/storage.ts`       | OpenAI 兼容配置的浏览器长期保存                         | 规范化配置、`localStorage`                | 配置读写/清空                  | GameSnapshot 或消息  |
+| `config/openaiCompatible/client.ts`        | `/models`、`/chat/completions` 请求、响应解析和连接探测 | API 配置、记忆提示                        | 模型列表、文本结果或显式错误   | 自动选择摘要时机     |
+| `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描中的副本                | 稳定 order/名称、世界书条目               | 一次性 World Info 钩子         | 修改已保存世界书     |
+| `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥                    | 游戏上下文、TavernHelper                  | 显式读/诊断能力                | 剧情条目选择         |
+| `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                          | 已校对剧情与人物资料                      | 待导入的纯文本恢复源           | 运行时扫描和状态     |
 
 ## 权威状态
 
@@ -106,7 +131,8 @@
 - 特技权威状态位于
   `skilllogic/skillStore.ts`，存档只保存 EXP、学习历史和学期实践提交；节点状态与当前实践集合由图和最后一次提交派生。面板关闭会丢弃尚未提交的实践草案，但不会丢失已取得技能或已提交配置。技能效果当前只是说明文字，不能称为已作用于游戏结算。
 - 第一集 event ID 和两个 act ID 保持不变；第二集 event ID 为
-  `main.engagement-cancellation-2008-04-09`。项目仍在开发期，旧存档不兼容；schema v2 的运行游标、楼层和消息都用稳定的 `eventId + actId` 关联，幕序号只在显示时由模板推导。
+  `main.engagement-cancellation-2008-04-09`。项目仍在开发期，旧存档不兼容；schema v2 的运行游标、楼层和消息都用稳定的
+  `eventId + actId` 关联，幕序号只在显示时由模板推导。
 - 当前地图不另存一份并行状态，而是由 `currentLocationId` 经 `getMapForLocation()`
   唯一推导；因此存档恢复地点后会自动恢复对应地图。跨地图按钮只把地点切到目标地图入口。
 - 地图边缘控件的布局契约为：学校“街”护法在左、档案在右；彩南町“学校”护法在右、档案在左；两者中心线镜像对齐。护法的圆形预览和恶魔图形均可点击，反馈不覆盖透明矩形区域。三档横屏尺寸的最新调整等待人工重新验收，不能沿用此前被撤回的通过结论。
@@ -135,7 +161,8 @@
   唯一允许 `portrait=washroom-swimsuit`，该幕其他场景的菈菈唯一允许 `portrait=arrival-default`；模型给出错误组合时进入
   `parse_error`，解析器不得静默替换原始 portrait。
 - 超过单页长度的对白会在分页后保留原说话人，不能把后续页静默降级成旁白。
-- 重生成的聊天历史按 `contextFloorIds` 精确选择模板中前面各幕的当前采用楼层，不靠持久化幕序号猜顺序，也不混入当前幕旧候选。仍被后续版本引用的楼层不能删除；删除其他楼层会同步删除其游戏内消息。删除采用版会安全回退或取消采用，但不会删除尚未接通的宿主 hidden 消息。
+- 重生成的聊天历史按 `contextFloorIds`
+  精确选择模板中前面各幕的当前采用楼层，不靠持久化幕序号猜顺序，也不混入当前幕旧候选。仍被后续版本引用的楼层不能删除；删除其他楼层会同步删除其游戏内消息。删除采用版会安全回退或取消采用，但不会删除尚未接通的宿主 hidden 消息。
 - 渲染器只按当前页 `focusCharacterId/portraitId/expressionId`
   查询注册表并绘制；focus 不要求等于说话人，因此 AI 可以剪出反应镜头。口型只在当前出镜角色本人发言时启用；眨眼规则属于具体立绘表情资源。
 - 第一集已经把 `space/school/schoolGate/home/washroom/bedroom/rooftop/nightStreet/park/schoolRoad`
@@ -143,8 +170,11 @@
   `nightStreet` 与 `schoolRoad`，不再共用一张图。资源映射只由 `scenes/index.ts` 管理，不进入世界书。
 - `TavernHelper.generate()` 返回值只证明生成 API 路线；当前没有创建真实聊天楼层，也没有触发 shujuku/database。
 - 保底正文必须显式标记为 `fallback`，不能冒充宿主成功。
-- “目录”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
-- 记忆 API 配置和临时模型候选不属于 GameSnapshot 或 MessageArchive。设置页的“拉取”调用用户填写的 OpenAI 兼容地址；浏览器直连失败时可经 SillyTavern 的 `/api/backends/chat-completions/status` 只读代发，但不写宿主设置、密钥库或消息。没有真实可用地址的证据时，不得宣称副 API 已接通。模型列表失败不得抹掉用户手填的模型名称。
+- “目录”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World
+  Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
+- 记忆 API 配置和临时模型候选不属于 GameSnapshot 或 MessageArchive。设置页的“拉取”调用用户填写的 OpenAI 兼容地址；浏览器直连失败时可经 SillyTavern 的
+  `/api/backends/chat-completions/status`
+  只读代发，但不写宿主设置、密钥库或消息。没有真实可用地址的证据时，不得宣称副 API 已接通。模型列表失败不得抹掉用户手填的模型名称。
 
 ## 当前接通标签
 
@@ -159,4 +189,4 @@
 - 插件/数据库链：未接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
 - UI 镜像链：游戏内 messagesave/file bridge 是本地游戏协议，不冒充宿主聊天权威。
 - 上下文预览链：本地状态演示；当前生成时可显示实际调用投影，空闲时只显示最近原文窗口，不升级任何宿主/插件接通标签。
-- 记忆 API 链：设置 UI、浏览器长期保存、`{API 基址}/models` 模型拉取、`{API 基址}/chat/completions` 客户端和可见失败提示已实现；真实外部接口成功、自动摘要、摘要缓存与剧情上下文注入尚未验收或接通。
+- 记忆 API 链：设置 UI、固定 6 消息窗口与 2/5 批次、600/1200 字上限、自动存档后调度、`{API 基址}/chat/completions`、纯文本响应规范化、本地 JSON 候选封装、浏览器候选缓存、审查、失败重试和已拒绝候选重新生成已经实现。真实外部接口成功仍待用户复验；Tavern 记忆侧档、已接受摘要的剧情上下文注入和 shujuku 仍未接通。

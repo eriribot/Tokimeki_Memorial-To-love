@@ -7,6 +7,7 @@ import {
   createStoryGenerationContextProjection,
   type StoryGenerationContextProjection,
 } from './storyGenerationContext';
+import { getCanonicalStoryTimeline, selectRecentStoryMessages } from '../memory/storyTimeline';
 
 export interface LocalContextPreviewGeneration {
   projection: StoryGenerationContextProjection;
@@ -75,6 +76,10 @@ export function createLocalContextPreview(): LocalContextPreview {
     eventId: target.eventId,
     actId: target.actId,
     contextFloorIds: target.contextFloorIds,
+    historyFloorIds: getCanonicalStoryTimeline(snapshot.game.mainStory.archives, {
+      eventId: target.eventId,
+      actId: target.actId,
+    }).map(floor => floor.floorId),
     chatHistory: messages,
   });
 
@@ -92,15 +97,16 @@ export function createLocalContextPreview(): LocalContextPreview {
 }
 
 export function getPreviewWindowMessages(preview: LocalContextPreview): GalStoryMessageSave[] {
-  const ids = preview.generation?.projection.messageIds;
-  if (ids) {
+  if (preview.generation?.source === 'active-run') {
     const messagesById = new Map(preview.messages.map(message => [message.id, message]));
     return cloneJson(
-      ids.map(id => messagesById.get(id)).filter((message): message is GalStoryMessageSave => message !== undefined),
+      preview.generation.projection.messageIds
+        .map(messageId => messagesById.get(messageId))
+        .filter((message): message is GalStoryMessageSave => message !== undefined),
     );
   }
-
-  return cloneJson(preview.messages.filter(message => !message.is_system && message.mes.trim().length > 0).slice(-6));
+  const timeline = getCanonicalStoryTimeline(preview.snapshot.game.mainStory.archives);
+  return cloneJson(selectRecentStoryMessages(timeline, preview.messages));
 }
 
 export function getPreviewConnectionLabels(): {

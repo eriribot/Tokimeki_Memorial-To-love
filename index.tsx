@@ -10,6 +10,7 @@ import { getMainStoryActIndex, getMainStoryEpisode } from './GalMainStory/storyR
 import { getActiveStoryAct } from './GalMainStory/storyArchive';
 import { getEquippedSkillIds, getLearnedSkillIds, useSkillStore } from './skilllogic';
 import { createLocalContextPreview } from './services/localContextPreview';
+import { useMemorySummaryProgressStore } from './memory/summaryProgress';
 
 window.__WEBGAME_ASSET_BASE__ = initializeAssetBase();
 installRuntimeFonts();
@@ -20,10 +21,44 @@ window.toloveStoryMessages = (format = 'json') => {
   return format === 'jsonl' ? messages.map(message => JSON.stringify(message)).join('\n') : JSON.stringify(messages);
 };
 window.toloveContextPreview = () => JSON.stringify(createLocalContextPreview());
+window.toloveMemorySummaryProgressPreview = preset => {
+  const progress = useMemorySummaryProgressStore.getState();
+  if (preset === 'reset') {
+    progress.reset();
+  } else if (preset === 'fallback') {
+    progress.begin('small');
+    useMemorySummaryProgressStore.getState().fail('副 API 不可用，已保留本地记忆');
+  } else {
+    const mode = preset === 'large-running' ? 'large' : 'small';
+    progress.begin(mode);
+    useMemorySummaryProgressStore.getState().setPhase(mode === 'large' ? 'requesting-large' : 'requesting-small', null);
+  }
+
+  const state = useMemorySummaryProgressStore.getState();
+  return JSON.stringify({
+    visible: state.visible,
+    status: state.status,
+    mode: state.mode,
+    phase: state.phase,
+    progress: state.progress,
+    message: state.message,
+    error: state.error,
+  });
+};
+const memorySummaryPreviewParam = new URLSearchParams(window.location.search).get('toloveMemorySummaryPreview');
+if (
+  memorySummaryPreviewParam === 'small-running' ||
+  memorySummaryPreviewParam === 'large-running' ||
+  memorySummaryPreviewParam === 'fallback' ||
+  memorySummaryPreviewParam === 'reset'
+) {
+  window.toloveMemorySummaryProgressPreview(memorySummaryPreviewParam);
+}
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();
   const skillProgression = useSkillStore.getState();
+  const memorySummaryProgress = useMemorySummaryProgressStore.getState();
 
   const session = {
     screen: game.screen,
@@ -80,6 +115,15 @@ window.render_game_to_text = () => {
     scene: game.currentSceneId ?? 'school-map',
     activeTargetId: card.activeTargetId,
     activeMainStory,
+    memorySummaryProgress: {
+      visible: memorySummaryProgress.visible,
+      status: memorySummaryProgress.status,
+      mode: memorySummaryProgress.mode,
+      phase: memorySummaryProgress.phase,
+      progress: memorySummaryProgress.progress,
+      message: memorySummaryProgress.message,
+      error: memorySummaryProgress.error,
+    },
     completedMainStoryEventIds: game.mainStory.completedEventIds,
     skills: {
       experience: skillProgression.experience,

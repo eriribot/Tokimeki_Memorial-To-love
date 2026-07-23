@@ -1,37 +1,64 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: implementation_complete_human_review_pending
-current_loop: memory_api_tavern_root_url_compatibility
-authorized_by: user_reported_tavern_root_url_can_fetch_but_current_ui_rejects_it_2026-07-23
+status: static_implementation_complete_runtime_recheck_pending
+current_loop: memory_plain_text_local_envelope_and_fixed_6_messages_2_5_hierarchy
+authorized_by: user_static_memory_contract_approval_2026-07-23
 authorized_scope:
-  - render window_kani.png as the only settings body and midashi_op.png as the native title nameplate
-  - remove window_system.png from the settings component
-  - preserve the menu body's 478:281 ratio
-  - preserve the title asset's 255:49 ratio and scale its overlaid title with the map frame
-  - keep only 系统设定 in the title area and remove provisional English/subtitle copy
-  - reduce the map footprint and adapt the shell to PC, tablet and phone game frames
-  - confine settings to the map frame and show the API form only after selecting AI memory settings
-  - add a system settings UI only for the memory API
-  - persist the enabled flag, v1 base URL, model and API key in the current browser
-  - add a reusable OpenAI-compatible chat-completions client and a manual connection probe
-  - fetch model IDs from the configured OpenAI-compatible base plus /models
-  - keep manual model entry available when discovery is unsupported, rejected or blocked by browser CORS
-  - treat the entered URL as the complete custom API base, matching Tavern's custom OpenAI-compatible connection
-  - use Tavern's read-only status proxy only when a direct browser model request fails at the network layer
+  - keep the real generation history at the latest six complete cross-episode messages
+  - collapse raw messages by default and make both modal body and raw lists scrollable
+  - replace model-generated JSON candidates with model prose plus a deterministic local JSON envelope
+  - make two complete canonical floors one small-summary batch and five accepted small summaries one large-summary batch
+  - fix small/large summary text limits at 600/1200 characters
+  - show the fixed hierarchy in the existing system settings and summary review UI
+  - isolate incompatible v1/v2 browser candidate archives so old dynamic or six-floor jobs cannot block the static policy
+  - start at most one summary batch after each paired authoritative autosave or explicit schedule refresh
+  - normalize secondary-API prose into reviewable browser-local candidates with locally owned metadata
+  - allow accept, title/text edit, reject, rejected-candidate regeneration and failed-job retry only in the summary review page
+  - revalidate canonical source floors before retry, accept, edit or large-summary reuse
+  - require exact request revision and both saved/live source validation before accepting delayed API results
+  - prevent repeated rejected-summary replacements and require five disjoint accepted sources for each large summary
+  - sanitize browser archive job/candidate links and rotate the default autosave UUID for a new game
+  - invalidate or roll back the memory anchor around paired saves and loads without changing save/message schemas
+  - keep SummaryReviewTab external-store snapshots referentially stable under React 19
+  - show each candidate or failed job beside its frozen raw-message or accepted-small-summary sources
+  - preserve browser summary records when save slots sharing a UUID are deleted or overwritten
+  - reject blank persisted active identities and summary records with revisions below one
+  - keep the last paired memory context authoritative until an ordinary autosave fully succeeds
 forbidden_scope:
-  - automatically summarize or inject memory into story generation
-  - change contextFloorIds, the save/message schemas or relationship settlement
+  - inject memory into story generation or change contextFloorIds
+  - change save/message schemas or relationship settlement
   - create host messages or connect shujuku, ACU, plugins or databases
-  - modify the map read-story entry, context preview or character profile
-connection_state: memory_api_ui_and_local_persistence_connected_real_endpoint_unverified
-overall_connection_label: OpenAI-compatible memory API settings are locally usable; real external success is unverified
-human_review: pending_memory_api_settings_and_existing_reviews
+  - add a Tavern memory side archive or appointment/relationship rules
+  - run tests, builds, formatting, browser automation, screenshots or real API probes in this loop
+connection_state: paired_save_trigger_plain_text_summary_and_browser_local_candidate_v3_implemented
+overall_connection_label:
+  user runtime reached the secondary-API response parser; the repaired prose-to-local-envelope path is not rerun and no Tavern memory file, story injection, host floor, shujuku or database connection exists
+evidence:
+  - static source review only; all executable verification is not run by explicit user instruction
+  - user real-Tavern screenshot proves the secondary API returned content that the old JSON-only parser rejected
+  - the same screenshot proves the old runtime created a one-floor small-summary job and displayed the obsolete 1/3 cadence
+  - prompt now requests only prose; local code owns title, source IDs, fingerprint, status, timestamps and JSON persistence
+  - user real-Tavern console output proves SummaryReviewTab entered an infinite external-store update loop before repair
+  - static review traced both unstable selectors to filter/sort arrays created inside getSnapshot
+  - user screenshots prove the previous four-of-six unscrollable context defect, not the repaired implementation
+  - candidate persistence is browser localStorage v3 scoped by saveUuid, not a Tavern file side archive
+  - static review found and repaired duplicate-source regeneration, large-batch starvation, dangling ready jobs, delayed revision acceptance, save/load lifecycle races, ordinary-autosave premature invalidation and explicit-transition rollback scheduling loss
+  - static review found that slot deletion/overwrite cannot safely garbage-collect by UUID because one UUID can remain active or be shared by multiple slots
+human_review: pending_real_tavern_manual_review
 counterevidence:
-  - user screenshots show Tavern accepting a custom OpenAI-compatible service URL ending at the bare domain; requiring the player to type /v1 is incompatible with that flow
-  - user screenshot proved that window_system.png still produced unwanted thick blue bands; the previous body-asset visual pass is invalidated
-  - user rejected window_kani.png as the title asset and identified midashi_op.png as the native title nameplate; the previous title visual pass is invalidated
-  - user rejected the prior oversized shell and reported that window_system.png was not visibly used; its visual pass is invalidated
+  - user runtime reported "记忆 API 返回的内容不是有效JSON"; the model-JSON output contract is rejected as the wrong product boundary
+  - user rejected dynamic cadence and approved a static six-message window, two-floor small batches, five-summary large batches and fixed 600/1200 limits
+  - user runtime reported getSnapshot cache warning and Maximum update depth in SummaryReviewTab; the preceding static
+    implementation-complete conclusion is withdrawn until the repaired selector path is manually rechecked
+  - user screenshots show Tavern accepting a custom OpenAI-compatible service URL ending at the bare domain; requiring
+    the player to type /v1 is incompatible with that flow
+  - user screenshot proved that window_system.png still produced unwanted thick blue bands; the previous body-asset
+    visual pass is invalidated
+  - user rejected window_kani.png as the title asset and identified midashi_op.png as the native title nameplate; the
+    previous title visual pass is invalidated
+  - user rejected the prior oversized shell and reported that window_system.png was not visibly used; its visual pass is
+    invalidated
   - user rejected the viewport-wide settings overlay and immediate form; the prior browser UI pass is invalidated
   - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
     are invalidated
@@ -53,47 +80,151 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: human_review_memory_api_settings_then_authorize_summary_integration
+next_loop: freeze_after_normal_sortie_and_wait_for_user_runtime_review
 ```
 
-## 2026-07-23：OpenAI 兼容记忆 API 设置
+## 2026-07-23：目录窗口与自动总结首轮闭环
 
-- 地图菜单“系统设定”已启用。弹层挂在地图容器内并居中，不再覆盖整个浏览器；地图框使用 `overflow: clip`，不会因缩放前内容或焦点产生内部滑动。
-- 一级页只显示“AI 记忆设定”，点击后才渲染 API 表单；表单“返回”回到一级页，右上角关闭按钮退出设置。两个页面都没有独立滚动区。
-- `window_kani.png` 现在是弹层唯一的窗口主体；原生 `midashi_op.png` 保持 255:49 比例并叠在左上承载“系统设定”。设置组件不再引用会产生上下粗蓝带的 `window_system.png`。
-- 一级菜单在 800×480 地图中约占 64%×51%；输入页约占 75%×77%。小地图切换为紧凑的双列或三列字段布局，不新增滚动区。
-- API 地址现在与酒馆“自定义（兼容 OpenAI）”同义：把输入值直接作为完整 API 基址，只追加 `/models` 或 `/chat/completions`，不自动插入 `/v1`。模型直连在网络层失败时，若检测到 SillyTavern 请求头接口，则回退到酒馆 `/api/backends/chat-completions/status` 只读代发；密钥只随本次请求进入 Authorization header，不写酒馆密钥库。
-- 模型字段新增“拉取”：直接 `GET {baseUrl}/models`，按 OpenAI 标准读取 `data[].id`，也兼容常见的 `models` 数组与字符串条目；结果只作为当前弹层的候选，不自动改写已填模型。
-- OpenCode 官方 issue #6231 记录的缺口是自定义 OpenAI 兼容 provider 没有自动查询自身 `/models`，不是标准端点不存在。本实现绕过那条自动发现路径，直接请求用户填写的地址；遇到 401/403、404/405、非 JSON、非标准结构、超时、网络或 CORS 失败时显示原因并保留手动输入。
-- 配置以版本化键长期保存在当前浏览器的 `localStorage`。密钥不会进入 GameSnapshot、MessageArchive、上下文预览或剧情请求；页面明确提示浏览器长期保存的边界。
-- `requestOpenAICompatibleCompletion()` 提供后续记忆业务调用，`probeOpenAICompatibleApi()` 只发送一条要求回复 `OK` 的手动测试。测试结果不写入剧情消息或宿主楼层。
-- 本轮没有接自动摘要、摘要缓存、跨集楼层修复、关系提示注入或真实宿主链。真实外部 API 成功仍需用户使用自己的地址、模型和密钥验收。
+- 用户在真实 Tavern 打开“总结与重试”后得到 React 19 `getSnapshot should be cached` 与 `Maximum update depth`
+  反例。根因是 `SummaryReviewTab` 的两个 Zustand selector 在每次快照读取时执行 `filter().sort()` 并返回新数组。现在 selector
+  只订阅 store 原始数组，按当前 `saveUuid` 的筛选和排序移入 `useMemo`；同文件其余 selector 返回数字或字符串，不属于同类问题。
+- 用户随后在真实 Tavern 证明副 API 已返回正文，但旧解析器要求模型生成 JSON，因此任务以“内容不是有效JSON”失败。现在大小总结 prompt 都只要求纯文本正文；本地 `createMemorySummaryPayloadFromText()` 负责空白、控制字符、长度和批次校验，并生成固定标题与空 facts。来源指纹、全部来源 ID、状态、模型和时间戳仍由 runtime 本地写入，再由 archive 序列化。
+- 当前幕运行时，目录按该幕投影的 `messageIds` 显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”。两者最多选择 6 条完整 User/Assistant 原文。历史楼层没有持久化跨集 history 回执，所以空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。每条原文默认折叠，弹窗正文和原文列表各自滚动。
+- 系统设定只保存 API 连接配置，并只读显示固定的 6 条最近原文、2 楼小总结、5 条已接受小总结和 600/1200 字上限。自动存档运行器在挂载时立即检查当前游戏态；只有主存档和 MessageArchive 同次写入成功后才建立摘要锚点。一次自动存档或设置刷新最多启动一个批次，不会在旧档启用 API 后连续清空全部积压。
+- 小总结始终排除最近 6 条消息，并恰好消费更旧的 2 个完整楼层；因此首次触发需要 5 个规范楼层。大总结按规范剧情顺序选择恰好 5 条已接受小总结，而不是按 API 返回时间。候选接受、编辑、人工重试、已拒绝候选重新生成和大总结复用前都会同时核对已保存锚点与当前 live 采用楼层。
+- 候选可接受、编辑标题/正文或拒绝；拒绝本身不调用 API，玩家可在同一记录上显式重新生成。新纯文本候选的 facts 固定为空；结构化事实或变量信号留给未来独立协议，不能从 prose 反推伪证据。
+- 自动任务和人工重试共用同一互斥运行链。当前来源存在失败任务时后续自动批次暂停，失败不会自动循环；重试只在“总结与重试”页出现。地图进度条只短时显示运行、完成或失败，不承担重试。
+- 每条候选和失败任务都把冻结来源放在默认折叠的审查区内。小总结按来源 ID 原顺序回查 4 条本地 User/Assistant 原文，并显示幕、楼层与 Tavern/fallback；大总结按来源 ID 原顺序显示 5 条已接受小总结的标题和正文。展开区独立滚动，缺失来源逐项显示，不用过滤隐藏。
+- jobs 与候选以 v3 键完整保存在浏览器 `localStorage`。空白活动 UUID 会归一为 `null`，不会清空同一份 archive 中其余合法记录；candidate/job 自身的 UUID 必须非空且 `revision >= 1`。旧 v1 JSON 候选与旧 6 楼层 v2 候选不再读取。存档槽可以共用 UUID，所以删除或覆盖槽位不再按 UUID 自动清空浏览器摘要；孤立记录先保留，并由活动身份和来源重验隔离。它仍不是 Tavern 文件侧档，尚不进入剧情上下文，也不写 AP、日期、属性、好感或关系轴。
+- 普通自动存档完成主档与原文档配对之前不会清空上一份记忆锚点；写入失败时既有总结和失败任务仍可见，成对成功后才采用新 revision。显式切换失败会恢复并重新排队最新可用的成对上下文。前端 generation/CAS 只能拒绝旧回调；已经发给宿主的固定自动档写入仍不可撤销，关页或纠正写入失败时不能宣称原子切换。
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| TypeScript | passed | `npm run typecheck:tolove`；开发构建内 `tsc` 也通过 |
-| Changed-file ESLint | passed | 新配置模块、设置弹窗、菜单和 App 无 lint 错误 |
-| New-file Prettier | passed | `config/openaiCompatible/*` 与 `SystemSettingsModal` 已格式化 |
-| Model-list contract | passed | `npm run test:memory-models`；6 项覆盖标准/兼容响应、去重排序、GET/Bearer、无密钥本地服务与 404 手动退路 |
-| Tavern-compatible URL/proxy change | not run | 用户明确要求本轮不要测试，只修改代码 |
-| Development build | passed | `npm run build:dev`；目标 `index.html` 更新为 2.09 MiB |
-| Inline artifact model discovery | passed | `dist/Tokimeki_Memorial-To-love/index.html` 同时包含 `/models` 请求与“拉取模型列表”入口 |
-| Browser UI | passed | 新游戏 → 展开菜单 → 系统设定；一级页输入框数量为 0，点击“AI 记忆设定”后为 4 |
-| Asset composition | passed | 最新 `index.html` 中 `window_kani.png` 与 `midashi_op.png` 各引用 1 次，`window_system.png` 为 0 次；两张构建产物与源文件 SHA-256 一致 |
-| Body geometry | passed | 主体固定为 478:281：800×480 地图为 520×306、767×460 为 506×298、400×240 为 335×197、358×215 为 300×176 |
-| Title geometry | passed | 按 255:49 固定比例计算：800px 地图为 382×73、767px 为 368×71、400px 为 192×37、358px 为 172×33；标题字号分别为 32/31/16/16px |
-| Latest composition browser visual | not run | 内置浏览器停留在旧的本地连接错误页，URL 安全策略阻止返回本地地址；不得把旧截图当作本轮证据 |
-| PC game frame | passed | 800×480 地图；输入页 602×371，内容无溢出 |
-| Tablet game frame | passed | 900×700 iframe 内地图 767×460；输入页 576×354，完全位于地图内且无溢出 |
-| Phone landscape | passed | 844×390 iframe 内地图 400×240；输入页 376×216，空表单与错误提示均无溢出 |
-| Phone portrait | passed | 390×844 iframe 内地图 358×215；输入页 334×191，空表单与错误提示均无溢出 |
-| Back/close navigation | passed | 输入页“返回”恢复一级页且卸载输入框；右上角关闭后弹层数量为 0 |
-| Empty validation | passed | 空配置测试会逐项提示地址、模型和密钥 |
-| Long-term persistence | passed | 假配置保存后刷新页面仍能回读；验收结束后已清空 |
-| Visible request failure | passed | 本地非 JSON 响应显示“接口没有返回可读取的 JSON”且未写入剧情状态 |
-| Real external API success | not run | 未使用用户的真实地址、模型或密钥 |
-| Real external model discovery | not run | 未使用用户的真实 OpenCode、自建服务或密钥；跨域能力仍取决于目标服务 |
-| Automatic memory summary | not implemented | 不在本轮授权范围 |
+| Static source review | passed | 独立复核确认纯文本边界、冻结来源回查、UUID 共享清理风险、revision/活动身份校验、成对成功后采用及显式切换回滚 |
+| TypeScript / lint / formatting | not run | 用户明确禁止本轮运行任何测试或格式化 |
+| Build / watch artifact | not run | 用户明确禁止测试；未检查 `pnpm watch` 产物 |
+| User pre-fix Tavern runtime | failed | 用户控制台出现 getSnapshot 缓存警告、Maximum update depth 与 SummaryReviewTab 崩溃 |
+| User pre-fix summary runtime | failed | 副 API 正文到达后被旧 JSON parser 拒绝；小总结任务错误消费 1 个楼层 |
+| Post-fix browser / screenshot | not run | 遵照用户要求未打开页面、未截图，等待用户刷新现有 watch 页面复验 |
+| Post-fix secondary API | not run | 本轮未发送连接测试或摘要请求；纯文本候选仍待用户实机回读 |
+| Save/message runtime | not run | 未代替用户触发真实 Tavern 文件读写 |
+| Tavern memory side archive | not run | 尚未实现 |
+| Story context injection | not run | 尚未实现 |
+| Host floors / shujuku / ACU / database | not run | 未接通 |
+| Human acceptance | not run | 等待用户实机验收 |
+
+当前最强接通标签：**用户实机证明副 API 响应已到达本地解析层；纯文本到本地候选 v3 的修复后路径尚未复验。**
+
+当前残余：手动另存到空槽会取得新 UUID，但不会复制或重锚既有 accepted 浏览器摘要；这需要未来记忆侧档/显式复制合同，未混入本轮。宿主固定自动档写入不是可取消事务，前端只能在旧响应返回后安排纠正写入。
+
+以下分节是被本轮现状取代的历史记录，只说明当时范围，不再作为当前接通结论。
+
+## 历史记录：2026-07-23 大小总结提示词与地图内进度反馈
+
+- `memory/summaryPrompts.ts` 新增独立的 `createSmallSummaryPrompt()` 与 `createLargeSummaryPrompt()`。按
+  `prompt-architect`
+  的 TIDD-EC 框架，两套 prompt 都包含任务、步骤、必须、禁止、正确结构和错误示例；输出严格限制为带来源指纹、摘要和证据 facts 的 JSON 对象。
+- 小总结只接收同
+  `floorId`、按 User/Assistant 排列的完整消息对；User 生成指令不自动算作已发生剧情。大总结只接收按时间顺序传入的已接受小总结，不读取原始消息，也不能改写既有 claim/evidence。
+- 两套 prompt 都携带日期、时段、地点、玩家属性、`affection/friendship/romance`
+  和已完成事件的只读状态锚点。它只用于阻止叙事覆盖权威状态；模型不得结算或推断 AP、关系值、`hurt`、约会资格或路线结果。
+- `memory/summaryProgress.ts` 是独立的非持久化 Zustand 运行态。网络等待以 `progress: null`
+  表示不定进度；只有未来执行器提供真实可计数值时才显示百分比。模式/阶段冲突和复位后的迟到结果不会污染 UI。
+- `MemorySummaryProgress` 直接挂在 `.map-section`，不进入 `SchoolMap`、`MapMenu`
+  或全屏 GAL。它位于地图顶部中央，`pointer-events: none`，复用四张 `push_0~3`
+  以 125ms/帧播放，reduced-motion 时只显示首帧。
+- `render_game_to_text()` 回显同一进度状态。`window.toloveMemorySummaryProgressPreview()` 与
+  `?toloveMemorySummaryPreview=` 只是截图诊断入口，只能切换本地进度预设或复位，不发送 API、不生成摘要、不写存档。
+
+| Check                                   | Status  | Evidence                                                                                                                     |
+| --------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Memory summary contract                 | passed  | `node verify-memory-summary.cjs`；覆盖完整消息对、提示词注入防护、状态权威、大小总结来源隔离、证据串源、重复来源和进度状态机 |
+| Memory timeline contract                | passed  | `node verify-memory-timeline.cjs`                                                                                            |
+| TypeScript                              | passed  | `pnpm exec tsc -p src/webgame-ui/tsconfig.json --noEmit`                                                                     |
+| Changed-file ESLint                     | passed  | prompt/progress/UI/App/index/global/contract 范围无错误                                                                      |
+| Existing story-generation contract      | pending | 最终回归时执行                                                                                                               |
+| `pnpm build` / `pnpm build:dev`         | not run | 用户明确要求使用正在运行的 `pnpm watch` 产物，不另行 build                                                                   |
+| Watch artifact                          | pending | 最终记录精确 `dist/webgame-ui/index.html` 的 mtime 与新模块命中                                                              |
+| Browser screenshot / text state         | pending | 用诊断预设证明地图内 running 与 fallback 外壳；不冒充真实执行器                                                              |
+| Real secondary API / response parser    | not run | 本轮禁止接通                                                                                                                 |
+| Memory side archive / context injection | not run | 本轮禁止接通                                                                                                                 |
+| Host floors / shujuku / ACU / database  | not run | 本轮禁止接通                                                                                                                 |
+| Human acceptance                        | not run | 等待用户审查 prompt 内容和地图进度条观感                                                                                     |
+
+当前最强接通标签：**只是本地状态演示**。prompt 构造器和进度 UI 已实现，但没有摘要运行器、候选解析/审查、记忆侧档或正式上下文注入；诊断截图不得升级该标签。
+
+## 2026-07-23：本地记忆第一轮规范时间线投影
+
+- 新增 `memory/storyTimeline.ts`，提供只读纯函数 `getCanonicalStoryTimeline()`。
+- 函数按 `MAIN_STORY_EPISODES` 的生产注册顺序跨集遍历；每幕只读取 `activeFloorId` 指向的楼层。
+- 只有 `outcome === 'accepted'`、楼层事件/幕 ID 与注册表一致且包含同 ID `act`
+  的楼层才进入时间线；草稿、解析失败、空 active、未知事件和不完整楼层被排除。
+- `before` 边界为排他的跨集边界，未登记边界显式抛错；投影不修改输入 archive。
+- 新增
+  `verify-memory-timeline.cjs`；主合同 fixture 先通过 schema-v2 严格恢复，再覆盖打乱输入顺序、跨集排序、未采用候选、fallback 来源、解析失败、空 active、未知事件、边界和输入不变性。
+- 时间线函数只确认 active
+  floor 有两条消息引用；消息实体存在性、User/Assistant 角色和楼层 metadata 一致性仍由 MessageArchive/严格恢复校验负责。
+
+| Check                                | Status  | Evidence                                                                                                  |
+| ------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------- |
+| Memory timeline contract             | passed  | `node verify-memory-timeline.cjs`；合法主 fixture 通过严格恢复，并输出 `memory timeline contract: passed` |
+| Changed-file ESLint                  | passed  | `pnpm exec eslint src/webgame-ui/memory/storyTimeline.ts src/webgame-ui/verify-memory-timeline.cjs`       |
+| New-file Prettier                    | passed  | `pnpm exec prettier --check ...`                                                                          |
+| Existing story-generation contract   | passed  | `node src/webgame-ui/verify-story-generation.cjs`                                                         |
+| Git whitespace check                 | passed  | `git diff --check`                                                                                        |
+| Build / watch artifact               | not run | 本轮为未接线纯函数；按用户要求不运行 build，UI 进入后再在 `pnpm watch` 产物上验收                         |
+| Browser / screenshot                 | not run | 没有 UI 或渲染路径变化                                                                                    |
+| Host floors / shujuku / ACU / 副 API | not run | 本轮明确禁止接通                                                                                          |
+| Human acceptance                     | not run | 等待用户审查本轮函数合同                                                                                  |
+
+本轮最强接通标签仍为：**不涉及接通**。该函数只投影本地已校验的主线档案，不代表摘要、记忆库、关系变量、心跳回忆约会或任何 Tavern/插件/数据库链路已经实现。
+
+## 2026-07-23：OpenAI 兼容记忆 API 设置
+
+- 地图菜单“系统设定”已启用。弹层挂在地图容器内并居中，不再覆盖整个浏览器；地图框使用
+  `overflow: clip`，不会因缩放前内容或焦点产生内部滑动。
+- 一级页只显示“AI 记忆设定”，点击后才渲染 API 表单；表单“返回”回到一级页，右上角关闭按钮退出设置。两个页面都没有独立滚动区。
+- `window_kani.png` 现在是弹层唯一的窗口主体；原生 `midashi_op.png`
+  保持 255:49 比例并叠在左上承载“系统设定”。设置组件不再引用会产生上下粗蓝带的 `window_system.png`。
+- 一级菜单在 800×480 地图中约占 64%×51%；输入页约占 75%×77%。小地图切换为紧凑的双列或三列字段布局，不新增滚动区。
+- API 地址现在与酒馆“自定义（兼容 OpenAI）”同义：把输入值直接作为完整 API 基址，只追加 `/models` 或
+  `/chat/completions`，不自动插入 `/v1`。模型直连在网络层失败时，若检测到 SillyTavern 请求头接口，则回退到酒馆
+  `/api/backends/chat-completions/status` 只读代发；密钥只随本次请求进入 Authorization header，不写酒馆密钥库。
+- 模型字段新增“拉取”：直接 `GET {baseUrl}/models`，按 OpenAI 标准读取 `data[].id`，也兼容常见的 `models`
+  数组与字符串条目；结果只作为当前弹层的候选，不自动改写已填模型。
+- OpenCode 官方 issue #6231 记录的缺口是自定义 OpenAI 兼容 provider 没有自动查询自身
+  `/models`，不是标准端点不存在。本实现绕过那条自动发现路径，直接请求用户填写的地址；遇到 401/403、404/405、非 JSON、非标准结构、超时、网络或 CORS 失败时显示原因并保留手动输入。
+- 配置以版本化键长期保存在当前浏览器的
+  `localStorage`。密钥不会进入 GameSnapshot、MessageArchive、上下文预览或剧情请求；页面明确提示浏览器长期保存的边界。
+- `requestOpenAICompatibleCompletion()` 提供后续记忆业务调用，`probeOpenAICompatibleApi()` 只发送一条要求回复 `OK`
+  的手动测试。测试结果不写入剧情消息或宿主楼层。
+- 本轮没有接自动摘要、摘要缓存、跨集楼层修复、关系提示注入或真实宿主链。真实外部 API 成功仍需用户使用自己的地址、模型和密钥验收。
+
+| Check                              | Status          | Evidence                                                                                                                               |
+| ---------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript                         | passed          | `npm run typecheck:tolove`；开发构建内 `tsc` 也通过                                                                                    |
+| Changed-file ESLint                | passed          | 新配置模块、设置弹窗、菜单和 App 无 lint 错误                                                                                          |
+| New-file Prettier                  | passed          | `config/openaiCompatible/*` 与 `SystemSettingsModal` 已格式化                                                                          |
+| Model-list contract                | passed          | `npm run test:memory-models`；6 项覆盖标准/兼容响应、去重排序、GET/Bearer、无密钥本地服务与 404 手动退路                               |
+| Tavern-compatible URL/proxy change | not run         | 用户明确要求本轮不要测试，只修改代码                                                                                                   |
+| Development build                  | passed          | `npm run build:dev`；目标 `index.html` 更新为 2.09 MiB                                                                                 |
+| Inline artifact model discovery    | passed          | `dist/Tokimeki_Memorial-To-love/index.html` 同时包含 `/models` 请求与“拉取模型列表”入口                                                |
+| Browser UI                         | passed          | 新游戏 → 展开菜单 → 系统设定；一级页输入框数量为 0，点击“AI 记忆设定”后为 4                                                            |
+| Asset composition                  | passed          | 最新 `index.html` 中 `window_kani.png` 与 `midashi_op.png` 各引用 1 次，`window_system.png` 为 0 次；两张构建产物与源文件 SHA-256 一致 |
+| Body geometry                      | passed          | 主体固定为 478:281：800×480 地图为 520×306、767×460 为 506×298、400×240 为 335×197、358×215 为 300×176                                 |
+| Title geometry                     | passed          | 按 255:49 固定比例计算：800px 地图为 382×73、767px 为 368×71、400px 为 192×37、358px 为 172×33；标题字号分别为 32/31/16/16px           |
+| Latest composition browser visual  | not run         | 内置浏览器停留在旧的本地连接错误页，URL 安全策略阻止返回本地地址；不得把旧截图当作本轮证据                                             |
+| PC game frame                      | passed          | 800×480 地图；输入页 602×371，内容无溢出                                                                                               |
+| Tablet game frame                  | passed          | 900×700 iframe 内地图 767×460；输入页 576×354，完全位于地图内且无溢出                                                                  |
+| Phone landscape                    | passed          | 844×390 iframe 内地图 400×240；输入页 376×216，空表单与错误提示均无溢出                                                                |
+| Phone portrait                     | passed          | 390×844 iframe 内地图 358×215；输入页 334×191，空表单与错误提示均无溢出                                                                |
+| Back/close navigation              | passed          | 输入页“返回”恢复一级页且卸载输入框；右上角关闭后弹层数量为 0                                                                           |
+| Empty validation                   | passed          | 空配置测试会逐项提示地址、模型和密钥                                                                                                   |
+| Long-term persistence              | passed          | 假配置保存后刷新页面仍能回读；验收结束后已清空                                                                                         |
+| Visible request failure            | passed          | 本地非 JSON 响应显示“接口没有返回可读取的 JSON”且未写入剧情状态                                                                        |
+| Real external API success          | not run         | 未使用用户的真实地址、模型或密钥                                                                                                       |
+| Real external model discovery      | not run         | 未使用用户的真实 OpenCode、自建服务或密钥；跨域能力仍取决于目标服务                                                                    |
+| Automatic memory summary           | not implemented | 不在本轮授权范围                                                                                                                       |
 
 当前最强接通标签：**本地设置与浏览器长期保存已接通；OpenAI 兼容请求客户端已实现，真实外部接口成功尚未验证。**
 
@@ -101,45 +232,54 @@ next_loop: human_review_memory_api_settings_then_authorize_summary_integration
 
 - 地图菜单“目录”现在打开只读的“上下文预览”；原“数据”入口暂时禁用。地图顶部“已读剧情”和角色档案均未改动。
 - 已确认当前的“6”指六条消息，不是六轮：每个已采用版本由一条 User 提示和一条 Assistant 原文组成，因此窗口最多是三轮。
-- 已定位第二集第三幕的少算原因：历史楼层先按当前 `eventId` 过滤，所以只会拿到第二集前两幕的四条消息；若按全主线顺序包含第一集两幕，应有四轮、八条消息（从 0 编号即 0—7），再由最近六条原文窗口与待总结区分工。
-- 本轮只写清修复方案，没有改 `contextFloorIds`、重生成校验或 schema v2。真正实施时必须把跨集楼层选择、成对裁剪、存档恢复和重生成校验一起修改，不能只放宽一个过滤条件。
-- `relationship.ts` 只借“关系阶段短提示 + 身份隔离”的结构；不复制整份人物小传、强制规则和执念轴。认知边界改为代码按已采用的 `eventId + actId` 投影，不再让角色世界书常驻未来集认知。
+- 已定位第二集第三幕的少算原因：历史楼层先按当前 `eventId`
+  过滤，所以只会拿到第二集前两幕的四条消息；若按全主线顺序包含第一集两幕，应有四轮、八条消息（从 0 编号即 0—7），再由最近六条原文窗口与待总结区分工。
+- 本轮只写清修复方案，没有改 `contextFloorIds`、重生成校验或 schema
+  v2。真正实施时必须把跨集楼层选择、成对裁剪、存档恢复和重生成校验一起修改，不能只放宽一个过滤条件。
+- `relationship.ts`
+  只借“关系阶段短提示 + 身份隔离”的结构；不复制整份人物小传、强制规则和执念轴。认知边界改为代码按已采用的
+  `eventId + actId` 投影，不再让角色世界书常驻未来集认知。
 - 本段记录形成时副 API 尚未实现；配置 UI、长期保存和手动连接测试现已由上方同日新一轮实现取代，自动摘要仍未接入。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| TypeScript | passed | `npm run typecheck:tolove` |
-| Changed-file ESLint | passed | `App.tsx`、`MapMenu.tsx`、`menuAssets.ts` 无 lint 错误 |
-| Development build | passed | `npm run build:dev`；所有 webpack 构建成功 |
-| Diff whitespace | passed | `git diff --check` |
-| Prettier | not applied | 目标文件原有整体格式与当前配置不一致；避免无关全文件重排 |
+| Check                     | Status                    | Evidence                                                                          |
+| ------------------------- | ------------------------- | --------------------------------------------------------------------------------- |
+| TypeScript                | passed                    | `npm run typecheck:tolove`                                                        |
+| Changed-file ESLint       | passed                    | `App.tsx`、`MapMenu.tsx`、`menuAssets.ts` 无 lint 错误                            |
+| Development build         | passed                    | `npm run build:dev`；所有 webpack 构建成功                                        |
+| Diff whitespace           | passed                    | `git diff --check`                                                                |
+| Prettier                  | not applied               | 目标文件原有整体格式与当前配置不一致；避免无关全文件重排                          |
 | Story generation contract | blocked before assertions | `ts-node` 被 TypeScript 6 的 `moduleResolution=node10` 弃用错误拦截；未改全局配置 |
-| Browser menu interaction | passed | 新游戏 → 展开菜单 → “目录”唯一按钮 → 打开“上下文预览” |
-| Memory step 1 / side API | not implemented | 本轮授权仅为诊断、分析和待办 |
+| Browser menu interaction  | passed                    | 新游戏 → 展开菜单 → “目录”唯一按钮 → 打开“上下文预览”                             |
+| Memory step 1 / side API  | not implemented           | 本轮授权仅为诊断、分析和待办                                                      |
 
 当前最强接通标签仍是：**本地状态演示**。浏览器验收只证明入口和只读面板可用，不证明真实 Tavern 世界书命中、宿主消息、shujuku 或副 API 已接通。
 
 本轮台式机验收按 `references/aldent-review-invitation.md` 执行，结果填写在
-`references/aldent-human-review-form.md`。手册已经单独标出真实 Tavern order 扫描、schema v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路径不再作为本轮证据。
+`references/aldent-human-review-form.md`。手册已经单独标出真实 Tavern order 扫描、schema
+v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路径不再作为本轮证据。
 
 ## 本轮结构改造
 
-- `episodeTemplate.ts` 统一登记日期/行动序号触发器、剧情世界书 order、人物 lore、演出素材、生成合同和 fallback；`episodes/index.ts` 是唯一生产注册清单。
-- 共享触发、生成、GAL、历史和存档只认 `eventId + actId`。Store 不再并列保存 active/progress/actIndex/acts，快照也不再重建旧第一集结构。
+- `episodeTemplate.ts`
+  统一登记日期/行动序号触发器、剧情世界书 order、人物 lore、演出素材、生成合同和 fallback；`episodes/index.ts`
+  是唯一生产注册清单。
+- 共享触发、生成、GAL、历史和存档只认
+  `eventId + actId`。Store 不再并列保存 active/progress/actIndex/acts，快照也不再重建旧第一集结构。
 - 通用主线动作移到 `stores/mainStoryStore.ts`；`gameStore.ts` 只装配行动结算和稳定 slice 接口，不再随着剧集增加而增长。
 - 主线快照升级为 schema v2，对话档升级为 schema v2；旧开发存档明确不兼容。
-- 新增未注册虚构剧集契约，证明通用触发器可以只读取模板工作；新增剧集复用现有素材时不改 `gameStore.ts`、`snapshot.ts` 或渲染器。
+- 新增未注册虚构剧集契约，证明通用触发器可以只读取模板工作；新增剧集复用现有素材时不改 `gameStore.ts`、`snapshot.ts`
+  或渲染器。
 - 防止删除仍被后续版本引用的楼层，并拒绝历史页异步生成返回后的过期写入。
 
-| Check                              | Status | Evidence                                                                 |
-| ---------------------------------- | ------ | ------------------------------------------------------------------------ |
-| TypeScript                         | passed | `npm run typecheck:tolove`                                               |
-| Generic episode template contract  | passed | `node verify-story-template.cjs`                                         |
-| Episode 02 lore/runtime contracts  | passed | `verify-episode02-lore.cjs`、`verify-episode02-runtime.cjs`               |
-| Existing story contracts           | passed | `verify-story-generation.cjs`、`verify-character-lore.cjs`、21 项正文测试 |
-| Development build                  | passed | `npm run build:dev`                                                      |
-| Tavern message bridge artifact     | passed | 已重建；无 `entryReason/generationId/extra.actIndex`                     |
-| Real Tavern order scan             | not run | 仍需在真实酒馆确认下一次 World Info 扫描命中 152/153/154                 |
+| Check                             | Status  | Evidence                                                                  |
+| --------------------------------- | ------- | ------------------------------------------------------------------------- |
+| TypeScript                        | passed  | `npm run typecheck:tolove`                                                |
+| Generic episode template contract | passed  | `node verify-story-template.cjs`                                          |
+| Episode 02 lore/runtime contracts | passed  | `verify-episode02-lore.cjs`、`verify-episode02-runtime.cjs`               |
+| Existing story contracts          | passed  | `verify-story-generation.cjs`、`verify-character-lore.cjs`、21 项正文测试 |
+| Development build                 | passed  | `npm run build:dev`                                                       |
+| Tavern message bridge artifact    | passed  | 已重建；无 `entryReason/generationId/extra.actIndex`                      |
+| Real Tavern order scan            | not run | 仍需在真实酒馆确认下一次 World Info 扫描命中 152/153/154                  |
 
 ## 保留的上一轮增量：Photoshop 通用分层立绘处理流程
 
@@ -454,8 +594,10 @@ next_loop: human_review_memory_api_settings_then_authorize_summary_integration
 
 ## 仍待人工验收的既有范围
 
-- 主线当前幕由 schema v2 的单一 `run(eventId, actId, phase, pageIndex)` 恢复；采用正文从相应楼层档案投影，不再保存并行的幕序号或正文数组。
-- 恢复或继续游戏时会按模板的日期与行动序号幂等检查等待中的幕；例如第一幕结束后的 `AP=1 + waiting act2` 仍等待下一次行动触发第二幕。
+- 主线当前幕由 schema v2 的单一 `run(eventId, actId, phase, pageIndex)`
+  恢复；采用正文从相应楼层档案投影，不再保存并行的幕序号或正文数组。
+- 恢复或继续游戏时会按模板的日期与行动序号幂等检查等待中的幕；例如第一幕结束后的 `AP=1 + waiting act2`
+  仍等待下一次行动触发第二幕。
 - 角色卡继续保存在 Card
   store，出现位置由独立规则同步：梨子和春菜初始可见，菈菈完成第二集后可见，梦梦、唯和小暗当前锁定；未知导入角色默认可见。
 - AI 原文通过既有楼层 `messageIds` 关联 Tavern
@@ -511,18 +653,21 @@ next_loop: human_review_memory_api_settings_then_authorize_summary_integration
 ## 本轮本地记忆闭环
 
 - 新增 `AI记忆与自主规划调研报告.md`，记录自主规划不能直接取得游戏权威、成熟记忆方案的取舍，以及本轮明确不接通的宿主链。
-- `services/storyGenerationContext.ts` 把提示词和最多 6 条历史消息的选择抽成共享投影；Tavern 生成和“数据”预览使用同一份结果。
-- `components/ContextPreviewModal.tsx` 从地图菜单“数据”打开，只读展示 GameSnapshot v2、当前消息镜像、提示词、历史窗口和世界书引用。
+- `services/storyGenerationContext.ts`
+  把提示词和最多 6 条历史消息的选择抽成共享投影；Tavern 生成和“数据”预览使用同一份结果。
+- `components/ContextPreviewModal.tsx` 从地图菜单“数据”打开，只读展示 GameSnapshot
+  v2、当前消息镜像、提示词、历史窗口和世界书引用。
 - `window.toloveContextPreview()` 提供本地调试 JSON；不创建聊天楼层、不触发 shujuku/database。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Changed-file ESLint | passed | `pnpm lint -- src/webgame-ui/...` 无输出错误 |
-| Story generation/context contract | passed | `node src/webgame-ui/verify-story-generation.cjs` 输出 `story generation contract: passed` |
-| Diff whitespace | passed | `git diff --check` |
-| TypeScript full workspace | failed | 仓库现有 Vue/Tavern 类型声明错误；另有根 `global.d.ts` duplicate `content`，不是本轮新增模块 |
-| Development build / watch artifact | not run | 用户本轮未要求 build；应在 `pnpm watch` 产物上做人工截图验收 |
-| Browser visual interaction | not run | 数据面板需人工打开地图菜单“数据”验收 |
-| Real host floors / shujuku / database | not run | 本轮明确禁止接通 |
+| Check                                 | Status  | Evidence                                                                                     |
+| ------------------------------------- | ------- | -------------------------------------------------------------------------------------------- |
+| Changed-file ESLint                   | passed  | `pnpm lint -- src/webgame-ui/...` 无输出错误                                                 |
+| Story generation/context contract     | passed  | `node src/webgame-ui/verify-story-generation.cjs` 输出 `story generation contract: passed`   |
+| Diff whitespace                       | passed  | `git diff --check`                                                                           |
+| TypeScript full workspace             | failed  | 仓库现有 Vue/Tavern 类型声明错误；另有根 `global.d.ts` duplicate `content`，不是本轮新增模块 |
+| Development build / watch artifact    | not run | 用户本轮未要求 build；应在 `pnpm watch` 产物上做人工截图验收                                 |
+| Browser visual interaction            | not run | 数据面板需人工打开地图菜单“数据”验收                                                         |
+| Real host floors / shujuku / database | not run | 本轮明确禁止接通                                                                             |
 
-当前最强接通标签仍是：**本地状态演示**。本地 messagesave 镜像和真实 `TavernHelper.generate()` 的既有标签不升级；数据面板不能证明 World Info 实际命中或任何宿主/插件链成功。
+当前最强接通标签仍是：**本地状态演示**。本地 messagesave 镜像和真实 `TavernHelper.generate()`
+的既有标签不升级；数据面板不能证明 World Info 实际命中或任何宿主/插件链成功。

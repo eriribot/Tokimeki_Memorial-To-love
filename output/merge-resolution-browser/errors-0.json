@@ -1,6 +1,0 @@
-[
-  {
-    "type": "console.error",
-    "text": "[ToLove Save] 自动存档失败。 Error: 当前页面没有 Tavern Helper 事件接口，无法读取酒馆本地文件存档\n    at u.request (http://127.0.0.1:5511/dist/webgame-ui/:2:190625)\n    at Object.write (http://127.0.0.1:5511/dist/webgame-ui/:2:192172)\n    at http://127.0.0.1:5511/dist/webgame-ui/:2:239356\n    at f (http://127.0.0.1:5511/dist/webgame-ui/:2:239514)\n    at http://127.0.0.1:5511/dist/webgame-ui/:2:239685\n    at <anonymous>:15:9"
-  }
-]

@@ -9,6 +9,7 @@ import {
 import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { syncCharacterPresence } from '../services/characterPresence';
+import { getCanonicalStoryTimeline } from '../memory/storyTimeline';
 import { resolveAssetPath } from '../utils/assetPath';
 import {
   getSpeakerNameplateAsset,
@@ -199,6 +200,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         : [],
     [activeActId, activeEventId, storyArchives],
   );
+  const historyFloorIds = useMemo(
+    () =>
+      activeEventId && activeActId
+        ? getCanonicalStoryTimeline(storyArchives, { eventId: activeEventId, actId: activeActId }).map(
+            floor => floor.floorId,
+          )
+        : [],
+    [activeActId, activeEventId, storyArchives],
+  );
 
   const closeRawHistory = useCallback(() => {
     setRawHistoryTarget(null);
@@ -222,6 +232,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       period: period.key,
       location: currentLocationId,
       contextFloorIds,
+      historyFloorIds,
       chatHistory: messageHistory,
     };
 
@@ -247,6 +258,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     contextFloorIds,
     day,
     failGeneration,
+    historyFloorIds,
     messageHistory,
     periodIndex,
     playerName,
@@ -284,6 +296,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       period: period.key,
       location: currentLocationId,
       contextFloorIds,
+      historyFloorIds,
       chatHistory: messageHistory,
     };
     const messages = createFallbackStoryMessages(request, actToPlainText(fallbackAct));
@@ -296,6 +309,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     contextFloorIds,
     currentLocationId,
     day,
+    historyFloorIds,
     messageHistory,
     periodIndex,
     playerName,

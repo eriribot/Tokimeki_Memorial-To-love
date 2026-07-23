@@ -11,6 +11,16 @@ import {
   type OpenAICompatibleConfig,
   type OpenAICompatibleConfigErrors,
 } from '../config/openaiCompatible';
+import { refreshMemorySummarySchedule } from '../memory/summaryRuntime';
+import {
+  LARGE_SUMMARY_MIN_LENGTH,
+  LARGE_SUMMARY_MAX_LENGTH,
+  LARGE_SUMMARY_SOURCE_COUNT,
+  RECENT_CONTEXT_MESSAGE_LIMIT,
+  SMALL_SUMMARY_MIN_LENGTH,
+  SMALL_SUMMARY_MAX_LENGTH,
+  SMALL_SUMMARY_SOURCE_FLOOR_COUNT,
+} from '../memory/summaryPolicy';
 import { resolveAssetPath } from '../utils/assetPath';
 import './SystemSettingsModal.css';
 
@@ -30,7 +40,7 @@ type SettingsPage = 'menu' | 'memory-api';
 
 const IDLE_STATUS: SettingsStatus = {
   kind: 'idle',
-  message: '这里只保存接口配置；自动摘要和剧情记忆尚未开始调用。',
+  message: '启用后，权威自动存档成功时会按固定合同检查并触发自动总结。',
 };
 
 function hasErrors(errors: OpenAICompatibleConfigErrors): boolean {
@@ -99,6 +109,7 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
     try {
       const saved = saveOpenAICompatibleConfig(draft);
       setDraft(saved);
+      refreshMemorySummarySchedule();
       setStatus({ kind: 'saved', message: '配置已长期保存在当前浏览器。' });
     } catch (error) {
       setStatus({ kind: 'error', message: `保存失败：${getErrorMessage(error)}` });
@@ -169,6 +180,7 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
     requestControllerRef.current = null;
     try {
       setDraft(resetOpenAICompatibleConfig());
+      refreshMemorySummarySchedule();
       setAvailableModels([]);
       setErrors({});
       setShowApiKey(false);
@@ -233,7 +245,7 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
               <label className="system-settings__toggle-row">
                 <span>
                   <b>启用记忆 API</b>
-                  <small>开关会保存，但本轮不会自动生成摘要。</small>
+                  <small>启用后，只在权威自动存档成功后按固定合同触发总结。</small>
                 </span>
                 <input
                   type="checkbox"
@@ -316,6 +328,25 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
                   {errors.apiKey ?? '密钥会长期保存在当前浏览器，不会进入游戏存档或剧情消息。'}
                 </small>
               </label>
+
+              <fieldset className="system-settings__cadence">
+                <legend>固定总结合同</legend>
+                <label>
+                  <span>小总结</span>
+                  <output>
+                    校准窗口 {RECENT_CONTEXT_MESSAGE_LIMIT} 条原文 · 累计 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT} 楼触发 ·{' '}
+                    {SMALL_SUMMARY_MIN_LENGTH}–{SMALL_SUMMARY_MAX_LENGTH} 字
+                  </output>
+                </label>
+                <label>
+                  <span>大总结</span>
+                  <output>
+                    每 {LARGE_SUMMARY_SOURCE_COUNT} 条已接受小总结 · {LARGE_SUMMARY_MIN_LENGTH}–
+                    {LARGE_SUMMARY_MAX_LENGTH} 字
+                  </output>
+                </label>
+                <small>最近原文不参与总结；不足一批不会请求副 API，失败或未接受的候选不计入大总结。</small>
+              </fieldset>
 
               <p className={`system-settings__status is-${status.kind}`} role="status" aria-live="polite">
                 {status.message}

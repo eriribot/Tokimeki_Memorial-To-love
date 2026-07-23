@@ -1,0 +1,208 @@
+.memory-summary-progress {
+  position: absolute;
+  left: 50%;
+  top: clamp(9px, 2.4cqh, 18px);
+  z-index: 180;
+  display: grid;
+  grid-template-columns: clamp(36px, 8cqw, 58px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(6px, 1.1cqw, 10px);
+  width: min(62cqw, 470px);
+  min-height: clamp(42px, 10cqh, 62px);
+  padding: clamp(5px, 1cqh, 8px) clamp(9px, 1.6cqw, 14px);
+  border: 2px solid rgba(255, 209, 74, 0.95);
+  border-radius: 6px;
+  background: rgba(35, 42, 57, 0.92);
+  color: #fff;
+  box-shadow: 0 4px 13px rgba(20, 25, 35, 0.3);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.memory-summary-progress.is-ready {
+  border-color: #7ad7a3;
+}
+
+.memory-summary-progress.is-error {
+  border-color: #ff9b9b;
+}
+
+.memory-summary-progress__push {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 58px;
+  aspect-ratio: 76 / 50;
+}
+
+.memory-summary-progress__frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: memory-summary-push-frame 500ms steps(1, end) infinite;
+}
+
+.memory-summary-progress__frame-0 {
+  animation-delay: 0ms;
+}
+
+.memory-summary-progress__frame-1 {
+  animation-delay: -375ms;
+}
+
+.memory-summary-progress__frame-2 {
+  animation-delay: -250ms;
+}
+
+.memory-summary-progress__frame-3 {
+  animation-delay: -125ms;
+}
+
+.memory-summary-progress.is-ready .memory-summary-progress__frame,
+.memory-summary-progress.is-error .memory-summary-progress__frame {
+  animation: none;
+  opacity: 0;
+}
+
+.memory-summary-progress.is-ready .memory-summary-progress__frame-0,
+.memory-summary-progress.is-error .memory-summary-progress__frame-0 {
+  opacity: 1;
+}
+
+.memory-summary-progress__content {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.memory-summary-progress__heading {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: clamp(10px, 1.8cqw, 13px);
+  letter-spacing: 0;
+}
+
+.memory-summary-progress__heading b {
+  color: #ffe571;
+}
+
+.memory-summary-progress.is-ready .memory-summary-progress__heading b {
+  color: #9bf1bd;
+}
+
+.memory-summary-progress.is-error .memory-summary-progress__heading b {
+  color: #ffb3b3;
+}
+
+.memory-summary-progress__heading span {
+  overflow: hidden;
+  color: #f7f4ed;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-summary-progress__heading strong {
+  color: #fff;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+}
+
+.memory-summary-progress__track {
+  position: relative;
+  display: block;
+  height: clamp(5px, 1.2cqh, 8px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.memory-summary-progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: #ffe057;
+  transition: width 180ms ease;
+}
+
+.memory-summary-progress.is-ready .memory-summary-progress__fill {
+  background: #67d795;
+}
+
+.memory-summary-progress.is-error .memory-summary-progress__fill {
+  background: #f07f7f;
+}
+
+.memory-summary-progress__track.is-indeterminate .memory-summary-progress__fill {
+  width: 32% !important;
+  animation: memory-summary-indeterminate 1.1s ease-in-out infinite;
+}
+
+@keyframes memory-summary-push-frame {
+  0%,
+  24.99% {
+    opacity: 1;
+  }
+
+  25%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes memory-summary-indeterminate {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(330%);
+  }
+}
+
+@container game-frame (max-width: 639px) {
+  .memory-summary-progress {
+    grid-template-columns: 34px minmax(0, 1fr);
+    width: min(62cqw, 380px);
+    min-height: 42px;
+    padding: 4px 8px;
+  }
+
+  .memory-summary-progress__heading {
+    gap: 5px;
+  }
+
+  .memory-summary-progress.is-error .memory-summary-progress__heading span {
+    line-height: 1.15;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-summary-progress__fill {
+    transition: none;
+  }
+
+  .memory-summary-progress__frame,
+  .memory-summary-progress__track.is-indeterminate .memory-summary-progress__fill {
+    display: none;
+    animation: none;
+  }
+
+  .memory-summary-progress__frame-0 {
+    display: block;
+    opacity: 1;
+  }
+
+  .memory-summary-progress__track.is-indeterminate .memory-summary-progress__fill {
+    display: block;
+    width: 45% !important;
+    transform: none;
+  }
+}

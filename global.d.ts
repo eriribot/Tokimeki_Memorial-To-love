@@ -16,6 +16,8 @@ declare global {
     toloveStoryMessages?: (format?: 'json' | 'jsonl') => string;
     /** 调试用：读取当前本地快照、原文镜像与可重建的生成上下文。 */
     toloveContextPreview?: () => string;
+    /** 调试用：只预览非持久化的地图摘要进度 UI，不会发 API 或写入记忆。 */
+    toloveMemorySummaryProgressPreview?: (preset: 'small-running' | 'large-running' | 'fallback' | 'reset') => string;
   }
 }
 

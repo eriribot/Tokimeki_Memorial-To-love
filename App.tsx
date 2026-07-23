@@ -10,6 +10,8 @@ import SchoolMap from './components/SchoolMap';
 import CharacterProfileModal from './components/CharacterProfileModal';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
 import ContextPreviewModal from './components/ContextPreviewModal';
+import MemorySummaryProgress from './components/MemorySummaryProgress';
+import { queueMemorySummaryAfterAutosave } from './memory/summaryRuntime';
 import SystemSettingsModal from './components/SystemSettingsModal';
 import StartScreen from './components/StartScreen';
 import StatPanel from './components/StatPanel';
@@ -152,9 +154,10 @@ function App() {
   useEffect(
     () =>
       startTavernAutosave({
-        onSaved: () => {
+        onSaved: (save, messages) => {
           setHasPersistedSave(true);
           setSaveError(null);
+          queueMemorySummaryAfterAutosave(save, messages);
         },
         onError: error => {
           console.error('[ToLove Save] 自动存档失败。', error);
@@ -273,6 +276,7 @@ function App() {
                       />
                     )}
                   </div>
+                  {!currentSceneId && <MemorySummaryProgress />}
                   {!currentSceneId && !isStoryOverlayOpen && !isSkillPanelOpen && !isSystemSettingsOpen && (
                     <CalendarCard
                       className="game-calendar-card"

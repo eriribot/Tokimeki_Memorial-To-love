@@ -28,6 +28,7 @@ export interface GenerateStoryActRequest {
   period: string;
   location: string;
   contextFloorIds: string[];
+  historyFloorIds?: string[];
   chatHistory: readonly GalStoryMessageSave[];
 }
 
