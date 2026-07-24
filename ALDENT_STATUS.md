@@ -671,3 +671,119 @@ v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路
 
 当前最强接通标签仍是：**本地状态演示**。本地 messagesave 镜像和真实 `TavernHelper.generate()`
 的既有标签不升级；数据面板不能证明 World Info 实际命中或任何宿主/插件链成功。
+
+## 本轮增量：第二集春菜更衣室立绘与提示词触发
+
+- `characters/haruna.ts` 登记 `changer-room` 分层立绘；实际可用表情只有 `shy -> b` 与 `anger -> c`，默认
+  `shy`，且闭眼的 `shy` 不播放眨眼。
+- `episodes/episode02/acts/act01.ts` 复用菈菈既有的 `portraitRules` 形式：
+  `scene=changingRoom + focus=haruna` 唯一允许 `portrait=changer-room`，其他本幕场景使用
+  `portrait=school-uniform`；两套立绘都进入当前幕 cast。
+- `storyGenerationContext.ts` 继续从角色 rig 自动投影可用表情，并把幕级 `portraitRules` 传给共享提示词；没有新增
+  episode02 或春菜特判。
+- `storyGenerationPrompt.ts` 保留首个必经场景的主示例，并从同一 `portraitRules` 为未被主示例覆盖的场景专用立绘
+  追加完整合法行。第二集会得到
+  `scene=changingRoom;focus=haruna;portrait=changer-room;expression=shy`，同时仍保留场景 IF 强制规则。
+- 本地解析器继续拒绝场景、portrait 或 expression 不匹配的模型正文；世界书、行动结算、宿主消息和数据库链未改动。
+
+| Check                                | Status  | Evidence                                                        |
+| ------------------------------------ | ------- | --------------------------------------------------------------- |
+| Static trigger-chain source review   | passed  | cast、rig、prompt 投影、IF 规则、解析和渲染调用链已逐段对读      |
+| Prompt generation execution          | not run | 用户明确要求本轮不测试，未执行提示词生成脚本或真实 Tavern 生成  |
+| Formatting / lint / TypeScript       | not run | 用户明确要求本轮不测试                                          |
+| Development / production build       | not run | 用户明确要求本轮不测试                                          |
+| Browser / visual portrait acceptance | not run | 等待用户在实际更衣室剧情中检查 shy、anger、眨眼、口型和图层对齐 |
+| Human acceptance                     | not run | 等待用户审查                                                     |
+
+当前最强接通标签：**静态本地生成链实现**。提示词规则和本地解析边界已写入源码，但未以本轮运行证据证明真实 Tavern
+返回会采用专用立绘，也未新增宿主 hidden floor、shujuku/ACU、插件或数据库接通。
+
+## 本轮增量：更衣室脸部校准与通用立绘 model 工具
+
+- `characters/haruna.ts` 不再让 `changer-room` 沿用校服脸部窗口；随后保留用户在 model 校准台确定的位置与尺寸并
+  优化拼接软边：eyes `399,210,221,124,feather=8`，mouth `399,331,221,60,feather=4`。这只修正更衣室 rig，校服 rig
+  保持原值；`shy` 仍禁用眨眼，`anger` 仍允许眨眼。
+- `artsource/model/` 新增角色无关的独立校准页，默认预载 `artsource/sephie/` 示例，但不进入 React、Zustand、剧情、
+  Tavern 或生产资源注册链。它支持替换 body/mask/eyes/mouth、拖动与缩放窗口、方向键微调、逐帧与动作预览、
+  四边 feather、图层/背景诊断、尺寸与越界提示、manifest 导入导出，以及 `regions`/单表情完整 rig 的 TypeScript
+  输出。
+- 校准页的 body `contain`、正方形生产舞台、三帧纵排和四边 feather 语义与当前 `LayeredPortrait` 对齐。844×390
+  默认采用现有 tablet 档 `width=48%, right=4%, bottom=0`；GAL 舞台值只作为构图记录，不伪装成 rig 字段。
+- 校准页允许临时查看 1–12 帧图集，但会把非三帧标为与当前正式组件不兼容；默认表情的 `blinking` 可直接切换，
+  避免闭眼表情导出后遗漏手工修正。
+
+| Check                                  | Status  | Evidence                                                               |
+| -------------------------------------- | ------- | ---------------------------------------------------------------------- |
+| Source implementation inventory        | recorded | changer-room 专用坐标、model 四文件及生产契约边界已写入源码            |
+| Formatting / lint / TypeScript         | not run | 用户明确要求本轮不运行任何测试或检查命令                               |
+| Development / production build         | not run | 用户明确要求本轮只写代码                                                |
+| Browser / model interaction            | not run | 未打开校准页，等待用户自行加载素材与操作                                |
+| Actual GAL changer-room visual review  | not run | 等待用户在第二集更衣室页检查 shy/anger、接缝、眨眼、口型和构图          |
+| Human acceptance                       | not run | 本轮视觉结果与工具可用性均等待用户验收                                  |
+
+当前最强接通标签：**源码实现完成，待人工视觉验收**。本轮没有新增生成、宿主消息、World Info、shujuku/ACU、插件或数据库
+接通证据，也不以校准页的本地预览替代真实 GAL/Tavern 画面验收。
+
+## 本轮增量：model 构图与画布同级布局
+
+- `artsource/model/index.html` 把逻辑画布预览与 GAL 构图预览改为同级并排区域；窄屏时恢复纵向排列，减少校准时的上下滚动。
+- 右侧参数把“逻辑画布与图集”和“GAL 构图画布”改为两个同级 fieldset。GAL 构图新增预览宽、高，人物尺寸、right、
+  bottom 仍在同一区块直接调整。
+- 人物舞台继续遵守正式 `LayeredPortrait` 的正方形约束，不新增虚假的独立人物高度字段；界面会从预览宽度和人物尺寸
+  实时显示换算后的 `宽 × 高 px`。manifest 同步保存 `galViewport`，该数据仍只是校准记录，不进入运行时 rig。
+- 逻辑画布缩放改用预览容器百分比，避免两块预览并排后继续以固定 720px 宽度挤出可视区域。
+
+| Check                         | Status  | Evidence                                  |
+| ----------------------------- | ------- | ----------------------------------------- |
+| Source implementation record  | recorded | HTML/CSS/JS 与 README 已更新              |
+| Browser visual interaction    | not run | 等待用户检查并排构图、输入密度和滚动体验  |
+| Formatting / lint / build     | not run | 本轮未执行                                |
+| Human acceptance              | not run | 等待用户确认新的参数层级是否更顺手        |
+
+当前最强接通标签仍是：**源码实现完成，待人工视觉验收**。
+
+## 本轮增量：春菜更衣室脸部采用人工坐标并优化拼接
+
+- 用户在 `artsource/model/` 中逐帧调整并提供截图；工作区随后把 eyes Y 微调为 `210`。最终保留该人工位置与窗口尺寸：
+  eyes `x=399,y=210,w=221,h=124`，mouth `x=399,y=331,w=221,h=60`。
+- 基于相同坐标静态合成 shy/anger 的三帧对照后，将 eyes feather 从 `1` 调整为 `8`、mouth feather 从 `0`
+  调整为 `4`，软化 eyes 底边和 mouth 顶边的横向拼接带，同时避免 `10/6` 进一步削弱腮红与线稿。
+- 截图中的 GAL `size=50%, right=4%, bottom=0` 仍属于构图预览记录；本轮目标是优化春菜脸部，没有把该值写入角色 rig，
+  也没有修改会影响其他角色的全局 `.layered-portrait-stage`。
+
+| Check                        | Status  | Evidence                                         |
+| ---------------------------- | ------- | ------------------------------------------------ |
+| User calibration screenshot  | recorded | 用户提供 model 校准台坐标与窗口参数截图          |
+| Static all-frame comparison  | recorded | shy/anger 三帧比较 `1/0` 与 `8/4` feather       |
+| Actual GAL visual review     | not run | 新参数仍需用户回到第二集更衣室画面确认           |
+| Formatting / lint / build    | not run | 本轮未执行                                       |
+| Human acceptance             | not run | 等待用户确认脸部接缝、比例、眨眼与口型           |
+
+当前最强接通标签：**人工坐标与静态拼接优化已写入源码，待实际 GAL 验收**。
+
+## 本轮增量：官方全量脸部坐标映射 CSV
+
+- 扩大只读调查到官方素材库的 `Texture2D` 与 `TextAsset`。`TextAsset/ToLove` 中的
+  `Chara_Eye_Pos`、`Chara_Mouth_Pos` 是 60 组角色/服装原始坐标权威；没有把 `Animator` 的通用情绪 FBX
+  当成脸部坐标来源。
+- `artsource/model/official-face-coordinate-map.csv` 收录 270 个分层立绘家族、1,629 对 eye/mouth 表情图集，另保留
+  4 个官方有坐标但素材库没有对应图集家族的 `position_only` 记录。每行同时记录 body、mask、眼嘴文件、官方原始坐标、
+  1024 逻辑舞台 region、源图集尺寸、三帧合同、官方启用标记和坐标证据方法。
+- 网页舞台坐标先由官方表定位，再以同家族 `a` 表情首帧和 1024 body 的外圈像素对齐；默认眼窗为 `230x131`、嘴窗为
+  `230x57`。猿山与校长的 4 个家族无法从默认 mouth 帧取得可信边缘匹配，相关 24 行明确标为
+  `official_projection_from_aligned_eye`，没有把低可信自动结果伪装成实测值。
+- 春菜 `005_02_05_a..f` 全部映射为 eyes `394,221,230,131`、mouth `394,349,230,57`。这份证据进一步确认更衣室
+  body/mask 属于 `005_02_05` 家族；当前 `characters/haruna.ts` 仍使用 `005_03_05_b/c` 与人工窗口，本轮未改运行时代码。
+- 用户截图已经反证此前 `feather=8/4` 的“优化”结论：较大羽化会暴露底图旧脸并产生白雾、重影。旧分节中的该结论仅是
+  历史记录，不再作为当前建议；真正根因是跨家族混用，后续实施应先换成同编号素材再做人审。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Official coordinate/source inventory | passed | 60 个官方坐标键完整覆盖；270 个现存家族均可解析到坐标键 |
+| Atlas pairing and dimensions | passed | 1,629 个 eye 与 1,629 个 mouth 一一配对；尺寸分别固定为 `256x512` 与 `256x256` |
+| CSV static artifact inspection | passed | 1,633 条数据行、50 列可读；错误标记扫描无命中 |
+| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行项目测试或构建 |
+| Browser / GAL runtime | not run | 未打开 model 页面或剧情页面，未验证实际动画与接缝 |
+| Human acceptance | not run | 坐标与特殊回退仍需用户按角色逐帧抽查 |
+
+当前最强接通标签：**官方表与像素对齐形成的本地参考数据**。CSV 是可追溯证据，不等于所有 1,629 组表情已经逐帧通过人工美术验收。

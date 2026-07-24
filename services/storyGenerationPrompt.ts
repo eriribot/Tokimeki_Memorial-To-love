@@ -129,6 +129,28 @@ function buildDirectedExample(context: StoryGenerationPromptContext): string {
   ].join('\n');
 }
 
+function buildAdditionalPortraitRuleExamples(context: StoryGenerationPromptContext): string {
+  const rules = context.portraitRules ?? [];
+  if (rules.length === 0) return '';
+
+  const firstSceneId = context.requiredSceneSequence[0] ?? context.sceneIds[0];
+  const ruleCoveredByPrimaryExample = rules.find(rule => rule.sceneId === firstSceneId);
+  const exampleLines = rules
+    .filter(rule => rule !== ruleCoveredByPrimaryExample)
+    .map(rule => {
+      const option = context.portraitOptions.find(
+        candidate => candidate.characterId === rule.characterId && candidate.portraitId === rule.portraitId,
+      );
+      const expressionId = option?.expressionIds[0];
+      if (!option || !expressionId) return null;
+      return `@${option.displayName}【scene=${rule.sceneId};focus=${rule.characterId};portrait=${rule.portraitId};expression=${expressionId};effect=none】：这里是场景专用立绘的完整演出格式。`;
+    })
+    .filter((line): line is string => line !== null);
+
+  if (exampleLines.length === 0) return '';
+  return `- 场景专用立绘的额外完整行示例（只示范合法字段组合，不代表正文开场或场景顺序）：\n${exampleLines.join('\n')}`;
+}
+
 function buildRequiredSceneContract(requiredSceneSequence: readonly StorySceneId[]): string {
   if (requiredSceneSequence.length === 0) return '';
   return `- 场景首次推进必须完整覆盖：${requiredSceneSequence.join(' → ')}。`;
@@ -162,6 +184,7 @@ export function buildStoryOutputProtocol(context: StoryGenerationPromptContext):
 - focus 为角色 ID 时，portrait 与 expression 必须使用下列同一角色登记值；登记值总表不代表每个场景都能使用该角色的全部立绘：
 ${buildPortraitOptionList(context.portraitOptions)}
 ${buildPortraitRuleSection(context)}
+${buildAdditionalPortraitRuleExamples(context)}
 - 每行正文只承载一个镜头或一句短台词；不要在正文中解释演出字段。
 - 涉及洗浴、更衣或其他私密场景时严格使用上述场景专用立绘绑定。
 

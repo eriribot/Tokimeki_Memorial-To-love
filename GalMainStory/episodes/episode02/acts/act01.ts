@@ -17,9 +17,17 @@ export const EPISODE_02_ACT_01 = {
     sceneIds: ['bedroom', 'home', 'school', 'changingRoom'],
     cast: [
       { characterId: 'lala', portraitIds: ['arrival-default'] },
-      { characterId: 'haruna', portraitIds: ['school-uniform'] },
+      { characterId: 'haruna', portraitIds: ['school-uniform', 'changer-room'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'changingRoom',
+        characterId: 'haruna',
+        portraitId: 'changer-room',
+        outsideScenePortraitId: 'school-uniform',
+      },
     ],
   },
   generation: {
@@ -208,8 +216,8 @@ export const EPISODE_02_ACT_01 = {
       presentation: {
         sceneId: 'changingRoom',
         focusCharacterId: 'haruna',
-        portraitId: 'school-uniform',
-        expressionId: 'panic',
+        portraitId: 'changer-room',
+        expressionId: 'shy',
         effect: 'shake',
       },
     },
@@ -219,8 +227,8 @@ export const EPISODE_02_ACT_01 = {
       presentation: {
         sceneId: 'changingRoom',
         focusCharacterId: 'haruna',
-        portraitId: 'school-uniform',
-        expressionId: 'worried',
+        portraitId: 'changer-room',
+        expressionId: 'anger',
         effect: 'shake',
       },
     },

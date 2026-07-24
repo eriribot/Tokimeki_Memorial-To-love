@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>分层动态立绘校准台</title>
+    <link rel="stylesheet" href="model.css" />
+    <script src="model.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">LAYERED PORTRAIT MODEL WORKBENCH</p>
+          <h1>分层动态立绘校准台</h1>
+          <p class="intro">加载 body、mask、eye atlas 与 mouth atlas，直接校准窗口并导出项目可用的 rig 配置。</p>
+        </div>
+        <output class="status-chip" id="globalStatus" aria-live="polite">正在载入 Sephie 示例…</output>
+      </header>
+
+      <section class="panel source-panel" aria-labelledby="sourceTitle">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">01 · SOURCE</p>
+            <h2 id="sourceTitle">素材与角色</h2>
+          </div>
+          <div class="heading-actions">
+            <button class="button button--quiet" id="loadSephie" type="button">恢复 Sephie 示例</button>
+            <label class="button button--quiet file-button" for="manifestInput">导入 manifest</label>
+            <input id="manifestInput" class="visually-hidden" type="file" accept="application/json,.json" />
+          </div>
+        </div>
+
+        <div class="identity-grid">
+          <label>
+            <span>角色 ID</span>
+            <input id="characterId" type="text" value="sephie" spellcheck="false" />
+          </label>
+          <label>
+            <span>立绘 ID</span>
+            <input id="portraitId" type="text" value="default" spellcheck="false" />
+          </label>
+          <label>
+            <span>显示名</span>
+            <input id="displayName" type="text" value="Sephie" />
+          </label>
+          <label>
+            <span>默认表情 ID</span>
+            <input id="expressionId" type="text" value="neutral" spellcheck="false" />
+          </label>
+          <label class="identity-grid__wide">
+            <span>运行时素材目录</span>
+            <input id="assetBasePath" type="text" value="/artsource/sephie/" spellcheck="false" />
+          </label>
+          <label>
+            <span>格式记录</span>
+            <select id="formatProfile">
+              <option value="legacy-compatible">legacy-compatible</option>
+              <option value="clean-integer-atlas">clean-integer-atlas</option>
+              <option value="prototype">prototype</option>
+            </select>
+          </label>
+          <label class="toggle identity-toggle">
+            <input id="expressionBlinking" type="checkbox" checked />
+            <span>默认表情允许眨眼</span>
+          </label>
+        </div>
+
+        <div class="asset-grid" id="assetGrid">
+          <article class="asset-slot" data-asset="body">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>body</strong></div>
+            <code id="bodyName">sephie_body.png</code>
+            <output id="bodyMeta">等待载入</output>
+            <label class="button button--small" for="bodyInput">选择图片</label>
+            <input id="bodyInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+          <article class="asset-slot" data-asset="mask">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>mask</strong></div>
+            <code id="maskName">sephie_mask.png</code>
+            <output id="maskMeta">等待载入</output>
+            <label class="button button--small" for="maskInput">选择图片</label>
+            <input id="maskInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+          <article class="asset-slot" data-asset="eyes">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>eye atlas</strong></div>
+            <code id="eyesName">sephie_a_eye.png</code>
+            <output id="eyesMeta">等待载入</output>
+            <label class="button button--small" for="eyesInput">选择图片</label>
+            <input id="eyesInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+          <article class="asset-slot" data-asset="mouth">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>mouth atlas</strong></div>
+            <code id="mouthName">sephie_a_mouth.png</code>
+            <output id="mouthMeta">等待载入</output>
+            <label class="button button--small" for="mouthInput">选择图片</label>
+            <input id="mouthInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+        </div>
+        <p class="source-note">本地图片只在当前浏览器页中预览，不会上传或改写原文件。导出配置使用上方运行时目录与所选文件名。</p>
+      </section>
+
+      <div class="workbench-grid">
+        <section class="panel stage-panel" aria-labelledby="stageTitle">
+          <div class="section-heading section-heading--stage">
+            <div>
+              <p class="section-kicker">02 · COMPOSITE</p>
+              <h2 id="stageTitle">合成与接缝检查</h2>
+            </div>
+            <output class="frame-readout" id="frameReadout">眼睛 0 / 嘴型 0</output>
+          </div>
+
+          <div class="stage-toolbar">
+            <label>
+              <span>检查背景</span>
+              <select id="stageBackground">
+                <option value="checker">透明棋盘</option>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+                <option value="pink">高饱和粉</option>
+                <option value="blue">高饱和蓝</option>
+              </select>
+            </label>
+            <label class="range-label">
+              <span>预览缩放 <output id="zoomReadout">100%</output></span>
+              <input id="stageZoom" type="range" min="50" max="180" value="100" step="10" />
+            </label>
+            <label class="toggle"><input id="showGuides" type="checkbox" checked /><span>显示窗口</span></label>
+            <label class="toggle"><input id="maskEnabled" type="checkbox" checked /><span>应用 mask</span></label>
+            <label class="toggle"><input id="eyesVisible" type="checkbox" checked /><span>eyes</span></label>
+            <label class="toggle"><input id="mouthVisible" type="checkbox" checked /><span>mouth</span></label>
+          </div>
+
+          <div class="preview-grid">
+            <div class="composite-preview-block">
+              <div class="gal-preview-heading">
+                <strong>逻辑画布预览</strong>
+                <span id="canvasPreviewLabel">1024 × 1024</span>
+              </div>
+              <div class="stage-viewport" id="stageViewport">
+            <div class="stage-scaler" id="stageScaler">
+              <div class="logical-stage show-guides" id="logicalStage" data-background="checker">
+                <div class="portrait" id="portrait" role="img" aria-label="分层动态立绘合成预览">
+                  <img class="portrait__body" id="bodyLayer" alt="" aria-hidden="true" />
+                  <span class="face-window face-window--eyes" id="eyeWindow" aria-hidden="true">
+                    <img id="eyeLayer" alt="" />
+                  </span>
+                  <span class="face-window face-window--mouth" id="mouthWindow" aria-hidden="true">
+                    <img id="mouthLayer" alt="" />
+                  </span>
+                </div>
+
+                <div class="guides">
+                  <span class="center-line center-line--x"></span>
+                  <span class="center-line center-line--y"></span>
+                  <button
+                    class="region-guide region-guide--eyes"
+                    id="eyeGuide"
+                    data-region="eyes"
+                    type="button"
+                    aria-label="拖动或用方向键调整 eyes 窗口"
+                  >
+                    <span>eyes</span><i class="resize-handle" data-resize="eyes"></i>
+                  </button>
+                  <button
+                    class="region-guide region-guide--mouth"
+                    id="mouthGuide"
+                    data-region="mouth"
+                    type="button"
+                    aria-label="拖动或用方向键调整 mouth 窗口"
+                  >
+                    <span>mouth</span><i class="resize-handle" data-resize="mouth"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+              </div>
+            </div>
+
+            <div class="gal-preview-block">
+              <div class="gal-preview-heading">
+                <strong>GAL 构图预览</strong>
+                <span id="galPreviewLabel">844 × 390 · tablet 档</span>
+              </div>
+              <div class="gal-preview" id="galPreview">
+              <div class="gal-preview__scene" aria-hidden="true">
+                <span class="gal-preview__window"></span>
+                <span class="gal-preview__floor"></span>
+              </div>
+              <div class="gal-portrait-stage" id="galPortraitStage">
+                <div class="portrait" id="galPortrait" role="img" aria-label="GAL 剧情框立绘构图预览">
+                  <img class="portrait__body" id="galBodyLayer" alt="" aria-hidden="true" />
+                  <span class="face-window face-window--eyes" id="galEyeWindow" aria-hidden="true">
+                    <img id="galEyeLayer" alt="" />
+                  </span>
+                  <span class="face-window face-window--mouth" id="galMouthWindow" aria-hidden="true">
+                    <img id="galMouthLayer" alt="" />
+                  </span>
+                </div>
+              </div>
+              <div class="gal-preview__nameplate" id="galNameplate">Sephie</div>
+              <div class="gal-preview__dialogue"><span>立绘应避开姓名牌与正文区域，并保留完整头部轮廓。</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="frame-controls">
+            <fieldset>
+              <legend>眼睛逐帧</legend>
+              <div class="segmented" id="eyeFrames" aria-label="眼睛帧"></div>
+            </fieldset>
+            <fieldset>
+              <legend>嘴型逐帧</legend>
+              <div class="segmented" id="mouthFrames" aria-label="嘴型帧"></div>
+            </fieldset>
+            <div class="motion-actions">
+              <button class="button button--primary" id="blinkOnce" type="button">眨眼一次</button>
+              <button class="button button--primary" id="speakOnce" type="button">说话一次</button>
+              <button class="button" id="stopMotion" type="button">停止</button>
+            </div>
+          </div>
+          <p class="stage-note">拖动红/蓝窗口可改位置，拖右下角可改大小；聚焦窗口后用方向键微调，按住 Shift 每次移动 10px。</p>
+        </section>
+
+        <aside class="panel calibration-panel" aria-labelledby="calibrationTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">03 · CALIBRATE</p>
+              <h2 id="calibrationTitle">坐标与帧</h2>
+            </div>
+            <output class="dirty-state" id="dirtyState">示例值</output>
+          </div>
+
+          <div class="calibration-overview">
+            <fieldset class="setup-group">
+              <legend>逻辑画布与图集</legend>
+              <div class="canvas-fields">
+                <label><span>画布宽</span><input id="canvasWidth" type="number" min="1" step="1" value="1024" /></label>
+                <label><span>画布高</span><input id="canvasHeight" type="number" min="1" step="1" value="1024" /></label>
+                <label><span>眼睛帧数</span><input id="eyeFrameCount" type="number" min="1" max="12" step="1" value="3" /></label>
+                <label><span>嘴型帧数</span><input id="mouthFrameCount" type="number" min="1" max="12" step="1" value="3" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="setup-group">
+              <legend>GAL 构图画布</legend>
+              <div class="gal-canvas-fields">
+                <label><span>预览宽</span><input id="galViewportWidth" type="number" min="320" max="3840" step="1" value="844" /></label>
+                <label><span>预览高</span><input id="galViewportHeight" type="number" min="180" max="2160" step="1" value="390" /></label>
+              </div>
+              <div class="region-editor__title gal-stage-title">
+                <strong>人物舞台</strong><span id="galCoordinateText">size:48% ≈ 405 × 405px · right:4% bottom:0%</span>
+              </div>
+              <div class="region-fields region-fields--three">
+                <label><span>人物尺寸 %</span><input id="galWidth" type="number" min="10" max="100" step="1" value="48" /></label>
+                <label><span>右侧 %</span><input id="galRight" type="number" min="-100" max="100" step="1" value="4" /></label>
+                <label><span>底部 %</span><input id="galBottom" type="number" min="-100" max="100" step="1" value="0" /></label>
+              </div>
+              <p class="setup-note">人物舞台保持正方形，高度由“人物尺寸”自动换算，和正式 LayeredPortrait 一致。</p>
+            </fieldset>
+          </div>
+
+          <div class="region-editor region-editor--eyes" data-editor="eyes">
+            <div class="region-editor__title"><strong>eyes</strong><span id="eyeCoordinateText">x:400 y:90 w:225 h:145</span></div>
+            <div class="region-fields">
+              <label><span>X</span><input id="eyesX" data-region-input="eyes" data-axis="x" type="number" step="1" /></label>
+              <label><span>Y</span><input id="eyesY" data-region-input="eyes" data-axis="y" type="number" step="1" /></label>
+              <label><span>W</span><input id="eyesWidth" data-region-input="eyes" data-axis="width" type="number" min="1" step="1" /></label>
+              <label><span>H</span><input id="eyesHeight" data-region-input="eyes" data-axis="height" type="number" min="1" step="1" /></label>
+              <label><span>羽化</span><input id="eyesFeather" data-region-input="eyes" data-axis="feather" type="number" min="0" step="1" /></label>
+            </div>
+          </div>
+
+          <div class="region-editor region-editor--mouth" data-editor="mouth">
+            <div class="region-editor__title"><strong>mouth</strong><span id="mouthCoordinateText">x:420 y:185 w:185 h:105</span></div>
+            <div class="region-fields">
+              <label><span>X</span><input id="mouthX" data-region-input="mouth" data-axis="x" type="number" step="1" /></label>
+              <label><span>Y</span><input id="mouthY" data-region-input="mouth" data-axis="y" type="number" step="1" /></label>
+              <label><span>W</span><input id="mouthWidth" data-region-input="mouth" data-axis="width" type="number" min="1" step="1" /></label>
+              <label><span>H</span><input id="mouthHeight" data-region-input="mouth" data-axis="height" type="number" min="1" step="1" /></label>
+              <label><span>羽化</span><input id="mouthFeather" data-region-input="mouth" data-axis="feather" type="number" min="0" step="1" /></label>
+            </div>
+          </div>
+
+          <div class="check-list" aria-labelledby="checksTitle">
+            <h3 id="checksTitle">即时检查</h3>
+            <ul id="validationList" aria-live="polite"></ul>
+          </div>
+
+          <details class="atlas-details" open>
+            <summary>图集切帧预览</summary>
+            <div class="atlas-grid">
+              <figure>
+                <div class="atlas-preview" id="eyeAtlasPreview"><img id="eyeAtlasImage" alt="眼睛纵向图集" /></div>
+                <figcaption id="eyeAtlasCaption">eyes</figcaption>
+              </figure>
+              <figure>
+                <div class="atlas-preview" id="mouthAtlasPreview"><img id="mouthAtlasImage" alt="嘴型纵向图集" /></div>
+                <figcaption id="mouthAtlasCaption">mouth</figcaption>
+              </figure>
+            </div>
+          </details>
+        </aside>
+      </div>
+
+      <section class="panel export-panel" aria-labelledby="exportTitle">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">04 · EXPORT</p>
+            <h2 id="exportTitle">导出 rig</h2>
+          </div>
+          <div class="heading-actions">
+            <button class="button" id="copyJson" type="button">复制 JSON</button>
+            <button class="button" id="downloadJson" type="button">下载 JSON</button>
+            <button class="button" id="copyRegions" type="button">复制 regions</button>
+            <button class="button button--primary" id="copyTypeScript" type="button">复制完整 rig</button>
+          </div>
+        </div>
+        <div class="export-tabs" role="tablist" aria-label="导出格式">
+          <button id="jsonTab" type="button" role="tab" aria-selected="true" aria-controls="exportCode">manifest.json</button>
+          <button id="regionsTab" type="button" role="tab" aria-selected="false" aria-controls="exportCode">regions</button>
+          <button id="typescriptTab" type="button" role="tab" aria-selected="false" aria-controls="exportCode">LayeredPortraitRig</button>
+        </div>
+        <pre class="export-code"><code id="exportCode"></code></pre>
+        <p class="export-note">图片不会由本页自动复制进项目；确认文件已放入“运行时素材目录”后，再把导出的配置接入角色定义。</p>
+      </section>
+    </main>
+  </body>
+</html>

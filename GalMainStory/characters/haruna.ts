@@ -27,13 +27,38 @@ const HARUNA_SCHOOL_PORTRAIT = {
   ),
 } as const;
 
+const HARUNA_CHANGER_ROOM_PORTRAIT = {
+  id: 'changer-room',
+  characterId: 'haruna',
+  displayName: '西连寺春菜',
+  canvas: { width: 1024, height: 1024 },
+  body: '/artsource/haruna/haruna_changer_room/haruna_changer_room.png',
+  mask: '/artsource/haruna/haruna_changer_room/005_02_05_a.png',
+  regions: {
+    eyes: { x: 399, y: 210, width: 221, height: 124, feather: 1 },
+    mouth: { x: 399, y: 331, width: 221, height: 60, feather: 0 },
+  },
+  defaultExpressionId: 'shy',
+  expressions: createFaceAtlasExpressions(
+    '/artsource/haruna/haruna_changer_room/005_03_05_',
+    {
+      shy: 'b',
+      anger: 'c',
+    },
+    ['shy'],
+  ),
+} as const;
+
 export const HARUNA_STORY_CHARACTER = {
   id: 'haruna',
   displayName: '西连寺春菜',
   speakerAliases: ['西连寺春菜', '西連寺春菜', '春菜', '西连寺'],
   nameplate: '/artsource/galbox/haruna/wasya05_haruna.png',
   defaultPortraitId: HARUNA_SCHOOL_PORTRAIT.id,
-  portraits: { [HARUNA_SCHOOL_PORTRAIT.id]: HARUNA_SCHOOL_PORTRAIT },
+  portraits: {
+    [HARUNA_SCHOOL_PORTRAIT.id]: HARUNA_SCHOOL_PORTRAIT,
+    [HARUNA_CHANGER_ROOM_PORTRAIT.id]: HARUNA_CHANGER_ROOM_PORTRAIT,
+  },
   loreReferences: [
     {
       worldbookName: '出包王女',
