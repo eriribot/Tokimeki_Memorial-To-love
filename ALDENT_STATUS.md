@@ -787,3 +787,199 @@ v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路
 | Human acceptance | not run | 坐标与特殊回退仍需用户按角色逐帧抽查 |
 
 当前最强接通标签：**官方表与像素对齐形成的本地参考数据**。CSV 是可追溯证据，不等于所有 1,629 组表情已经逐帧通过人工美术验收。
+
+## 本轮增量：把 `005_03_05_b/c` 转成更衣室 body 专用图集
+
+- 用户确认必须保留 `005_03_05_b/c` 的强害羞与生气表情语义，不能改用 `005_02_05` 中不同语义的字母图；直接把
+  `03` 图集套进 `02` body 会让贴片边缘、人物锚点与保存后的 body 像素不一致。
+- 新增四张不覆盖原图的 clean integer atlas：
+  `005_02_05_from_03_b_eye.png`、`005_02_05_from_03_b_mouth.png`、
+  `005_02_05_from_03_c_eye.png`、`005_02_05_from_03_c_mouth.png`。eye 为 `230x393`，mouth 为
+  `230x171`，均为三帧纵排，可直接对应 `230x131` 与 `230x57` 的正式窗口。
+- 转换没有用整块 feather，也没有用会残留睁眼的 RGB 差值迁移。每帧保留 `03_b/c` 的完整表情内核；eyes 的上、左、右
+  外圈和 mouth 的左、右、下外圈，直接取实际 `haruna_changer_room.png` 对应窗口的 edge reference，再在窄带内过渡。
+  eyes 底部与 mouth 顶部继续使用同一个 `03` 表情家族，并由现有 3px region 重叠衔接。
+- 目标 region 固定为官方 `02` 坐标：eyes `394,221,230,131`、mouth `394,349,230,57`，运行时不需要额外
+  `feather`。本轮没有修改 `characters/haruna.ts`，因此新图尚未进入剧情渲染。
+- 当前目录中没有裸文件 `haruna_changer_room.png`，只有包含该 PNG 的 `haruna_changer_room.7z`；本轮只解压到临时证据目录
+  进行转换，没有擅自恢复运行资源。正式接入前必须先由用户决定是否把 body PNG 恢复到代码已引用的位置。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Clean atlas dimensions | passed | b/c 两套 eye 均为 `230x393`，mouth 均为 `230x171` |
+| Body-edge equality | passed | 六个 eye 帧的上/左/右最外圈、六个 mouth 帧的左/右/下最外圈与实际 body 对应像素完全相同 |
+| Static actual-body comparison | recorded | 对照了旧人工窗口、原始 03 直贴官方 02 窗口与 edge-graft 转换三种结果 |
+| `haruna.ts` integration | not run | 本轮明确只产出转换素材，没有改角色配置 |
+| Project tests / build / browser | not run | 未运行测试、构建或页面；等待用户先看转换结果 |
+| Human acceptance | not run | shy/anger 六帧接缝与表情仍需用户人工确认 |
+
+当前最强接通标签：**实际更衣室 body 专用的静态转换素材已生成，尚未接入运行时，待人工逐帧验收**。
+
+## 本轮增量：把春菜跨家族转换过程放进 model 校准台
+
+- `artsource/model/` 不再只提供难以直接操作的全量 CSV。页面新增独立的“跨家族表情转换”工作区，明确分开源 eye/mouth
+  atlas、目标 body edge reference、官方目标窗口、烘焙边缘带、当前帧输出和下载结果。
+- 春菜预设直接加载 `005_03_05_b`（shy）或 `005_03_05_c`（anger），并填入 `005_02_05` 的官方 windows：eyes
+  `394,221,230,131`、mouth `394,349,230,57`。默认 edge bands 为 eyes `8/10/10/0`、mouth `0/10/10/8`
+  （top/left/right/bottom）；它们只在导出的 PNG 中混入目标 body 边缘，不写进 `PortraitRegion.feather`。
+- 算法按纵排帧数切开源 atlas、缩放到目标窗口；每个选定边缘的最外圈完全取目标 body，对应带内向源表情逐步过渡，未选中的
+  内核保持源表情。它不提供会残留旧眼嘴的 RGB 差值迁移，也没有把全窗口透明 feather 当成修复手段。
+- 页面把“源当前帧 → 目标 body crop 与边缘带 → 新 atlas 当前帧”并列展示，并新增较大的目标 body 合成检查画布。eye、mouth
+  atlas 与转换 JSON 可分别下载；配置 JSON 会记录输入名、目标画布、坐标、edge bands 和输出尺寸。
+- 逻辑画布所在的主预览也已扩宽：宽屏优先给合成区留空间，参数区收窄；在宽度不足时才把参数与双预览改为纵向排列。
+- 目标更衣室 body 仍只有 `.7z` 内的 PNG，工具明确要求用户选择解出的 `haruna_changer_room.png`，或把上方已经载入的
+  body 作为 edge reference；没有把 archive 伪装成浏览器可读取图片，也没有修改 `characters/haruna.ts`。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Static source implementation review | recorded | `index.html`、`model.css`、`model.js`、`README.md` 与转换流程逐项对读 |
+| Browser / canvas interaction | not run | 用户本轮要求不启动页面或运行测试，等待其手动载入更衣室 body 后检查 |
+| Project tests / lint / TypeScript / build | not run | 用户明确要求本轮不测试 |
+| `haruna.ts` runtime integration | not run | 本轮只完善可视化转换与说明，未改角色接入 |
+| Human acceptance | not run | 等待用户检查 shy/anger 六帧、body 合成接缝、边缘带参数与大预览布局 |
+
+当前最强接通标签：**转换工具源码已实现并清楚暴露参数，未替代实际 GAL 人工验收**。
+
+## 本轮增量：完整 02/03 家族反例、流水线试运行与旧算法撤销
+
+- 用户明确反证先前 body-edge-graft 结果“更不对”。前述“边缘像素相等”只证明矩形外圈相等，不能证明眼位、眉位、脸红、
+  刘海、脸型或下巴正确；因此先前转换可用结论已撤销，旧算法只保留为失败对照。
+- 用户补入完整 `005_02_05_a-f` 与 `005_03_05_a-c` 素材；官方库还显示 03_d-f。跨家族字母不是一一语义对应，且
+  03 atlas 同时包含眼嘴以外的脸部与头发内容，不能依靠 11px 窗口偏移、整块扭曲或边缘拼接直接恢复。
+- `artsource/model/cases/haruna-03-to-02/` 新增隔离的可复现案例：用 03_a/02_a body 窗口求中性 dense flow，按
+  `03_b/c - 03_a` 的预乘 RGBA 差异生成变化区，再由 02 家族底图承载低频皮肤、脸型、发际、下巴与窗口边界。
+- 案例提供官方参考、直接套用、整块 warp、02 底图、变化区和候选六阶段，以及“高频替换”“线稿保真”“中性归一”三种公式。
+  中性归一因 shy 眼部出现黄色/棕色偏移被明确否决；高频替换仍仅是研究候选。
+- 试运行已为 shy/anger 三种公式分别导出 clean integer atlas：eye `230×393`、mouth `230×171`，全部位于案例
+  `outputs/`，没有覆盖角色目录。
+- `artsource/model/index.html` 现在内嵌大尺寸流水线观察器并直接链接高频候选 atlas。原 body-edge-graft 区改名为
+  “旧边缘补图实验（已否决）”，仍可复现旧失败，但不得晋升。
+- 当前 `HARUNA_CHANGER_ROOM_PORTRAIT` 仍引用原始 `005_03_05_b/c` 与人工窗口；mask 仍指向当前工作区中已不存在的
+  `005_02_05_a.png`。本轮没有把研究输出接入 `haruna.ts`。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Full-family structural evidence | recorded | 02/03 a-f 图集、两个 body、官方窗口、逐帧配准与失败对照已记录 |
+| Reproducible pipeline case | generated | manifest、输入哈希、生成脚本、48 张 1024px 阶段图与 12 张 clean atlas 均在隔离案例目录 |
+| Legacy edge-graft acceptance | rejected | 用户反例撤销；只保留失败研究区 |
+| Model index presentation | implemented | 大画布案例 iframe、独立入口与 high 输出链接已写入源码 |
+| Browser / canvas interaction | not run | 按用户连续要求不打开浏览器，由用户自行查看 |
+| Project tests / lint / build | not run | 本轮不测试 |
+| `haruna.ts` runtime integration | not run | 未晋升候选；当前 direct-03 与缺失 mask 链仍保持原状 |
+| Human acceptance | not run | 等待用户在 model 大画布逐帧比较后决定公式与底图 |
+
+当前最强接通标签：**跨家族转换已形成隔离、可复现、可观察且可导出 clean atlas 的试运行流水线；旧 edge-graft 已撤销，
+高频候选尚未通过人工验收且未进入运行时**。
+
+## 本轮增量：反假验证的 eyes / mouth 分项验收 loop
+
+- 用户指出“脚本成功”“边缘数值”等是假验证，明确要求 eyes 和 mouth 分开制定验收标准，并要求从成熟公开方法中寻找
+  可嵌套的处理链。`cases/haruna-03-to-02/acceptance-contract.json` 因此把审查冻结为
+  `shy/anger x frame 0/1/2 x eyes/mouth = 12` 项；任何一项拒绝都不能晋升运行时资源。
+- 在线资料已写入案例 README 与 config：scikit-image TV-L1 registration、OpenCV seamless clone / inpaint、
+  LearnOpenCV 的 landmark -> triangulation -> clone face-swap 结构，以及 piecewise affine 的控制点前提。
+  这些资料用于约束实现，不被描述为自动美术验收。
+- 实际原尺寸阶段图已反证三条处理型分支：TV-L1 会把官方窗口已经解决的局部几何再次拉坏；连续凸包 Poisson 会把 03 下巴
+  带入 02；目标动态区 Telea inpaint 会抹掉同时位于图层中的刘海。`poisson_normal` 与 `poisson_mixed` 现均为
+  `rejected-visual-artifact`，只可作为失败对照，不能默认选用或拷贝到角色目录。
+- 当前唯一待人审的产物是 `official_window`：按 `official-face-coordinate-map.csv` 的 02 window 原样落位 03 的完整
+  atlas，没有伪称它已经解决跨家族问题。它的边界自动 gate 明确为 `not-applicable`，因为只有最终 alpha 合成后的原尺寸画面
+  能判断是否存在接缝；没有把该缺口伪装成数值通过。
+- 案例页面增加 eyes / mouth 独立放大、12 项可回读的人工判定矩阵、备注与审查 JSON 导出。每个候选的判定只存浏览器
+  localStorage，导出记录仍固定 `promotionAllowed: false`。生成器还输出两张原尺寸审查表：
+  `outputs/review/official_window-eye-review.png` 与 `outputs/review/official_window-mouth-review.png`，均保留目标窗口外上下文。
+- `haruna.ts`、正式 `haruna_changer_room_*` 资源、GAL 运行时、Tavern 宿主/消息/插件/数据库链均未改动。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| CSV coordinate authority | recorded | `005_02_05`: eyes `394,221,230,131`, mouth `394,349,230,57`; `005_03_05`: eyes `394,232,230,131`, mouth `394,360,230,57` |
+| Candidate material generation | generated | 隔离案例重新生成 manifest、阶段图、三套 clean atlas 与 eyes/mouth 原尺寸审查表；不覆盖运行时文件 |
+| TV-L1 / Poisson / inpaint visual result | rejected | 原尺寸画面分别出现额头/眉眼折线、下巴横带与刘海损坏；保留为失败对照 |
+| Official-window baseline visual result | recorded | shy/anger 六帧和两张审查表已生成，尚未由用户接受 |
+| Automated boundary record | not applicable | `official_window` 是完整官方 alpha 层的坐标基线，不能以零 delta 取代最终组合观感 |
+| Project tests / lint / TypeScript / build | not run | 遵照用户本轮“不要测试”要求 |
+| Browser / actual GAL / Tavern host | not run | 本轮不以页面或宿主实机结果冒充验收 |
+| Human acceptance | not run | 等待用户按 12 项 eyes/mouth 合同审查；未全部接受前不得接入 `haruna.ts` |
+
+当前最强接通标签：**隔离素材研究与人工验收工具，待用户视觉审查**。它不证明正式 GAL、Tavern、World Info、宿主消息、
+shujuku/ACU、插件或数据库接通，也不证明候选可用。
+
+## 本轮增量：春菜 02 底板 + 语义遮罩候选
+
+- 用户已拒绝完整 `03` 图层直接落到 `02` 官方窗口的额头与下巴结果。本轮不再调整 `haruna.ts` 的官方窗口，也没有覆盖
+  `haruna_changer_room_*` 正式资源。
+- 新增 `cases/haruna-03-to-02/semantic-occlusion-config.json` 与
+  `build_semantic_occlusion_candidate.py`。候选每帧以实际 `haruna_changer_room.png` 的同坐标裁片为底板，`03_b/c` 仅在手工
+  语义多边形内覆盖；同一 body 的 edge-connected 紫发区域会在 eyes 最上层回盖，mouth 最后再回盖目标下巴多边形。这避免官方
+  `005_02_05_a_mouth` 与当前运行时 body 的下巴边缘差异再次形成白色锯齿线。
+- 生成的 shy/anger clean atlas 位于 `outputs/semantic-occlusion/`，eye 为 `230 x 393`、mouth 为 `230 x 171`；六张全身候选和
+  两张 `2 expressions x 3 frames` 原尺寸审查表也只存在于该案例目录。案例页和 model 首页均默认指向该候选，旧方法仍为失败对照。
+- `case-manifest.json` 和 `case-data.js` 将该分支标为 `awaiting-human-review`，并将边界记录显式标为
+  `not-applicable-human-mask-candidate`；没有用像素数值替代刘海、下巴、重影或表情语义的人眼判断。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Candidate material generation | generated | `semantic-occlusion-manifest.json`、两套 clean atlas、六张合成候选与两张总审查表已写入隔离案例目录 |
+| Runtime asset / `haruna.ts` promotion | not run | 本轮只产生待审候选，未修改正式更衣室 atlas 或角色配置 |
+| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行任何测试或构建命令 |
+| Browser / actual GAL / Tavern host | not run | 未把案例页面或本地输出描述为实机验收 |
+| Human acceptance | not run | 等待用户逐帧检查 shy/anger 的 eyes、mouth、额头和下巴 |
+
+当前最强接通标签：**可调语义遮罩候选已生成，待人工视觉验收**。它不证明候选能够进入运行时，也不证明真实 GAL 或宿主链路已接通。
+
+## 本轮增量：拒绝语义遮罩 v1，改为 02 原生脸片 + 03 稀疏特征
+
+- 用户提供的 eyes / mouth 原尺寸审查图已反证 `semantic_occlusion_v1`：eyes 仍带入 `03` 的整片额头与脸宽，mouth 则截断
+  `02` 的下巴。该候选已降为 `rejected-human-review`；旧输出继续留作失败证据，不能恢复为默认候选。
+- 新增 `target-native-feature-config.json` 与 `build_target_native_feature_candidate.py`。当前候选使用 `005_02_05_c`
+  原生 atlas 承载皮肤、刘海、脸颊、脸型、发梢和完整下巴；shy 以原生闭眼帧为底，anger 保留原生 0/1/2 眼球开合。
+- 目标旧线稿只在人工限定的小区域内由 `skimage.restoration.inpaint_biharmonic` 清除。`03_b/c` 经局部锚点变换后仅迁入
+  非肤色的挤眼线、斜眉、汗滴轮廓与嘴芯；源皮肤、额头、脸颊、侧发、脸轮廓和下巴均没有像素所有权。
+- 为消除 `02_c` eye atlas 与实际 `005_02_05_a` body 的顶边采样直线，eyes 只在上 10px、左右 6px 使用同一 `02_a`
+  body 的窄边界参考；mouth 只在左右 6px、下 8px 使用该参考，最外 4px 精确锁回 body。该边带不含任何 `03` 像素。
+- 新 clean atlas、六张完整候选、逐帧像素归属图和 eyes / mouth 两张六帧审查表仅写入
+  `outputs/target-native-features/` 与 `assets/target-native-features/`。manifest 仍为 `promotionAllowed: false`，没有覆盖
+  `haruna_changer_room_*` 正式资源，也没有修改 `GalMainStory/characters/haruna.ts`。
+- 当前 VS Code `5500` 静态服务以仓库根目录为根，真实页面位于 `/src/webgame-ui/artsource/model/index.html`。仓库根新增
+  `/artsource/model/index.html` 跳转入口，使用户原地址无需改变；本轮按要求没有用浏览器打开或验证该路由。
+- NAI 或其他重绘工具仅记录为现有素材无法通过时的后备预选方案，本轮没有生成式改图、外部调用或运行时接入。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Human rejection of `semantic_occlusion_v1` | failed | 用户提供的两张原尺寸审查图显示错误额头比例与缺失下巴；旧候选已冻结为 rejected |
+| Target-native candidate material generation | generated | 两套 clean atlas、六张完整候选、像素归属图与两张六帧审查表均写入隔离案例目录 |
+| Static 5500 source route | implemented | 仓库根入口只跳转到唯一的 `src/webgame-ui/artsource/model/index.html` 源页面 |
+| Runtime asset / `haruna.ts` promotion | not run | 未得到 12 项人工接受，禁止晋升 |
+| Project tests / lint / TypeScript / build | not run | 遵照用户本轮“不要测试”要求 |
+| Browser / route / actual GAL / Tavern host | not run | 未打开页面、未发起实机或宿主验证 |
+| Human acceptance of new candidate | not run | 等待用户逐帧检查新 eyes / mouth 审查表 |
+
+当前最强接通标签：**目标家族原生脸片上的稀疏特征迁移候选已生成，仍待人工视觉验收**。素材生成成功与静态入口源码存在均不等于
+页面、真实 GAL 或 Tavern 链路已通过；任何运行时替换必须等待本候选 12 项全部人工接受后的新一轮明确授权。
+
+## 本轮增量：拒绝 mouth 肤色矩形 v1，生成中心连通嘴芯 v2
+
+- 用户的新原尺寸截图圈出了 `target_native_features_v1` 的 shy F0/F1/F2 嘴周浅色矩形。像素归属图确认 v1 的绿色源区域是完整
+  矩形而非嘴形：`mouthRednessFloor=18` 把正常偏红的 `03` 肤色误判为嘴部特征。该真人反例撤销 v1 的待审状态并将其冻结为
+  `rejected-human-review`；`outputs/target-native-features/` 保留为失败对照，不再覆盖。
+- 当前 `target_native_features_v2` 不再使用 redness 门。它先从 mouth ROI 外圈像素估计局部肤色，再按亮度或与该肤色的 RGB
+  距离寻找候选连通域；任何接触 ROI 外边界的连通域直接丢弃，只有与嘴部中心 seed 相交的区域可以进入源 mask。
+- 目标 `02_c` 旧嘴也改用同一类中心连通形状定位，只对真实嘴形扩大 2px 后做局部修补，不再 inpaint 整块四边形。eyes 的底板、
+  线稿迁移、body 窄边界和官方 region 坐标均保持上一候选不变。
+- v2 的源像素归属图已由矩形收缩为嘴线/口腔内部与独立汗滴；新 atlas、六张完整候选、逐帧归属图和两张六帧审查表只写入
+  `outputs/target-native-features-v2/` 与 `assets/target-native-features-v2/`。manifest 仍固定 `promotionAllowed: false`。
+- model 首页、案例页默认公式、clean atlas 链接、输出 manifest 与说明均已切到 v2；v1 与更早失败分支仍可在公式栏中对照。
+  本轮没有覆盖正式 `haruna_changer_room_*` 文件，也没有修改 `GalMainStory/characters/haruna.ts`。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Human rejection of `target_native_features_v1` | failed | 用户截图圈出 shy 三帧嘴周浅色矩形；v1 归属图显示源肤色被整块选中 |
+| V2 candidate material generation | generated | v2 两套 clean atlas、六张完整候选、12 张局部归属图与两张六帧审查表写入独立目录 |
+| V2 source ownership | recorded | 当前归属图中的绿色 mouth 区域只覆盖中心嘴芯和独立汗滴，不再覆盖 ROI 矩形 |
+| Runtime asset / `haruna.ts` promotion | not run | 新候选尚未取得人工接受，禁止晋升 |
+| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行测试或构建 |
+| Browser / actual GAL / Tavern host | not run | 未以当前打开的 model 页面或本地输出冒充实机验收 |
+| Human acceptance of v2 | not run | 等待用户检查新的 eyes / mouth 六帧审查图 |
+
+当前最强接通标签：**mouth 肤色误选已在隔离 v2 候选中移除，仍待人工原尺寸验收**。v1 人工反例继续有效；生成器运行成功、
+归属区缩小或页面默认项变化都不代表 v2 已被接受，也不授权运行时替换。

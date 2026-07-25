@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "semantic_occlusion_v1",
+  "status": "rejected-human-review",
+  "label": "02 实际 body + 语义遮罩",
+  "sourceFamilyId": "005_03_05",
+  "targetFamilyId": "005_02_05",
+  "targetBody": "../../../haruna/haruna_changer_room/haruna_changer_room.png",
+  "targetBaseExpression": "a",
+  "expressions": {
+    "shy": "b",
+    "anger": "c"
+  },
+  "frameCount": 3,
+  "regions": {
+    "eye": {
+      "size": [230, 131],
+      "sourceTransform": {
+        "scale": [1.0, 1.0],
+        "translate": [0, 0]
+      },
+      "semanticPolygon": [
+        [21, 57], [38, 46], [61, 43], [87, 48], [115, 54], [143, 48], [169, 43], [193, 46],
+        [210, 57], [214, 94], [202, 120], [177, 130], [53, 130], [28, 120]
+      ],
+      "semanticFeather": 1.25,
+      "targetHair": {
+        "purpleDelta": [8, 3],
+        "edge": ["top", "left", "right"],
+        "dilate": 1
+      }
+    },
+    "mouth": {
+      "size": [230, 57],
+      "sourceTransform": {
+        "scale": [1.0, 1.0],
+        "translate": [0, 0]
+      },
+      "semanticPolygon": [
+        [18, 0], [212, 0], [211, 24], [199, 34], [176, 42], [151, 47], [79, 47], [54, 42], [31, 34], [19, 24]
+      ],
+      "semanticFeather": 1.0,
+      "targetHair": {
+        "purpleDelta": [8, 3],
+        "edge": ["left", "right", "bottom"],
+        "dilate": 1
+      },
+      "targetChinPolygon": [[61, 42], [169, 42], [174, 57], [56, 57]]
+    }
+  }
+}

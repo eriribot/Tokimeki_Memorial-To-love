@@ -23,8 +23,25 @@ const SEPHIE_PRESET = {
   galStage: { width: 48, right: 4, bottom: 0 },
 };
 
+const HARUNA_TRANSFORM_PRESET = {
+  canvas: { width: 1024, height: 1024 },
+  frameCount: 3,
+  regions: {
+    eyes: { x: 394, y: 221, width: 230, height: 131 },
+    mouth: { x: 394, y: 349, width: 230, height: 57 },
+  },
+  edgeBands: {
+    eyes: { top: 8, left: 10, right: 10, bottom: 0 },
+    mouth: { top: 0, left: 10, right: 10, bottom: 8 },
+  },
+  sourceDirectory: "../haruna/haruna_changer_room/",
+};
+
 const ASSET_KEYS = ["body", "mask", "eyes", "mouth"];
 const REGION_KEYS = ["eyes", "mouth"];
+const TRANSFORM_ASSET_KEYS = ["sourceEyes", "sourceMouth", "targetBody"];
+const TRANSFORM_REGION_KEYS = ["eyes", "mouth"];
+const TRANSFORM_SIDES = ["top", "left", "right", "bottom"];
 
 const elements = {
   globalStatus: document.querySelector("#globalStatus"),
@@ -111,6 +128,43 @@ const elements = {
   downloadJson: document.querySelector("#downloadJson"),
   copyRegions: document.querySelector("#copyRegions"),
   copyTypeScript: document.querySelector("#copyTypeScript"),
+  loadHarunaTransform: document.querySelector("#loadHarunaTransform"),
+  useCurrentBodyForTransform: document.querySelector("#useCurrentBodyForTransform"),
+  harunaTransformExpression: document.querySelector("#harunaTransformExpression"),
+  transformSourceEyesInput: document.querySelector("#transformSourceEyesInput"),
+  transformSourceMouthInput: document.querySelector("#transformSourceMouthInput"),
+  transformTargetBodyInput: document.querySelector("#transformTargetBodyInput"),
+  transformSourceEyesName: document.querySelector("#transformSourceEyesName"),
+  transformSourceMouthName: document.querySelector("#transformSourceMouthName"),
+  transformTargetBodyName: document.querySelector("#transformTargetBodyName"),
+  transformSourceEyesMeta: document.querySelector("#transformSourceEyesMeta"),
+  transformSourceMouthMeta: document.querySelector("#transformSourceMouthMeta"),
+  transformTargetBodyMeta: document.querySelector("#transformTargetBodyMeta"),
+  transformCanvasWidth: document.querySelector("#transformCanvasWidth"),
+  transformCanvasHeight: document.querySelector("#transformCanvasHeight"),
+  transformFrameCount: document.querySelector("#transformFrameCount"),
+  transformEyeOutputName: document.querySelector("#transformEyeOutputName"),
+  transformMouthOutputName: document.querySelector("#transformMouthOutputName"),
+  transformFrameButtons: document.querySelector("#transformFrameButtons"),
+  transformFrameReadout: document.querySelector("#transformFrameReadout"),
+  transformStatus: document.querySelector("#transformStatus"),
+  transformSourceEyesCanvas: document.querySelector("#transformSourceEyesCanvas"),
+  transformSourceMouthCanvas: document.querySelector("#transformSourceMouthCanvas"),
+  transformTargetEyesCanvas: document.querySelector("#transformTargetEyesCanvas"),
+  transformTargetMouthCanvas: document.querySelector("#transformTargetMouthCanvas"),
+  transformOutputEyesCanvas: document.querySelector("#transformOutputEyesCanvas"),
+  transformOutputMouthCanvas: document.querySelector("#transformOutputMouthCanvas"),
+  transformCompositeCanvas: document.querySelector("#transformCompositeCanvas"),
+  transformCompositeMeta: document.querySelector("#transformCompositeMeta"),
+  transformEyeAtlasCanvas: document.querySelector("#transformEyeAtlasCanvas"),
+  transformMouthAtlasCanvas: document.querySelector("#transformMouthAtlasCanvas"),
+  transformEyeOutputMeta: document.querySelector("#transformEyeOutputMeta"),
+  transformMouthOutputMeta: document.querySelector("#transformMouthOutputMeta"),
+  downloadTransformEyes: document.querySelector("#downloadTransformEyes"),
+  downloadTransformMouth: document.querySelector("#downloadTransformMouth"),
+  downloadTransformConfig: document.querySelector("#downloadTransformConfig"),
+  transformConfigCode: document.querySelector("#transformConfigCode"),
+  transformValidationList: document.querySelector("#transformValidationList"),
 };
 
 const state = {
@@ -136,6 +190,31 @@ const state = {
   activeExport: "json",
   motionTimers: [],
   dirty: false,
+};
+
+const transformState = {
+  canvas: { ...HARUNA_TRANSFORM_PRESET.canvas },
+  frameCount: HARUNA_TRANSFORM_PRESET.frameCount,
+  frame: 0,
+  regions: {
+    eyes: { ...HARUNA_TRANSFORM_PRESET.regions.eyes },
+    mouth: { ...HARUNA_TRANSFORM_PRESET.regions.mouth },
+  },
+  edgeBands: {
+    eyes: { ...HARUNA_TRANSFORM_PRESET.edgeBands.eyes },
+    mouth: { ...HARUNA_TRANSFORM_PRESET.edgeBands.mouth },
+  },
+  assets: Object.fromEntries(
+    TRANSFORM_ASSET_KEYS.map((key) => [
+      key,
+      { name: "", source: "", width: 0, height: 0, status: "idle", objectUrl: "", image: null },
+    ]),
+  ),
+  outputNames: {
+    eyes: "005_02_05_from_03_b_eye.png",
+    mouth: "005_02_05_from_03_b_mouth.png",
+  },
+  output: { eyes: null, mouth: null },
 };
 
 function setStatus(message) {
@@ -264,6 +343,588 @@ function resetAsset(key) {
   Object.assign(asset, { name: "", source: "", width: 0, height: 0, status: "idle", objectUrl: "" });
   clearAssetTargets(key);
   updateAssetCard(key);
+}
+
+function transformAssetPrefix(key) {
+  return `transform${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+}
+
+function setTransformStatus(message) {
+  elements.transformStatus.textContent = message;
+}
+
+function revokeTransformObjectUrl(asset) {
+  if (asset.objectUrl) URL.revokeObjectURL(asset.objectUrl);
+  asset.objectUrl = "";
+}
+
+function updateTransformAssetCard(key) {
+  const asset = transformState.assets[key];
+  const prefix = transformAssetPrefix(key);
+  const card = document.querySelector(`[data-transform-asset="${key}"]`);
+  card.dataset.state = asset.status;
+  elements[`${prefix}Name`].textContent = asset.name || "尚未选择";
+
+  if (asset.status === "ready") elements[`${prefix}Meta`].textContent = `${asset.width} × ${asset.height}`;
+  else if (asset.status === "loading") elements[`${prefix}Meta`].textContent = "正在载入";
+  else if (asset.status === "error") elements[`${prefix}Meta`].textContent = "载入失败";
+  else elements[`${prefix}Meta`].textContent = key === "targetBody" ? "需要实际目标 body PNG（从 .7z 解出）" : "尚未载入";
+}
+
+function loadTransformAssetSource(key, source, fileName, objectUrl = "") {
+  const asset = transformState.assets[key];
+  revokeTransformObjectUrl(asset);
+  Object.assign(asset, {
+    name: fileName || basename(source),
+    source,
+    width: 0,
+    height: 0,
+    status: "loading",
+    objectUrl,
+    image: null,
+  });
+  updateTransformAssetCard(key);
+  renderTransformation();
+
+  const probe = new Image();
+  probe.onload = () => {
+    if (transformState.assets[key].source !== source) return;
+    Object.assign(asset, {
+      width: probe.naturalWidth,
+      height: probe.naturalHeight,
+      status: "ready",
+      image: probe,
+    });
+    updateTransformAssetCard(key);
+    renderTransformation();
+  };
+  probe.onerror = () => {
+    if (transformState.assets[key].source !== source) return;
+    Object.assign(asset, { status: "error", image: null });
+    updateTransformAssetCard(key);
+    renderTransformation();
+  };
+  probe.src = source;
+}
+
+function loadTransformAssetFile(key, file) {
+  if (!file) return;
+  const objectUrl = URL.createObjectURL(file);
+  loadTransformAssetSource(key, objectUrl, file.name, objectUrl);
+}
+
+function resetTransformAsset(key) {
+  const asset = transformState.assets[key];
+  revokeTransformObjectUrl(asset);
+  Object.assign(asset, {
+    name: "",
+    source: "",
+    width: 0,
+    height: 0,
+    status: "idle",
+    objectUrl: "",
+    image: null,
+  });
+  updateTransformAssetCard(key);
+}
+
+function transformCanvas(width, height) {
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(width));
+  canvas.height = Math.max(1, Math.round(height));
+  return canvas;
+}
+
+function paintCanvas(target, source) {
+  target.width = source.width;
+  target.height = source.height;
+  const context = target.getContext("2d");
+  context.clearRect(0, 0, target.width, target.height);
+  context.drawImage(source, 0, 0);
+}
+
+function normalizeTransformState() {
+  transformState.canvas.width = positiveInteger(transformState.canvas.width, 1024);
+  transformState.canvas.height = positiveInteger(transformState.canvas.height, 1024);
+  transformState.frameCount = clamp(positiveInteger(transformState.frameCount, 3), 1, 12);
+  transformState.frame = clamp(transformState.frame, 0, transformState.frameCount - 1);
+
+  TRANSFORM_REGION_KEYS.forEach((kind) => {
+    const region = transformState.regions[kind];
+    region.width = clamp(positiveInteger(region.width, 1), 1, transformState.canvas.width);
+    region.height = clamp(positiveInteger(region.height, 1), 1, transformState.canvas.height);
+    region.x = clamp(Math.round(finiteNumber(region.x, 0)), 0, transformState.canvas.width - region.width);
+    region.y = clamp(Math.round(finiteNumber(region.y, 0)), 0, transformState.canvas.height - region.height);
+
+    const edges = transformState.edgeBands[kind];
+    edges.top = clamp(Math.round(finiteNumber(edges.top, 0)), 0, region.height);
+    edges.bottom = clamp(Math.round(finiteNumber(edges.bottom, 0)), 0, region.height);
+    edges.left = clamp(Math.round(finiteNumber(edges.left, 0)), 0, region.width);
+    edges.right = clamp(Math.round(finiteNumber(edges.right, 0)), 0, region.width);
+  });
+}
+
+function syncTransformInputs() {
+  elements.transformCanvasWidth.value = transformState.canvas.width;
+  elements.transformCanvasHeight.value = transformState.canvas.height;
+  elements.transformFrameCount.value = transformState.frameCount;
+  elements.transformEyeOutputName.value = transformState.outputNames.eyes;
+  elements.transformMouthOutputName.value = transformState.outputNames.mouth;
+
+  document.querySelectorAll("[data-transform-region]").forEach((input) => {
+    const kind = input.dataset.transformRegion;
+    input.value = transformState.regions[kind][input.dataset.transformAxis];
+  });
+  document.querySelectorAll("[data-transform-edge]").forEach((input) => {
+    const kind = input.dataset.transformEdge;
+    input.value = transformState.edgeBands[kind][input.dataset.transformSide];
+  });
+}
+
+function transformFrameCanvas(kind, frame) {
+  const region = transformState.regions[kind];
+  const canvas = transformCanvas(region.width, region.height);
+  const asset = transformState.assets[kind === "eyes" ? "sourceEyes" : "sourceMouth"];
+  if (asset.status !== "ready" || !asset.image) return canvas;
+
+  const context = canvas.getContext("2d");
+  const sourceFrameHeight = asset.height / transformState.frameCount;
+  context.imageSmoothingEnabled = true;
+  context.drawImage(
+    asset.image,
+    0,
+    frame * sourceFrameHeight,
+    asset.width,
+    sourceFrameHeight,
+    0,
+    0,
+    region.width,
+    region.height,
+  );
+  return canvas;
+}
+
+function targetBodyFrameCanvas(kind) {
+  const region = transformState.regions[kind];
+  const canvas = transformCanvas(region.width, region.height);
+  const asset = transformState.assets.targetBody;
+  if (asset.status !== "ready" || !asset.image) return canvas;
+
+  const sourceX = (region.x / transformState.canvas.width) * asset.width;
+  const sourceY = (region.y / transformState.canvas.height) * asset.height;
+  const sourceWidth = (region.width / transformState.canvas.width) * asset.width;
+  const sourceHeight = (region.height / transformState.canvas.height) * asset.height;
+  const context = canvas.getContext("2d");
+  context.imageSmoothingEnabled = true;
+  context.drawImage(asset.image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, region.width, region.height);
+  return canvas;
+}
+
+function edgeReferenceWeight(x, y, width, height, edges) {
+  let weight = 0;
+  if (edges.top > 0 && y < edges.top) weight = Math.max(weight, (edges.top - y) / edges.top);
+  if (edges.bottom > 0 && y >= height - edges.bottom) {
+    weight = Math.max(weight, (y - (height - edges.bottom - 1)) / edges.bottom);
+  }
+  if (edges.left > 0 && x < edges.left) weight = Math.max(weight, (edges.left - x) / edges.left);
+  if (edges.right > 0 && x >= width - edges.right) {
+    weight = Math.max(weight, (x - (width - edges.right - 1)) / edges.right);
+  }
+  return clamp(weight, 0, 1);
+}
+
+function bodyEdgeGraftCanvas(kind, sourceCanvas, bodyCanvas) {
+  const canvas = transformCanvas(sourceCanvas.width, sourceCanvas.height);
+  const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
+  const bodyContext = bodyCanvas.getContext("2d", { willReadFrequently: true });
+  const outputContext = canvas.getContext("2d", { willReadFrequently: true });
+  const sourcePixels = sourceContext.getImageData(0, 0, canvas.width, canvas.height);
+  const bodyPixels = bodyContext.getImageData(0, 0, canvas.width, canvas.height);
+  const outputPixels = outputContext.createImageData(canvas.width, canvas.height);
+  const edges = transformState.edgeBands[kind];
+
+  for (let y = 0; y < canvas.height; y += 1) {
+    for (let x = 0; x < canvas.width; x += 1) {
+      const pixelIndex = (y * canvas.width + x) * 4;
+      const bodyWeight = edgeReferenceWeight(x, y, canvas.width, canvas.height, edges);
+      const sourceWeight = 1 - bodyWeight;
+      const sourceAlpha = sourcePixels.data[pixelIndex + 3] / 255;
+      const bodyAlpha = bodyPixels.data[pixelIndex + 3] / 255;
+      const outputAlpha = sourceAlpha * sourceWeight + bodyAlpha * bodyWeight;
+      outputPixels.data[pixelIndex + 3] = Math.round(outputAlpha * 255);
+      if (outputAlpha === 0) {
+        outputPixels.data[pixelIndex] = 0;
+        outputPixels.data[pixelIndex + 1] = 0;
+        outputPixels.data[pixelIndex + 2] = 0;
+        continue;
+      }
+      for (let channel = 0; channel < 3; channel += 1) {
+        const sourcePremultiplied = (sourcePixels.data[pixelIndex + channel] / 255) * sourceAlpha;
+        const bodyPremultiplied = (bodyPixels.data[pixelIndex + channel] / 255) * bodyAlpha;
+        const outputPremultiplied = sourcePremultiplied * sourceWeight + bodyPremultiplied * bodyWeight;
+        outputPixels.data[pixelIndex + channel] = Math.round((outputPremultiplied / outputAlpha) * 255);
+      }
+    }
+  }
+  outputContext.putImageData(outputPixels, 0, 0);
+  return canvas;
+}
+
+function drawEdgeBands(canvas, kind) {
+  const context = canvas.getContext("2d");
+  const { width, height } = canvas;
+  const edges = transformState.edgeBands[kind];
+  const color = kind === "eyes" ? "255, 98, 125" : "98, 168, 255";
+  const drawBand = (x, y, bandWidth, bandHeight, gradient) => {
+    if (bandWidth <= 0 || bandHeight <= 0) return;
+    context.fillStyle = gradient;
+    context.fillRect(x, y, bandWidth, bandHeight);
+  };
+
+  if (edges.top > 0) {
+    const gradient = context.createLinearGradient(0, 0, 0, edges.top);
+    gradient.addColorStop(0, `rgba(${color}, 0.48)`);
+    gradient.addColorStop(1, `rgba(${color}, 0)`);
+    drawBand(0, 0, width, edges.top, gradient);
+  }
+  if (edges.bottom > 0) {
+    const gradient = context.createLinearGradient(0, height, 0, height - edges.bottom);
+    gradient.addColorStop(0, `rgba(${color}, 0.48)`);
+    gradient.addColorStop(1, `rgba(${color}, 0)`);
+    drawBand(0, height - edges.bottom, width, edges.bottom, gradient);
+  }
+  if (edges.left > 0) {
+    const gradient = context.createLinearGradient(0, 0, edges.left, 0);
+    gradient.addColorStop(0, `rgba(${color}, 0.48)`);
+    gradient.addColorStop(1, `rgba(${color}, 0)`);
+    drawBand(0, 0, edges.left, height, gradient);
+  }
+  if (edges.right > 0) {
+    const gradient = context.createLinearGradient(width, 0, width - edges.right, 0);
+    gradient.addColorStop(0, `rgba(${color}, 0.48)`);
+    gradient.addColorStop(1, `rgba(${color}, 0)`);
+    drawBand(width - edges.right, 0, edges.right, height, gradient);
+  }
+}
+
+function transformationInputsReady() {
+  return TRANSFORM_ASSET_KEYS.every((key) => transformState.assets[key].status === "ready");
+}
+
+function buildTransformOutput(kind) {
+  const region = transformState.regions[kind];
+  const atlas = transformCanvas(region.width, region.height * transformState.frameCount);
+  const atlasContext = atlas.getContext("2d");
+  const bodyCanvas = targetBodyFrameCanvas(kind);
+  const frames = [];
+
+  for (let frame = 0; frame < transformState.frameCount; frame += 1) {
+    const sourceCanvas = transformFrameCanvas(kind, frame);
+    const outputCanvas = bodyEdgeGraftCanvas(kind, sourceCanvas, bodyCanvas);
+    atlasContext.drawImage(outputCanvas, 0, frame * region.height);
+    frames.push({ sourceCanvas, bodyCanvas, outputCanvas });
+  }
+  return { atlas, frames };
+}
+
+function renderTransformFrameButtons() {
+  elements.transformFrameButtons.replaceChildren();
+  for (let frame = 0; frame < transformState.frameCount; frame += 1) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = String(frame);
+    button.setAttribute("aria-pressed", String(frame === transformState.frame));
+    button.addEventListener("click", () => {
+      transformState.frame = frame;
+      renderTransformation();
+    });
+    elements.transformFrameButtons.append(button);
+  }
+  elements.transformFrameReadout.textContent = `第 ${transformState.frame} / ${transformState.frameCount} 帧`;
+}
+
+function addTransformValidation(stateName, message) {
+  const item = document.createElement("li");
+  item.dataset.state = stateName;
+  item.textContent = message;
+  elements.transformValidationList.append(item);
+}
+
+function renderTransformValidation() {
+  elements.transformValidationList.replaceChildren();
+  const sourceEyes = transformState.assets.sourceEyes;
+  const sourceMouth = transformState.assets.sourceMouth;
+  const targetBody = transformState.assets.targetBody;
+  const readyCount = TRANSFORM_ASSET_KEYS.filter((key) => transformState.assets[key].status === "ready").length;
+  addTransformValidation(
+    readyCount === TRANSFORM_ASSET_KEYS.length ? "ok" : "warning",
+    `转换输入 ${readyCount} / ${TRANSFORM_ASSET_KEYS.length} 已载入。`,
+  );
+
+  [
+    ["eyes", sourceEyes],
+    ["mouth", sourceMouth],
+  ].forEach(([kind, asset]) => {
+    const region = transformState.regions[kind];
+    if (asset.status !== "ready") {
+      addTransformValidation("warning", `尚未选择源 ${kind} atlas。`);
+      return;
+    }
+    const sourceFrameHeight = asset.height / transformState.frameCount;
+    addTransformValidation(
+      Number.isInteger(sourceFrameHeight) ? "ok" : "warning",
+      Number.isInteger(sourceFrameHeight)
+        ? `源 ${kind} 每帧为 ${asset.width} × ${sourceFrameHeight}，将输出为 ${region.width} × ${region.height}。`
+        : `源 ${kind} 高度 ${asset.height} ÷ ${transformState.frameCount} 不是整数；页面按纵排比例切帧，再写成整数输出。`,
+    );
+  });
+
+  if (targetBody.status !== "ready") {
+    addTransformValidation("warning", "尚未选择目标 body，因此不能确认或烘焙边缘像素。");
+  } else {
+    const matchesCanvas =
+      targetBody.width === transformState.canvas.width && targetBody.height === transformState.canvas.height;
+    addTransformValidation(
+      matchesCanvas ? "ok" : "warning",
+      matchesCanvas
+        ? `目标 body 与目标画布一致：${targetBody.width} × ${targetBody.height}。`
+        : `目标 body 为 ${targetBody.width} × ${targetBody.height}，将按 ${transformState.canvas.width} × ${transformState.canvas.height} 坐标取样。`,
+    );
+  }
+
+  TRANSFORM_REGION_KEYS.forEach((kind) => {
+    const region = transformState.regions[kind];
+    const edges = transformState.edgeBands[kind];
+    addTransformValidation(
+      "ok",
+      `${kind} 输出窗口 ${region.width} × ${region.height}；边缘带 上${edges.top} 左${edges.left} 右${edges.right} 下${edges.bottom}px。`,
+    );
+  });
+
+  if (transformationInputsReady()) {
+    addTransformValidation(
+      "ok",
+      `输出是 ${transformState.frameCount} 帧纵排整数 atlas；下载只生成新文件，不会覆盖源图。`,
+    );
+  }
+}
+
+function transformConfigObject() {
+  const outputDimensions = Object.fromEntries(
+    TRANSFORM_REGION_KEYS.map((kind) => {
+      const region = transformState.regions[kind];
+      return [kind, { width: region.width, height: region.height * transformState.frameCount, frameHeight: region.height }];
+    }),
+  );
+  return {
+    schemaVersion: 1,
+    operation: "body-edge-graft",
+    description: "保留源表情内核；选定边缘由目标 body 同坐标像素逐步替换。此配置不写入 runtime feather。",
+    source: {
+      eyes: transformState.assets.sourceEyes.name || null,
+      mouth: transformState.assets.sourceMouth.name || null,
+    },
+    target: {
+      body: transformState.assets.targetBody.name || null,
+      canvas: { ...transformState.canvas },
+      regions: {
+        eyes: { ...transformState.regions.eyes },
+        mouth: { ...transformState.regions.mouth },
+      },
+    },
+    frameCount: transformState.frameCount,
+    edgeBands: {
+      eyes: { ...transformState.edgeBands.eyes },
+      mouth: { ...transformState.edgeBands.mouth },
+    },
+    output: {
+      ready: transformationInputsReady(),
+      eyes: { file: pngFileName(transformState.outputNames.eyes, "converted_eye.png"), ...outputDimensions.eyes },
+      mouth: { file: pngFileName(transformState.outputNames.mouth, "converted_mouth.png"), ...outputDimensions.mouth },
+    },
+  };
+}
+
+function renderTransformConfig() {
+  elements.transformConfigCode.textContent = JSON.stringify(transformConfigObject(), null, 2);
+}
+
+function renderTransformComposite() {
+  const canvas = elements.transformCompositeCanvas;
+  canvas.width = transformState.canvas.width;
+  canvas.height = transformState.canvas.height;
+  const context = canvas.getContext("2d");
+  const targetBody = transformState.assets.targetBody;
+  if (targetBody.status === "ready" && targetBody.image) {
+    context.imageSmoothingEnabled = true;
+    context.drawImage(targetBody.image, 0, 0, canvas.width, canvas.height);
+  }
+
+  if (transformationInputsReady()) {
+    TRANSFORM_REGION_KEYS.forEach((kind) => {
+      const region = transformState.regions[kind];
+      const output = transformState.output[kind];
+      context.drawImage(output.frames[transformState.frame].outputCanvas, region.x, region.y, region.width, region.height);
+    });
+    elements.transformCompositeMeta.textContent = `${canvas.width} × ${canvas.height} · eyes / mouth 当前帧已合成`;
+  } else if (targetBody.status === "ready") {
+    elements.transformCompositeMeta.textContent = `${canvas.width} × ${canvas.height} · 等待源图集`;
+  } else {
+    elements.transformCompositeMeta.textContent = "等待目标 body";
+  }
+}
+
+function renderTransformation() {
+  normalizeTransformState();
+  syncTransformInputs();
+  renderTransformFrameButtons();
+
+  const sourceFrames = {
+    eyes: transformFrameCanvas("eyes", transformState.frame),
+    mouth: transformFrameCanvas("mouth", transformState.frame),
+  };
+  const referenceFrames = {
+    eyes: targetBodyFrameCanvas("eyes"),
+    mouth: targetBodyFrameCanvas("mouth"),
+  };
+  const referencePreviews = {
+    eyes: transformCanvas(referenceFrames.eyes.width, referenceFrames.eyes.height),
+    mouth: transformCanvas(referenceFrames.mouth.width, referenceFrames.mouth.height),
+  };
+  TRANSFORM_REGION_KEYS.forEach((kind) => {
+    const preview = referencePreviews[kind];
+    preview.getContext("2d").drawImage(referenceFrames[kind], 0, 0);
+    drawEdgeBands(preview, kind);
+  });
+
+  if (transformationInputsReady()) {
+    transformState.output = {
+      eyes: buildTransformOutput("eyes"),
+      mouth: buildTransformOutput("mouth"),
+    };
+  } else {
+    transformState.output = { eyes: null, mouth: null };
+  }
+
+  paintCanvas(elements.transformSourceEyesCanvas, sourceFrames.eyes);
+  paintCanvas(elements.transformSourceMouthCanvas, sourceFrames.mouth);
+  paintCanvas(elements.transformTargetEyesCanvas, referencePreviews.eyes);
+  paintCanvas(elements.transformTargetMouthCanvas, referencePreviews.mouth);
+
+  TRANSFORM_REGION_KEYS.forEach((kind) => {
+    const output = transformState.output[kind];
+    const target = kind === "eyes" ? elements.transformOutputEyesCanvas : elements.transformOutputMouthCanvas;
+    const atlasTarget = kind === "eyes" ? elements.transformEyeAtlasCanvas : elements.transformMouthAtlasCanvas;
+    const meta = kind === "eyes" ? elements.transformEyeOutputMeta : elements.transformMouthOutputMeta;
+    if (output) {
+      paintCanvas(target, output.frames[transformState.frame].outputCanvas);
+      paintCanvas(atlasTarget, output.atlas);
+      meta.textContent = `${output.atlas.width} × ${output.atlas.height} · ${transformState.frameCount} 帧`;
+    } else {
+      const region = transformState.regions[kind];
+      paintCanvas(target, transformCanvas(region.width, region.height));
+      paintCanvas(atlasTarget, transformCanvas(region.width, region.height * transformState.frameCount));
+      meta.textContent = "等待转换";
+    }
+  });
+  renderTransformComposite();
+
+  if (transformationInputsReady()) {
+    setTransformStatus("转换已更新：检查三列当前帧后，可下载 eye、mouth 与配置记录。");
+  } else {
+    const missing = TRANSFORM_ASSET_KEYS.filter((key) => transformState.assets[key].status !== "ready");
+    const labels = {
+      sourceEyes: "源 eye atlas",
+      sourceMouth: "源 mouth atlas",
+      targetBody: "目标 body",
+    };
+    setTransformStatus(`等待 ${missing.map((key) => labels[key]).join("、")}；目标 body 必须是解出的实际 PNG。`);
+  }
+  renderTransformValidation();
+  renderTransformConfig();
+}
+
+function pngFileName(value, fallback) {
+  const name = String(value || "").trim() || fallback;
+  return /\.png$/i.test(name) ? name : `${name}.png`;
+}
+
+function downloadTransformCanvas(kind) {
+  const output = transformState.output[kind];
+  if (!output) {
+    setTransformStatus("先载入源图集与目标 body，生成输出后才能下载。");
+    return;
+  }
+  const filename = pngFileName(transformState.outputNames[kind], `converted_${kind}.png`);
+  output.atlas.toBlob((blob) => {
+    if (!blob) {
+      setTransformStatus("PNG 编码失败，请重新生成输出。");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = filename;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+    setTransformStatus(`${filename} 已下载。`);
+  }, "image/png");
+}
+
+function downloadTransformConfig() {
+  const blob = new Blob([JSON.stringify(transformConfigObject(), null, 2)], { type: "application/json;charset=utf-8" });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = "portrait-edge-graft.json";
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+  setTransformStatus("转换配置已下载。");
+}
+
+function loadHarunaTransformPreset() {
+  const expression = elements.harunaTransformExpression.value;
+  transformState.canvas = { ...HARUNA_TRANSFORM_PRESET.canvas };
+  transformState.frameCount = HARUNA_TRANSFORM_PRESET.frameCount;
+  transformState.frame = 0;
+  transformState.regions = {
+    eyes: { ...HARUNA_TRANSFORM_PRESET.regions.eyes },
+    mouth: { ...HARUNA_TRANSFORM_PRESET.regions.mouth },
+  };
+  transformState.edgeBands = {
+    eyes: { ...HARUNA_TRANSFORM_PRESET.edgeBands.eyes },
+    mouth: { ...HARUNA_TRANSFORM_PRESET.edgeBands.mouth },
+  };
+  transformState.outputNames = {
+    eyes: `005_02_05_from_03_${expression}_eye.png`,
+    mouth: `005_02_05_from_03_${expression}_mouth.png`,
+  };
+
+  loadTransformAssetSource(
+    "sourceEyes",
+    `${HARUNA_TRANSFORM_PRESET.sourceDirectory}005_03_05_${expression}_eye.png`,
+    `005_03_05_${expression}_eye.png`,
+  );
+  loadTransformAssetSource(
+    "sourceMouth",
+    `${HARUNA_TRANSFORM_PRESET.sourceDirectory}005_03_05_${expression}_mouth.png`,
+    `005_03_05_${expression}_mouth.png`,
+  );
+  setTransformStatus(
+    `春菜 ${expression === "b" ? "shy" : "anger"} 源图已载入；请选择解出的 haruna_changer_room.png 作为目标 body。`,
+  );
+  renderTransformation();
+}
+
+function useCurrentBodyForTransformation() {
+  const body = state.assets.body;
+  if (body.status !== "ready" || !body.source) {
+    setTransformStatus("上方校准区尚未载入 body；请直接选择目标 body PNG。");
+    return;
+  }
+  transformState.canvas = { ...state.canvas };
+  loadTransformAssetSource("targetBody", body.source, body.name);
+  setTransformStatus("已把上方当前 body 作为目标边缘基准；变更上方 body 后请重新载入。");
 }
 
 function applyMask() {
@@ -982,6 +1643,65 @@ function bindExportControls() {
   elements.downloadJson.addEventListener("click", downloadManifest);
 }
 
+function bindTransformControls() {
+  [
+    ["sourceEyes", elements.transformSourceEyesInput],
+    ["sourceMouth", elements.transformSourceMouthInput],
+    ["targetBody", elements.transformTargetBodyInput],
+  ].forEach(([key, input]) => {
+    input.addEventListener("change", () => {
+      loadTransformAssetFile(key, input.files?.[0]);
+      input.value = "";
+    });
+  });
+
+  [
+    [elements.transformCanvasWidth, "width"],
+    [elements.transformCanvasHeight, "height"],
+  ].forEach(([input, axis]) => {
+    input.addEventListener("change", () => {
+      transformState.canvas[axis] = positiveInteger(input.value, transformState.canvas[axis]);
+      renderTransformation();
+    });
+  });
+  elements.transformFrameCount.addEventListener("change", () => {
+    transformState.frameCount = positiveInteger(elements.transformFrameCount.value, transformState.frameCount);
+    renderTransformation();
+  });
+
+  document.querySelectorAll("[data-transform-region]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const kind = input.dataset.transformRegion;
+      const axis = input.dataset.transformAxis;
+      transformState.regions[kind][axis] = finiteNumber(input.value, transformState.regions[kind][axis]);
+      renderTransformation();
+    });
+  });
+  document.querySelectorAll("[data-transform-edge]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const kind = input.dataset.transformEdge;
+      const side = input.dataset.transformSide;
+      transformState.edgeBands[kind][side] = finiteNumber(input.value, transformState.edgeBands[kind][side]);
+      renderTransformation();
+    });
+  });
+
+  elements.transformEyeOutputName.addEventListener("input", () => {
+    transformState.outputNames.eyes = elements.transformEyeOutputName.value;
+    renderTransformConfig();
+  });
+  elements.transformMouthOutputName.addEventListener("input", () => {
+    transformState.outputNames.mouth = elements.transformMouthOutputName.value;
+    renderTransformConfig();
+  });
+  elements.loadHarunaTransform.addEventListener("click", loadHarunaTransformPreset);
+  elements.harunaTransformExpression.addEventListener("change", loadHarunaTransformPreset);
+  elements.useCurrentBodyForTransform.addEventListener("click", useCurrentBodyForTransformation);
+  elements.downloadTransformEyes.addEventListener("click", () => downloadTransformCanvas("eyes"));
+  elements.downloadTransformMouth.addEventListener("click", () => downloadTransformCanvas("mouth"));
+  elements.downloadTransformConfig.addEventListener("click", downloadTransformConfig);
+}
+
 function initialize() {
   bindIdentityInputs();
   bindAssetInputs();
@@ -992,6 +1712,8 @@ function initialize() {
   bindGalControls();
   bindManifestControls();
   bindExportControls();
+  bindTransformControls();
+  renderTransformation();
   loadManifest(SEPHIE_PRESET, { preset: true });
 }
 

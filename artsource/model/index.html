@@ -15,7 +15,7 @@
         <div>
           <p class="eyebrow">LAYERED PORTRAIT MODEL WORKBENCH</p>
           <h1>分层动态立绘校准台</h1>
-          <p class="intro">加载 body、mask、eye atlas 与 mouth atlas，直接校准窗口并导出项目可用的 rig 配置。</p>
+          <p class="intro">校准运行时窗口，或把旧家族的表情图集转换为目标 body 可用的 clean atlas。</p>
         </div>
         <output class="status-chip" id="globalStatus" aria-live="polite">正在载入 Sephie 示例…</output>
       </header>
@@ -98,7 +98,7 @@
             <input id="mouthInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
           </article>
         </div>
-        <p class="source-note">本地图片只在当前浏览器页中预览，不会上传或改写原文件。导出配置使用上方运行时目录与所选文件名。</p>
+        <p class="source-note">本地图片只在当前浏览器页中预览，不会上传或改写原文件。导出配置使用上方运行时目录与所选文件名。<a class="text-link" href="./official-face-coordinate-map.csv" target="_blank" rel="noreferrer">打开官方坐标 CSV（机器记录）</a></p>
       </section>
 
       <div class="workbench-grid">
@@ -304,10 +304,261 @@
         </aside>
       </div>
 
+      <section class="panel pipeline-case-panel" aria-labelledby="pipelineCaseTitle">
+        <div class="section-heading pipeline-case-heading">
+          <div>
+            <p class="section-kicker">04 · PIPELINE TRIAL</p>
+            <h2 id="pipelineCaseTitle">春菜 03 → 02 迁移与人工验收</h2>
+          </div>
+          <div class="heading-actions">
+            <span class="pipeline-case-status">中心连通嘴芯 v2 · 12 项待人工判定</span>
+            <a class="button button--quiet" href="./cases/haruna-03-to-02/index.html" target="_blank" rel="noreferrer">独立打开大画布</a>
+          </div>
+        </div>
+
+        <p class="pipeline-case-intro">
+          这里显示隔离案例的 v2 输出：官方 CSV 坐标 → 02 原生表情脸片 → 局部清除原眼嘴 → 只迁入 03 的线稿、汗滴与中心连通嘴芯。
+          v1 因嘴周误带矩形 03 肤色已被人工拒绝；v2 会丢弃接触 mouth ROI 外边界的色块。皮肤、刘海、脸型和完整下巴始终来自 02，eyes 与 mouth 仍须按两个表情的三个帧分别判定。
+        </p>
+
+        <div class="pipeline-case-frame-shell">
+          <iframe
+            class="pipeline-case-frame"
+            src="./cases/haruna-03-to-02/index.html"
+            title="春菜 005_03_05 到 005_02_05 表情迁移研究案例"
+          ></iframe>
+        </div>
+
+        <div class="pipeline-case-outputs" aria-label="流水线试运行 clean atlas 输出">
+          <div>
+            <strong>shy · 03_b → 02</strong>
+            <a href="./cases/haruna-03-to-02/outputs/target-native-features-v2/005_02_05_from_03_05_b_target_native_features_v2_eye.png" target="_blank" rel="noreferrer">eye · v2 · 230 × 393</a>
+            <a href="./cases/haruna-03-to-02/outputs/target-native-features-v2/005_02_05_from_03_05_b_target_native_features_v2_mouth.png" target="_blank" rel="noreferrer">mouth · 中心连通嘴芯 v2 · 230 × 171</a>
+          </div>
+          <div>
+            <strong>anger · 03_c → 02</strong>
+            <a href="./cases/haruna-03-to-02/outputs/target-native-features-v2/005_02_05_from_03_05_c_target_native_features_v2_eye.png" target="_blank" rel="noreferrer">eye · v2 · 230 × 393</a>
+            <a href="./cases/haruna-03-to-02/outputs/target-native-features-v2/005_02_05_from_03_05_c_target_native_features_v2_mouth.png" target="_blank" rel="noreferrer">mouth · 中心连通嘴芯 v2 · 230 × 171</a>
+          </div>
+          <p>这些文件只在案例目录中；即使 12 项均由人标记通过，也不会自动修改 <code>haruna.ts</code>。</p>
+        </div>
+      </section>
+
+      <section class="panel transform-panel transform-panel--rejected" aria-labelledby="transformTitle">
+        <div class="section-heading transform-heading">
+          <div>
+            <p class="section-kicker">05 · REJECTED LEGACY</p>
+            <h2 id="transformTitle">旧边缘补图实验（已否决）</h2>
+          </div>
+          <div class="heading-actions">
+            <label>
+              <span class="visually-hidden">春菜示例表情</span>
+              <select id="harunaTransformExpression" aria-label="春菜 03 到 02 示例表情">
+                <option value="b">春菜 shy · 03_b</option>
+                <option value="c">春菜 anger · 03_c</option>
+              </select>
+            </label>
+            <button class="button button--quiet" id="loadHarunaTransform" type="button">载入春菜 03 → 02 参数</button>
+            <button class="button button--quiet" id="useCurrentBodyForTransform" type="button">使用当前 body 作边缘基准</button>
+          </div>
+        </div>
+
+        <p class="transform-intro transform-intro--rejected">
+          这套“保留 03 中间内容，只把矩形边缘换成 02 body”的算法已经被完整 02/03 家族素材反证。
+          它继续保留在页面中仅用于复现旧错误、对照接缝和理解为什么整块 03 脸不能直接拼到 02；这里下载的结果不得晋升为正式素材。
+        </p>
+
+        <div class="transform-explainer" aria-label="转换流程说明">
+          <article>
+            <span>01</span>
+            <strong>源表情</strong>
+            <p>从旧家族 eye / mouth atlas 逐帧取出 shy 或 anger 的表情内核。</p>
+          </article>
+          <article>
+            <span>02</span>
+            <strong>目标边缘</strong>
+            <p>按目标 body 的 face window 取样，只作为发际、脸颊和下巴边缘的像素基准。</p>
+          </article>
+          <article>
+            <span>03</span>
+            <strong>新图集</strong>
+            <p>每一帧重新组合为整数高度；未选中的区域仍来自源表情，不改表情语义。</p>
+          </article>
+        </div>
+
+        <details class="transform-algorithm-details" open>
+          <summary>查看已否决的每像素算法</summary>
+          <pre><code>sourceFrame = resize(sourceAtlas.crop(frame × sourceHeight / N), targetRegion.w, targetRegion.h)
+bodyCrop    = resize(targetBody.crop(targetRegion), targetRegion.w, targetRegion.h)
+weight      = max(clamp((edgeSide - distanceToSide) / edgeSide, 0, 1))  // 外圈 1，内圈 0
+output      = alphaAwareMix(sourceFrame, bodyCrop, weight)
+outputAtlas = stack(output[0], output[1], … output[N - 1])</code></pre>
+          <p>因此红/蓝边带在第二列能被直接看到；它只改变输出 PNG 的像素来源，不会把整块窗口变成半透明。</p>
+        </details>
+
+        <div class="transform-asset-grid">
+          <article class="transform-asset-slot" data-transform-asset="sourceEyes">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>源 eye atlas</strong></div>
+            <code id="transformSourceEyesName">尚未选择</code>
+            <output id="transformSourceEyesMeta">等待载入</output>
+            <label class="button button--small" for="transformSourceEyesInput">选择图片</label>
+            <input id="transformSourceEyesInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+          <article class="transform-asset-slot" data-transform-asset="sourceMouth">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>源 mouth atlas</strong></div>
+            <code id="transformSourceMouthName">尚未选择</code>
+            <output id="transformSourceMouthMeta">等待载入</output>
+            <label class="button button--small" for="transformSourceMouthInput">选择图片</label>
+            <input id="transformSourceMouthInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+          <article class="transform-asset-slot transform-asset-slot--target" data-transform-asset="targetBody">
+            <div class="asset-slot__title"><span class="asset-dot" aria-hidden="true"></span><strong>目标 body · 边缘基准</strong></div>
+            <code id="transformTargetBodyName">尚未选择</code>
+            <output id="transformTargetBodyMeta">需要实际目标 body PNG（从 .7z 解出）</output>
+            <label class="button button--small" for="transformTargetBodyInput">选择图片</label>
+            <input id="transformTargetBodyInput" class="visually-hidden" type="file" accept="image/png,image/webp" />
+          </article>
+        </div>
+
+        <div class="transform-settings-grid">
+          <fieldset class="transform-settings-group">
+            <legend>目标画布与帧</legend>
+            <div class="transform-fields transform-fields--three">
+              <label><span>画布宽</span><input id="transformCanvasWidth" type="number" min="1" step="1" value="1024" /></label>
+              <label><span>画布高</span><input id="transformCanvasHeight" type="number" min="1" step="1" value="1024" /></label>
+              <label><span>纵排帧数</span><input id="transformFrameCount" type="number" min="1" max="12" step="1" value="3" /></label>
+            </div>
+            <p>源图集按该帧数切开，输出高度 = 目标窗口高度 × 帧数。</p>
+          </fieldset>
+
+          <fieldset class="transform-settings-group">
+            <legend>目标 face window</legend>
+            <div class="transform-region-grid">
+              <div>
+                <strong class="transform-region-title transform-region-title--eyes">eyes</strong>
+                <div class="transform-fields transform-fields--four">
+                  <label><span>X</span><input data-transform-region="eyes" data-transform-axis="x" type="number" step="1" value="394" /></label>
+                  <label><span>Y</span><input data-transform-region="eyes" data-transform-axis="y" type="number" step="1" value="221" /></label>
+                  <label><span>W</span><input data-transform-region="eyes" data-transform-axis="width" type="number" min="1" step="1" value="230" /></label>
+                  <label><span>H</span><input data-transform-region="eyes" data-transform-axis="height" type="number" min="1" step="1" value="131" /></label>
+                </div>
+              </div>
+              <div>
+                <strong class="transform-region-title transform-region-title--mouth">mouth</strong>
+                <div class="transform-fields transform-fields--four">
+                  <label><span>X</span><input data-transform-region="mouth" data-transform-axis="x" type="number" step="1" value="394" /></label>
+                  <label><span>Y</span><input data-transform-region="mouth" data-transform-axis="y" type="number" step="1" value="349" /></label>
+                  <label><span>W</span><input data-transform-region="mouth" data-transform-axis="width" type="number" min="1" step="1" value="230" /></label>
+                  <label><span>H</span><input data-transform-region="mouth" data-transform-axis="height" type="number" min="1" step="1" value="57" /></label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="transform-settings-group">
+            <legend>烘焙边缘带 · 不写入 rig feather</legend>
+            <div class="transform-region-grid">
+              <div>
+                <strong class="transform-region-title transform-region-title--eyes">eyes：上、左、右取目标 body</strong>
+                <div class="transform-fields transform-fields--four">
+                  <label><span>上</span><input data-transform-edge="eyes" data-transform-side="top" type="number" min="0" step="1" value="8" /></label>
+                  <label><span>左</span><input data-transform-edge="eyes" data-transform-side="left" type="number" min="0" step="1" value="10" /></label>
+                  <label><span>右</span><input data-transform-edge="eyes" data-transform-side="right" type="number" min="0" step="1" value="10" /></label>
+                  <label><span>下</span><input data-transform-edge="eyes" data-transform-side="bottom" type="number" min="0" step="1" value="0" /></label>
+                </div>
+              </div>
+              <div>
+                <strong class="transform-region-title transform-region-title--mouth">mouth：左、右、下取目标 body</strong>
+                <div class="transform-fields transform-fields--four">
+                  <label><span>上</span><input data-transform-edge="mouth" data-transform-side="top" type="number" min="0" step="1" value="0" /></label>
+                  <label><span>左</span><input data-transform-edge="mouth" data-transform-side="left" type="number" min="0" step="1" value="10" /></label>
+                  <label><span>右</span><input data-transform-edge="mouth" data-transform-side="right" type="number" min="0" step="1" value="10" /></label>
+                  <label><span>下</span><input data-transform-edge="mouth" data-transform-side="bottom" type="number" min="0" step="1" value="8" /></label>
+                </div>
+              </div>
+            </div>
+            <p>数值是输出图中的像素宽度：最外一圈完全采用目标 body，向内逐步过渡到源表情。</p>
+          </fieldset>
+
+          <fieldset class="transform-settings-group">
+            <legend>输出文件</legend>
+            <div class="transform-fields transform-fields--two">
+              <label><span>eye atlas</span><input id="transformEyeOutputName" type="text" value="005_02_05_from_03_b_eye.png" spellcheck="false" /></label>
+              <label><span>mouth atlas</span><input id="transformMouthOutputName" type="text" value="005_02_05_from_03_b_mouth.png" spellcheck="false" /></label>
+            </div>
+            <p>文件名只影响下载名；页面不会覆盖原始 <code>005_03_05</code> 图集。</p>
+          </fieldset>
+        </div>
+
+        <div class="transform-preview-toolbar">
+          <div>
+            <strong>逐帧对照</strong>
+            <span id="transformFrameReadout">第 0 / 3 帧</span>
+          </div>
+          <div class="segmented" id="transformFrameButtons" aria-label="转换逐帧预览"></div>
+          <output class="transform-status" id="transformStatus" aria-live="polite">等待源图集与目标 body</output>
+        </div>
+
+        <div class="transform-flow">
+          <article class="transform-preview-card">
+            <div class="transform-preview-card__heading"><span>01</span><strong>直接贴图基线</strong><small>只缩放源 atlas，不取目标 body</small></div>
+            <div class="transform-preview-stack">
+              <figure><canvas id="transformSourceEyesCanvas" aria-label="直接贴图 eyes 当前帧"></canvas><figcaption>eyes · direct baseline</figcaption></figure>
+              <figure><canvas id="transformSourceMouthCanvas" aria-label="直接贴图 mouth 当前帧"></canvas><figcaption>mouth · direct baseline</figcaption></figure>
+            </div>
+          </article>
+          <article class="transform-preview-card">
+            <div class="transform-preview-card__heading"><span>02</span><strong>目标 body 窗口</strong><small>彩色边带 = 将被替换</small></div>
+            <div class="transform-preview-stack">
+              <figure class="transform-window-figure transform-window-figure--eyes"><canvas id="transformTargetEyesCanvas" aria-label="目标 body eyes 窗口"></canvas><figcaption>eyes · target body crop</figcaption></figure>
+              <figure class="transform-window-figure transform-window-figure--mouth"><canvas id="transformTargetMouthCanvas" aria-label="目标 body mouth 窗口"></canvas><figcaption>mouth · target body crop</figcaption></figure>
+            </div>
+          </article>
+          <article class="transform-preview-card transform-preview-card--output">
+            <div class="transform-preview-card__heading"><span>03</span><strong>转换输出</strong><small>可直接下载的新 atlas 帧</small></div>
+            <div class="transform-preview-stack">
+              <figure><canvas id="transformOutputEyesCanvas" aria-label="转换后的 eyes 当前帧"></canvas><figcaption>eyes · source interior + body edge</figcaption></figure>
+              <figure><canvas id="transformOutputMouthCanvas" aria-label="转换后的 mouth 当前帧"></canvas><figcaption>mouth · source interior + body edge</figcaption></figure>
+            </div>
+          </article>
+        </div>
+
+        <div class="transform-composite-review">
+          <div class="transform-composite-review__heading">
+            <div><strong>目标 body 合成检查</strong><span>当前帧已放回目标 face window</span></div>
+            <output id="transformCompositeMeta">等待目标 body</output>
+          </div>
+          <div class="transform-composite-stage"><canvas id="transformCompositeCanvas" aria-label="目标 body 与转换结果的当前帧合成"></canvas></div>
+          <p>这块画布只用于检查转换结果在目标 body 上的接缝；它不代表正式 GAL 的人物舞台尺寸或运行时羽化效果。</p>
+        </div>
+
+        <div class="transform-export-grid">
+          <figure class="transform-atlas-output">
+            <div class="transform-atlas-output__heading"><strong>输出 eye atlas</strong><span id="transformEyeOutputMeta">等待转换</span></div>
+            <div class="transform-atlas-canvas"><canvas id="transformEyeAtlasCanvas" aria-label="转换后的完整 eyes 图集"></canvas></div>
+            <figcaption><button class="button button--small" id="downloadTransformEyes" type="button">下载 eye PNG</button></figcaption>
+          </figure>
+          <figure class="transform-atlas-output">
+            <div class="transform-atlas-output__heading"><strong>输出 mouth atlas</strong><span id="transformMouthOutputMeta">等待转换</span></div>
+            <div class="transform-atlas-canvas"><canvas id="transformMouthAtlasCanvas" aria-label="转换后的完整 mouth 图集"></canvas></div>
+            <figcaption><button class="button button--small" id="downloadTransformMouth" type="button">下载 mouth PNG</button></figcaption>
+          </figure>
+          <div class="transform-config-output">
+            <div class="transform-atlas-output__heading"><strong>转换记录</strong><button class="button button--small" id="downloadTransformConfig" type="button">下载配置 JSON</button></div>
+            <pre><code id="transformConfigCode"></code></pre>
+          </div>
+        </div>
+
+        <div class="transform-check-list" aria-labelledby="transformChecksTitle">
+          <h3 id="transformChecksTitle">本次转换检查</h3>
+          <ul id="transformValidationList" aria-live="polite"></ul>
+        </div>
+      </section>
+
       <section class="panel export-panel" aria-labelledby="exportTitle">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">04 · EXPORT</p>
+            <p class="section-kicker">06 · EXPORT</p>
             <h2 id="exportTitle">导出 rig</h2>
           </div>
           <div class="heading-actions">

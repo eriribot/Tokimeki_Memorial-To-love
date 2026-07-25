@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "status": "awaiting-human-review",
+  "authority": "official-face-coordinate-map.csv + explicit human visual acceptance",
+  "reviewMatrix": {
+    "expressions": ["shy", "anger"],
+    "frames": [0, 1, 2],
+    "regions": ["eyes", "mouth"],
+    "requiredDecisionCount": 12,
+    "allowedDecisions": ["pending", "accepted", "rejected"],
+    "allItemsMustBeAcceptedBeforePromotion": true
+  },
+  "officialWindowBaseline": {
+    "automatedBoundaryGate": "not-applicable",
+    "reason": "It preserves the official source alpha layers at the official target window; only the final composed portrait can judge seam visibility.",
+    "requiresAllHumanReviewItems": true
+  },
+  "semanticOcclusionCandidate": {
+    "status": "rejected-human-review",
+    "automatedBoundaryGate": "not-applicable",
+    "targetPixelOwnership": ["bangs", "side hair", "face contour", "chin", "hair ends"],
+    "sourcePixelOwnership": ["eyes", "eyebrows", "blush", "sweat", "mouth core"],
+    "reason": "The manual semantic polygon and target occluder masks define pixel ownership, but only the final native-size composition can judge continuity and expression quality.",
+    "requiresAllHumanReviewItems": true,
+    "rejectionReason": "Native-size review showed that the broad source semantic patch still imported the 03 face scale and removed the correct 02 chin continuity."
+  },
+  "targetNativeFeatureCandidate": {
+    "status": "rejected-human-review",
+    "automatedBoundaryGate": "not-applicable",
+    "targetPixelOwnership": ["all window edges", "skin", "bangs", "side hair", "face contour", "chin", "hair ends", "target-native blush"],
+    "sourcePixelOwnership": ["shy eye ink", "anger brow ink", "sweat outlines", "mouth core"],
+    "forbiddenSourcePixels": ["skin fill", "forehead fill", "cheek fill", "jaw fill", "chin line", "side hair"],
+    "reason": "The 02 native atlas supplies the complete face plate, but the v1 mouth redness threshold also selected a rectangular patch of normal 03 skin.",
+    "requiresAllHumanReviewItems": true,
+    "rejectionReason": "The 2026-07-25 human screenshot circled a flat, rectangular foreign-skin patch around all three shy mouth frames."
+  },
+  "targetNativeFeatureCandidateV2": {
+    "status": "awaiting-human-review",
+    "automatedBoundaryGate": "not-applicable",
+    "targetPixelOwnership": ["all window edges", "all skin", "bangs", "side hair", "face contour", "chin", "hair ends", "target-native blush"],
+    "sourcePixelOwnership": ["shy eye ink", "anger brow ink", "sweat outlines", "center-connected mouth core"],
+    "forbiddenSourcePixels": ["skin fill", "ROI-edge-connected color regions", "forehead fill", "cheek fill", "jaw fill", "chin line", "side hair"],
+    "reason": "V2 estimates the local source skin color, rejects connected components touching the mouth ROI boundary, and keeps only components intersecting the mouth-center seed.",
+    "requiresAllHumanReviewItems": true
+  },
+  "automatedGates": {
+    "coordinateAuthority": {
+      "requiredStatus": "resolved",
+      "requiredOfficialFaceEnabled": true,
+      "requiredSingleCoordinateSetPerFamily": true
+    },
+    "atlasShape": {
+      "requiredFrameCount": 3,
+      "requiredTargetRegionDimensions": true
+    },
+    "windowBoundary": {
+      "edgeLockPixelsFromCaseConfig": true,
+      "requiredMaximumRgbaDelta": 0,
+      "requiredMse": 0
+    },
+    "frameStability": {
+      "requiredSharedBlendSupportAcrossFrames": true,
+      "requiredUnchangedPixelsOutsideSupport": true
+    },
+    "promotion": {
+      "requiresAllApplicableAutomatedGates": true,
+      "requiresExplicitHumanAcceptance": true,
+      "candidateGenerationNeverPromotes": true
+    }
+  },
+  "humanReview": {
+    "eyes": [
+      "逐帧以原尺寸检查眼窗四边；两侧头发、额发、肤色和脸部轮廓必须连续，矩形边界不可见",
+      "目标 body 原有眼睛、眉毛和睫毛必须完全消失，不得出现双线、残影、雾边或第二套眼位",
+      "新眉眼、闭合程度、脸红和汗滴的整体语义必须与 03 官方源表情一致；允许脸红由 02 原生像素承载，但不得因迁移被削弱",
+      "连续切换三帧时，眼睛中心、眉线、鼻点和融合范围不得跳动"
+    ],
+    "mouth": [
+      "逐帧以原尺寸检查嘴窗四边；下巴、肤色与左右发梢必须连续，矩形边界不可见",
+      "目标 body 原有嘴型必须完全消失，不得出现双唇线、重复牙齿、波纹、幽灵线或白雾",
+      "新嘴型的中心、宽度、开合和垂直位置必须与 02 目标脸型协调并保留 03 源表情语义",
+      "连续切换三帧时只能改变口型内容；嘴部锚点、下巴线和融合范围不得跳动"
+    ],
+    "animation": [
+      "shy 与 anger 分别检查三个独立帧后，再检查实际播放顺序",
+      "任一帧的眼睛或嘴巴被拒绝，整套表情保持未通过"
+    ],
+    "runtimeComposition": [
+      "必须检查最终 body、mask、eye atlas、mouth atlas 的真实合成，不以单张 atlas 或脚本日志代替",
+      "至少查看 shy 和 anger 的三个独立帧脸部原尺寸图",
+      "12 个 eyes/mouth 审查项未全部明确接受前，候选不得覆盖运行时稳定文件"
+    ]
+  }
+}

@@ -6,6 +6,17 @@ import { getPreviousActiveStoryFloors } from './storyArchive';
 import { getMainStoryActIndex, getMainStoryEpisode } from './storyRegistry';
 import { getStoryScene } from './scenes';
 import type { GalStoryActArchive, GalStoryFloor } from './storyTypes';
+import {
+  analyzeRegenerationImpact,
+  validateFloorContext,
+  getInvalidContextFloors,
+  type ContextImpactAnalysis,
+} from './storyContextValidation';
+import {
+  detectSummaryInvalidation,
+  invalidateSummaries,
+  type SummaryInvalidationResult,
+} from '../memory/summaryInvalidation';
 
 interface StoryHistoryArchiveProps {
   isRawHistoryOpen: boolean;
@@ -54,6 +65,11 @@ export default function StoryHistoryArchive({
   const isMountedRef = useRef(true);
   const [regeneratingActKey, setRegeneratingActKey] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [impactAnalysis, setImpactAnalysis] = useState<ContextImpactAnalysis | null>(null);
+  const [showImpactWarning, setShowImpactWarning] = useState(false);
+  const [summaryInvalidation, setSummaryInvalidation] = useState<SummaryInvalidationResult | null>(null);
+  const [showSummaryWarning, setShowSummaryWarning] = useState(false);
+  const saveUuid = useGameStore(state => state.save.record?.saveUuid ?? '');
   const sortedArchives = useMemo(
     () =>
       [...archives].sort((left, right) => {
@@ -145,6 +161,25 @@ export default function StoryHistoryArchive({
         return;
       }
 
+      // 分析影响范围
+      if (baseFloor.floorId === archive.activeFloorId) {
+        const impact = analyzeRegenerationImpact(sortedArchives, baseFloor.floorId);
+        const summaryImpact = detectSummaryInvalidation(sortedArchives, baseFloor.floorId, saveUuid);
+
+        if (impact && impact.totalAffected > 0) {
+          setImpactAnalysis(impact);
+          setSummaryInvalidation(summaryImpact);
+          setShowImpactWarning(true);
+          return; // 等待用户确认
+        }
+
+        if (summaryImpact.needsRegeneration) {
+          setSummaryInvalidation(summaryImpact);
+          setShowSummaryWarning(true);
+          return; // 等待用户确认
+        }
+      }
+
       const actKey = `${archive.eventId}:${archive.actId}`;
       setRegeneratingActKey(actKey);
       setNotice(null);
@@ -192,6 +227,87 @@ export default function StoryHistoryArchive({
     [addFloor, messageHistory, onPreviewFloor, regeneratingActKey, sortedArchives],
   );
 
+  const confirmRegeneration = useCallback(
+    async (archive: GalStoryActArchive) => {
+      setShowImpactWarning(false);
+      setShowSummaryWarning(false);
+
+      // 使失效的总结无效化
+      if (summaryInvalidation && summaryInvalidation.affectedCount > 0) {
+        const invalidatedCount = invalidateSummaries(
+          summaryInvalidation.invalidatedSummaries.map(s => s.summary.summaryId)
+        );
+        console.log(`已使 ${invalidatedCount} 条总结失效`);
+      }
+
+      setImpactAnalysis(null);
+      setSummaryInvalidation(null);
+
+      const baseFloor = getActiveFloor(archive) ?? archive.floors.find(floor => floor.act !== null);
+      if (!baseFloor) return;
+
+      const actKey = `${archive.eventId}:${archive.actId}`;
+      setRegeneratingActKey(actKey);
+      setNotice(null);
+      const floorId = createStoryFloorId(archive.eventId, archive.actId);
+      const previousFloors = getPreviousActiveStoryFloors(sortedArchives, archive.eventId, archive.actId);
+      const request = {
+        eventId: archive.eventId,
+        actId: archive.actId,
+        floorId,
+        playerName: baseFloor.context.playerName,
+        day: baseFloor.context.day,
+        period: baseFloor.context.period,
+        location: baseFloor.context.location,
+        contextFloorIds: previousFloors.map(floor => floor.floorId),
+        chatHistory: messageHistory,
+      };
+
+      try {
+        const generated = await generateStoryAct(request);
+        const added = addFloor(generated.floor, generated.messages, baseFloor.floorId);
+        if (!added) {
+          if (isMountedRef.current) setNotice('生成期间剧情档案已经变化，这个过期结果没有写入。');
+          return;
+        }
+        if (generated.ok) {
+          if (isMountedRef.current) {
+            const message = summaryInvalidation && summaryInvalidation.affectedCount > 0
+              ? `新楼层已保存。${summaryInvalidation.affectedCount} 条总结已失效，系统将自动生成新总结。`
+              : '新楼层已保存。注意：后续依赖此幕的楼层需要重新生成。';
+            setNotice(message);
+            onPreviewFloor(generated.floor.floorId);
+          }
+        } else if (isMountedRef.current) {
+          setNotice(`新楼层无法转换成 GAL：${generated.error}`);
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const added = addFloor(
+          createStoryFloor(request, null, 'tavern', [], 'request_error', message),
+          [],
+          baseFloor.floorId,
+        );
+        if (isMountedRef.current) {
+          setNotice(added ? `重新生成失败：${message}` : '生成期间剧情档案已经变化，这个过期错误没有写入。');
+        }
+      } finally {
+        if (isMountedRef.current) setRegeneratingActKey(null);
+      }
+    },
+    [addFloor, messageHistory, onPreviewFloor, sortedArchives],
+  );
+
+  const cancelRegeneration = useCallback(() => {
+    setShowImpactWarning(false);
+    setShowSummaryWarning(false);
+    setImpactAnalysis(null);
+    setSummaryInvalidation(null);
+  }, []);
+
+  // 检查所有上下文失效的楼层
+  const invalidContextFloors = useMemo(() => getInvalidContextFloors(sortedArchives), [sortedArchives]);
+
   return (
     <section className="gal-main-story gal-story-archive" role="dialog" aria-modal="true" aria-label="已读剧情档案">
       <img
@@ -233,6 +349,7 @@ export default function StoryHistoryArchive({
             const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
             const actMeta = episode?.acts.find(act => act.id === archive.actId);
             const stale = isContextStale(archive, sortedArchives);
+            const contextInvalid = activeFloor && invalidContextFloors.some(v => v.floorId === activeFloor.floorId);
             const actKey = `${archive.eventId}:${archive.actId}`;
             return (
               <article className="gal-story-archive__act" key={actKey}>
@@ -242,6 +359,11 @@ export default function StoryHistoryArchive({
                       第 {episode?.episodeNumber ?? '?'} 集 · 第 {actIndex + 1} 幕
                     </span>
                     <h3>{actMeta?.title ?? archive.actId}</h3>
+                    {contextInvalid && (
+                      <p className="gal-story-archive__context-warning">
+                        ⚠️ 上下文已失效（前置楼层已更新）
+                      </p>
+                    )}
                   </div>
                   <div className="gal-story-archive__act-actions">
                     <button
@@ -323,6 +445,89 @@ export default function StoryHistoryArchive({
           })}
         </div>
       </div>
+      {showImpactWarning && impactAnalysis && (
+        <div className="gal-story-archive__impact-warning" role="dialog" aria-modal="true">
+          <div className="gal-story-archive__impact-content">
+            <h3>⚠️ 重新生成影响范围</h3>
+            <p>
+              重新生成本幕会影响 <strong>{impactAnalysis.totalAffected}</strong> 个后续幕的上下文。
+              这些幕需要重新生成才能保持剧情连贯性：
+            </p>
+            <ul>
+              {impactAnalysis.affectedFloors.map(affected => {
+                const ep = getMainStoryEpisode(affected.eventId);
+                return (
+                  <li key={affected.floorId}>
+                    第 {ep?.episodeNumber ?? '?'} 集 · 第 {affected.actIndex + 1} 幕
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="gal-story-archive__impact-note">
+              继续操作后，这些幕将显示"上下文已失效"警告。你需要手动重新生成它们。
+            </p>
+            <div className="gal-story-archive__impact-actions">
+              <button type="button" onClick={cancelRegeneration}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="is-primary"
+                onClick={() => {
+                  const targetArchive = sortedArchives.find(
+                    a => a.eventId === impactAnalysis.targetFloor.eventId && a.actId === impactAnalysis.targetFloor.actId
+                  );
+                  if (targetArchive) confirmRegeneration(targetArchive);
+                }}
+              >
+                确认重新生成
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showSummaryWarning && summaryInvalidation && (
+        <div className="gal-story-archive__impact-warning" role="dialog" aria-modal="true">
+          <div className="gal-story-archive__impact-content">
+            <h3>⚠️ 总结将失效</h3>
+            <p>
+              重新生成本幕会使 <strong>{summaryInvalidation.affectedCount}</strong> 条总结失效。
+              这些总结基于当前楼层生成，重新生成后将自动标记为过期：
+            </p>
+            <ul>
+              {summaryInvalidation.invalidatedSummaries.map(({ summary }) => (
+                <li key={summary.summaryId}>
+                  {summary.title} ({summary.sourceFloorIds.length} 个楼层)
+                </li>
+              ))}
+            </ul>
+            <p className="gal-story-archive__impact-note">
+              继续操作后，失效的总结会自动标记为 rejected。
+              系统会在新正文生成后自动创建新总结。
+            </p>
+            <div className="gal-story-archive__impact-actions">
+              <button type="button" onClick={cancelRegeneration}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="is-primary"
+                onClick={() => {
+                  const targetArchive = sortedArchives.find(
+                    a => summaryInvalidation.invalidatedSummaries.length > 0 &&
+                       summaryInvalidation.invalidatedSummaries[0].summary.sourceFloorIds.includes(
+                         a.floors.find(f => f.floorId === a.activeFloorId)?.floorId ?? ''
+                       )
+                  );
+                  if (targetArchive) confirmRegeneration(targetArchive);
+                }}
+              >
+                确认重新生成
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {children}
     </section>
   );

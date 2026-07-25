@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "coordinateMap": "../../official-face-coordinate-map.csv",
+  "sourceFamilyId": "005_03_05",
+  "targetFamilyId": "005_02_05",
+  "sourceNeutralExpression": "a",
+  "expressions": {
+    "shy": {
+      "sourceExpression": "b"
+    },
+    "anger": {
+      "sourceExpression": "c"
+    }
+  },
+  "algorithm": {
+    "registration": "official source/target windows from coordinate CSV",
+    "registrationComparison": "skimage.registration.optical_flow_tvl1",
+    "featureSupport": "local union(target_family_atlas_minus_body, source_expression_minus_neutral) clipped to shared opaque pixels",
+    "targetCleanup": "opencv.inpaint.INPAINT_TELEA on target-family dynamic features",
+    "blendCandidates": [
+      {
+        "id": "official_window",
+        "implementation": "official coordinate CSV window placement",
+        "role": "human-review-baseline"
+      },
+      {
+        "id": "poisson_normal",
+        "implementation": "opencv.seamlessClone.NORMAL_CLONE",
+        "role": "primary"
+      },
+      {
+        "id": "poisson_mixed",
+        "implementation": "opencv.seamlessClone.MIXED_CLONE",
+        "role": "comparison"
+      }
+    ],
+    "support": {
+      "threshold": "otsu",
+      "closingRadius": 2,
+      "dilationRadius": 4,
+      "inpaintRadius": 3
+    },
+    "edgeLockPixels": 8,
+    "sharedSupportAcrossFrames": true
+  },
+  "researchSources": [
+    "https://scikit-image.org/docs/stable/auto_examples/registration/plot_opticalflow.html",
+    "https://scikit-image.org/docs/stable/auto_examples/transform/plot_piecewise_affine.html",
+    "https://github.com/opencv/opencv/blob/4.x/modules/photo/include/opencv2/photo.hpp",
+    "https://github.com/opencv/opencv/blob/4.x/modules/stitching/include/opencv2/stitching/detail/blenders.hpp",
+    "https://learnopencv.com/face-swap-using-opencv-c-python/"
+  ]
+}
