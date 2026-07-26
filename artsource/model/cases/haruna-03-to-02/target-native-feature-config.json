@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "target_native_features_v2",
+  "status": "awaiting-human-review",
+  "label": "02 原生脸片 + 03 中心连通嘴芯 v2",
+  "sourceFamilyId": "005_03_05",
+  "targetFamilyId": "005_02_05",
+  "targetBody": "../../../haruna/haruna_changer_room/haruna_changer_room.png",
+  "frameCount": 3,
+  "expressions": {
+    "shy": {
+      "sourceExpression": "b",
+      "targetExpression": "c",
+      "eye": {
+        "mode": "replace-target-eyes",
+        "targetFrameMap": [2, 2, 2],
+        "sourceTransform": { "scale": [0.96, 0.94], "translate": [0, -15] },
+        "cleanupSelection": { "mode": "dark-detail", "lumaCeiling": 220, "dilate": 2 },
+        "cleanupPolygons": [
+          [[31, 46], [91, 46], [92, 72], [31, 72]],
+          [[23, 69], [101, 68], [102, 121], [22, 122]],
+          [[140, 46], [198, 46], [198, 72], [140, 72]],
+          [[129, 68], [207, 69], [208, 122], [128, 121]]
+        ],
+        "sourceInkPolygons": [
+          [[33, 52], [97, 48], [99, 82], [34, 84]],
+          [[25, 86], [99, 85], [101, 125], [24, 125]],
+          [[132, 48], [197, 52], [196, 84], [131, 82]],
+          [[130, 85], [205, 86], [206, 125], [129, 125]]
+        ],
+        "preserveTargetBlush": true
+      },
+      "mouth": {
+        "targetFrameMap": [0, 1, 2],
+        "sourceTransform": { "scale": [0.9, 0.9], "translate": [0, -13] },
+        "cleanupSelection": {
+          "mode": "mouth-detail",
+          "lumaCeiling": 228,
+          "colorDistanceFloor": 14,
+          "dilate": 2
+        },
+        "cleanupPolygons": [[[69, 7], [161, 7], [160, 33], [70, 33]]],
+        "cleanupSeedPolygons": [[[88, 10], [145, 10], [145, 29], [88, 29]]],
+        "sourceMouthPolygons": [[[68, 18], [162, 18], [165, 43], [65, 43]]],
+        "sourceMouthSeedPolygons": [[[82, 22], [153, 22], [153, 41], [82, 41]]],
+        "sourceDetailPolygons": [
+          [[51, 30], [67, 30], [67, 43], [51, 43]],
+          [[168, 14], [185, 14], [185, 37], [168, 37]]
+        ]
+      }
+    },
+    "anger": {
+      "sourceExpression": "c",
+      "targetExpression": "c",
+      "eye": {
+        "mode": "preserve-target-eyes-replace-brows",
+        "targetFrameMap": [0, 1, 2],
+        "sourceTransform": { "scale": [0.97, 0.96], "translate": [0, -9] },
+        "cleanupSelection": { "mode": "dark-detail", "lumaCeiling": 220, "dilate": 2 },
+        "cleanupPolygons": [
+          [[29, 42], [94, 42], [95, 77], [28, 78]],
+          [[136, 42], [201, 42], [202, 78], [135, 77]]
+        ],
+        "sourceInkPolygons": [
+          [[34, 54], [90, 43], [99, 56], [48, 85]],
+          [[48, 45], [67, 45], [68, 69], [47, 69]],
+          [[132, 49], [196, 56], [185, 85], [130, 68]]
+        ],
+        "preserveTargetBlush": true
+      },
+      "mouth": {
+        "targetFrameMap": [0, 1, 2],
+        "sourceTransform": { "scale": [0.9, 0.9], "translate": [0, -13] },
+        "cleanupSelection": {
+          "mode": "mouth-detail",
+          "lumaCeiling": 228,
+          "colorDistanceFloor": 14,
+          "dilate": 2
+        },
+        "cleanupPolygons": [[[69, 7], [161, 7], [160, 33], [70, 33]]],
+        "cleanupSeedPolygons": [[[88, 10], [145, 10], [145, 29], [88, 29]]],
+        "sourceMouthPolygons": [[[72, 20], [158, 20], [161, 42], [69, 42]]],
+        "sourceMouthSeedPolygons": [[[86, 23], [148, 23], [148, 40], [86, 40]]],
+        "sourceDetailPolygons": [[[168, 23], [184, 23], [184, 38], [168, 38]]]
+      }
+    }
+  },
+  "regions": {
+    "eye": {
+      "size": [230, 131],
+      "targetHair": {
+        "purpleDelta": [8, 3],
+        "edge": ["top", "left", "right"],
+        "dilate": 1
+      },
+      "bodyEdgeBands": { "top": 10, "right": 6, "bottom": 0, "left": 6 },
+      "targetBlushPolygons": [
+        [[23, 94], [102, 94], [105, 130], [22, 130]],
+        [[128, 94], [208, 94], [209, 130], [126, 130]]
+      ]
+    },
+    "mouth": {
+      "size": [230, 57],
+      "bodyEdgeBands": { "top": 0, "right": 6, "bottom": 8, "left": 6 }
+    }
+  },
+  "extraction": {
+    "inpaintMethod": "skimage.restoration.inpaint_biharmonic",
+    "inkLumaFloor": 55,
+    "inkLumaCeiling": 220,
+    "mouthLumaCeiling": 228,
+    "mouthColorDistanceFloor": 14,
+    "mouthSupportDilation": 1,
+    "targetBlushRednessFloor": 18,
+    "targetBlushRednessCeiling": 46,
+    "minimumComponentPixels": 4,
+    "featureMaskSigma": 0.45,
+    "edgeLockPixels": 4
+  }
+}

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>春菜 03 → 02 表情迁移与人工验收</title>
+    <link rel="stylesheet" href="case.css" />
+    <script src="case-data.js" defer></script>
+    <script src="case.js" defer></script>
+  </head>
+  <body>
+    <main class="case-shell" id="harunaCase">
+      <header class="case-header">
+        <div>
+          <p class="eyebrow">LAYERED PORTRAIT RETARGETING CASE</p>
+          <h1>春菜 03 → 02 表情迁移与人工验收</h1>
+          <p class="subtitle">02 原生脸片 · 03 稀疏表情特征 · eyes / mouth 分项审查</p>
+        </div>
+        <output class="review-state" id="reviewState">0 / 12 人工通过 · 未晋升</output>
+      </header>
+
+      <section class="control-deck" aria-label="案例选择">
+        <fieldset class="control-group">
+          <legend>表情</legend>
+          <div class="segmented" id="expressionControls">
+            <button type="button" data-expression="shy" aria-pressed="true">shy · 03_b</button>
+            <button type="button" data-expression="anger" aria-pressed="false">anger · 03_c</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="control-group">
+          <legend>帧</legend>
+          <div class="segmented" id="frameControls">
+            <button type="button" data-frame="0" aria-pressed="true">0</button>
+            <button type="button" data-frame="1" aria-pressed="false">1</button>
+            <button type="button" data-frame="2" aria-pressed="false">2</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="control-group">
+          <legend>观察范围</legend>
+           <div class="segmented" id="viewControls">
+              <button type="button" data-view="face" aria-pressed="true">脸部</button>
+              <button type="button" data-view="eyes" aria-pressed="false">眼睛</button>
+              <button type="button" data-view="mouth" aria-pressed="false">嘴巴</button>
+              <button type="button" data-view="full" aria-pressed="false">全身</button>
+            </div>
+        </fieldset>
+
+        <fieldset class="control-group control-group--formula">
+          <legend>候选公式</legend>
+          <div class="segmented" id="formulaControls">
+            <button type="button" data-formula="target_native_features_v2" aria-pressed="true">02 原生脸片 + 中心连通嘴芯 v2</button>
+            <button type="button" data-formula="target_native_features" aria-pressed="false">稀疏特征 v1 · 已拒绝</button>
+            <button type="button" data-formula="semantic_occlusion" aria-pressed="false">语义遮罩 v1 · 已拒绝</button>
+            <button type="button" data-formula="official_window" aria-pressed="false">官方窗口基线</button>
+            <button type="button" data-formula="poisson_normal" aria-pressed="false">Poisson 正常克隆</button>
+            <button type="button" data-formula="poisson_mixed" aria-pressed="false">Poisson 混合对照</button>
+          </div>
+        </fieldset>
+      </section>
+
+      <div class="workspace">
+        <section class="viewer-pane" aria-labelledby="viewerTitle">
+          <div class="viewer-toolbar">
+            <div class="compare-selectors">
+              <label>
+                <span>左图</span>
+                <select id="leftStage">
+                  <option value="official">03 官方参考</option>
+                  <option value="direct">直接贴到 02</option>
+                  <option value="warp">TV-L1 配准</option>
+                  <option value="basis">02 原生底板</option>
+                  <option value="mask">共享融合区</option>
+                  <option value="semantic_mask">像素归属遮罩</option>
+                  <option value="candidate">研究候选</option>
+                </select>
+              </label>
+              <button class="quiet-button" id="swapStages" type="button">交换左右</button>
+              <label>
+                <span>右图</span>
+                <select id="rightStage">
+                  <option value="official">03 官方参考</option>
+                  <option value="direct">直接贴到 02</option>
+                  <option value="warp">TV-L1 配准</option>
+                  <option value="basis">02 原生底板</option>
+                  <option value="mask">共享融合区</option>
+                  <option value="semantic_mask">像素归属遮罩</option>
+                  <option value="candidate" selected>研究候选</option>
+                </select>
+              </label>
+            </div>
+            <div class="viewer-actions">
+              <label class="check-control"><input id="showWindows" type="checkbox" checked /><span>显示 02 窗口</span></label>
+              <a id="openRightImage" class="quiet-button" href="" target="_blank" rel="noreferrer">打开右图原尺寸</a>
+            </div>
+          </div>
+
+          <h2 class="visually-hidden" id="viewerTitle">逐像素分割对比</h2>
+          <div class="comparison-viewport" id="comparisonViewport">
+            <div class="comparison-stage" id="comparisonStage" data-view="face">
+              <div class="image-plane">
+                <img id="leftImage" alt="左侧阶段图" />
+                <div class="right-clip" id="rightClip">
+                  <img id="rightImage" alt="右侧阶段图" />
+                </div>
+                <div class="window-guides" id="windowGuides" aria-hidden="true">
+                  <span class="window-guide window-guide--eye">eyes</span>
+                  <span class="window-guide window-guide--mouth">mouth</span>
+                </div>
+              </div>
+              <span class="split-line" id="splitLine" aria-hidden="true"></span>
+              <span class="side-label side-label--left" id="leftLabel">03 官方参考</span>
+              <span class="side-label side-label--right" id="rightLabel">研究候选</span>
+            </div>
+          </div>
+
+          <div class="range-row">
+            <label>
+              <span>分割位置 <output id="splitReadout">50%</output></span>
+              <input id="splitRange" type="range" min="0" max="100" step="1" value="50" />
+            </label>
+            <label>
+              <span>画布缩放 <output id="zoomReadout">100%</output></span>
+              <input id="zoomRange" type="range" min="60" max="240" step="10" value="100" />
+            </label>
+          </div>
+
+          <nav class="stage-strip" id="stageStrip" aria-label="转换阶段">
+            <button type="button" data-stage="official"><span>01</span><strong>03 官方参考</strong><small>目标语义</small></button>
+            <button type="button" data-stage="direct"><span>02</span><strong>直接套用</strong><small>错误基线</small></button>
+            <button type="button" data-stage="warp"><span>03</span><strong>TV-L1 配准</strong><small>只校正几何</small></button>
+            <button type="button" data-stage="basis"><span>04</span><strong>02 原生底板</strong><small>目标像素</small></button>
+            <button type="button" data-stage="mask"><span>05</span><strong>共享融合区</strong><small>三帧同一 mask</small></button>
+            <button type="button" data-stage="semantic_mask"><span>06</span><strong>像素归属遮罩</strong><small>红清除 / 绿迁入 / 蓝保留 / 黄边界</small></button>
+            <button type="button" data-stage="candidate" aria-current="step"><span>07</span><strong>研究候选</strong><small>未验收</small></button>
+          </nav>
+        </section>
+
+        <aside class="inspector" aria-labelledby="inspectorTitle">
+          <div class="inspector-heading">
+            <p class="eyebrow">CASE DATA</p>
+            <h2 id="inspectorTitle">当前案例参数</h2>
+          </div>
+
+          <section class="inspector-section current-selection">
+            <p class="section-label">当前选择</p>
+            <strong id="selectionTitle">shy · 帧 0 · 官方窗口基线</strong>
+            <code id="selectionKey">shy-frame-0</code>
+            <output class="formula-state" id="formulaState">研究候选</output>
+          </section>
+
+          <section class="inspector-section">
+            <p class="section-label">研究处理底图</p>
+            <dl class="compact-list">
+              <div><dt>eyes</dt><dd id="eyeBasis">005_02_05 body eye crop</dd></div>
+              <div><dt>mouth</dt><dd id="mouthBasis">005_02_05 body mouth crop</dd></div>
+            </dl>
+          </section>
+
+          <section class="inspector-section">
+            <p class="section-label">官方窗口</p>
+            <dl class="compact-list compact-list--mono">
+              <div><dt>02 eyes</dt><dd>394, 221, 230, 131</dd></div>
+              <div><dt>02 mouth</dt><dd>394, 349, 230, 57</dd></div>
+              <div><dt>03 eyes</dt><dd>394, 232, 230, 131</dd></div>
+              <div><dt>03 mouth</dt><dd>394, 360, 230, 57</dd></div>
+            </dl>
+          </section>
+
+          <section class="inspector-section">
+            <p class="section-label">中性配准位移分位数</p>
+            <table class="metric-table">
+              <thead><tr><th>区域</th><th>方向</th><th>P01</th><th>P50</th><th>P99</th></tr></thead>
+              <tbody id="flowMetrics"></tbody>
+            </table>
+          </section>
+
+          <section class="inspector-section">
+            <p class="section-label">当前候选像素所有权</p>
+            <dl class="compact-list compact-list--mono">
+              <div><dt>底板</dt><dd>02_c 原生 atlas</dd></div>
+              <div><dt>局部清除</dt><dd>旧眼嘴线稿像素</dd></div>
+              <div><dt>03 迁入</dt><dd>眉眼线 / 汗滴 / 嘴芯</dd></div>
+              <div><dt>body 边界</dt><dd>同一 02_a 窄边带</dd></div>
+              <div><dt>外圈锁定</dt><dd>最外 4px = 02_a body</dd></div>
+              <div><dt>采样</dt><dd>整张 atlas 双线性缩放</dd></div>
+            </dl>
+          </section>
+
+          <section class="inspector-section">
+            <p class="section-label">当前边界记录</p>
+            <dl class="compact-list compact-list--mono">
+              <div><dt>eyes</dt><dd id="eyeBoundary">等待案例数据</dd></div>
+              <div><dt>mouth</dt><dd id="mouthBoundary">等待案例数据</dd></div>
+            </dl>
+          </section>
+
+          <section class="inspector-section acceptance-criteria">
+            <p class="section-label">eyes 人工标准</p>
+            <ul id="eyeCriteria"></ul>
+          </section>
+
+          <section class="inspector-section acceptance-criteria">
+            <p class="section-label">mouth 人工标准</p>
+            <ul id="mouthCriteria"></ul>
+          </section>
+
+          <section class="inspector-section output-links">
+            <p class="section-label">当前 clean atlas</p>
+            <a id="eyeOutputLink" href="" target="_blank" rel="noreferrer">打开 eye atlas</a>
+            <a id="mouthOutputLink" href="" target="_blank" rel="noreferrer">打开 mouth atlas</a>
+            <a id="eyeReviewLink" href="" target="_blank" rel="noreferrer">打开 eyes 原尺寸审查表</a>
+            <a id="mouthReviewLink" href="" target="_blank" rel="noreferrer">打开 mouth 原尺寸审查表</a>
+          </section>
+
+          <section class="inspector-section source-links">
+            <p class="section-label">可追溯文件</p>
+            <a href="case-manifest.json" target="_blank" rel="noreferrer">参数与阶段清单</a>
+            <a href="target-native-feature-config.json" target="_blank" rel="noreferrer">当前 v2 迁移参数</a>
+            <a href="outputs/target-native-features-v2/target-native-features-v2-manifest.json" target="_blank" rel="noreferrer">当前 v2 输出清单</a>
+            <a href="outputs/target-native-features/target-native-features-manifest.json" target="_blank" rel="noreferrer">已拒绝 v1 输出清单</a>
+            <a href="semantic-occlusion-config.json" target="_blank" rel="noreferrer">已拒绝语义遮罩参数</a>
+            <a href="build_case_assets.py" target="_blank" rel="noreferrer">案例生成算法</a>
+            <a href="build_target_native_feature_candidate.py" target="_blank" rel="noreferrer">当前候选合成算法</a>
+            <a href="build_semantic_occlusion_candidate.py" target="_blank" rel="noreferrer">已拒绝候选算法</a>
+            <a href="README.md" target="_blank" rel="noreferrer">案例说明</a>
+          </section>
+        </aside>
+      </div>
+
+      <section class="review-panel" aria-labelledby="reviewTitle">
+        <div class="review-heading">
+          <div>
+            <p class="eyebrow">HUMAN REVIEW LOOP</p>
+            <h2 id="reviewTitle">12 项逐帧验收</h2>
+          </div>
+          <div class="review-actions">
+            <output id="reviewProgress">0 通过 · 0 拒绝 · 12 待定</output>
+            <button class="quiet-button" id="exportReview" type="button">导出审查记录</button>
+          </div>
+        </div>
+        <div class="review-matrix" id="reviewMatrix"></div>
+        <label class="review-note">
+          <span>本候选审查备注</span>
+          <textarea id="reviewNote" rows="3" placeholder="记录接缝位置、重影、表情偏差或需修改的帧"></textarea>
+        </label>
+        <p class="promotion-lock">全部 12 项通过也只生成审查记录；正式资源替换必须另开一次明确授权的实现轮。</p>
+      </section>
+    </main>
+  </body>
+</html>

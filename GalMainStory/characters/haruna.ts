@@ -33,17 +33,17 @@ const HARUNA_CHANGER_ROOM_PORTRAIT = {
   displayName: '西连寺春菜',
   canvas: { width: 1024, height: 1024 },
   body: '/artsource/haruna/haruna_changer_room/haruna_changer_room.png',
-  mask: '/artsource/haruna/haruna_changer_room/005_02_05_a.png',
+  mask: '/artsource/haruna/haruna_changer_room/haruna_changer_room_mask.png',
   regions: {
-    eyes: { x: 399, y: 210, width: 221, height: 124, feather: 1 },
-    mouth: { x: 399, y: 331, width: 221, height: 60, feather: 0 },
+    eyes: { x: 394, y: 221, width: 230, height: 131 },
+    mouth: { x: 394, y: 349, width: 230, height: 57 },
   },
   defaultExpressionId: 'shy',
   expressions: createFaceAtlasExpressions(
-    '/artsource/haruna/haruna_changer_room/005_03_05_',
+    '/artsource/haruna/haruna_changer_room/haruna_changer_room_',
     {
-      shy: 'b',
-      anger: 'c',
+      shy: 'shy',
+      anger: 'anger',
     },
     ['shy'],
   ),

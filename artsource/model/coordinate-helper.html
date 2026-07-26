@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>立绘坐标速查</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 2rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0a0a0a;
+        color: #e8e8e8;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin: 0 0 0.5rem;
+      }
+      .intro {
+        color: #999;
+        margin-bottom: 2rem;
+      }
+      .search-box {
+        margin-bottom: 2rem;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #e8e8e8;
+      }
+      .search-box input:focus {
+        outline: none;
+        border-color: #0066cc;
+      }
+      .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+      .filters label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #1a1a1a;
+        border-radius: 6px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .filters input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      .results {
+        display: grid;
+        gap: 1.5rem;
+      }
+      .card {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .card-subtitle {
+        color: #999;
+        font-size: 0.875rem;
+        margin: 0.25rem 0 0;
+      }
+      .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .badge.resolved {
+        background: #0a4d2a;
+        color: #4ade80;
+      }
+      .badge.unresolved {
+        background: #4d2a0a;
+        color: #fb923c;
+      }
+      .coords-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      .coord-section {
+        background: #0f0f0f;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      .coord-section h3 {
+        margin: 0 0 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .coord-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .coord-item {
+        display: flex;
+        justify-content: space-between;
+        font-family: "SF Mono", Monaco, monospace;
+        font-size: 0.875rem;
+      }
+      .coord-item .label {
+        color: #999;
+      }
+      .coord-item .value {
+        color: #4ade80;
+        font-weight: 500;
+      }
+      .code-block {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #0f0f0f;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+      }
+      .code-block pre {
+        margin: 0;
+        font-family: "SF Mono", Monaco, monospace;
+        font-size: 0.875rem;
+        color: #e8e8e8;
+        overflow-x: auto;
+      }
+      .copy-btn {
+        padding: 0.5rem 1rem;
+        background: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .copy-btn:hover {
+        background: #0052a3;
+      }
+      .copy-btn:active {
+        transform: scale(0.98);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>立绘坐标速查</h1>
+      <p class="intro">从官方 CSV 提取的人类可读坐标数据</p>
+
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="搜索角色名、ID、姿势 ID…（例如：春菜、005、02、haruna）"
+          autofocus
+        />
+      </div>
+
+      <div class="filters">
+        <label>
+          <input type="checkbox" id="filterResolved" checked />
+          <span>显示已解析</span>
+        </label>
+        <label>
+          <input type="checkbox" id="filterUnresolved" />
+          <span>显示未解析</span>
+        </label>
+        <label>
+          <input type="checkbox" id="filterPositionOnly" />
+          <span>显示仅坐标记录</span>
+        </label>
+      </div>
+
+      <div id="results" class="results"></div>
+    </div>
+
+    <script>
+      // 从 CSV 解析的数据将在这里注入
+      const coordinateData = [];
+
+      // 解析 CSV（在实际使用时由构建脚本生成）
+      async function loadCSV() {
+        const response = await fetch("./official-face-coordinate-map.csv");
+        const text = await response.text();
+        const lines = text.trim().split("\n");
+        const headers = lines[0].split(",");
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(",");
+          const record = {};
+          headers.forEach((header, index) => {
+            record[header] = values[index];
+          });
+          coordinateData.push(record);
+        }
+
+        renderResults();
+      }
+
+      function renderResults() {
+        const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+        const showResolved = document.getElementById("filterResolved").checked;
+        const showUnresolved = document.getElementById("filterUnresolved").checked;
+        const showPositionOnly = document.getElementById("filterPositionOnly").checked;
+
+        const filtered = coordinateData.filter((record) => {
+          // 搜索过滤
+          const searchable = [
+            record.character_name,
+            record.character_id,
+            record.position_key,
+            record.costume_id,
+            record.pose_id,
+            record.expression_id,
+          ]
+            .join(" ")
+            .toLowerCase();
+
+          if (searchTerm && !searchable.includes(searchTerm)) {
+            return false;
+          }
+
+          // 类型过滤
+          const isPositionOnly = record.record_type === "position_only";
+          const isResolved = record.coordinate_status === "resolved";
+
+          if (isPositionOnly && !showPositionOnly) return false;
+          if (!isPositionOnly && isResolved && !showResolved) return false;
+          if (!isPositionOnly && !isResolved && !showUnresolved) return false;
+
+          return true;
+        });
+
+        const resultsContainer = document.getElementById("results");
+
+        if (filtered.length === 0) {
+          resultsContainer.innerHTML = '<div class="empty-state">未找到匹配的记录</div>';
+          return;
+        }
+
+        resultsContainer.innerHTML = filtered.map((record) => renderCard(record)).join("");
+
+        // 绑定复制按钮
+        document.querySelectorAll(".copy-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const code = e.target.previousElementSibling.textContent;
+            navigator.clipboard.writeText(code);
+            const originalText = e.target.textContent;
+            e.target.textContent = "已复制";
+            setTimeout(() => {
+              e.target.textContent = originalText;
+            }, 1500);
+          });
+        });
+      }
+
+      function renderCard(record) {
+        const isResolved = record.coordinate_status === "resolved";
+        const isPositionOnly = record.record_type === "position_only";
+
+        const statusBadge = isResolved
+          ? '<span class="badge resolved">已解析</span>'
+          : '<span class="badge unresolved">未解析</span>';
+
+        const eyeCoords = {
+          x: record.eye_x,
+          y: record.eye_y,
+          width: record.eye_width,
+          height: record.eye_height,
+        };
+
+        const mouthCoords = {
+          x: record.mouth_x,
+          y: record.mouth_y,
+          width: record.mouth_width,
+          height: record.mouth_height,
+        };
+
+        const tsCode = `regions: {
+  eyes: { x: ${eyeCoords.x}, y: ${eyeCoords.y}, width: ${eyeCoords.width}, height: ${eyeCoords.height}, feather: 0 },
+  mouth: { x: ${mouthCoords.x}, y: ${mouthCoords.y}, width: ${mouthCoords.width}, height: ${mouthCoords.height}, feather: 0 }
+}`;
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">${record.character_name} ${record.character_id}_${record.costume_id}_${record.pose_id}${isPositionOnly ? "" : `_${record.expression_id}`}</h2>
+                <p class="card-subtitle">${record.position_key}${isPositionOnly ? " · 仅坐标" : ` · 表情 ${record.expression_id}`}</p>
+              </div>
+              ${statusBadge}
+            </div>
+
+            <div class="coords-grid">
+              <div class="coord-section">
+                <h3>Eyes 窗口</h3>
+                <div class="coord-list">
+                  <div class="coord-item"><span class="label">X</span><span class="value">${eyeCoords.x}</span></div>
+                  <div class="coord-item"><span class="label">Y</span><span class="value">${eyeCoords.y}</span></div>
+                  <div class="coord-item"><span class="label">Width</span><span class="value">${eyeCoords.width}</span></div>
+                  <div class="coord-item"><span class="label">Height</span><span class="value">${eyeCoords.height}</span></div>
+                </div>
+              </div>
+
+              <div class="coord-section">
+                <h3>Mouth 窗口</h3>
+                <div class="coord-list">
+                  <div class="coord-item"><span class="label">X</span><span class="value">${mouthCoords.x}</span></div>
+                  <div class="coord-item"><span class="label">Y</span><span class="value">${mouthCoords.y}</span></div>
+                  <div class="coord-item"><span class="label">Width</span><span class="value">${mouthCoords.width}</span></div>
+                  <div class="coord-item"><span class="label">Height</span><span class="value">${mouthCoords.height}</span></div>
+                </div>
+              </div>
+
+              <div class="coord-section">
+                <h3>画布与图集</h3>
+                <div class="coord-list">
+                  <div class="coord-item"><span class="label">Canvas</span><span class="value">${record.canvas_width}×${record.canvas_height}</span></div>
+                  ${!isPositionOnly ? `<div class="coord-item"><span class="label">Eye Atlas</span><span class="value">${record.eye_atlas_width}×${record.eye_atlas_height}</span></div>` : ""}
+                  ${!isPositionOnly ? `<div class="coord-item"><span class="label">Mouth Atlas</span><span class="value">${record.mouth_atlas_width}×${record.mouth_atlas_height}</span></div>` : ""}
+                  <div class="coord-item"><span class="label">帧数</span><span class="value">${record.frame_count || "N/A"}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-block">
+              <pre>${tsCode}</pre>
+              <button class="copy-btn">复制 TypeScript</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 事件监听
+      document.getElementById("searchInput").addEventListener("input", renderResults);
+      document.getElementById("filterResolved").addEventListener("change", renderResults);
+      document.getElementById("filterUnresolved").addEventListener("change", renderResults);
+      document.getElementById("filterPositionOnly").addEventListener("change", renderResults);
+
+      // 加载数据
+      loadCSV();
+    </script>
+  </body>
+</html>
