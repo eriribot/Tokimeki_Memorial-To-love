@@ -17,7 +17,7 @@ import {
 import { useCardStore } from '../stores/cardStore';
 import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
-import { usePlayerStore } from '../stores/playerStore';
+import { PLAYER_RESOURCE_MAX, TOKIMEKI_ATTRIBUTE_MAX, usePlayerStore } from '../stores/playerStore';
 import type {
   CalendarDateValue,
   CharacterCard,
@@ -65,6 +65,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isFiniteNumberInRange(value: unknown, minimum: number, maximum: number): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
+}
+
 function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   if (!isRecord(value) || value.schemaVersion !== GAME_SNAPSHOT_SCHEMA_VERSION) {
     throw new Error('存档版本无效；开发阶段旧存档不再兼容，请新开档。');
@@ -73,6 +77,7 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
     throw new Error('存档内容不完整');
   }
   const game = value.game;
+  const player = value.player;
   if (
     (game.screen !== 'start' && game.screen !== 'game') ||
     typeof game.hasSession !== 'boolean' ||
@@ -95,6 +100,22 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
     (value.cards.activeTargetId !== null && typeof value.cards.activeTargetId !== 'string')
   ) {
     throw new Error('存档字段格式无效');
+  }
+  if (
+    typeof player.name !== 'string' ||
+    typeof player.color !== 'string' ||
+    typeof player.avatar !== 'string' ||
+    !isFiniteNumberInRange(player.intelligence, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
+    !isFiniteNumberInRange(player.athletics, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
+    !isFiniteNumberInRange(player.art, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
+    !isFiniteNumberInRange(player.charm, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
+    !isFiniteNumberInRange(player.stamina, 0, PLAYER_RESOURCE_MAX) ||
+    !isFiniteNumberInRange(player.stress, 0, PLAYER_RESOURCE_MAX) ||
+    typeof player.money !== 'number' ||
+    !Number.isFinite(player.money) ||
+    player.money < 0
+  ) {
+    throw new Error('玩家存档字段格式或范围无效');
   }
 }
 

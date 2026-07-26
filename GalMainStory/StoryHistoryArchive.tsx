@@ -8,7 +8,6 @@ import { getStoryScene } from './scenes';
 import type { GalStoryActArchive, GalStoryFloor } from './storyTypes';
 import {
   analyzeRegenerationImpact,
-  validateFloorContext,
   getInvalidContextFloors,
   type ContextImpactAnalysis,
 } from './storyContextValidation';
@@ -17,6 +16,7 @@ import {
   invalidateSummaries,
   type SummaryInvalidationResult,
 } from '../memory/summaryInvalidation';
+import { useMemorySummaryArchiveStore } from '../memory/summaryArchive';
 
 interface StoryHistoryArchiveProps {
   isRawHistoryOpen: boolean;
@@ -69,7 +69,7 @@ export default function StoryHistoryArchive({
   const [showImpactWarning, setShowImpactWarning] = useState(false);
   const [summaryInvalidation, setSummaryInvalidation] = useState<SummaryInvalidationResult | null>(null);
   const [showSummaryWarning, setShowSummaryWarning] = useState(false);
-  const saveUuid = useGameStore(state => state.save.record?.saveUuid ?? '');
+  const saveUuid = useMemorySummaryArchiveStore(state => state.activeSaveUuid) ?? '';
   const sortedArchives = useMemo(
     () =>
       [...archives].sort((left, right) => {
@@ -224,7 +224,7 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, regeneratingActKey, sortedArchives],
+    [addFloor, messageHistory, onPreviewFloor, regeneratingActKey, saveUuid, sortedArchives],
   );
 
   const confirmRegeneration = useCallback(
@@ -235,7 +235,7 @@ export default function StoryHistoryArchive({
       // 使失效的总结无效化
       if (summaryInvalidation && summaryInvalidation.affectedCount > 0) {
         const invalidatedCount = invalidateSummaries(
-          summaryInvalidation.invalidatedSummaries.map(s => s.summary.summaryId)
+          summaryInvalidation.invalidatedSummaries.map(s => s.summary.summaryId),
         );
         console.log(`已使 ${invalidatedCount} 条总结失效`);
       }
@@ -272,9 +272,10 @@ export default function StoryHistoryArchive({
         }
         if (generated.ok) {
           if (isMountedRef.current) {
-            const message = summaryInvalidation && summaryInvalidation.affectedCount > 0
-              ? `新楼层已保存。${summaryInvalidation.affectedCount} 条总结已失效，系统将自动生成新总结。`
-              : '新楼层已保存。注意：后续依赖此幕的楼层需要重新生成。';
+            const message =
+              summaryInvalidation && summaryInvalidation.affectedCount > 0
+                ? `新楼层已保存。${summaryInvalidation.affectedCount} 条总结已失效，系统将自动生成新总结。`
+                : '新楼层已保存。注意：后续依赖此幕的楼层需要重新生成。';
             setNotice(message);
             onPreviewFloor(generated.floor.floorId);
           }
@@ -295,7 +296,7 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, sortedArchives],
+    [addFloor, messageHistory, onPreviewFloor, sortedArchives, summaryInvalidation],
   );
 
   const cancelRegeneration = useCallback(() => {
@@ -360,9 +361,7 @@ export default function StoryHistoryArchive({
                     </span>
                     <h3>{actMeta?.title ?? archive.actId}</h3>
                     {contextInvalid && (
-                      <p className="gal-story-archive__context-warning">
-                        ⚠️ 上下文已失效（前置楼层已更新）
-                      </p>
+                      <p className="gal-story-archive__context-warning">⚠️ 上下文已失效（前置楼层已更新）</p>
                     )}
                   </div>
                   <div className="gal-story-archive__act-actions">
@@ -475,7 +474,8 @@ export default function StoryHistoryArchive({
                 className="is-primary"
                 onClick={() => {
                   const targetArchive = sortedArchives.find(
-                    a => a.eventId === impactAnalysis.targetFloor.eventId && a.actId === impactAnalysis.targetFloor.actId
+                    a =>
+                      a.eventId === impactAnalysis.targetFloor.eventId && a.actId === impactAnalysis.targetFloor.actId,
                   );
                   if (targetArchive) confirmRegeneration(targetArchive);
                 }}
@@ -502,8 +502,7 @@ export default function StoryHistoryArchive({
               ))}
             </ul>
             <p className="gal-story-archive__impact-note">
-              继续操作后，失效的总结会自动标记为 rejected。
-              系统会在新正文生成后自动创建新总结。
+              继续操作后，失效的总结会自动标记为 rejected。 系统会在新正文生成后自动创建新总结。
             </p>
             <div className="gal-story-archive__impact-actions">
               <button type="button" onClick={cancelRegeneration}>
@@ -514,10 +513,11 @@ export default function StoryHistoryArchive({
                 className="is-primary"
                 onClick={() => {
                   const targetArchive = sortedArchives.find(
-                    a => summaryInvalidation.invalidatedSummaries.length > 0 &&
-                       summaryInvalidation.invalidatedSummaries[0].summary.sourceFloorIds.includes(
-                         a.floors.find(f => f.floorId === a.activeFloorId)?.floorId ?? ''
-                       )
+                    a =>
+                      summaryInvalidation.invalidatedSummaries.length > 0 &&
+                      summaryInvalidation.invalidatedSummaries[0].summary.sourceFloorIds.includes(
+                        a.floors.find(f => f.floorId === a.activeFloorId)?.floorId ?? '',
+                      ),
                   );
                   if (targetArchive) confirmRegeneration(targetArchive);
                 }}

@@ -65,13 +65,11 @@ button:hover::before {
 }
 
 /* 添加面板标题装饰 */
-.stat-panel h2,
 .controls h2 {
   position: relative;
   padding-left: 12px;
 }
 
-.stat-panel h2::before,
 .controls h2::before {
   content: '';
   position: absolute;
@@ -133,15 +131,10 @@ button:hover::before {
   }
 }
 
-.stat-panel,
 .character-portrait,
 .controls,
 .event-log {
   animation: panelSlideIn 0.4s ease-out;
-}
-
-.stat-panel {
-  animation-delay: 0.1s;
 }
 
 .character-portrait {

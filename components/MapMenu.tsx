@@ -11,6 +11,7 @@ interface MapMenuProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
   onOpenIndex: () => void;
+  onOpenData: () => void;
   onOpenDictionary: () => void;
   onOpenSettings: () => void;
 }
@@ -19,6 +20,7 @@ export default function MapMenu({
   onOpenSave,
   onOpenLoad,
   onOpenIndex,
+  onOpenData,
   onOpenDictionary,
   onOpenSettings,
 }: MapMenuProps) {
@@ -64,6 +66,12 @@ export default function MapMenu({
     if (item.id === 'index') {
       setIsOpen(false);
       onOpenIndex();
+      return;
+    }
+
+    if (item.id === 'data') {
+      setIsOpen(false);
+      onOpenData();
       return;
     }
 

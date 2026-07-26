@@ -1,67 +1,51 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: static_implementation_complete_runtime_recheck_pending
-current_loop: memory_plain_text_local_envelope_and_fixed_6_messages_2_5_hierarchy
-authorized_by: user_static_memory_contract_approval_2026-07-23
+status: implementation_complete_human_review_pending
+current_loop: data_archive_monochrome_stage_and_manual_summary_disabled_revision
+authorized_by: user_archive_and_manual_summary_disabled_direction_2026-07-26
 authorized_scope:
-  - keep the real generation history at the latest six complete cross-episode messages
-  - collapse raw messages by default and make both modal body and raw lists scrollable
-  - replace model-generated JSON candidates with model prose plus a deterministic local JSON envelope
-  - make two complete canonical floors one small-summary batch and five accepted small summaries one large-summary batch
-  - fix small/large summary text limits at 600/1200 characters
-  - show the fixed hierarchy in the existing system settings and summary review UI
-  - isolate incompatible v1/v2 browser candidate archives so old dynamic or six-floor jobs cannot block the static policy
-  - start at most one summary batch after each paired authoritative autosave or explicit schedule refresh
-  - normalize secondary-API prose into reviewable browser-local candidates with locally owned metadata
-  - allow accept, title/text edit, reject, rejected-candidate regeneration and failed-job retry only in the summary review page
-  - revalidate canonical source floors before retry, accept, edit or large-summary reuse
-  - require exact request revision and both saved/live source validation before accepting delayed API results
-  - prevent repeated rejected-summary replacements and require five disjoint accepted sources for each large summary
-  - sanitize browser archive job/candidate links and rotate the default autosave UUID for a new game
-  - invalidate or roll back the memory anchor around paired saves and loads without changing save/message schemas
-  - keep SummaryReviewTab external-store snapshots referentially stable under React 19
-  - show each candidate or failed job beside its frozen raw-message or accepted-small-summary sources
-  - preserve browser summary records when save slots sharing a UUID are deleted or overwritten
-  - reject blank persisted active identities and summary records with revisions below one
-  - keep the last paired memory context authoritative until an ordinary autosave fully succeeds
+  - enable the map-menu Data entry and keep the archive inside the existing game frame
+  - provide separate player-status and character-file views
+  - read player values from playerStore without reading or rendering the avatar field
+  - use the official 01-11 archive backgrounds, icons, cursors and detail navigation sprites
+  - bind existing character cards to fixed official slots and reuse characterAvailability unlock rules
+  - hide locked character identity before labels, DOM data or render_game_to_text projection
+  - read unlocked names, relationship values, locations and descriptions from current stores
+  - show missing biography fields as unregistered instead of inventing source data
+  - preserve the existing map-side CharacterProfileModal and lock map/bottom controls while Data is open
+  - expose the visible archive state through render_game_to_text
+  - keep the archive mounted inside the existing map frame and let its stage cover that frame at 100 percent width and height
+  - render bg_data1 and bg_data2 with object-fit fill and no gray side bands, glass, card border or panel shadow
+  - show a fixed 主角 heading, four unregistered profile rows, stamina and stress gauges, money and a six-axis SVG radar
+  - do not show the current location or any protagonist image in the player-status view
+  - map 文系/理系/艺术/运动/容姿/根性 to intelligence/intelligence/art/athletics/charm/athletics without expanding PlayerState or the save schema
+  - use heart.png, pressure-icon.png and one shared stamina-track.png through resolveAssetPath, distinguishing the gauges by icon and pink/cyan fill
+  - keep raw growth attributes at TOKIMEKI_ATTRIBUTE_MAX 999 while deriving five display stages from 160/200/240/260, and expose exact radar plus radarStages through render_game_to_text
+  - render only five monochrome concentric rings, six labels with raw values and one stage polygon; do not restore colored sectors, diamond nodes or a MAX badge
+  - use the official clean-paper bg_ht01 through resolveAssetPath and keep the complete bg_data1 spine untouched
+  - remove the duplicate bottom StatPanel while keeping Controls as the only bottom action area
+  - remove the file/URL CardImporter UI and its file/URL loader actions while retaining JSON bootstrap loading
+  - keep manual small-summary disabled and visibly gray when the secondary API is disabled
+  - let only current save/source-matching failed summary jobs block the manual-summary control
 forbidden_scope:
-  - inject memory into story generation or change contextFloorIds
-  - change save/message schemas or relationship settlement
-  - create host messages or connect shujuku, ACU, plugins or databases
-  - add a Tavern memory side archive or appointment/relationship rules
-  - run tests, builds, formatting, browser automation, screenshots or real API probes in this loop
-connection_state: paired_save_trigger_plain_text_summary_and_browser_local_candidate_v3_implemented
-overall_connection_label:
-  user runtime reached the secondary-API response parser; the repaired prose-to-local-envelope path is not rerun and no Tavern memory file, story injection, host floor, shujuku or database connection exists
+  - use Yuki Rito imagery or any protagonist avatar resource on the player-status page
+  - invent birthdays, height, weight, blood type or new character-card facts
+  - change AP, date, affection, relationship settlement, save schemas or story progression
+  - change character availability rules or add cards for currently empty official slots
+  - create host messages or connect generation, shujuku, ACU, plugins or databases
+connection_state: local_store_read_only_data_archive_ui_implemented
+overall_connection_label: 只是本地状态演示
 evidence:
-  - static source review only; all executable verification is not run by explicit user instruction
-  - user real-Tavern screenshot proves the secondary API returned content that the old JSON-only parser rejected
-  - the same screenshot proves the old runtime created a one-floor small-summary job and displayed the obsolete 1/3 cadence
-  - prompt now requests only prose; local code owns title, source IDs, fingerprint, status, timestamps and JSON persistence
-  - user real-Tavern console output proves SummaryReviewTab entered an infinite external-store update loop before repair
-  - static review traced both unstable selectors to filter/sort arrays created inside getSnapshot
-  - user screenshots prove the previous four-of-six unscrollable context defect, not the repaired implementation
-  - candidate persistence is browser localStorage v3 scoped by saveUuid, not a Tavern file side archive
-  - static review found and repaired duplicate-source regeneration, large-batch starvation, dangling ready jobs, delayed revision acceptance, save/load lifecycle races, ordinary-autosave premature invalidation and explicit-transition rollback scheduling loss
-  - static review found that slot deletion/overwrite cannot safely garbage-collect by UUID because one UUID can remain active or be shared by multiple slots
-human_review: pending_real_tavern_manual_review
+  - static source and reference inspection only; the user explicitly prohibited build, lint, TypeScript, game-page browser, screenshot and inline checks in this loop
+  - read-only reference inspection used the Tokimeki Memorial 4 ordinary-university thresholds at 160/200/240/260; it is design evidence, not runtime acceptance
+  - the source archive tree now contains 41 assets: the existing 37 archive files plus three runtime player-status assets and the official clean-paper bg_ht01; publication was not checked in this loop
+human_review: pending_data_archive_visual_and_interaction_review
 counterevidence:
-  - user runtime reported "记忆 API 返回的内容不是有效JSON"; the model-JSON output contract is rejected as the wrong product boundary
-  - user rejected dynamic cadence and approved a static six-message window, two-floor small batches, five-summary large batches and fixed 600/1200 limits
-  - user runtime reported getSnapshot cache warning and Maximum update depth in SummaryReviewTab; the preceding static
-    implementation-complete conclusion is withdrawn until the repaired selector path is manually rechecked
-  - user screenshots show Tavern accepting a custom OpenAI-compatible service URL ending at the bare domain; requiring
-    the player to type /v1 is incompatible with that flow
-  - user screenshot proved that window_system.png still produced unwanted thick blue bands; the previous body-asset
-    visual pass is invalidated
-  - user rejected window_kani.png as the title asset and identified midashi_op.png as the native title nameplate; the
-    previous title visual pass is invalidated
-  - user rejected the prior oversized shell and reported that window_system.png was not visibly used; its visual pass is
-    invalidated
-  - user rejected the viewport-wide settings overlay and immediate form; the prior browser UI pass is invalidated
-  - user screenshot showed the previous y=237/365 windows cutting through Mikan's bangs and face; prior visual passes
-    are invalidated
+  - all automated evidence for this loop is intentionally not run by user instruction
+  - sketches and static mockups are not runtime acceptance evidence
+  - the Persona-style colored five-level radar and risei-style pressure gauge candidates were rejected and are not current evidence
+  - the real Tavern save/message bridge, host floors, shujuku, ACU, plugins and database remain unproven
 superseded_evidence:
   - ep01-panc-contract invalidated by user runtime screenshot and existing content protocol documentation
   - content-tree-parser acceptance invalidated by a complete content container hidden below malformed planning-tag
@@ -69,6 +53,7 @@ superseded_evidence:
   - single-content-wrapper acceptance invalidated by the existing 正文/story_scene tags and the user-provided
     story_scence alias
 prior_pending_reviews:
+  - memory_plain_text_local_envelope_and_fixed_6_messages_2_5_hierarchy
   - ep01-act01-mikan-runtime-rendering-alignment-fix
   - ep02-act03-mikan-haruna-worldbook-recovery-sources
   - ep01-supported-playable-wrapper-set
@@ -80,8 +65,36 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: freeze_after_normal_sortie_and_wait_for_user_runtime_review
+next_loop: freeze_after_normal_sortie_and_wait_for_user_data_archive_review
 ```
+
+## 2026-07-26：资料页最新全框档案布局与五阶段雷达
+
+- 上一轮文档中的“1:1 正方形 `contain`、显示当前位置、六条横向属性、移除四条占位和雷达图”已被最新实现撤销，不能继续作为 active truth。当前资料页仍绝对挂载在 `.map-section`，不使用浏览器级全屏或 archive-only 视口高度。
+- `CharacterArchivePanel` 的 stage 以 `100% × 100%` 覆盖现有地图框；`bg_data1.png` / `bg_data2.png` 当前使用 `object-fit: fill`。页面不保留灰色侧边，也没有资料页毛玻璃、卡片边框或面板阴影。
+- 主角页不显示当前位置，标题固定为“主角”。生日、身高、体重、血型四行固定显示“未登记”；体力使用心形槽，压力使用独立状态槽，并显示零用钱。主角区没有人物图片节点，也不读取梨斗资源。
+- 体力与压力共用 `/artsource/ui/archive/player-status/stamina-track.png`，分别使用 `heart.png` 与 `pressure-icon.png`，并以粉色和青色填充区分；3 个路径都经 `resolveAssetPath()`。`bg_data1.png` 保持唯一完整底图，官方书脊 `x=508–575` 原样露出；同 hash 复制到 `artsource` 的官方 `bg_ht01.png` 只在左上旧字段区域局部羽化，中心不再有重复书脊或 CSS 白页拼接。此前 `pressure-frame.png` / `pressure-fill.png` 与临时 pressure-gauge 复制品已从 `artsource` 删除，官方原件仍保留在 `D:\素材`。
+- 六轴 SVG 雷达标签为“文系 / 理系 / 艺术 / 运动 / 容姿 / 根性”，当前依次读取 `intelligence / intelligence / art / athletics / charm / athletics`。原始成长值仍为 `0–999` 并直接显示；展示阶段按普通大学进路线阈值派生为 `0–159=1`、`160–199=2`、`200–239=3`、`240–259=4`、`260+=5`，默认六维原始值 `30` 均从阶段 1 开始。雷达只保留单色五层同心环、六条轴线和一个阶段多边形；彩色扇区、菱形节点和中心 `MAX` 徽章已撤销。`stores/playerStore.ts` 持有阈值和 resolver，`render_game_to_text()` 同时暴露精确 `radar` 与派生 `radarStages`。本轮没有扩展 `PlayerState`、`GameSnapshot` 或存档 schema。
+- Persona 风格彩色五级雷达与 risei 风格压力表都是已被用户否决的历史候选，不得从旧截图、旧文档或素材目录恢复为当前实现。
+- 底部 `StatPanel` 已删除，属性权威展示迁入资料页；`Controls` 成为唯一底部操作区并占满宽度。资料页打开时它仍保留在地图框上下文中，但处于 inert/灰化状态。
+- `CardImporter` 的按钮、面板、文件/URL action、PNG/URL loader 与相关类型已删除；默认角色初始化所需的 `addCardFromJSON()` 保留。
+- 副 API 未启用时，“手动生成小总结”保持原生 disabled 并明确显示灰色。API 启用后，只有正在运行的任务或与当前 save/source 仍匹配的失败任务会阻断；来源已过期的失败记录仍可查看，但不会永久锁死按钮。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Static source/reference inspection | passed | 已只读核对当前挂载、三素材共轨双槽、五阶段阈值、单色雷达、`radar/radarStages` 投影、API 关闭灰色 disabled 与当前失败任务判断；未执行代码 |
+| Build / production build | not run | 用户明确要求“不要测试” |
+| ESLint / TypeScript | not run | 用户明确要求“不要测试” |
+| Game-page browser / screenshot / Playwright | not run | 用户明确要求“不要测试”；仅浏览攻略页核对阈值，不是游戏运行证据 |
+| Inline artifact / bundle verification | not run | 用户明确要求“不要测试” |
+| New archive asset publication | not run | 三个运行时状态素材和 `bg_ht01.png` 已在源码 `artsource`，本轮未构建或核对 `dist` |
+| Secondary API call | not run | 未替用户启用或调用副 API |
+| Real Tavern / host / plugin / database | not run | 本轮没有新增或验证真实宿主链路 |
+| Human acceptance | pending | 等待用户在目标 Tavern game-frame 审查三素材状态槽、五阶段单色雷达、主角档案、尺寸、清晰度和交互 |
+
+当前最强接通标签：**只是本地状态演示**。实现已完成，自动证据按用户要求全部未运行；人工视觉和交互审查仍是接受门。
+
+以下分节是更早循环的历史记录，不覆盖本轮资料页状态。末尾旧的“资料页清晰度与 `record`”证据，以及上一轮“1:1 contain / 当前地点 / 六横条”方案，都属于已被后续实现撤销的候选。
 
 ## 2026-07-23：目录窗口与自动总结首轮闭环
 
@@ -1022,3 +1035,30 @@ shujuku/ACU、插件或数据库接通，也不证明候选可用。
 
 当前最强接通标签：**mouth 肤色误选已在隔离 v2 候选中移除，仍待人工原尺寸验收**。v1 人工反例继续有效；生成器运行成功、
 归属区缩小或页面默认项变化都不代表 v2 已被接受，也不授权运行时替换。
+
+## 历史候选（已被本轮审核退回）：资料页清晰度与 `record` 运行时错误修复
+
+- 用户本轮明确要求移除毛玻璃/网页卡片观感、提升资料页尺寸与清晰度，并禁止主角属性页使用男主/梨斗图像。
+- `CharacterArchivePanel` 改为单一响应式 stage：背景仍使用授权 `bg_data1/bg_data2`，但 DOM 字体和官方角色图标按容器高度独立定尺寸，移除整层非等比 `scale(x,y)`；资料线坐标修正为官方背景的四条蓝线；主角属性页不再挂载任何人物图片节点。
+- 历史候选曾在资料页打开时隐藏标题、底部行动板、角色卡导入和事件日志，并重新计算 archive-only 高度；该布局已被用户审核退回，当前实现不再采用。
+- `StoryHistoryArchive` 不再读取不存在的 `gameStore.save.record`，改订阅 `useMemorySummaryArchiveStore.activeSaveUuid`；该字段与摘要运行时成对存档上下文一致。远端只有 `main`，当前为 `70ecc44` 且仍含原错误 selector，因此崩溃不是“少 pull 了一个修复”。本地两处 `.git` 都是空目录，当前副本不能执行或证明 branch/pull/merge；此前关于本地 `HEAD` 与 `origin/main` 相等的记录已撤回。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Root cause / source-map mapping | passed | `StoryHistoryArchive.tsx:72` 原 selector 与 dist inline offset `482370` 对应；`GameStore` 没有 `save` 字段 |
+| `record` fix in fresh artifact | passed | fresh 生产包 `dist/webgame-ui/index.html` 中 `save.record` 与 `state.save` 命中数均为 0，`activeSaveUuid` 正常存在 |
+| Player image ban and visual scale | passed | `verify-archive.mjs` 桌面/`844x390` 两视口：主角区图片数 0、stage 无 transform、icon aspect error < 0.02、无 archive frame shadow/radius |
+| Archive interaction/privacy | passed | 14 项专项回归：11 槽、锁定去身份、详情、左右/键盘、Escape、旧侧边档案、关闭、资源与 overflow |
+| Development build / scoped ESLint | passed | `pnpm build:dev`；`pnpm exec eslint` 目标 TSX 文件无 error |
+| Full TypeScript | failed-existing | 10 条错误位于 `ContextPreviewModal`、`storyContextValidation`、`storyTimeline`、`summaryRuntime`；本轮 `StoryHistoryArchive` 的 `save` 错误已消失 |
+| Production build | passed | `pnpm build`；仅有既有的 707 KiB 单文件体积提示 |
+| Production artifact identity | passed | `dist/webgame-ui/index.html`，723584 bytes，SHA-256 `D3712A794BF6976AC258F46F8DC8AA2F97913E77F1AFC01E2A5EA1F18105FF49` |
+| Exact inline safety | passed | 删除前项目检查器的 self-test 通过；`legacyEntityPrefix/currencySign/replacementChar/replacementSpecial/syntaxErrors` 均为 0，inline script 数为 1 |
+| Production browser matrix | passed | 生产包在 `1440x1100` 与 `844x390` 共 14 项通过；控制台、资源、横向溢出、主角禁图、清晰缩放和档案交互均通过 |
+| Screenshot inspection | passed | 已实际打开最新生产截图；桌面和手机横屏无资料页毛玻璃/阴影，图标未拉伸，短横屏占满可用高度 |
+| Remote branch inspection | passed | `git ls-remote` 显示远端仅 `main@70ecc44`；远端同文件第 72 行仍读取 `state.save.record` |
+| Local Git merge | not run | 当前工作副本的 `.git` 目录为空，无法安全执行 pull/merge；需先恢复 Git 元数据或在旁路干净 clone 中迁移本地改动 |
+| Real Tavern/host/plugin/database | not run | 当前证据仍只是本地 Zustand/UI 与协议 mock，不证明真实宿主链路 |
+| Human visual acceptance | pending | 等用户在目标 Tavern game-frame 复核无毛玻璃、尺寸与手机横屏观感 |
+
+历史候选当时的标签是：**本地资料页 UI 与错误 selector 已修复，生产自动回归通过；真实 Tavern/宿主仍未证明，人工视觉验收待完成**。该候选已被用户视觉审核退回，不能作为当前实现结论。

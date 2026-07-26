@@ -1,6 +1,5 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
-import CardImporter from './components/CardImporter';
 import { CalendarCard, DayTransition } from './CalendarModule';
 import ClassroomScene from './components/ClassroomScene';
 import Controls from './components/Controls';
@@ -9,13 +8,13 @@ import DictionaryPanel from './components/DictionaryPanel';
 import MapMenu from './components/MapMenu';
 import SchoolMap from './components/SchoolMap';
 import CharacterProfileModal from './components/CharacterProfileModal';
+import CharacterArchivePanel from './components/CharacterArchivePanel';
 import SpecialSkillPanel from './components/SpecialSkillPanel';
 import ContextPreviewModal from './components/ContextPreviewModal';
 import MemorySummaryProgress from './components/MemorySummaryProgress';
 import { queueMemorySummaryAfterAutosave } from './memory/summaryRuntime';
 import SystemSettingsModal from './components/SystemSettingsModal';
 import StartScreen from './components/StartScreen';
-import StatPanel from './components/StatPanel';
 import GalMainStory from './GalMainStory/GalMainStory';
 import { gameSaveApi, startTavernAutosave } from './save';
 import { resumeSession } from './services/gameSession';
@@ -43,6 +42,7 @@ function App() {
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
   const [isContextPreviewOpen, setIsContextPreviewOpen] = useState(false);
+  const [isCharacterArchiveOpen, setIsCharacterArchiveOpen] = useState(false);
   const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
@@ -60,7 +60,8 @@ function App() {
   const mapWidth = width * cellSize;
   const mapHeight = height * cellSize;
   const availableMapWidth = Math.max(320, viewportSize.width - 32);
-  const availableMapHeight = Math.max(240, viewportSize.height - 240);
+  // The bottom stat block was removed; reclaim its space while keeping the map inside the app shell.
+  const availableMapHeight = Math.max(240, viewportSize.height - 200);
   const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
   const skillFrameWidth = Math.min(mapWidth, availableMapWidth);
   const skillFrameHeight = Math.min(mapHeight, Math.max(320, viewportSize.height - 124));
@@ -73,7 +74,8 @@ function App() {
   );
   const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
-  const isBlockingDialogOpen = isContextPreviewOpen || isDictionaryOpen || isSystemSettingsOpen;
+  const isBlockingDialogOpen =
+    isContextPreviewOpen || isCharacterArchiveOpen || isDictionaryOpen || isSystemSettingsOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -253,7 +255,9 @@ function App() {
             <main className="game-layout">
               <section className="play-section">
                 <div
-                  className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''}`}
+                  className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''} ${
+                    isCharacterArchiveOpen ? 'is-character-archive-open' : ''
+                  }`}
                   style={{
                     width: isSkillPanelOpen ? skillFrameWidth : mapWidth * mapScale,
                     height: isSkillPanelOpen ? skillFrameHeight : mapHeight * mapScale,
@@ -262,12 +266,20 @@ function App() {
                   <div
                     className="map-stage"
                     inert={
-                      isStoryOverlayOpen || isSkillPanelOpen || isDictionaryOpen || isSystemSettingsOpen
+                      isStoryOverlayOpen ||
+                      isSkillPanelOpen ||
+                      isCharacterArchiveOpen ||
+                      isDictionaryOpen ||
+                      isSystemSettingsOpen
                         ? true
                         : undefined
                     }
                     aria-hidden={
-                      isStoryOverlayOpen || isSkillPanelOpen || isDictionaryOpen || isSystemSettingsOpen
+                      isStoryOverlayOpen ||
+                      isSkillPanelOpen ||
+                      isCharacterArchiveOpen ||
+                      isDictionaryOpen ||
+                      isSystemSettingsOpen
                         ? true
                         : undefined
                     }
@@ -290,6 +302,7 @@ function App() {
                   {!currentSceneId &&
                     !isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
+                    !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
                     !isSystemSettingsOpen && (
                       <CalendarCard
@@ -301,18 +314,22 @@ function App() {
                         showMonth
                       />
                     )}
-                  {!isStoryOverlayOpen && !isSkillPanelOpen && !isDictionaryOpen && !isSystemSettingsOpen && (
-                    <CharacterProfileModal />
-                  )}
+                  {!isStoryOverlayOpen &&
+                    !isSkillPanelOpen &&
+                    !isCharacterArchiveOpen &&
+                    !isDictionaryOpen &&
+                    !isSystemSettingsOpen && <CharacterProfileModal />}
                   {!currentSceneId &&
                     !isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
+                    !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
                     !isSystemSettingsOpen && (
                       <MapMenu
                         onOpenSave={() => setSaveSlotMode('save')}
                         onOpenLoad={() => setSaveSlotMode('load')}
                         onOpenIndex={() => setIsContextPreviewOpen(true)}
+                        onOpenData={() => setIsCharacterArchiveOpen(true)}
                         onOpenDictionary={() => setIsDictionaryOpen(true)}
                         onOpenSettings={() => setIsSystemSettingsOpen(true)}
                       />
@@ -321,34 +338,45 @@ function App() {
                     <SpecialSkillPanel onClose={() => setIsSkillPanelOpen(false)} />
                   )}
                   <GalMainStory historyMode={isStoryHistoryMode} onExitHistory={() => setIsStoryHistoryOpen(false)} />
+                  {isCharacterArchiveOpen && <CharacterArchivePanel onClose={() => setIsCharacterArchiveOpen(false)} />}
                   {isDictionaryOpen && <DictionaryPanel onClose={() => setIsDictionaryOpen(false)} />}
                   {isSystemSettingsOpen && <SystemSettingsModal onClose={() => setIsSystemSettingsOpen(false)} />}
                 </div>
 
                 <div
                   className={`map-bottom-panel ${
-                    isStoryOverlayOpen || isSkillPanelOpen || isDictionaryOpen || isSystemSettingsOpen
+                    isStoryOverlayOpen ||
+                    isSkillPanelOpen ||
+                    isCharacterArchiveOpen ||
+                    isDictionaryOpen ||
+                    isSystemSettingsOpen
                       ? 'is-story-locked'
                       : ''
                   }`}
                   inert={
-                    isStoryOverlayOpen || isSkillPanelOpen || isDictionaryOpen || isSystemSettingsOpen
+                    isStoryOverlayOpen ||
+                    isSkillPanelOpen ||
+                    isCharacterArchiveOpen ||
+                    isDictionaryOpen ||
+                    isSystemSettingsOpen
                       ? true
                       : undefined
                   }
                   aria-hidden={
-                    isStoryOverlayOpen || isSkillPanelOpen || isDictionaryOpen || isSystemSettingsOpen
+                    isStoryOverlayOpen ||
+                    isSkillPanelOpen ||
+                    isCharacterArchiveOpen ||
+                    isDictionaryOpen ||
+                    isSystemSettingsOpen
                       ? true
                       : undefined
                   }
                 >
-                  <StatPanel />
                   <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
                 </div>
               </section>
             </main>
 
-            <CardImporter />
             <EventLog />
             {calendarTransition && (
               <DayTransition

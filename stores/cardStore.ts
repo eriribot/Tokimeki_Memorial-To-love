@@ -9,7 +9,7 @@ import type {
   LocationId,
   PeriodKey,
 } from '../types';
-import { cardToCharacter, loadCardFromFile, loadCardFromJSON, loadCardFromURL } from '../utils/cardLoader';
+import { cardToCharacter, loadCardFromJSON } from '../utils/cardLoader';
 
 type LocationResolver = (favoriteLocations: readonly LocationId[]) => LocationId | null;
 
@@ -72,8 +72,6 @@ export const useCardStore = create<CardStore>((set, get) => {
     error: null,
 
     addCardFromJSON: jsonData => addLoadedCard(() => loadCardFromJSON(jsonData)),
-    addCardFromFile: file => addLoadedCard(() => loadCardFromFile(file)),
-    addCardFromURL: url => addLoadedCard(() => loadCardFromURL(url)),
 
     removeTarget: targetId =>
       set(state => {

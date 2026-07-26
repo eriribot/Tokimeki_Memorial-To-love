@@ -572,6 +572,15 @@ function isCurrentFailedJob(context: SavedMemoryContext, job: MemorySummaryJob):
   return source?.sourceFingerprint === job.sourceFingerprint;
 }
 
+/** UI capability check shared with the manual summary control. Stale failures are visible but do not block new work. */
+export function hasBlockingMemorySummaryJob(): boolean {
+  if (!latestContext) return false;
+  const context = latestContext;
+  return getMemoryJobsForSave(context.save.saveUuid).some(
+    job => job.status === 'running' || isCurrentFailedJob(context, job),
+  );
+}
+
 function createJob(
   context: SavedMemoryContext,
   mode: 'small' | 'large',

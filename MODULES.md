@@ -23,7 +23,7 @@
   触发三幕。两集都从真实世界书读取当前幕，支持加载、错误、保底、GAL 播放和本地 messagesave 镜像。
 - 主线运行态只保存
   `eventId + actId + phase + pageIndex`。恢复时按剧集模板和当前行动次数幂等检查等待中的幕；当前幕正文只从对应档案的采用楼层读取，不另存一份正文投影。
-- 当前可执行的默认角色规则是：夕崎梨子与西连寺春菜初始可见，菈菈在第二集完成、以转学生身份登场后可见，梦梦、古手川唯与小暗保持锁定，未知导入角色默认可见。
+- 当前可执行的默认角色规则是：夕崎梨子与西连寺春菜初始可见，菈菈在第二集完成、以转学生身份登场后可见，梦梦、古手川唯与小暗保持锁定；角色卡只通过程序化 JSON 初始化进入运行态，当前没有用户文件/URL 导入入口。
 - AI 每一页必须按受控格式给出
   `scene/focus/portrait/expression/effect`；当前幕的场景表、演员表、立绘版本和各立绘实际表情集合共同约束可用值。未登记人物可以用真实姓名或明确身份说话，并显示通用文字名牌，但不能带“临时角色”标签，也不能虚构立绘。渲染器直接消费通过校验的演出 cue，不再按页数、关键词或角色特判猜演出。
 - GAL 表现层用同一个分层立绘组件渲染菈菈、西连寺春菜、结城美柑和夕崎梨子。每名角色是独立模块，并可登记多套立绘；每套立绘拥有自己的 body、mask、眼嘴资源和表情集合。以后新增萨斯丁、猿山、校长等角色时新增角色模块并在需要的幕登记，不修改通用类型。
@@ -32,6 +32,10 @@
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
 - 地图菜单的“辞典”入口打开同框本地辞典。`data/lore-books/dictionary/entries.json` 保存从官方
   `TextAsset/ToLoveArg` 的 `Dictionary` 表机械提取的 103 条中文词条；界面不显示假名，支持滚动列表、详情、前后词条、返回列表和关闭回地图。当前没有词条解锁、搜索或剧情状态写入，也没有接通标题页的 `ToLOVE3辞典` 入口。
+- 地图菜单的“数据”入口打开同框资料页，`CharacterArchivePanel` 始终绝对挂载在 `.map-section` 内，stage 以 `100% × 100%` 覆盖现有地图框，不占浏览器全屏。授权 `bg_data1/bg_data2` 虽为 1024×1024 原图，运行时当前使用 `object-fit: fill` 匹配地图框；页面没有灰色侧边，也不使用毛玻璃、卡片边框或面板阴影。主角页不显示当前位置，固定标题为“主角”，生日、身高、体重、血型四行当前固定显示“未登记”，另有体力、压力和零用钱。体力与压力共用 `stamina-track.png` 槽体，以 `heart.png` / `pressure-icon.png` 区分项目，以粉色 / 青色填充区分数值；当前运行时 `player-status` 只有这 3 个授权素材，并全部经 `resolveAssetPath()`。`bg_data1.png` 始终是唯一完整底图，官方 `x=508–575` 的锥形粉色页边、白书沟和细内线不被覆盖；新增的官方空白纸 `bg_ht01.png` 只局部羽化覆盖左上原烘焙字段（约源坐标 `x=30–270 / y=176–410`），因此中心没有第二层书脊或 CSS 拼接。
+- 主角六轴 SVG 雷达显示“文系 / 理系 / 艺术 / 运动 / 容姿 / 根性”，在现有 `PlayerState` 下依次映射为 `intelligence / intelligence / art / athletics / charm / athletics`。原始成长值保持 `0–999`，并直接显示在轴名旁；雷达只绘制单色五层同心环、六条轴线和一个当前阶段多边形，不再绘制 Persona 风格彩色扇区、菱形节点或中心 `MAX` 徽章。阶段按普通大学进路线阈值派生：`0–159=1`、`160–199=2`、`200–239=3`、`240–259=4`、`260+=5`；默认六维原始值均为 `30`，因此从阶段 1 开始。`stores/playerStore.ts` 持有 `TOKIMEKI_ATTRIBUTE_MAX=999`、`TOKIMEKI_UNIVERSITY_STAGE_THRESHOLDS=[160,200,240,260]` 和 `resolveTokimekiAttributeStage()`；体力和压力仍是 `PLAYER_RESOURCE_MAX=100`。`render_game_to_text()` 同时暴露精确 `radar` 与派生 `radarStages`。该展示不扩展 `PlayerState`、`GameSnapshot` 或存档 schema；先前彩色五级雷达和“理系压力表”候选均已撤销。
+- 主角区不挂载人物图片节点、不读取 `avatar`、不使用梨斗图片资源。角色页按官方 `01-11` 固定槽位显示 `icon_dataNN[a/b].png` 与 `cursor_dataNN.png`，解锁沿用 `characterAvailability.ts`，详情中的姓名、类型、关系值、常去地点和简介来自当前 `cardStore`。锁定槽在展示层移除角色对象，只显示 `???`，不泄漏身份。该页只读，不结算 AP、日期、好感或剧情。
+- 底部重复的 `StatPanel` 已移除，属性集中到资料页；`Controls` 是唯一底部操作区，资料页打开时保留在布局中但 inert/灰化。用户角色卡文件/URL 导入 UI、action 和 loader 已删除；`addCardFromJSON()` 仅保留给默认角色初始化。
 - 地图菜单的“目录”入口打开本地上下文与总结审查。当前幕运行时按该幕投影的 `messageIds` 显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”，两者都最多保留最近 6 条完整原文。历史楼层没有持久化跨集 history 回执，因此空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。原文默认折叠且列表与弹窗正文都可独立滚动；快照、生成提示、本幕世界书引用和全部原文仍为只读。
   `historyFloorIds` 只负责跨集生成历史，存档中的同集 `contextFloorIds` 契约不变。该界面不代表真实宿主消息或 shujuku 扫描。
 - 地图菜单“系统设定”只配置记忆用 OpenAI 兼容 API：弹层限制在地图框中央，`window_kani.png` 是完整窗口主体，原生
@@ -41,7 +45,7 @@
   `/v1`。拉取模型先尝试浏览器直连；若被跨域或网络层拦截且当前处于 SillyTavern，则改用酒馆现成的只读状态接口代发，不写酒馆设置或密钥库。模型名称仍可手动输入。启用状态、地址、模型和密钥长期保存在当前浏览器；总结合同不是用户配置：固定保留最近 6 条消息，每 2 个更旧完整楼层形成 1 个小总结，每 5 条已接受小总结形成 1 个大总结，正文上限分别为 600/1200 字。自动存档运行器挂载时也会立即检查当前游戏态，因此保存配置后能复查本页最近一次配对成功的权威自动存档。
 - 大小总结的 TIDD-EC 提示词、自动调度、纯文本规范化、本地候选封装和人工审查已经接通：只有主存档与
   MessageArchive 同次写入成功后才排队；每次保存或显式设置刷新最多处理一个批次，不会连续清空旧档积压。最近 6 条消息（3 个完整楼层）不参与摘要，前方恰好 2 个未覆盖完整楼层才形成一个小总结，因此首次触发需要 5 个规范楼层。当前来源存在失败任务时后续自动批次暂停，失败任务不会自动循环，重试会重新校验已保存锚点、当前采用楼层和原文。
-  每次调度先处理已经凑齐的 5 条大总结批次，再处理新的 2 楼层小总结批次；同一批大总结的来源指纹、楼层和消息必须互不重复。
+  每次调度先处理已经凑齐的 5 条大总结批次，再处理新的 2 楼层小总结批次；同一批大总结的来源指纹、楼层和消息必须互不重复。副 API 未启用时，手动小总结按钮保持 disabled/灰色；启用后只有运行中任务或与当前 save/source 仍匹配的失败任务阻断，过期失败记录不误锁新批次。
   副 API 只提供摘要正文；标题、来源指纹、来源 ID、状态、模型、时间戳及 JSON 存储外壳全部由本地代码生成，新候选的 `facts` 固定为空，不从普通文本伪造结构化证据。玩家可接受、编辑或拒绝候选；已拒绝候选可以从同一组冻结来源显式重新生成，但后续任务或候选出现后，旧记录不再重复生成。候选和失败任务的冻结来源默认折叠：小总结按原顺序展示 2 个楼层的 4 条本地 User/Assistant 原文及幕、楼层、Tavern/fallback 标签，大总结展示 5 条来源小总结的标题和正文；展开区自身滚动，缺失来源不会被静默过滤。请求落盘要求 `saveUuid + exact revision + sourceFingerprint` 仍一致；接受、编辑、重新生成和大总结复用前还会同时重验已保存来源与当前 live 采用版。jobs 和候选按 `saveUuid` 完整保存在当前浏览器 `memory-summary-archive:v3`；加载器只接受 v3，空白活动身份会归一为 `null` 而不删除其余合法记录，candidate/job 自身必须使用非空 `saveUuid` 与 `revision >= 1`，来源形状无效、悬空或错配的记录会被丢弃；遗留 v1/v2 即使仍留在浏览器存储中也不会加载或迁移。新游戏会为默认自动档申请新 `saveUuid`；普通自动存档只有在主档与原文档成对成功后才替换记忆锚点，写入失败会继续保留上一份已配对上下文；手动默认档和读档仍使用可失效、可回滚的切换。存档槽可共用 UUID，因此删除或覆盖槽位不会按 UUID 猜测清空浏览器摘要；孤立记录由当前身份和来源重验隔离。该 archive 不是 Tavern
   文件侧档；接受结果尚未注入剧情生成，也不结算 AP、日期、好感、`friendship/romance/hurt` 或约会资格。
 - 地图框内已经挂载非阻塞的摘要进度条，复用 `push_0.png`～`push_3.png`
@@ -73,16 +77,19 @@
 | ------------------------------------------ | ------------------------------------------------------- | ----------------------------------------- | ------------------------------ | -------------------- |
 | `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配                      | 玩家行动意图、主线模板触发结果            | AP、日期、事件节点             | 分集或楼层实现       |
 | `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和完成结算                | 模板查询、剧情楼层、Game store            | 主线状态变更                   | 识别具体集数         |
-| `stores/cardStore.ts`                      | 目标卡、位置与好感                                      | 角色卡、已结算交谈                        | 角色地图状态                   | 主线触发             |
+| `stores/playerStore.ts`                    | 玩家原始数值、`999/100` 上限、大学进路五阶段和六轴投影 | 玩家行动结算、严格快照恢复                | 玩家状态与资料页派生值         | 新增文理/根性存档字段 |
+| `stores/cardStore.ts`                      | 目标卡、位置与好感；仅保留程序化 JSON 卡初始化           | 角色卡、已结算交谈                        | 角色地图状态                   | 文件/URL 导入、主线触发 |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引                       | 当前地点 ID                               | 地图背景和当前区域地点         | AP 与剧情结算        |
 | `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发                    | 当前地图、另一地图入口、菜单选择          | 切换地点或打开本地界面         | 消耗 AP、改写快照    |
 | `components/DictionaryPanel.tsx`           | 辞典列表、详情、前后翻页和关闭交互                      | 官方静态词条                              | 地图框内只读辞典 UI            | 解锁、搜索或状态写入 |
 | `data/dictionary.ts`                       | 解析并校验随包词条                                      | `entries.json`                            | 只读词条数组                   | 推断或改写词条       |
 | `data/lore-books/dictionary/entries.json`  | 保存官方 Dictionary 表的中文字段                        | `TextAsset/ToLoveArg`                     | 103 条静态词条                 | 假名、解锁或运行状态 |
+| `components/CharacterArchivePanel.tsx`     | 100% 覆盖地图框的资料 stage；共轨双状态槽、单色五阶段雷达、11 槽图标与详情屏 | Player/Card/Game/Map store                | 地图框内只读资料 UI            | 扩展玩家 schema、读取主角头像或结算 |
+| `data/characterArchive.ts`                 | 官方槽位资源映射、角色卡绑定和锁定态去身份化            | Card store、角色出场规则                  | 11 个只读资料槽                | 编造人物资料或解锁   |
 | `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                          | 当前地图                                  | 档案入口/弹窗状态              | 改写角色状态         |
 | `data/characterAvailability.ts`            | 默认角色的出场条件                                      | 角色 ID、主线完成记录                     | 可见/锁定判断                  | 地图位置分配         |
 | `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                          | Game/Card store                           | 角色出现位置与当前目标         | 改写角色卡           |
-| `components/Controls.tsx`                  | 展示并提交行动                                          | Store 当前状态                            | 行动意图                       | 自行推进剧情         |
+| `components/Controls.tsx`                  | 底部唯一操作区，展示并提交行动                          | Store 当前状态                            | 行动意图                       | 自行推进剧情         |
 | `data/skills.ts`                           | 127 项特技定义与六分类                                  | 公开原作资料                              | 技能静态表                     | 玩家进度             |
 | `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store           | 技能静态表、日期、已结算行动              | 本地技能进度                   | 应用技能效果         |
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉                     | `skilllogic`、当前日期                    | 学习/实践提交意图              | 重算前置或结算效果   |
@@ -95,7 +102,7 @@
 | `memory/summaryPrompts.ts`                 | 大小总结 TIDD-EC 提示词和输入边界校验                   | 完整消息对/已接受小总结、只读状态锚点     | 提示词投影与来源 ID            | 调 API、解析或结算   |
 | `memory/summaryAnalyzer.ts`                | 规范化副 API 纯文本并创建本地摘要 payload               | 副 API 文本、本地来源批次                 | 本地标题、正文、空 facts       | 推断事实或保存候选   |
 | `memory/summaryArchive.ts`                 | 按存档隔离的浏览器候选、任务和人工决定记录              | 已校验候选、审查命令                     | 浏览器本地摘要记录             | Tavern 文件侧档      |
-| `memory/summaryRuntime.ts`                 | 自动存档后按固定层级排队、去重、取消、迟到校验和重试    | SaveRecord、MessageArchive、API 配置      | 副 API 请求与本地候选运行态    | 注入剧情或写游戏数值 |
+| `memory/summaryRuntime.ts`                 | 自动存档后排队、去重、取消、迟到校验、重试与当前失败任务判定 | SaveRecord、MessageArchive、API 配置      | 副 API 请求与本地候选运行态    | 注入剧情或写游戏数值 |
 | `memory/summaryProgress.ts`                | 非持久化摘要阶段与真实/不定进度                         | 摘要执行器阶段通知                        | 地图 UI 运行态                 | 业务编排或持久化     |
 | `components/MemorySummaryProgress.tsx`     | 地图内 `push_0~3` 摘要进度与错误回显                    | `summaryProgress`                         | 非阻塞进度条                   | 启动摘要或模拟完成   |
 | `GalMainStory/episodeTemplate.ts`          | 分集/分幕模板合同与注册期不变量                         | 集元数据、幕定义                          | 合法剧情模板                   | 运行态结算           |
@@ -121,7 +128,7 @@
 | `save/snapshot.ts`                         | 严格 schema v2 快照                                     | Game/Player/Card/Skill store              | 本地/宿主存档数据              | 旧存档迁移           |
 | `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                            | `gameSaveApi`                             | 槽位操作意图                   | 修改快照内容         |
 | `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                                   | `MessageRequest`、本地文件接口            | MessageArchive 文件            | 真实宿主消息楼层     |
-| `components/ContextPreviewModal.tsx`       | 快照/原文/上下文阅读及总结候选审查、失败重试            | 本地预览、摘要 archive/runtime            | 数据阅读与人工审查意图         | 直接调用剧情生成     |
+| `components/ContextPreviewModal.tsx`       | 快照/原文/上下文阅读、总结审查与手动按钮禁用态          | 本地预览、摘要 archive/runtime、API 开关  | 数据阅读与人工审查意图         | 绕过 API 开关或直接调用剧情生成 |
 | `components/SystemSettingsModal.tsx`       | 记忆 API、固定记忆层级说明、模型拉取与连接测试          | `config/openaiCompatible`、summary policy | 本地设置意图、调度刷新         | 摘要解析或游戏存档   |
 | `config/openaiCompatible/defaults.ts`      | 默认值、`/v1` 校验、请求地址和脱敏投影                  | 用户配置                                  | 规范化配置与安全视图           | 浏览器存储或网络请求 |
 | `config/openaiCompatible/storage.ts`       | OpenAI 兼容配置的浏览器长期保存                         | 规范化配置、`localStorage`                | 配置读写/清空                  | GameSnapshot 或消息  |

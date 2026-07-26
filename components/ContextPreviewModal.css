@@ -356,8 +356,13 @@
 
 .context-preview__job button:disabled,
 .context-preview__manual-summary button:disabled {
-  cursor: wait;
-  opacity: 0.55;
+  cursor: not-allowed;
+  border-color: #c9c9c9;
+  background: #ededed;
+  color: #888;
+  box-shadow: none;
+  filter: grayscale(1);
+  opacity: 1;
 }
 
 .context-preview__summary-item {

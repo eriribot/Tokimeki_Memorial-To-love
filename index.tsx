@@ -4,6 +4,15 @@ import App from './App';
 import './index.css';
 import { PERIODS, useGameStore } from './stores/gameStore';
 import { useCardStore } from './stores/cardStore';
+import {
+  PLAYER_RESOURCE_MAX,
+  resolveTokimekiAttributeStage,
+  resolveTokimekiRadarAttributes,
+  TOKIMEKI_ATTRIBUTE_STAGE_MAX,
+  TOKIMEKI_ATTRIBUTE_MAX,
+  TOKIMEKI_UNIVERSITY_STAGE_THRESHOLDS,
+  usePlayerStore,
+} from './stores/playerStore';
 import { worldbookReader } from './data/worldbook'; // 引入不会自动运行的酒馆世界书读取与扫描桥接层。
 import { initializeAssetBase, installRuntimeFonts } from './utils/assetPath';
 import { getMainStoryActIndex, getMainStoryEpisode } from './GalMainStory/storyRegistry';
@@ -57,6 +66,7 @@ if (
 window.render_game_to_text = () => {
   const game = useGameStore.getState();
   const card = useCardStore.getState();
+  const player = usePlayerStore.getState();
   const skillProgression = useSkillStore.getState();
   const memorySummaryProgress = useMemorySummaryProgressStore.getState();
 
@@ -103,6 +113,59 @@ window.render_game_to_text = () => {
       location: target.currentLocationId,
       affection: target.affection,
     }));
+  const characterArchiveElement = document.querySelector<HTMLElement>('[data-character-archive="true"]');
+  const archiveSelectedSlotValue = characterArchiveElement?.dataset.selectedSlot;
+  const archiveSelectedSlot = archiveSelectedSlotValue ? Number.parseInt(archiveSelectedSlotValue, 10) : null;
+  const archiveSelectedTargetId = characterArchiveElement?.dataset.selectedTargetId ?? null;
+  const archiveSelectedTarget = archiveSelectedTargetId
+    ? (card.targets.find(target => target.id === archiveSelectedTargetId) ?? null)
+    : null;
+  const playerRadar = resolveTokimekiRadarAttributes(player);
+  const characterArchive = characterArchiveElement
+    ? {
+        open: true,
+        view: characterArchiveElement.dataset.view ?? 'main',
+        selectedSlot: archiveSelectedSlot,
+        selectedSlotUnlocked: characterArchiveElement.dataset.selectedSlotUnlocked === 'true',
+        selectedCharacter: archiveSelectedTarget
+          ? {
+              id: archiveSelectedTarget.id,
+              name: archiveSelectedTarget.name,
+              type: archiveSelectedTarget.type,
+              affection: archiveSelectedTarget.affection,
+              friendship: archiveSelectedTarget.friendship,
+              romance: archiveSelectedTarget.romance,
+            }
+          : null,
+        player:
+          characterArchiveElement.dataset.view === 'main'
+            ? {
+                name: player.name,
+                color: player.color,
+                intelligence: player.intelligence,
+                athletics: player.athletics,
+                art: player.art,
+                charm: player.charm,
+                stamina: player.stamina,
+                stress: player.stress,
+                money: player.money,
+                attributeMax: TOKIMEKI_ATTRIBUTE_MAX,
+                attributeStageMax: TOKIMEKI_ATTRIBUTE_STAGE_MAX,
+                attributeStageThresholds: TOKIMEKI_UNIVERSITY_STAGE_THRESHOLDS,
+                resourceMax: PLAYER_RESOURCE_MAX,
+                radar: playerRadar,
+                radarStages: {
+                  humanities: resolveTokimekiAttributeStage(playerRadar.humanities),
+                  science: resolveTokimekiAttributeStage(playerRadar.science),
+                  art: resolveTokimekiAttributeStage(playerRadar.art),
+                  athletics: resolveTokimekiAttributeStage(playerRadar.athletics),
+                  appearance: resolveTokimekiAttributeStage(playerRadar.appearance),
+                  perseverance: resolveTokimekiAttributeStage(playerRadar.perseverance),
+                },
+              }
+            : null,
+      }
+    : null;
 
   return JSON.stringify({
     ...session,
@@ -132,6 +195,7 @@ window.render_game_to_text = () => {
       managementTermId: skillProgression.getManagementTerm(game.date)?.id ?? null,
     },
     visibleTargets,
+    characterArchive,
   });
 };
 

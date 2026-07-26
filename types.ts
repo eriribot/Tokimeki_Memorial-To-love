@@ -287,8 +287,6 @@ export interface CardStoreState {
 
 export interface CardStoreActions {
   addCardFromJSON: (jsonData: unknown) => Promise<CardAddResult>;
-  addCardFromFile: (file: File) => Promise<CardAddResult>;
-  addCardFromURL: (url: string) => Promise<CardAddResult>;
   removeTarget: (targetId: string) => void;
   setActiveTarget: (targetId: string) => void;
   getActiveTarget: () => GameCharacter | null;

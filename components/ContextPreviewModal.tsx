@@ -12,6 +12,7 @@ import {
   generateNextMemorySmallSummary,
   getMemorySourceLabel,
   getNextMemorySmallSummaryBatch,
+  hasBlockingMemorySummaryJob,
   regenerateMemorySummary,
   retryMemoryJob,
   retryRejectedMemorySummary,
@@ -376,7 +377,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
     }
   };
 
-  const hasBlockingJob = jobs.some(job => job.status === 'running' || job.status === 'failed');
+  const hasBlockingJob = hasBlockingMemorySummaryJob();
   const smallBatchRange = nextSmallBatch
     ? `第 ${nextSmallBatch.startFloorNumber} 楼至第 ${nextSmallBatch.endFloorNumber} 楼`
     : '等待权威自动存档';
@@ -416,6 +417,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
           </div>
           <button
             type="button"
+            title={!config.enabled ? '请先在系统设定中启用副 API' : undefined}
             disabled={
               busyJobId !== null ||
               !config.enabled ||
