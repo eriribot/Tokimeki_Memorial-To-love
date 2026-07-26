@@ -1,6 +1,7 @@
 import { getMainStoryEpisode } from '../GalMainStory/storyRegistry';
 import type { GalStoryFloor, GalStoryMessageSave } from '../GalMainStory/storyTypes';
-import { loadOpenAICompatibleConfig, requestOpenAICompatibleCompletion } from '../config/openaiCompatible';
+import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
+import { loadOpenAICompatibleConfig } from '../config/openaiCompatible';
 import { captureGameMessages } from '../message';
 import type { SaveRecord } from '../save';
 import { createGameSnapshot, type GameSnapshot } from '../save/snapshot';
@@ -12,6 +13,150 @@ import {
   type SummaryDeterministicState,
   type SummarySourceMessage,
 } from './summaryPrompts';
+
+/**
+ * 清理GAL渲染标识符，只保留纯文本内容用于总结
+ * 例如：@旁白【scene=riverbank;focus=lala;...】：菈菈转过头...
+ * 清理后：旁白：菈菈转过头...
+ */
+function cleanGalDirectives(text: string): string {
+  // 移除每行开头的 @ 符号和 【...】 内的所有渲染指令
+  return text
+    .split(/\r?\n/)
+    .map(line => {
+      // 匹配格式：@角色名【scene=xxx;focus=xxx;...】：对话内容
+      const match = line.match(/^@([^【]+)【[^】]*】：(.*)$/);
+      if (match) {
+        const speaker = match[1].trim();
+        const content = match[2].trim();
+        return `${speaker}：${content}`;
+      }
+      return line;
+    })
+    .join('\n')
+    .trim();
+}
+
+/**
+ * 提取消息的纯剧情内容
+ * - USER消息：提取最后的剧情请求部分（去掉指令和规则）
+ * - ASSISTANT消息：只提取<content>标签内的剧情正文
+ */
+function extractStoryContent(message: { role: 'user' | 'assistant'; content: string }): string {
+  if (message.role === 'assistant') {
+    // ASSISTANT消息：提取<content>或其他正文容器内的内容
+    try {
+      const extracted = extractPlayableText(message.content, { requirePlayableWrapper: false });
+      return cleanGalDirectives(extracted);
+    } catch {
+      // 如果提取失败，使用原始内容并清理
+      return cleanGalDirectives(message.content);
+    }
+  }
+
+  // USER消息：通常是生成请求，包含大量指令
+  // 尝试找到实际的剧情上下文或请求
+  const lines = message.content.split('\n');
+
+  // 查找是否有明确的剧情内容标记
+  const storyStartIndex = lines.findIndex(line =>
+    line.includes('SOURCE_MESSAGES') ||
+    line.includes('前序剧情') ||
+    line.includes('已提供的')
+  );
+
+  if (storyStartIndex >= 0) {
+    // 如果找到剧情内容标记，提取该部分之后的内容
+    return lines.slice(storyStartIndex).join('\n').trim();
+  }
+
+  // 否则，只保留第一行（通常是简短的请求描述）
+  const firstLine = lines[0]?.trim() || '';
+  if (firstLine.length > 0 && firstLine.length < 200) {
+    return firstLine;
+  }
+
+  // 如果第一行太长，可能是完整的指令，尝试提取关键信息
+  const match = message.content.match(/请演绎[《「]([^》」]+)[》」]/);
+  if (match) {
+    return `请求演绎：${match[1]}`;
+  }
+
+  return '（生成请求）';
+}
+
+// 通过SillyTavern后端发送API请求，避免CORS问题，同时能在CMD看到日志
+async function requestThroughSillyTavern(
+  config: ReturnType<typeof loadOpenAICompatibleConfig>,
+  systemPrompt: string,
+  userPrompt: string,
+  options: { temperature: number; maxTokens: number; signal: AbortSignal },
+): Promise<string> {
+  const hasSillyTavern = typeof SillyTavern !== 'undefined' && typeof SillyTavern.getRequestHeaders === 'function';
+
+  if (!hasSillyTavern) {
+    // 如果不在SillyTavern环境，直接调用API
+    console.warn('[ToLove Memory] 不在SillyTavern环境，直接调用API');
+    const { requestOpenAICompatibleCompletion } = await import('../config/openaiCompatible');
+    const response = await requestOpenAICompatibleCompletion(config, {
+      systemPrompt,
+      userPrompt,
+      temperature: options.temperature,
+      maxTokens: options.maxTokens,
+      signal: options.signal,
+    });
+    return response.text;
+  }
+
+  // 通过SillyTavern后端的chat-completions代理
+  console.log('[ToLove Memory] 通过SillyTavern后端发送总结请求');
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ];
+
+  const response = await fetch('/api/backends/chat-completions/generate', {
+    method: 'POST',
+    headers: {
+      ...SillyTavern.getRequestHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messages,
+      model: config.model,
+      temperature: options.temperature,
+      max_tokens: options.maxTokens,
+      stream: false,
+      // 使用custom源
+      api: 'custom',
+      chat_completion_source: 'custom',
+      custom_url: config.baseUrl.trim().replace(/\/+$/u, ''),
+      custom_include_headers: config.apiKey ? JSON.stringify({ Authorization: `Bearer ${config.apiKey}` }) : '',
+    }),
+    signal: options.signal,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => `HTTP ${response.status}`);
+    throw new Error(`SillyTavern后端返回错误: ${errorText}`);
+  }
+
+  const result = await response.json();
+
+  // 提取文本内容，兼容不同的响应格式
+  if (typeof result === 'string') {
+    return result;
+  }
+
+  // OpenAI格式
+  if (result.choices?.[0]?.message?.content) {
+    return result.choices[0].message.content;
+  }
+
+  // 其他可能的格式
+  return result.response || result.text || result.content || '';
+}
 import {
   createMemoryRuntimeId,
   getMemoryJobsForSave,
@@ -176,7 +321,7 @@ function getSourceFromFloors(
         source: message.extra.source,
         outcome: 'accepted',
         canonicalOrdinal: ordinalByFloorId.get(message.extra.floorId) ?? 0,
-        content: message.mes,
+        content: extractStoryContent({ role: message.extra.role, content: message.mes }), // 提取纯剧情内容
       });
     }
   }
@@ -203,9 +348,15 @@ function getSourceFromFloors(
 function getEligibleFloors(context: SavedMemoryContext): { timeline: GalStoryFloor[]; floors: GalStoryFloor[] } {
   const timeline = getCanonicalStoryTimeline(context.save.data.game.mainStory.archives);
   const availableMessageIds = new Set(context.messages.map(message => message.id));
+  const floors = timeline.filter(floor => floor.messageIds.every(messageId => availableMessageIds.has(messageId)));
+  console.log('[ToLove Memory] getEligibleFloors', {
+    timelineLength: timeline.length,
+    eligibleFloorsLength: floors.length,
+    floorIds: floors.map(f => f.floorId),
+  });
   return {
     timeline,
-    floors: timeline.filter(floor => floor.messageIds.every(messageId => availableMessageIds.has(messageId))),
+    floors,
   };
 }
 
@@ -501,15 +652,31 @@ async function executeSmallJob(
       allowedSubjectIds,
       deterministicState: getDeterministicState(context.save.data),
     });
-    const response = await requestOpenAICompatibleCompletion(config, {
-      systemPrompt: prompt.systemPrompt,
-      userPrompt: prompt.userPrompt,
-      temperature: 0.1,
-      maxTokens: 1600,
-      signal: controller.signal,
+
+    console.log('[ToLove Memory] 开始生成小总结...', {
+      sourceFloorCount: source.floorIds.length,
+      sourceMessageCount: source.messages.length,
+      model: config.model,
+    });
+
+    // 通过SillyTavern后端发送请求，避免预设干扰
+    const responseText = await requestThroughSillyTavern(
+      config,
+      prompt.systemPrompt,
+      prompt.userPrompt,
+      {
+        temperature: 0.1,
+        maxTokens: 1600,
+        signal: controller.signal,
+      },
+    );
+
+    console.log('[ToLove Memory] 小总结生成成功', {
+      textLength: responseText.length,
     });
     progress.setPhase('validating', 85);
-    const payload = createMemorySummaryPayloadFromText(response.text, {
+
+    const payload = createMemorySummaryPayloadFromText(responseText, {
       mode: 'small',
       sourceFloorIds: source.floorIds,
       sourceSummaryIds: [],
@@ -548,14 +715,24 @@ async function executeSmallJob(
       text: payload.text,
       facts: payload.facts,
       model: config.model,
-      ...(response.requestId ? { providerRequestId: response.requestId } : {}),
       createdAt: new Date().toISOString(),
       reviewedAt: null,
     };
+    console.log('[ToLove Memory] 创建小总结候选', {
+      sourceFloorIds: source.floorIds,
+      sourceMessageIds: source.messages.map(message => message.id),
+      title: payload.title,
+      textLength: payload.text.length,
+    });
     archive.completeJob(job.jobId, candidate);
     progress.ready('小总结候选已生成，请到目录确认');
   } catch (error) {
     const detail = getErrorMessage(error);
+    console.error('[ToLove Memory] 小总结生成失败', {
+      error: detail,
+      jobId: job.jobId,
+      attempt: job.attempt,
+    });
     archive.failJob(job.jobId, detail);
     progress.fail(detail);
   } finally {
@@ -605,15 +782,30 @@ async function executeLargeJob(
       allowedSubjectIds,
       deterministicState: getDeterministicState(context.save.data),
     });
-    const response = await requestOpenAICompatibleCompletion(config, {
-      systemPrompt: prompt.systemPrompt,
-      userPrompt: prompt.userPrompt,
-      temperature: 0,
-      maxTokens: 2200,
-      signal: controller.signal,
+
+    console.log('[ToLove Memory] 开始生成大总结...', {
+      sourceSummaryCount: sourceSummaries.length,
+      model: config.model,
+    });
+
+    // 通过SillyTavern后端发送请求，避免预设干扰
+    const responseText = await requestThroughSillyTavern(
+      config,
+      prompt.systemPrompt,
+      prompt.userPrompt,
+      {
+        temperature: 0,
+        maxTokens: 2200,
+        signal: controller.signal,
+      },
+    );
+
+    console.log('[ToLove Memory] 大总结生成成功', {
+      textLength: responseText.length,
     });
     progress.setPhase('validating', 85);
-    const payload = createMemorySummaryPayloadFromText(response.text, {
+
+    const payload = createMemorySummaryPayloadFromText(responseText, {
       mode: 'large',
       sourceFloorIds: unique(sourceSummaries.flatMap(summary => summary.sourceFloorIds)),
       sourceSummaryIds: sourceSummaries.map(summary => summary.summaryId),
@@ -651,7 +843,6 @@ async function executeLargeJob(
       text: payload.text,
       facts: payload.facts,
       model: config.model,
-      ...(response.requestId ? { providerRequestId: response.requestId } : {}),
       createdAt: new Date().toISOString(),
       reviewedAt: null,
     };
@@ -659,6 +850,11 @@ async function executeLargeJob(
     progress.ready('大总结候选已生成，请到目录确认');
   } catch (error) {
     const detail = getErrorMessage(error);
+    console.error('[ToLove Memory] 大总结生成失败', {
+      error: detail,
+      jobId: job.jobId,
+      attempt: job.attempt,
+    });
     archive.failJob(job.jobId, detail);
     progress.fail(detail);
   } finally {
@@ -978,6 +1174,78 @@ export async function retryRejectedMemorySummary(summaryId: string): Promise<voi
       createLargeFingerprint(liveSummaries) !== candidate.sourceFingerprint
     ) {
       throw new Error('已拒绝大总结引用的小总结已经变化，不能沿用旧来源。');
+    }
+    await executeLargeJob(context, summaries);
+  } finally {
+    running = false;
+    if (queuedContext) void drainQueue();
+  }
+}
+
+/**
+ * 重新生成任何状态的总结（包括已接受的）
+ */
+export async function regenerateMemorySummary(summaryId: string): Promise<void> {
+  if (running || activeController) throw new Error('已有摘要任务正在运行，请稍后再试。');
+  running = true;
+  try {
+    const archive = useMemorySummaryArchiveStore.getState();
+    const candidate = archive.summaries.find(summary => summary.summaryId === summaryId);
+    if (!candidate) throw new Error('找不到指定的总结。');
+
+    // 对于已接受的总结，不需要检查是否有后续候选
+    if (candidate.status === 'rejected' && hasRejectedSummaryReplacement(candidate)) {
+      throw new Error('该来源已有后续候选或任务，请处理最新记录。');
+    }
+
+    if (!latestContext || latestContext.save.saveUuid !== candidate.saveUuid) {
+      throw new Error('当前存档尚未完成可校验的自动保存，不能重新生成旧总结。');
+    }
+
+    const context = cloneJson(latestContext);
+    const liveContext = createLiveContext(context);
+
+    // 在重新生成前，删除相同来源的其他pending候选（避免重复）
+    const sourceFingerprint = candidate.sourceFingerprint;
+    const duplicates = archive.summaries.filter(
+      s => s.summaryId !== summaryId &&
+           s.status === 'pending' &&
+           s.sourceFingerprint === sourceFingerprint &&
+           s.mode === candidate.mode
+    );
+    if (duplicates.length > 0) {
+      console.log('[ToLove Memory] 删除重复的pending候选:', duplicates.map(d => d.summaryId));
+      useMemorySummaryArchiveStore.setState(state => ({
+        summaries: state.summaries.filter(
+          s => !duplicates.some(dup => dup.summaryId === s.summaryId)
+        ),
+      }));
+    }
+
+    if (candidate.mode === 'small') {
+      const source = createSpecificSmallSource(context, candidate.sourceMessageIds);
+      const liveSource = createSpecificSmallSource(liveContext, candidate.sourceMessageIds);
+      if (
+        !source ||
+        source.sourceFingerprint !== candidate.sourceFingerprint ||
+        !liveSource ||
+        liveSource.sourceFingerprint !== candidate.sourceFingerprint
+      ) {
+        throw new Error('总结的采用楼层或原文已经变化，不能沿用旧来源。');
+      }
+      await executeSmallJob(context, source);
+      return;
+    }
+
+    const summaries = getCurrentSmallSummaryBatch(context, candidate.sourceSummaryIds);
+    const liveSummaries = getCurrentSmallSummaryBatch(liveContext, candidate.sourceSummaryIds);
+    if (
+      !summaries ||
+      createLargeFingerprint(summaries) !== candidate.sourceFingerprint ||
+      !liveSummaries ||
+      createLargeFingerprint(liveSummaries) !== candidate.sourceFingerprint
+    ) {
+      throw new Error('大总结引用的小总结已经变化，不能沿用旧来源。');
     }
     await executeLargeJob(context, summaries);
   } finally {

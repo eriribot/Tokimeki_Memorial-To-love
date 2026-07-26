@@ -11,10 +11,17 @@ interface MapMenuProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
   onOpenIndex: () => void;
+  onOpenDictionary: () => void;
   onOpenSettings: () => void;
 }
 
-export default function MapMenu({ onOpenSave, onOpenLoad, onOpenIndex, onOpenSettings }: MapMenuProps) {
+export default function MapMenu({
+  onOpenSave,
+  onOpenLoad,
+  onOpenIndex,
+  onOpenDictionary,
+  onOpenSettings,
+}: MapMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('save');
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -57,6 +64,12 @@ export default function MapMenu({ onOpenSave, onOpenLoad, onOpenIndex, onOpenSet
     if (item.id === 'index') {
       setIsOpen(false);
       onOpenIndex();
+      return;
+    }
+
+    if (item.id === 'dictionary') {
+      setIsOpen(false);
+      onOpenDictionary();
       return;
     }
 

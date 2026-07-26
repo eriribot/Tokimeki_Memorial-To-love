@@ -77,6 +77,7 @@ interface MemorySummaryArchiveState extends StoredMemorySummaryArchive {
     decision: 'accept' | 'reject' | 'edit',
     edits?: { title: string; text: string },
   ) => boolean;
+  deleteSummary: (summaryId: string) => void;
 }
 
 const EMPTY_ARCHIVE: StoredMemorySummaryArchive = {
@@ -480,6 +481,13 @@ export const useMemorySummaryArchiveStore = create<MemorySummaryArchiveState>((s
     }));
     persistArchive(get());
     return true;
+  },
+
+  deleteSummary: summaryId => {
+    set(state => ({
+      summaries: state.summaries.filter(summary => summary.summaryId !== summaryId),
+    }));
+    persistArchive(get());
   },
 }));
 

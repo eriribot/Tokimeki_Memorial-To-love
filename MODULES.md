@@ -30,6 +30,8 @@
 - 夕崎梨子是默认目标卡之一，与 User 分离，可以通过交谈发展好感。
 - 已读剧情中的 AI 原文按“幕 -> 生成版本 -> 页”阅读；目录内的楼层按钮会直接打开对应版本，每次只显示一页，不再把所有 Assistant 正文堆叠在同一滚动区。
 - 重新生成会从当前幕开头产生一个新候选，只继承前面各幕当前采用楼层；当前幕旧候选不会作为续写历史。每个候选楼层可以删除，删除当前采用版时自动回退到剩余的最新可播放版本。
+- 地图菜单的“辞典”入口打开同框本地辞典。`data/lore-books/dictionary/entries.json` 保存从官方
+  `TextAsset/ToLoveArg` 的 `Dictionary` 表机械提取的 103 条中文词条；界面不显示假名，支持滚动列表、详情、前后词条、返回列表和关闭回地图。当前没有词条解锁、搜索或剧情状态写入，也没有接通标题页的 `ToLOVE3辞典` 入口。
 - 地图菜单的“目录”入口打开本地上下文与总结审查。当前幕运行时按该幕投影的 `messageIds` 显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”，两者都最多保留最近 6 条完整原文。历史楼层没有持久化跨集 history 回执，因此空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。原文默认折叠且列表与弹窗正文都可独立滚动；快照、生成提示、本幕世界书引用和全部原文仍为只读。
   `historyFloorIds` 只负责跨集生成历史，存档中的同集 `contextFloorIds` 契约不变。该界面不代表真实宿主消息或 shujuku 扫描。
 - 地图菜单“系统设定”只配置记忆用 OpenAI 兼容 API：弹层限制在地图框中央，`window_kani.png` 是完整窗口主体，原生
@@ -74,6 +76,9 @@
 | `stores/cardStore.ts`                      | 目标卡、位置与好感                                      | 角色卡、已结算交谈                        | 角色地图状态                   | 主线触发             |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引                       | 当前地点 ID                               | 地图背景和当前区域地点         | AP 与剧情结算        |
 | `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发                    | 当前地图、另一地图入口、菜单选择          | 切换地点或打开本地界面         | 消耗 AP、改写快照    |
+| `components/DictionaryPanel.tsx`           | 辞典列表、详情、前后翻页和关闭交互                      | 官方静态词条                              | 地图框内只读辞典 UI            | 解锁、搜索或状态写入 |
+| `data/dictionary.ts`                       | 解析并校验随包词条                                      | `entries.json`                            | 只读词条数组                   | 推断或改写词条       |
+| `data/lore-books/dictionary/entries.json`  | 保存官方 Dictionary 表的中文字段                        | `TextAsset/ToLoveArg`                     | 103 条静态词条                 | 假名、解锁或运行状态 |
 | `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                          | 当前地图                                  | 档案入口/弹窗状态              | 改写角色状态         |
 | `data/characterAvailability.ts`            | 默认角色的出场条件                                      | 角色 ID、主线完成记录                     | 可见/锁定判断                  | 地图位置分配         |
 | `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                          | Game/Card store                           | 角色出现位置与当前目标         | 改写角色卡           |

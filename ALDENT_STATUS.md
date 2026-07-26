@@ -787,3 +787,42 @@ v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路
 | Human acceptance | not run | 坐标与特殊回退仍需用户按角色逐帧抽查 |
 
 当前最强接通标签：**官方表与像素对齐形成的本地参考数据**。CSV 是可追溯证据，不等于所有 1,629 组表情已经逐帧通过人工美术验收。
+
+## 本轮增量：地图菜单 ToLOVE 大百科基础功能
+
+- 本轮只接通地图菜单 `dictionary`，标题页 `tolove-dictionary` 保持原状；没有增加解锁、搜索、假名分类、生成、宿主消息、World Info、shujuku/ACU、插件或数据库链。
+- `data/lore-books/dictionary/entries.json` 保存从厂家 `TextAsset/ToLoveArg` 的 `Dictionary` 表机械提取的 103 条中文词条；`data/dictionary.ts` 只解析和校验随包静态资料，不读取或写入游戏状态。
+- `DictionaryPanel.tsx` 在现有地图框内提供无假名的词条列表、详情、前后词条、返回列表及关闭回地图；背景和左右翻页复用 `bg_ji.png`、`ji_guide_L.png`、`ji_guide_R.png`，横线和滚动条按原截图作为运行时 CSS 绘制。
+- 浏览器实拍第一次发现左右翻页素材以详情文章为定位基准并压住正文；随后把按钮移到辞典画框根层，重新打包和重载最新产物后复查，箭头位于画框两侧且不再遮挡正文。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Official dictionary source comparison | passed | 官方表 `RowNum=104` 含表头，实际 ID `0..102` 共 103 条；提取文件保留同 ID、中文名称、标题和说明 |
+| Changed-file ESLint | passed | 本轮 TS/TSX 改动文件 ESLint 无输出错误 |
+| Full ToLove TypeScript | failed | `pnpm typecheck:tolove` 被既有 `ContextPreviewModal.tsx`、`memory/storyTimeline.ts`、`memory/summaryRuntime.ts` 错误阻断；没有辞典文件报错，本轮未越权修改这些模块 |
+| Development webpack artifact | passed | 最新源码和 `entries.json?raw` 已编入 `dist/Tokimeki_Memorial-To-love/index.html` |
+| Browser list/detail interaction | passed | 最新产物中由地图菜单打开 103 条列表；打开第 97 条“寻找幽灵的机器”，右翻到第 98 条“轻轻松松跑步君”，再返回列表并关闭回地图 |
+| Browser visual review | passed | 1280×720 本地页面实拍复查列表、详情、横线、滚动条和修正后的画框两侧箭头；仅证明该视口的实际画面 |
+| Browser console | passed | 辞典交互没有运行错误；仅有本地页面缺少 Tavern Helper 存档接口的既有自动存档报错 |
+| Production build | not run | 本轮只生成开发产物；全项目 TypeScript 断点尚未解除 |
+| Human acceptance | not run | 等待用户确认画风、字体密度、列表/详情布局和基础交互 |
+
+当前最强接通标签：**本地状态演示**。官方静态词条与地图辞典 UI 已接通，但没有词条解锁权威、宿主或数据库状态，也不以浏览器实拍替代用户的最终观感接受。
+
+## 本轮增量：大百科列表边界与标题锚点校准
+
+- 用户提供的 1619×957 对照截图反证了上一轮 1280×720 浏览器视觉检查的覆盖范围：旧版名牌使用 `left: 12.5%`，正文使用 `left: 14.5%`，两者越过纸张左侧粉色边界且不共线；因此上一轮“Browser visual review passed”不能作为当前几何布局的有效接受证据。
+- 名牌与正文改用共同的 `left: 19%` 锚点；名牌宽度由 `clamp(220px, 31%, 350px)` 收至 `clamp(220px, 28.5%, 320px)`，保持右侧方格装饰但不让名牌过长。
+- 正文右边界改为 `20.5%`，列表标题横线增加 `30px` 右侧收口，使标题线与词条横线均停在滚动条左侧；原有纵向位置和词条行高未调整。
+
+| Check | Status | Evidence |
+| --- | --- | --- |
+| User counterexample | recorded | 1619×957 截图明确显示旧版名牌、标题及横线边界与参考图存在差距，已据此撤销上一轮视觉通过结论的适用性 |
+| CSS formatting | passed | `DictionaryPanel.css` 通过 Prettier 检查；仅输出仓库既有的 `jsxBracketSameLine` 弃用警告 |
+| Changed-file ESLint | passed | `DictionaryPanel.tsx` 与 `data/dictionary.ts` ESLint 无错误 |
+| Development webpack artifact | passed | 最新开发产物已生成；`dist/Tokimeki_Memorial-To-love/index.html` SHA-256 为 `BC125254498898F440D5E622828E04F359311C875DBFA7C6210FE2CF8BEAC437` |
+| Browser visual review | passed | 最新开发产物在 1619×957 浏览器视口复跑地图→菜单→辞典：面板 `x=216,w=1187`，名牌与正文同为 `x=441.5`，标题横线右端 `x=1129.7`，词条区右端 `x=1159.7`；实拍中横线在滚动条前收口 |
+| Fullscreen visual path | not run | 浏览器测试容器拒绝 iframe 全屏权限；本轮没有把非全屏实拍伪装成全屏验收 |
+| Human acceptance | not run | 等待用户对照厂家参考图确认边界、名牌位置与词条列表位置 |
+
+当前最强接通标签仍为：**本地状态演示**。这次修正有同视口浏览器实拍支撑，但不等于用户已接受，也不把局部几何校准扩张成 100% 复刻结论。

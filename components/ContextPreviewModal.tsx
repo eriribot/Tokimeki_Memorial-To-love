@@ -12,6 +12,7 @@ import {
   generateNextMemorySmallSummary,
   getMemorySourceLabel,
   getNextMemorySmallSummaryBatch,
+  regenerateMemorySummary,
   retryMemoryJob,
   retryRejectedMemorySummary,
   reviewMemorySummaryCandidate,
@@ -86,6 +87,9 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
   const [preview, setPreview] = useState<LocalContextPreview>(() => createLocalContextPreview());
   const connections = useMemo(() => getPreviewConnectionLabels(), [preview.capturedAt]);
   const windowMessages = useMemo(() => getPreviewWindowMessages(preview), [preview]);
+  const totalSummaryCount = useMemorySummaryArchiveStore(
+    state => state.summaries.filter(summary => summary.saveUuid === state.activeSaveUuid).length,
+  );
   const pendingSummaryCount = useMemorySummaryArchiveStore(
     state =>
       state.summaries.filter(summary => summary.saveUuid === state.activeSaveUuid && summary.status === 'pending').length,
@@ -157,7 +161,7 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
             className={tab === 'summaries' ? 'is-active' : ''}
             onClick={() => setTab('summaries')}
           >
-            总结与重试 <span>{pendingSummaryCount + failedJobCount}</span>
+            总结与重试 <span>{totalSummaryCount}</span>
           </button>
           <button type="button" className={tab === 'archive' ? 'is-active' : ''} onClick={() => setTab('archive')}>
             原文归档 <span>{preview.messages.length}</span>
@@ -342,6 +346,24 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
     }
   };
 
+  const regenerate = async (summaryId: string) => {
+    setBusyJobId(summaryId);
+    setActionError(null);
+    try {
+      await regenerateMemorySummary(summaryId);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusyJobId(null);
+    }
+  };
+
+  const deleteSummary = (summaryId: string) => {
+    if (!confirm('确定要删除这个总结吗？删除后该来源的楼层将可以重新生成总结。')) return;
+    const archive = useMemorySummaryArchiveStore.getState();
+    archive.deleteSummary(summaryId);
+  };
+
   const generateSmallSummary = async () => {
     setBusyJobId('manual-small');
     setActionError(null);
@@ -468,8 +490,8 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
       <section className="context-preview__section">
         <div className="context-preview__section-heading">
           <div>
-            <span>CANDIDATES</span>
-            <h3>总结候选</h3>
+            <span>SUMMARIES</span>
+            <h3>总结目录</h3>
           </div>
           <small>{summaries.length} 条记录</small>
         </div>
@@ -533,7 +555,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                     <summary>
                       {getMemorySourceLabel(summary)} ·{' '}
                       {summary.mode === 'small'
-                        ? `${summary.sourceFloorIds.length} 个来源楼层`
+                        ? `${summary.sourceFloorIds.length || summary.sourceMessageIds.length / 2} 个来源楼层`
                         : `${summary.sourceSummaryIds.length} 条来源小总结`}
                     </summary>
                     <SummarySourceEvidence
@@ -555,6 +577,9 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                       <button type="button" className="is-danger" onClick={() => review(summary.summaryId, 'reject')}>
                         拒绝
                       </button>
+                      <button type="button" className="is-danger" onClick={() => deleteSummary(summary.summaryId)}>
+                        删除
+                      </button>
                     </div>
                   )}
                   {!isEditing && summary.status === 'rejected' && (
@@ -570,6 +595,26 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                       ) : (
                         <small>已有后续候选或任务，请处理最新记录</small>
                       )}
+                      <button type="button" className="is-danger" onClick={() => deleteSummary(summary.summaryId)}>
+                        删除
+                      </button>
+                    </div>
+                  )}
+                  {!isEditing && summary.status === 'accepted' && (
+                    <div className="context-preview__review-actions">
+                      <button type="button" onClick={() => beginEdit(summary)}>
+                        编辑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyJobId !== null}
+                        onClick={() => void regenerate(summary.summaryId)}
+                      >
+                        {busyJobId === summary.summaryId ? '重新生成中…' : '重新生成'}
+                      </button>
+                      <button type="button" className="is-danger" onClick={() => deleteSummary(summary.summaryId)}>
+                        删除
+                      </button>
                     </div>
                   )}
                 </article>

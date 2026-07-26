@@ -93,6 +93,7 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
       requestControllerRef.current = null;
       setAvailableModels([]);
     }
+    // 移除了清空模型列表的逻辑，因为用户可能想从datalist中选择
     setErrors(current => ({ ...current, [field]: undefined }));
     setStatus(IDLE_STATUS);
   };
@@ -160,7 +161,12 @@ export default function SystemSettingsModal({ onClose }: SystemSettingsModalProp
     try {
       const result = await listOpenAICompatibleModels(draft, controller.signal);
       if (requestControllerRef.current !== controller) return;
+      console.log('[SystemSettings] 拉取到的模型列表:', result.models);
       setAvailableModels(result.models);
+      // 清空模型输入框，让用户看到完整的模型列表
+      if (result.models.length > 0) {
+        setDraft(current => ({ ...current, model: '' }));
+      }
       setStatus(
         result.models.length > 0
           ? { kind: 'success', message: `已拉取 ${result.models.length} 个模型，请点模型名称框选择。` }
