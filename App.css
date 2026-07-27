@@ -194,6 +194,111 @@ html::-webkit-scrollbar {
   gap: 6px;
 }
 
+.map-bottom-panel .system-control-heading {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 3px;
+  gap: 8px;
+  border-bottom: 2px solid rgba(240, 142, 181, 0.45);
+}
+
+.map-bottom-panel .system-control-heading h3 {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.map-bottom-panel .system-control-main > .buttons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.map-bottom-panel .control-attribute-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 10px;
+  min-width: 0;
+  margin: 8px 0 0;
+}
+
+.map-bottom-panel .control-attribute-list > div {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.map-bottom-panel .control-attribute-list dt,
+.map-bottom-panel .control-attribute-list dd {
+  margin: 0;
+}
+
+.map-bottom-panel .control-attribute-list dt {
+  color: var(--tm-pink-dark);
+  font-weight: 700;
+}
+
+.map-bottom-panel .control-attribute-list dd {
+  color: #51424a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.map-bottom-panel .control-resource-labels {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  margin: 0 0 0 auto;
+  color: var(--tm-pink-dark);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 12px;
+  white-space: nowrap;
+}
+
+.map-bottom-panel .control-resource-labels > div {
+  display: inline-flex;
+  align-items: center;
+}
+
+.map-bottom-panel .control-resource-labels dt,
+.map-bottom-panel .control-resource-labels dd {
+  margin: 0;
+}
+
+.map-bottom-panel .control-resource-labels dt {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: #51424a;
+}
+
+.map-bottom-panel .control-resource-icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+
+.map-bottom-panel .control-resource-icon.is-stamina {
+  color: #1597ff;
+}
+
+.map-bottom-panel .control-resource-icon.is-stress {
+  color: #ff7a1a;
+}
+
+.map-bottom-panel .control-resource-labels dd {
+  flex: 0 0 3ch;
+  min-width: 3ch;
+  color: #51424a;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
 .map-bottom-panel button {
   min-height: 30px;
   padding: 5px 9px;
@@ -262,6 +367,7 @@ html::-webkit-scrollbar {
   .map-bottom-panel .character-list {
     grid-template-columns: 1fr;
   }
+
 }
 
 /* 面板通用样式 */

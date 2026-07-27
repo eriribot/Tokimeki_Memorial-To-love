@@ -9,7 +9,6 @@ export const EPISODE_02_ACT_03 = {
     entryOrder: 154,
     entryName: '剧情第二集·第三幕',
     rootTag: 'To LOVE-Ru TV Episode 02 Act 03',
-    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第三幕·20时43分之后',

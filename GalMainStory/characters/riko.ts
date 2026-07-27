@@ -29,7 +29,6 @@ export const RIKO_STORY_CHARACTER = {
       entryOrder: 103,
       entryName: '夕崎梨子',
       rootTag: 'Riko Yusaki',
-      requiredContentMarker: '关系定位:User的青梅竹马',
       kind: 'character',
     },
   ],

@@ -2,42 +2,249 @@
 
 ```yaml
 status: implementation_updated_user_manual_test_pending
-current_loop: riko_archive_mikan_format_style_correction
-authorized_by: user_riko_warm_brown_icon_archive_and_dirty_id_cleanup_2026-07-27
+current_loop: fixed_width_resource_values_and_rest_only_limit_2026-07-27
+authorized_by: user_identified_multi_digit_stress_and_full_stress_rest_only_case_2026-07-27
 authorized_scope:
-  - use the supplied Riko screenshot for warm medium-brown hair and facial identity
-  - preserve Mikan icon_data10a/icon_data10b and extend the archive with Riko slot 12
-  - create both unlocked and locked high-resolution archive states plus the matching cursor asset
-  - connect a separate 3:4 Riko portrait through CharacterPortrait and the bundled card
-  - replace the active haruka/rin/sakura/miyuki placeholder IDs with momo/yami/lala/yui across direct runtime owners
-  - migrate matching bundled cards and targets from the four old IDs without rewriting unrelated imported cards
+  - reserve stable three-character numeric width for stamina and stress values from 0 through 100
+  - when stamina is 0 or stress is 100, disable non-rest personal actions and character talk
+  - keep rest executable at the resource limit and enforce the same rule inside the action handlers
+  - preserve the system-title-row resource placement without restoring the removed divider
 forbidden_scope:
-  - change Riko's independent childhood-friend identity or transfer User's protagonist relationships to her
-  - overwrite Mikan's extracted slot 10 assets or historical dirty evidence
-  - add, edit or run tests, lint, TypeScript, builds or browser automation
-  - describe the generated derivative as an extracted official asset
-connection_state: rejected_modern_logo_asset_replaced_with_exact_mikan_format_no_automated_validation
-overall_connection_label: 梨子 12a/12b 已接线；12b 已按用户指定的 ??? 编辑目标修正为橙色短发剪影与桃色底板，等待用户手工检查
+  - change AP costs, resource deltas, maximum values, dates, story settlement, saves, prompts, or host/plugin chains
+  - run tests, builds, formatting, lint, browser automation, or screenshots against the user's explicit no-test request
+untouched_scope:
+  - playerStore resource formulas and schema, gameStore settlement, story modules, save/message modules, and Tavern bridges
+verification:
+  passed:
+    - static source inspection confirms both values reserve 3ch and use tabular numerals
+    - static source inspection confirms non-rest activity and talk buttons share the resource-limit guard
+    - static source inspection confirms handlers reject bypassed non-rest actions while rest bypasses that guard
+  failed: []
+  not_run:
+    - TypeScript, lint, build, browser, screenshot, and inline artifact checks by explicit user request
+connection: local_store_backed_ui_and_settlement_only
+human_review: pending_user_visual_and_interaction_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: nearest_same_name_wrapper_pair_isolation_2026-07-27
+authorized_by: user_runtime_screenshot_showed_planning_text_entering_gal_despite_wrapper_contract_2026-07-27
+authorized_scope:
+  - replace non-overlapping whole-response wrapper regex selection with nearest same-name token pairing
+  - select only the most recent complete supported wrapper and discard all text outside its exact opening/closing boundaries
+  - keep tolerant cue defaults inside the selected body without allowing them to admit container-external planning text
+  - update active module and Aldent documentation for the corrected isolation boundary
+forbidden_scope:
+  - add, edit, or run tests or test scripts
+  - run lint, TypeScript, builds, browser automation, screenshots, inline checks, or real Tavern generation
+  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection settlement, persistence, or rendering
+  - claim the screenshot proves the exact hidden raw Assistant tag nesting beyond the visible leaked planning text
+untouched_scope:
+  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait assets, renderer, and host bridges
+connection_state: wrapper_isolation_source_updated_only_no_generated_artifact_or_real_tavern_rerun
+overall_connection_label: 正文边界已改为最近同名标签对隔离；等待用户在真实酒馆手工确认规划文字不再进入 GAL
+verification:
+  passed:
+    - source inspection confirms an unmatched earlier playable opening can no longer consume the closing tag of a later complete wrapper
+    - source inspection confirms only text sliced between the selected opening end and matching closing start reaches cue normalization
+  failed: []
+  not_run:
+    - all automated tests and test scripts, by explicit user request
+    - lint, TypeScript, development/production build, browser review, screenshots, and inline artifact verification
+    - corrected real Tavern replay of the screenshot floor
 evidence:
-  - slot 12 follows the existing icon_dataNN[a/b] and cursor_dataNN formula and leaves slot 10 untouched
-  - CharacterPortrait uses a dedicated 3:4 Riko path instead of cropping the near-square archive icon
-  - bundled ID migration is name-gated so only the four known placeholder cards are rewritten
-  - NovelAI official guidance supports separating character and style references; V4.5 Precise Reference is incompatible with Vibe Transfer
-  - runtime archive assets are exact 127x136 a/b PNGs and cursor_data12 matches the existing 149x150 cursor format
-  - icon_data12a carries the deterministic label 梨子; icon_data12b uses the orange/peach locked-state treatment and preserves the original ??? label treatment
-  - latest locked revision uses the user-supplied ??? image as the exact edit target; post-processing only removes the green key and performs a premultiplied-alpha resize to 127x136
-  - normal-proportion Riko reference is identity-only; the latest unlocked edit explicitly uses Mikan and the existing Riko chibi to enforce super-deformed Q proportions
-  - latest locked asset no longer rebuilds from Mikan: its Riko short-hair silhouette, orange-on-peach color direction, and ??? label all come from the user-designated locked target
-  - the one-use conversion script and all intermediate/failed Riko archive images were deleted after the final icon_data12b was written
-verification_after_latest_change: not_run_by_user_request
-human_review: pending_user_exact_style_and_identity_review
+  - extraction keeps an independent opening stack per supported tag name and pairs each close with the nearest preceding open
+  - malformed or unsupported planning tags never enter those stacks
+  - MODULES.md records the corrected exact-wrapper boundary
+human_review: pending_user_real_tavern_replay_and_visible_text_review
 counterevidence:
-  - the previous locked asset inverted the intended peach base and orange silhouette and is superseded by the user-designated ??? target
-  - the first direct edit followed the normal-proportion Riko reference too literally and was rejected before this Q-version regeneration
-  - the intervening script-drawn label and script-derived locked silhouette were rejected by the user and are superseded by the direct imagegen edits
-  - user rejected the visible magenta master and modern rounded badge rendering as unlike both Yusaki Riko and the Mikan game assets
-  - the new artwork is a generated derivative at higher pixel dimensions, not official extracted art
-  - no runtime rendering or interaction evidence will be collected because the user reserved testing for manual review
+  - the screenshot proves leaked planning text but does not expose the full raw tag sequence needed to reconstruct the exact malformed nesting
+  - no fresh dist artifact was built, so the current inline HTML does not contain this source correction yet
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: tolerant_gal_cue_defaults_plain_lines_and_string_concat_unwrap_2026-07-27
+authorized_by: user_reported_missing_expression_exact_line_rejections_and_supplied_real_raw_shape_2026-07-27
+authorized_scope:
+  - replace cue-field rejection with code-owned defaults constrained by current-act scenes, cast, portrait rules, and character manifests
+  - fall back from haruna/changer-room panic to that rig's registered default expression shy
+  - accept full cues, partial cues, speaker-prefixed lines, and plain narration while carrying the previous valid scene/focus when appropriate
+  - unwrap the supplied JavaScript-style newline concatenation around the parsing copy without changing the archived Assistant raw text
+  - stop rejecting an otherwise playable story solely because every line is narration
+  - update active module and Aldent documentation for the tolerant normalization contract
+forbidden_scope:
+  - add, edit, or run tests or test scripts
+  - run lint, TypeScript, builds, browser automation, screenshots, inline checks, or real Tavern generation
+  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection settlement, persistence, or renderer assets
+  - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
+untouched_scope:
+  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait assets, rendering components, and host bridges
+connection_state: extraction_and_cue_normalization_source_updated_only_no_generated_artifact_or_real_tavern_run
+overall_connection_label: 字符串拼接外壳与不完整演出字段已由代码宽容归一；等待用户在真实酒馆手工确认
+verification:
+  passed:
+    - supplied representation shows newline-plus-quote concatenation that would cause exact-format rejection if those characters are literal Assistant text
+    - source inspection confirms haruna/changer-room resolves an unavailable panic expression to its registered default shy
+    - source inspection confirms plain and speaker-prefixed lines produce complete StoryPresentationCue values instead of the former exact-format error
+    - source inspection confirms scene-specific portrait rules and current-act cast restrictions still bound any rendered portrait
+  failed: []
+  not_run:
+    - all automated tests and test scripts, by explicit user request
+    - lint, TypeScript, development/production build, browser review, screenshots, and inline artifact verification
+    - corrected real Tavern generation with the user's exact Assistant output
+evidence:
+  - storyTextExtraction restores literal concatenated newline boundaries only in the extracted parsing copy
+  - storyPresentation resolves missing or invalid scene, focus, portrait, expression, and effect values through current act metadata and character defaults
+  - paragraph parsing carries the previous normalized presentation forward, while the first line starts from the act's first registered scene
+  - tavernStoryGeneration retains empty-body, minimum-line, required-scene, and JSON guards but no longer requires at least one parsed speaker
+  - MODULES.md records the distinction between strict prompt guidance, tolerant runtime normalization, and unchanged raw-message archival
+human_review: pending_user_real_tavern_generation_and_visual_cue_review
+counterevidence:
+  - the screenshot proves three parse failures but does not prove whether the pasted newline-plus-quote concatenation is literal Assistant text or a console/source representation
+  - if those concatenation markers are display-only, the supplied cue lines are syntactically valid and only haruna/changer-room panic needs fallback
+  - source inspection does not prove the supplied raw output will satisfy the unchanged minimum-line and required-scene checks after normalization
+  - no fresh dist artifact was built, so the current inline HTML does not contain this source correction yet
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: tolerant_complete_playable_wrapper_extraction_2026-07-27
+authorized_by: user_reported_valid_content_rejected_and_requested_simple_tag_matching_without_tests_2026-07-27
+authorized_scope:
+  - replace whole-response supported-tag counting with direct multiline matching of complete same-name playable wrappers
+  - use the last complete supported wrapper when planning text repeats tag examples before the final正文
+  - discard text outside that wrapper and strip inner tag markup before the existing line-level GAL parser
+  - update active module and Aldent documentation to match the relaxed extraction behavior
+forbidden_scope:
+  - add, edit, or run tests, test scripts, lint, TypeScript, builds, browser automation, screenshots, or inline checks
+  - change the generation prompt, line-level GAL protocol, story beats, AP/date/affection settlement, persistence, or rendering
+  - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
+untouched_scope:
+  - Tavern generation and World Info hooks, stores, story templates, presentation validation, save/message modules, and host bridges
+connection_state: extraction_source_updated_only_no_generated_artifact_or_real_tavern_run
+overall_connection_label: 正文容器改为宽容的跨行完整标签对检索；等待用户在真实酒馆手工确认
+verification:
+  passed:
+    - source inspection confirms the required-wrapper route no longer rejects a valid final wrapper because other supported tags appeared elsewhere
+    - source inspection confirms multiline body capture and the existing downstream line-level parser remain in place
+  failed: []
+  not_run:
+    - all automated tests and test scripts, by explicit user request
+    - lint, TypeScript, development/production build, browser review, screenshots, and inline artifact verification
+    - corrected real Tavern generation and malformed planning-tag reproduction
+evidence:
+  - storyTextExtraction now searches complete supported same-name pairs with a multiline regular expression and selects the last complete match
+  - requirePlayableWrapper returns the selected body after tag-markup removal instead of recursively treating inner supported tag names as more wrappers
+  - MODULES.md separates the prompt's one-wrapper instruction from the runtime extractor's tolerant acceptance behavior
+human_review: pending_user_real_tavern_generation_result
+counterevidence:
+  - source inspection is not runtime acceptance and cannot prove the user's exact preset output until they regenerate in Tavern
+  - no fresh dist artifact was built, so the existing inline HTML does not contain this source correction yet
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: controls_resource_status_between_system_and_personal_actions_2026-07-27
+authorized_by: user_explicit_final_placement_and_no_more_tests_2026-07-27
+authorized_scope:
+  - keep the blue heart-pulse stamina and orange gauge stress treatment approved from the trial sketch
+  - show the live stamina and stress values from playerStore beside those labels
+  - place the resource block in the right side of the System group, immediately left of the Personal Actions group
+  - keep the six exact attribute values below the System row and do not restore the removed standalone StatPanel
+forbidden_scope:
+  - run builds, formatting, lint, browser automation, screenshots, inline checks, or other tests after the final placement correction
+  - change playerStore values, activity settlement, AP/date/story behavior, persistence, prompts, or Galgame rendering
+  - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
+untouched_scope:
+  - stores, settlement services, story modules, save/message modules, host bridges, and archive presentation
+connection_state: Controls reads the existing authoritative playerStore values; final placement is source-updated but not rebuilt or browser-checked by user request
+overall_connection_label: 已接入真实状态读取（playerStore）；最终位置等待人工页面确认
+verification:
+  passed:
+    - source inspection confirms System now renders buttons and the live resource block in one system-control-main row, with six attributes after that row
+  failed: []
+  not_run:
+    - Prettier and ESLint after the final placement correction, by explicit user request
+    - development/production build after the final placement correction, by explicit user request
+    - desktop and 844x390 browser review after the final placement correction, by explicit user request
+    - exact Tavern inline safety check because verify-inline-bundle.mjs is absent and the final source was not rebuilt
+evidence:
+  - Controls subscribes directly to stamina/stress and renders their values next to the approved heart-pulse/gauge icons
+  - App.css gives system-control-main a buttons-left/resources-right grid; the Personal Actions group remains the next outer grid column
+  - MODULES.md records the final resource and six-dimension placement
+human_review: pending_user_visual_confirmation_in_the_target_game_frame
+counterevidence:
+  - the earlier local screenshots and production hash were captured before the user's final placement correction and are superseded for layout acceptance
+  - dist/webgame-ui/index.html still represents the pre-correction layout because the user stopped further builds/tests
+  - earlier standalone-browser Tavern save/generation errors only prove the host APIs were absent; they do not affect or validate the final source layout
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: remove_adopted_son_older_brother_identity_marker_2026-07-27
+authorized_by: user_team_lead_reject_gpt_drafted_identity_loosen_generation_restriction_2026-07-27
+authorized_scope:
+  - remove the '养子'(adopted son)/'老哥'(older brother) phrasing and its requiredContentMarker hard runtime check from
+    GalMainStory/characters/*.ts, all 8 episode act files, data/lore-books/*.txt recovery sources, data/default-cards/*.json,
+    and MODULES.md/AGENTS.md/ALDENT_STATUS.md/AI生文与GAL前端整合方案.md/data/lore-books/README.md documentation
+  - replace '老哥' dialogue lines in fallbackBeats with '你'
+  - update verify-episode03.cjs assertions from requiring the old marker to forbidding '养子'/'老哥' regression
+forbidden_scope:
+  - change User's underlying protagonist-role authority (still the fixed protagonist living with the Yuuki family)
+  - alter Riko's independent childhood-friend identity or Mikan/Lala/Haruna's core relationship functions
+  - add, edit or run tests, lint, TypeScript, builds beyond the verification already covered by pnpm build:dev and
+    verify-episode03.cjs
+connection_state: source_and_recovery_lore_edited_build_and_verify_script_pass_no_real_tavern_worldbook_sync_performed
+overall_connection_label: 养子/老哥身份措辞已从运行时合同、恢复源和文档中移除，用户确认已在真实酒馆世界书中同步剔除；等待人工复核
+evidence:
+  - grep across GalMainStory, data/lore-books, data/default-cards and docs shows no remaining '养子'/'老哥' identity
+    assertions outside verify-episode03.cjs's negative guards and one explicit prohibition line in
+    tolove-character-mikan.txt
+  - requiredContentMarker fields removed from all 4 character loreReferences and all 8 episode act plotLore entries
+  - pnpm build:dev succeeded after the edits
+  - verify-episode03.cjs passed after updating its assertions to forbid rather than require the old marker
+verification_after_latest_change: pnpm_build_dev_and_verify_episode03_cjs_both_passed_locally
+human_review: pending_user_review_of_worldview_wording_and_real_tavern_worldbook_consistency
+counterevidence:
+  - real Tavern worldbook entries were not inspected or modified by the assistant in this loop; user states they
+    already removed the phrasing there, but this remains unverified by the assistant
+  - a loose untracked-by-runtime file '出包王女 (2).json' at the repo root still contains unrelated explicit content
+    and was left untouched as out of scope for this identity-only change
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: riko_archive_cursor_identity_and_palette_correction
+authorized_by: user_clarified_fix_cursor_shape_and_color_without_reusing_mikan_2026-07-27
+authorized_scope:
+  - preserve the original slot-12 unlocked Riko character artwork, wink, hair, face, pose, and label
+  - recolor only the existing unlocked ellipse and locked-state treatment to a distinct Riko mint/teal palette
+  - regenerate cursor_data12 from Riko's own icon_data12a alpha instead of copying Mikan's cursor_data10, while retaining the archive's standard yellow selection color
+  - preserve the existing archive paths, dimensions, slot mapping, and 梨子 / ??? labels
+forbidden_scope:
+  - redraw, mirror, replace, or otherwise modify Riko's character face and hair pixels
+  - reuse Mikan's cursor alpha, overwrite Mikan's slot-10 assets, or alter runtime TypeScript/CSS
+  - replace the shared yellow selection feedback with a character-specific cursor color
+  - change Riko's independent childhood-friend identity or transfer User's protagonist relationships to her
+  - add, edit or run tests, lint, TypeScript, builds or browser automation
+connection_state: riko_specific_standard_yellow_cursor_and_palette_assets_written_no_automated_validation
+overall_connection_label: 梨子原头像保持不变；12 号光标改用梨子自身轮廓并保留统一黄色，椭圆与锁定态使用青绿色，等待用户手工检查
+evidence:
+  - icon_data12a keeps the original Riko character pixels and only remaps the orange ellipse color
+  - icon_data12b keeps its original alpha silhouette and ??? label while shifting the orange/peach treatment to mint/teal
+  - cursor_data12 is generated by scaling icon_data12a's own alpha to the existing 149x150 cursor contract and uses the shared #FFDF00 cursor color
+  - the previous cursor_data12 was byte-identical to Mikan cursor_data10; the new cursor follows Riko's short hair and ellipse instead
+  - Mikan icon_data10a/icon_data10b/cursor_data10 and all runtime code remain untouched
+  - no image generation call was needed because the approved correction is a deterministic alpha and palette operation on the original asset
+verification_after_latest_change: asset_and_white_background_composite_visual_inspection_only_no_automated_validation_by_user_request
+human_review: pending_user_cursor_shape_color_and_runtime_position_review
+counterevidence:
+  - the rejected replacement chibi and mirrored-eye revisions were fully restored before this cursor-only correction
+  - the mint/teal cursor revision was rejected by the user's runtime screenshot because selection color is intentionally shared yellow; only Riko's cursor shape may differ
+  - local asset and composite inspection does not prove the final Tavern game-frame appearance
+  - no runtime rendering, interaction, build, lint, TypeScript, browser, or test evidence was collected because the user reserved validation
 superseded_evidence:
   - the permanent-gender-swapped Riko protagonist and four-act episode-03 package below are invalidated by the user's
     later explicit correction and remain only as failure history
@@ -66,7 +273,7 @@ next_loop: freeze_without_automated_tests_and_wait_for_user_manual_exact_style_r
 
 ## 2026-07-27：User 主角、三幕整天事件与持续改编 skill v2
 
-- 当前身份权威已经统一：User 是唯一主角、结城家的养子，也是美柑认定的“老哥”；男性梨斗不存在。夕崎梨子是 User
+- 当前身份权威已经统一：User 是唯一主角、与结城家共同生活；男性梨斗不存在。夕崎梨子是 User
   的青梅竹马、有限情报提醒者和独立可攻略角色，不继承菈菈婚约、美柑亲缘、春菜关系或前三集主角经历。第一、二集的活动模板、恢复源和四份人物 lore 已同步该边界。
 - `episodeTemplate.ts` 新增通用 `single-action / whole-day` 时间成本。整天幕只能在当天第一次行动触发；开始生成不会提前跨日，完成或跳过后才由共享 Store
   消耗余下时间、推进一次日期并恢复日初 AP。实现没有第三集 ID 特判，也没有修改存档 schema。

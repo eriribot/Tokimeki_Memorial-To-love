@@ -1,5 +1,6 @@
 const TAG_PATTERN = /<(\/?)(([\p{L}_][\p{L}\p{N}_.:-]*))(?:\s[^<>]*?)?\s*(\/?)>/gu;
 const TAG_MARKUP_PATTERN = /<\/?[\p{L}_][^<>\r\n]*>/gu;
+const CONCATENATED_STRING_NEWLINE_PATTERN = /\\(?:r\\n|n)(['"])\s*\+\s*\1/gu;
 
 const BLOCKED_TAGS = new Set([
   'analysis',
@@ -71,6 +72,11 @@ interface TagNode {
 interface ParsedTags {
   roots: TagNode[];
   tokens: TagToken[];
+}
+
+interface PlayableWrapperCandidate {
+  opening: TagToken;
+  closing: TagToken;
 }
 
 interface PlayableCandidate {
@@ -258,40 +264,54 @@ function extractOneLayer(text: string): string | null {
 
 function extractRequiredWrapper(text: string): string {
   const { tokens } = parseTags(text);
-  const wrapperTokens = tokens.filter(token => PLAYABLE_TAG_PRIORITIES.has(token.name));
-  const openings = wrapperTokens.filter(token => !token.closing && !token.selfClosing);
+  const openingsByName = new Map<string, TagToken[]>();
+  const candidates: PlayableWrapperCandidate[] = [];
 
-  if (openings.length === 0) throw new Error('酒馆返回结果未包含受支持的正文容器。');
-  if (openings.length !== 1 || wrapperTokens.some(token => token.selfClosing)) {
-    throw new Error('酒馆返回结果只能包含一个受支持的正文容器。');
+  for (const token of tokens) {
+    if (!PLAYABLE_TAG_PRIORITIES.has(token.name) || token.selfClosing) continue;
+    if (!token.closing) {
+      const openings = openingsByName.get(token.name) ?? [];
+      openings.push(token);
+      openingsByName.set(token.name, openings);
+      continue;
+    }
+
+    const openings = openingsByName.get(token.name);
+    const opening = openings?.pop();
+    if (opening) candidates.push({ opening, closing: token });
   }
 
-  const opening = openings[0];
-  const closings = wrapperTokens.filter(token => token.closing);
-  const closing = closings.find(token => token.name === opening.name && token.start >= opening.end);
-  if (!closing) {
-    throw new Error(`酒馆返回结果中的 <${opening.name}> 正文容器没有用 </${opening.name}> 闭合。`);
-  }
-  if (closings.length !== 1) throw new Error('酒馆返回结果只能包含一个受支持的正文容器。');
+  const wrapper = candidates.sort((left, right) => left.opening.start - right.opening.start).at(-1);
+  if (wrapper) return text.slice(wrapper.opening.end, wrapper.closing.start).trim();
 
-  return text.slice(opening.end, closing.start).trim();
+  const opening = [...openingsByName.values()].flat().sort((left, right) => left.start - right.start).at(-1);
+  if (!opening) throw new Error('酒馆返回结果未包含完整的受支持正文容器。');
+
+  const tagName = opening.name;
+  throw new Error(`酒馆返回结果中的 <${tagName}> 正文容器没有用 </${tagName}> 闭合。`);
 }
 
 function stripTagMarkup(text: string): string {
   return text.replace(TAG_MARKUP_PATTERN, '').trim();
 }
 
+function unwrapConcatenatedStringLines(text: string): string {
+  return text.replace(CONCATENATED_STRING_NEWLINE_PATTERN, '\n');
+}
+
 export function extractPlayableText(raw: string, options: PlayableTextExtractionOptions = {}): string {
   let current = unwrapCodeFence(raw.trim());
-  if (options.requirePlayableWrapper) current = extractRequiredWrapper(current);
+  if (options.requirePlayableWrapper) {
+    return stripTagMarkup(unwrapConcatenatedStringLines(extractRequiredWrapper(current)));
+  }
 
   for (let depth = 0; depth < 8; depth += 1) {
     const extracted = extractOneLayer(current);
-    if (extracted === null) return options.requirePlayableWrapper ? stripTagMarkup(current) : current.trim();
+    if (extracted === null) return current.trim();
     const next = extracted.trim();
-    if (next === current) return options.requirePlayableWrapper ? stripTagMarkup(next) : next;
+    if (next === current) return next;
     current = next;
   }
 
-  return options.requirePlayableWrapper ? stripTagMarkup(current) : current.trim();
+  return current.trim();
 }

@@ -10,7 +10,6 @@ export const EPISODE_03_ACT_03 = {
     entryOrder: 157,
     entryName: '剧情第三集·第三幕',
     rootTag: 'To LOVE-Ru TV Episode 03 Act 03',
-    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第三幕·鱼不能离开水',
@@ -75,7 +74,7 @@ export const EPISODE_03_ACT_03 = {
     },
     {
       speaker: '结城美柑',
-      text: '老哥，春菜姐就交给你了。我去看着菈菈，免得她把鱼带回家。',
+      text: '你，春菜姐就交给你了。我去看着菈菈，免得她把鱼带回家。',
       presentation: {
         sceneId: 'aquarium',
         focusCharacterId: 'mikan',
@@ -207,7 +206,7 @@ export const EPISODE_03_ACT_03 = {
     },
     {
       speaker: '结城美柑',
-      text: '老哥，先把人带到高处！别站在那里发愣。',
+      text: '你，先把人带到高处！别站在那里发愣。',
       presentation: {
         sceneId: 'aquarium',
         focusCharacterId: 'mikan',

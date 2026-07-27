@@ -62,10 +62,9 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 ## Invariants
 
 - Zustand plus the save snapshot owns AP, date, event completion, and the current act.
-- Character-role authority is fixed: User is the protagonist, the Yuuki family's adopted son, and the older brother
-  Mikan addresses as “老哥”; no separate male Rito exists. Riko is User's childhood friend, an information/reminder
-  helper, and an independent romance target. She does not inherit the original protagonist role, Lala engagement,
-  Mikan kinship, or Haruna relationship.
+- Character-role authority is fixed: User is the protagonist, living together with the Yuuki family; no separate male
+  Rito exists. Riko is User's childhood friend, an information/reminder helper, and an independent romance target.
+  She does not inherit the original protagonist role, Lala engagement, Mikan kinship, or Haruna relationship.
 - A `whole-day` act may trigger only on the day's first action. Its completion advances once to the next day and resets
   the daily AP; shared runtime code must implement this from template `timeCost`, never from an episode-ID branch.
 - Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do not

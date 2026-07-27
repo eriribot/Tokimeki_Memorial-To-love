@@ -15,8 +15,6 @@ const { MAIN_STORY_EPISODES } = require('./GalMainStory/episodes');
 const { STORY_CHARACTERS, findStoryCharacterBySpeaker } = require('./GalMainStory/characters');
 const { STORY_SCENES } = require('./GalMainStory/scenes');
 
-const ROLE_MARKER = '主角身份:User是结城家的养子，也是美柑的老哥';
-
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -94,10 +92,11 @@ function verifyLore(act) {
   const lore = readProjectFile('data', 'lore-books', `tolove-tv-episode-03-act0${actNumber}.txt`);
   assert(lore.startsWith(`<${act.plotLore.rootTag}>`), `${act.id} 的世界书根标签不匹配。`);
   assert(lore.trimEnd().endsWith(`</${act.plotLore.rootTag}>`), `${act.id} 的世界书闭标签不匹配。`);
-  assert(lore.includes(ROLE_MARKER), `${act.id} 没有写明新的 User 主角身份。`);
+  assert(!lore.includes('养子'), `${act.id} 仍残留养子身份措辞。`);
+  assert(!lore.includes('老哥'), `${act.id} 仍残留老哥称呼措辞。`);
   assert(!lore.includes('永久性转'), `${act.id} 仍含梨子永久性转脏映射。`);
   assert(!lore.includes('梨子继承主角'), `${act.id} 仍让梨子继承主角位。`);
-  assert(act.plotLore.requiredContentMarker === ROLE_MARKER, `${act.id} 的导入防串线 marker 漂移。`);
+  assert(!act.plotLore.requiredContentMarker, `${act.id} 仍保留已废弃的身份 marker 硬校验。`);
 }
 
 function verifyInvitationChain(act, lore) {
@@ -176,15 +175,14 @@ for (const act of episode.acts) {
 }
 
 const characterLoreContracts = [
-  ['tolove-character-lala.txt', '<Lala Satalin Deviluke>', '身份映射:User承接原作男主剧情职能'],
-  ['tolove-character-haruna.txt', '<Haruna Sairenji>', '身份映射:User承接原作男主剧情职能'],
-  ['tolove-character-mikan.txt', '<Mikan Yuuki>', '关系定位:User是结城家的养子，也是美柑认定的老哥'],
-  ['tolove-character-riko.txt', '<Riko Yusaki>', '关系定位:User的青梅竹马'],
+  ['tolove-character-lala.txt', '<Lala Satalin Deviluke>'],
+  ['tolove-character-haruna.txt', '<Haruna Sairenji>'],
+  ['tolove-character-mikan.txt', '<Mikan Yuuki>'],
+  ['tolove-character-riko.txt', '<Riko Yusaki>'],
 ];
-for (const [fileName, rootTag, marker] of characterLoreContracts) {
+for (const [fileName, rootTag] of characterLoreContracts) {
   const lore = readProjectFile('data', 'lore-books', fileName);
   assert(lore.startsWith(rootTag), `${fileName} 的根标签不匹配。`);
-  assert(lore.includes(marker), `${fileName} 缺少当前身份 marker。`);
   assert(!lore.includes('永久性转版本'), `${fileName} 仍含梨子主角脏映射。`);
 }
 
@@ -196,14 +194,15 @@ for (const earlierEpisodeNumber of [1, 2]) {
   const earlierEpisode = MAIN_STORY_EPISODES.find(candidate => candidate.episodeNumber === earlierEpisodeNumber);
   assert(earlierEpisode, `生产注册表没有第 ${earlierEpisodeNumber} 集。`);
   for (const [actIndex, act] of earlierEpisode.acts.entries()) {
-    assert(act.plotLore.requiredContentMarker === ROLE_MARKER, `${act.id} 仍使用旧主角身份 marker。`);
+    assert(!act.plotLore.requiredContentMarker, `${act.id} 仍保留已废弃的身份 marker 硬校验。`);
     assert(act.characterLoreIds.includes('riko'), `${act.id} 没有注入当前梨子青梅边界。`);
     const lore = readProjectFile(
       'data',
       'lore-books',
       `tolove-tv-episode-0${earlierEpisodeNumber}-act0${actIndex + 1}.txt`,
     );
-    assert(lore.includes(ROLE_MARKER), `${act.id} 的恢复源没有同步 User 养子主角身份。`);
+    assert(!lore.includes('养子'), `${act.id} 的恢复源仍残留养子身份措辞。`);
+    assert(!lore.includes('老哥'), `${act.id} 的恢复源仍残留老哥称呼措辞。`);
     assert(!lore.includes('永久性转'), `${act.id} 的恢复源仍含梨子主角脏映射。`);
   }
 }
@@ -211,11 +210,14 @@ for (const earlierEpisodeNumber of [1, 2]) {
 const defaultCards = {
   riko: JSON.parse(readProjectFile('data', 'default-cards', 'riko.json')),
   haruna: JSON.parse(readProjectFile('data', 'default-cards', 'haruna.json')),
-  lala: JSON.parse(readProjectFile('data', 'default-cards', 'sakura.json')),
+  lala: JSON.parse(readProjectFile('data', 'default-cards', 'lala.json')),
 };
 assert(defaultCards.riko.data.system_prompt.includes('青梅竹马'), '梨子默认卡没有锁定青梅竹马身份。');
 assert(!defaultCards.riko.data.system_prompt.includes('永久承接'), '梨子默认卡仍承接原作男主身份。');
-assert(defaultCards.haruna.data.system_prompt.includes('User是结城家的养子'), '春菜默认卡没有同步 User 身份。');
+assert(!defaultCards.riko.data.system_prompt.includes('养子'), '梨子默认卡仍残留养子身份措辞。');
+assert(!defaultCards.riko.data.system_prompt.includes('老哥'), '梨子默认卡仍残留老哥称呼措辞。');
+assert(!defaultCards.haruna.data.system_prompt.includes('养子'), '春菜默认卡仍残留养子身份措辞。');
+assert(!defaultCards.haruna.data.system_prompt.includes('老哥'), '春菜默认卡仍残留老哥称呼措辞。');
 assert(
   defaultCards.haruna.data.system_prompt.includes('第一集曾准备向她告白'),
   '春菜默认卡没有把既成告白动作与未来玩家感情分开。',
@@ -224,7 +226,7 @@ assert(
   defaultCards.haruna.data.system_prompt.includes('第三集水族馆里春菜与User都把告白说到开头'),
   '春菜默认卡没有同步第三集水族馆双方未完成的告白动作。',
 );
-assert(defaultCards.lala.data.system_prompt.includes('只有美柑固定称User“老哥”'), '菈菈默认卡没有锁定称呼边界。');
+assert(!defaultCards.lala.data.system_prompt.includes('老哥'), '菈菈默认卡仍残留老哥称呼措辞。');
 
 const evidencePacket = JSON.parse(readProjectFile('剧情参考', '游戏开发知识库', '出包王女', '第三集改编证据.json'));
 assert(

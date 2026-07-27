@@ -10,7 +10,6 @@ export const EPISODE_03_ACT_01 = {
     entryOrder: 155,
     entryName: '剧情第三集·第一幕',
     rootTag: 'To LOVE-Ru TV Episode 03 Act 01',
-    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第一幕·低调一点',
@@ -361,7 +360,7 @@ export const EPISODE_03_ACT_01 = {
     },
     {
       speaker: '结城美柑',
-      text: '老哥，闷着也想不明白。明天带菈菈去彩南町转转吧，她对地球还什么都不熟。',
+      text: '你，闷着也想不明白。明天带菈菈去彩南町转转吧，她对地球还什么都不熟。',
       presentation: {
         sceneId: 'home',
         focusCharacterId: 'mikan',

@@ -35,15 +35,15 @@ const HARUNA_CHANGER_ROOM_PORTRAIT = {
   body: '/artsource/haruna/haruna_changer_room/haruna_changer_room.png',
   mask: '/artsource/haruna/haruna_changer_room/haruna_changer_room_mask.png',
   regions: {
-    eyes: { x: 394, y: 221, width: 230, height: 131 },
-    mouth: { x: 394, y: 349, width: 230, height: 57 },
+    eyes: { x: 394, y: 232, width: 230, height: 131 },
+    mouth: { x: 394, y: 360, width: 230, height: 57 },
   },
   defaultExpressionId: 'shy',
   expressions: createFaceAtlasExpressions(
-    '/artsource/haruna/haruna_changer_room/haruna_changer_room_',
+    '/artsource/haruna/haruna_changer_room/005_03_05_',
     {
-      shy: 'shy',
-      anger: 'anger',
+      shy: 'b',
+      anger: 'c',
     },
     ['shy'],
   ),
@@ -65,7 +65,6 @@ export const HARUNA_STORY_CHARACTER = {
       entryOrder: 101,
       entryName: '西连寺春菜',
       rootTag: 'Haruna Sairenji',
-      requiredContentMarker: '身份映射:User承接原作男主剧情职能',
       kind: 'character',
     },
   ],

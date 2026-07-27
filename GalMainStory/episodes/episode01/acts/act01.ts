@@ -9,7 +9,6 @@ export const EPISODE_01_ACT_01 = {
     entryOrder: 150,
     entryName: '剧情第一集·第一幕',
     rootTag: 'To LOVE-Ru TV Episode 01 Act 01',
-    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第一幕·说不出口的放学后',
@@ -140,7 +139,7 @@ export const EPISODE_01_ACT_01 = {
     },
     {
       speaker: '美柑',
-      text: '老哥，回来了？怎么一副又失败了的表情。',
+      text: '你，回来了？怎么一副又失败了的表情。',
       presentation: {
         sceneId: 'home',
         focusCharacterId: 'mikan',

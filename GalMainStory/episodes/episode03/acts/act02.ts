@@ -10,7 +10,6 @@ export const EPISODE_03_ACT_02 = {
     entryOrder: 156,
     entryName: '剧情第三集·第二幕',
     rootTag: 'To LOVE-Ru TV Episode 03 Act 02',
-    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第二幕·换装能量耗尽',
@@ -129,7 +128,7 @@ export const EPISODE_03_ACT_02 = {
     },
     {
       speaker: '结城美柑',
-      text: '老哥也就这种时候特别不肯认输。',
+      text: '你也就这种时候特别不肯认输。',
       presentation: {
         sceneId: 'townStreet',
         focusCharacterId: 'mikan',
@@ -173,7 +172,7 @@ export const EPISODE_03_ACT_02 = {
     },
     {
       speaker: '结城美柑',
-      text: '老哥，别愣着。先带她进最近的服装店。',
+      text: '你，别愣着。先带她进最近的服装店。',
       presentation: {
         sceneId: 'townStreet',
         focusCharacterId: 'mikan',

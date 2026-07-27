@@ -229,7 +229,6 @@ function parsePlainTextAct(raw: string, eventId: string, actId: string, playerNa
     playerName,
     presentation: act.presentation,
   });
-  if (!logicalLines.some(line => line.speaker !== null)) throw new Error('酒馆返回的正文没有角色对白。');
   if (logicalLines.length < act.generation.minimumLineCount) {
     throw new Error(`本幕只有 ${logicalLines.length} 行正文，至少需要 ${act.generation.minimumLineCount} 行。`);
   }

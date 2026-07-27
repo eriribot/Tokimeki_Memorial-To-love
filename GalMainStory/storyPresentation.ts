@@ -4,7 +4,6 @@ import {
   STORY_EFFECTS,
   STORY_SCENE_IDS,
   type StoryActPresentation,
-  type StoryEffect,
   type StoryPresentationCue,
   type StorySceneId,
 } from './storyTypes';
@@ -20,13 +19,24 @@ export interface StoryLineParseContext {
   presentation: StoryActPresentation;
 }
 
-const DIRECTED_LINE_PATTERN = /^@(.{1,48}?)【([^】]{1,512})】\s*[：:]\s*(.+)$/u;
-const DIRECTIVE_SEPARATOR_PATTERN = /[;；]/u;
-const DIRECTIVE_FIELD_PATTERN = /^([a-z]+)\s*=\s*([a-zA-Z0-9_-]+)$/u;
+const DIRECTED_LINE_PATTERN = /^@?(.{1,48}?)\s*[【\[]([^】\]]{0,512})[】\]]\s*[：:]?\s*(.+)$/u;
+const CUE_ONLY_LINE_PATTERN = /^[【\[]([^】\]]{0,512})[】\]]\s*[：:]?\s*(.+)$/u;
+const SPEAKER_LINE_PATTERN = /^@?([^【\[】\]：:\r\n]{1,48}?)\s*[：:]\s*(.+)$/u;
+const DIRECTIVE_SEPARATOR_PATTERN = /[;；,，]/u;
+const DIRECTIVE_FIELD_PATTERN = /^([a-z]+)\s*[=:]\s*(.+)$/iu;
 const REQUIRED_DIRECTIVE_FIELDS = ['scene', 'focus', 'portrait', 'expression', 'effect'] as const;
 const REQUIRED_DIRECTIVE_FIELD_SET = new Set<string>(REQUIRED_DIRECTIVE_FIELDS);
 const PLAYER_ALIASES = new Set(['你', 'User', '玩家', '主角', '主人公', '男主角', '男主'].map(normalizeSpeakerKey));
 const NARRATOR_ALIASES = new Set(['旁白', '叙述', '敘述', 'narrator'].map(normalizeSpeakerKey));
+
+type DirectiveField = (typeof REQUIRED_DIRECTIVE_FIELDS)[number];
+type DirectiveFields = Partial<Record<DirectiveField, string>>;
+
+interface ParsedLineParts {
+  speaker: string | null;
+  text: string;
+  fields: DirectiveFields;
+}
 
 function normalizeSpeakerKey(value: string): string {
   return value
@@ -44,108 +54,168 @@ function normalizeSpeaker(value: string, playerName: string): string | null {
   return character?.displayName ?? speaker;
 }
 
-function parseDirectiveFields(value: string): Record<(typeof REQUIRED_DIRECTIVE_FIELDS)[number], string> {
-  const fields = new Map<string, string>();
-  for (const part of value.split(DIRECTIVE_SEPARATOR_PATTERN)) {
+function normalizeCueId(value: string): string {
+  return value
+    .normalize('NFKC')
+    .replace(/[\s_-]/gu, '')
+    .toLocaleLowerCase('en-US');
+}
+
+function findAllowedId<T extends string>(value: string | undefined, allowedValues: readonly T[]): T | null {
+  if (!value) return null;
+  const key = normalizeCueId(value);
+  return allowedValues.find(candidate => normalizeCueId(candidate) === key) ?? null;
+}
+
+function parseDirectiveFields(value: string): DirectiveFields {
+  const fields: DirectiveFields = {};
+  for (const part of value.normalize('NFKC').split(DIRECTIVE_SEPARATOR_PATTERN)) {
     const match = part.trim().match(DIRECTIVE_FIELD_PATTERN);
-    if (!match) throw new Error(`演出字段“${part.trim()}”格式无效。`);
-    const [, key, fieldValue] = match;
-    if (fields.has(key)) throw new Error(`演出字段“${key}”重复。`);
-    fields.set(key, fieldValue);
+    if (!match) continue;
+    const key = match[1].toLocaleLowerCase('en-US');
+    if (!REQUIRED_DIRECTIVE_FIELD_SET.has(key)) continue;
+    const fieldValue = match[2].trim().replace(/^["'`]+|["'`]+$/gu, '');
+    if (fieldValue) fields[key as DirectiveField] = fieldValue;
   }
-
-  const unknown = [...fields.keys()].find(key => !REQUIRED_DIRECTIVE_FIELD_SET.has(key));
-  if (unknown) throw new Error(`剧情页包含未知演出字段“${unknown}”。`);
-  const missing = REQUIRED_DIRECTIVE_FIELDS.find(key => !fields.has(key));
-  if (missing) throw new Error(`剧情页缺少演出字段“${missing}”。`);
-
-  return Object.fromEntries(REQUIRED_DIRECTIVE_FIELDS.map(key => [key, fields.get(key)!])) as Record<
-    (typeof REQUIRED_DIRECTIVE_FIELDS)[number],
-    string
-  >;
+  return fields;
 }
 
 function isStorySceneId(value: string): value is StorySceneId {
   return STORY_SCENE_IDS.includes(value as StorySceneId);
 }
 
-function isStoryEffect(value: string): value is StoryEffect {
-  return STORY_EFFECTS.includes(value as StoryEffect);
+function resolveSceneId(
+  value: string | undefined,
+  act: StoryActPresentation,
+  previousPresentation: StoryPresentationCue | null,
+): StorySceneId {
+  const requestedSceneId = findAllowedId(value, act.sceneIds);
+  if (requestedSceneId && isStorySceneId(requestedSceneId)) return requestedSceneId;
+  if (previousPresentation && act.sceneIds.includes(previousPresentation.sceneId)) {
+    return previousPresentation.sceneId;
+  }
+  const defaultSceneId = act.sceneIds[0];
+  if (!defaultSceneId) throw new Error('当前幕没有可用的默认场景。');
+  return defaultSceneId;
+}
+
+function findCastCharacterId(value: string | undefined, act: StoryActPresentation): string | null {
+  if (!value || normalizeCueId(value) === 'none') return null;
+  const characterIds = act.cast.map(member => member.characterId);
+  const requestedCharacterId = findAllowedId(value, characterIds);
+  if (requestedCharacterId && isStoryCharacterId(requestedCharacterId)) return requestedCharacterId;
+
+  const character = findStoryCharacterBySpeaker(value.normalize('NFKC').trim());
+  return character && act.cast.some(member => member.characterId === character.id) ? character.id : null;
+}
+
+function resolveFocusCharacterId(
+  value: string | undefined,
+  speaker: string | null,
+  act: StoryActPresentation,
+  previousPresentation: StoryPresentationCue | null,
+): string | null {
+  const requestedCharacterId = findCastCharacterId(value, act);
+  if (requestedCharacterId) return requestedCharacterId;
+
+  const speakingCharacter = findStoryCharacterBySpeaker(speaker);
+  if (speakingCharacter && act.cast.some(member => member.characterId === speakingCharacter.id)) {
+    return speakingCharacter.id;
+  }
+  if (value && normalizeCueId(value) === 'none') return null;
+
+  const previousCharacterId = previousPresentation?.focusCharacterId;
+  return previousCharacterId && act.cast.some(member => member.characterId === previousCharacterId)
+    ? previousCharacterId
+    : null;
 }
 
 function parsePresentationCue(
-  fields: ReturnType<typeof parseDirectiveFields>,
+  fields: DirectiveFields,
+  speaker: string | null,
   act: StoryActPresentation,
+  previousPresentation: StoryPresentationCue | null,
 ): StoryPresentationCue {
-  if (!isStorySceneId(fields.scene) || !act.sceneIds.includes(fields.scene)) {
-    throw new Error(`当前幕不能使用场景“${fields.scene}”。`);
-  }
-  if (!isStoryEffect(fields.effect)) throw new Error(`剧情页包含未登记的效果“${fields.effect}”。`);
-
-  if (fields.focus === 'none') {
-    if (fields.portrait !== 'none' || fields.expression !== 'none') {
-      throw new Error('focus=none 时 portrait 与 expression 必须同时为 none。');
-    }
+  const sceneId = resolveSceneId(fields.scene, act, previousPresentation);
+  const effect = findAllowedId(fields.effect, STORY_EFFECTS) ?? 'none';
+  const focusCharacterId = resolveFocusCharacterId(fields.focus, speaker, act, previousPresentation);
+  if (!focusCharacterId || !isStoryCharacterId(focusCharacterId)) {
     return {
-      sceneId: fields.scene,
+      sceneId,
       focusCharacterId: null,
       portraitId: null,
       expressionId: null,
-      effect: fields.effect,
+      effect,
     };
   }
 
-  const focusCharacterId = fields.focus;
-  if (!isStoryCharacterId(focusCharacterId)) throw new Error(`剧情页引用了未登记角色“${focusCharacterId}”。`);
   const castMember = act.cast.find(member => member.characterId === focusCharacterId);
-  if (!castMember) throw new Error(`角色“${getStoryCharacter(focusCharacterId).displayName}”不在当前幕演员表中。`);
+  if (!castMember) throw new Error(`当前幕演员“${focusCharacterId}”缺少立绘配置。`);
   const portraitRules = act.portraitRules ?? [];
-  const requiredPortraitId = getRequiredStoryPortraitId(portraitRules, fields.scene, focusCharacterId);
-  if (requiredPortraitId && fields.portrait !== requiredPortraitId) {
-    throw new Error(
-      `场景“${fields.scene}”中的角色“${focusCharacterId}”必须使用立绘“${requiredPortraitId}”，不能使用“${fields.portrait}”。`,
-    );
-  }
-  if (!castMember.portraitIds.includes(fields.portrait)) {
-    throw new Error(`当前幕不允许角色“${focusCharacterId}”使用立绘“${fields.portrait}”。`);
-  }
-  const rig = getStoryPortraitRig(focusCharacterId, fields.portrait);
-  if (!rig.expressions[fields.expression]) {
-    throw new Error(`立绘“${focusCharacterId}/${fields.portrait}”没有表情“${fields.expression}”。`);
-  }
+  const character = getStoryCharacter(focusCharacterId);
+  const requiredPortraitId = getRequiredStoryPortraitId(portraitRules, sceneId, focusCharacterId);
+  const requestedPortraitId = findAllowedId(fields.portrait, castMember.portraitIds);
+  const defaultPortraitId = castMember.portraitIds.includes(character.defaultPortraitId)
+    ? character.defaultPortraitId
+    : castMember.portraitIds[0];
+  const portraitId = requiredPortraitId ?? requestedPortraitId ?? defaultPortraitId;
+  if (!portraitId) throw new Error(`当前幕演员“${focusCharacterId}”没有可用立绘。`);
+
+  const rig = getStoryPortraitRig(focusCharacterId, portraitId);
+  const expressionId = findAllowedId(fields.expression, Object.keys(rig.expressions)) ?? rig.defaultExpressionId;
+  if (!rig.expressions[expressionId]) throw new Error(`立绘“${focusCharacterId}/${portraitId}”没有可用默认表情。`);
 
   return {
-    sceneId: fields.scene,
+    sceneId,
     focusCharacterId,
-    portraitId: fields.portrait,
-    expressionId: fields.expression,
-    effect: fields.effect,
+    portraitId,
+    expressionId,
+    effect,
   };
 }
 
-export function parseStoryLine(value: string, context: StoryLineParseContext): ParsedStoryLine {
+function parseLineParts(value: string, playerName: string): ParsedLineParts {
   const line = value.trim();
-  const match = line.match(DIRECTED_LINE_PATTERN);
-  if (!match) {
-    throw new Error(
-      '剧情正文行必须使用“@说话人【scene=...;focus=...;portrait=...;expression=...;effect=...】：正文”格式。',
-    );
+  if (!line) throw new Error('剧情正文包含空白页。');
+
+  const directedMatch = line.match(DIRECTED_LINE_PATTERN);
+  if (directedMatch) {
+    return {
+      speaker: normalizeSpeaker(directedMatch[1], playerName),
+      text: directedMatch[3].trim(),
+      fields: parseDirectiveFields(directedMatch[2]),
+    };
   }
 
-  const text = match[3].trim();
+  const cueOnlyMatch = line.match(CUE_ONLY_LINE_PATTERN);
+  if (cueOnlyMatch) {
+    return {
+      speaker: null,
+      text: cueOnlyMatch[2].trim(),
+      fields: parseDirectiveFields(cueOnlyMatch[1]),
+    };
+  }
+
+  const speakerMatch = line.match(SPEAKER_LINE_PATTERN);
+  if (speakerMatch) {
+    return {
+      speaker: normalizeSpeaker(speakerMatch[1], playerName),
+      text: speakerMatch[2].trim(),
+      fields: {},
+    };
+  }
+
+  return { speaker: null, text: line, fields: {} };
+}
+
+function parseStoryLineWithFallback(
+  value: string,
+  context: StoryLineParseContext,
+  previousPresentation: StoryPresentationCue | null,
+): ParsedStoryLine {
+  const { speaker, text, fields } = parseLineParts(value, context.playerName);
   if (!text) throw new Error('剧情正文包含空白页。');
-  const speaker = normalizeSpeaker(match[1], context.playerName);
-  const presentation = parsePresentationCue(parseDirectiveFields(match[2]), context.presentation);
-  const speakingCharacter = findStoryCharacterBySpeaker(speaker);
-  const speakingCharacterIsInAct = Boolean(
-    speakingCharacter && context.presentation.cast.some(member => member.characterId === speakingCharacter.id),
-  );
-  if (speakingCharacter && !speakingCharacterIsInAct) {
-    throw new Error(`已登记角色“${speakingCharacter.displayName}”不在当前幕演员表中，不能作为说话人。`);
-  }
-  if (speakingCharacterIsInAct && presentation.focusCharacterId === null) {
-    throw new Error(`已登记角色“${speakingCharacter?.displayName}”正在说话，本页 focus 不能是 none。`);
-  }
+  const presentation = parsePresentationCue(fields, speaker, context.presentation, previousPresentation);
   return {
     speaker,
     text,
@@ -153,6 +223,17 @@ export function parseStoryLine(value: string, context: StoryLineParseContext): P
   };
 }
 
+export function parseStoryLine(value: string, context: StoryLineParseContext): ParsedStoryLine {
+  return parseStoryLineWithFallback(value, context, null);
+}
+
 export function parseStoryParagraphs(values: readonly string[], context: StoryLineParseContext): ParsedStoryLine[] {
-  return values.map(value => parseStoryLine(value, context));
+  const lines: ParsedStoryLine[] = [];
+  let previousPresentation: StoryPresentationCue | null = null;
+  for (const value of values) {
+    const line = parseStoryLineWithFallback(value, context, previousPresentation);
+    lines.push(line);
+    previousPresentation = line.presentation;
+  }
+  return lines;
 }
