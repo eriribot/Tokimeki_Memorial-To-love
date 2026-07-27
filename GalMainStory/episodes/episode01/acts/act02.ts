@@ -9,10 +9,11 @@ export const EPISODE_01_ACT_02 = {
     entryOrder: 151,
     entryName: '剧情第一集·第二幕',
     rootTag: 'To LOVE-Ru TV Episode 01 Act 02',
+    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第二幕·浴室里的王女',
-  characterLoreIds: ['lala'],
+  characterLoreIds: ['lala', 'haruna', 'mikan', 'riko'],
   presentation: {
     sceneIds: ['washroom', 'home', 'bedroom', 'rooftop', 'nightStreet', 'park', 'schoolRoad'],
     cast: [
@@ -81,7 +82,7 @@ export const EPISODE_01_ACT_02 = {
     },
     {
       speaker: '美柑',
-      text: '叫得整栋房子都听见了。浴室里真的有人？',
+      text: '老哥，叫得整栋房子都听见了。浴室里真的有人？',
       presentation: {
         sceneId: 'home',
         focusCharacterId: null,

@@ -53,7 +53,7 @@
     "character_version": "1.0",
     "extensions": {
       "game_data": {
-        "id": "rin",
+        "id": "yami",
         "color": "#fbbf24",
         "type": "宇宙杀手",
         "favoriteLocations": ["library", "courtyard"],

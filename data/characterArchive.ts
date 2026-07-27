@@ -31,22 +31,22 @@ function createSlot(slot: number, targetId: string | null): CharacterArchiveSlot
 }
 
 /**
- * The original data page uses this fixed 01-11 order. Only the five targets
- * that exist in the current card registry are mapped; the remaining slots
- * stay locked until their real cards and availability rules are introduced.
+ * Slots 01-11 preserve the extracted game order. Slot 12 extends the same
+ * a/b/cursor asset contract for Riko without replacing Mikan's slot 10.
  */
 export const CHARACTER_ARCHIVE_SLOTS: readonly CharacterArchiveSlot[] = [
-  createSlot(1, 'haruka'),
-  createSlot(2, 'rin'),
+  createSlot(1, 'momo'),
+  createSlot(2, 'yami'),
   createSlot(3, null),
-  createSlot(4, 'sakura'),
+  createSlot(4, 'lala'),
   createSlot(5, 'haruna'),
   createSlot(6, null),
-  createSlot(7, 'miyuki'),
+  createSlot(7, 'yui'),
   createSlot(8, null),
   createSlot(9, null),
   createSlot(10, null),
   createSlot(11, null),
+  createSlot(12, 'riko'),
 ];
 
 export function resolveCharacterArchiveSlots(

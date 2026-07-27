@@ -9,10 +9,11 @@ export const EPISODE_02_ACT_01 = {
     entryOrder: 152,
     entryName: '剧情第二集·第一幕',
     rootTag: 'To LOVE-Ru TV Episode 02 Act 01',
+    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第一幕·前天20时43分',
-  characterLoreIds: ['lala', 'haruna', 'mikan'],
+  characterLoreIds: ['lala', 'haruna', 'mikan', 'riko'],
   presentation: {
     sceneIds: ['bedroom', 'home', 'school', 'changingRoom'],
     cast: [

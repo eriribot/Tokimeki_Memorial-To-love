@@ -65,7 +65,7 @@ export const HARUNA_STORY_CHARACTER = {
       entryOrder: 101,
       entryName: '西连寺春菜',
       rootTag: 'Haruna Sairenji',
-      requiredContentMarker: '姓名:西连寺春菜',
+      requiredContentMarker: '身份映射:User承接原作男主剧情职能',
       kind: 'character',
     },
   ],

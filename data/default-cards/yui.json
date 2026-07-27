@@ -57,7 +57,7 @@
     "character_version": "1.0",
     "extensions": {
       "game_data": {
-        "id": "miyuki",
+        "id": "yui",
         "color": "#818cf8",
         "type": "风纪委员",
         "favoriteLocations": ["library", "classroom"],

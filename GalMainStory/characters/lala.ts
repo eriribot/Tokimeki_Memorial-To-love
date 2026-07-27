@@ -77,7 +77,7 @@ export const LALA_STORY_CHARACTER = {
       entryOrder: 100,
       entryName: '菈菈.萨塔琳.戴比路克',
       rootTag: 'Lala Satalin Deviluke',
-      requiredContentMarker: '姓名:菈菈·萨塔琳·戴比路克',
+      requiredContentMarker: '身份映射:User承接原作男主剧情职能',
       kind: 'character',
     },
   ],

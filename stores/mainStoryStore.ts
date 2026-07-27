@@ -303,9 +303,10 @@ export function createMainStoryStoreActions(
         if (!episode || actIndex < 0 || !activeAct) return state;
 
         finished = true;
+        const actDefinition = episode.acts[actIndex];
         const isLastAct = actIndex === episode.acts.length - 1;
         const nextAct = episode.acts[actIndex + 1];
-        const advancesDay = state.actionPointsRemaining === 0;
+        const advancesDay = state.actionPointsRemaining === 0 || actDefinition?.timeCost === 'whole-day';
         const nextDay = advancesDay ? state.day + 1 : state.day;
         const nextRun =
           !isLastAct && nextAct

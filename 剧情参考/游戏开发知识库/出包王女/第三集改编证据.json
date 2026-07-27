@@ -1,0 +1,496 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 3,
+    "sourceTitle": "三角关系",
+    "targetTitle": "三角关系"
+  },
+  "sources": [
+    {
+      "id": "current-role-rule",
+      "kind": "project-authority",
+      "location": "用户当前角色、三幕与日期指令（2026-07-27）",
+      "supports": "User 是本企划唯一主角、结城家的养子和美柑认定的老哥；不存在男性梨斗。夕崎梨子是 User 的青梅竹马和有限情报提醒位，不继承主角剧情。第三集按 4 月 11 日、12 日、13 日三次整天事件编排，4 月 14 日只作尾声。"
+    },
+    {
+      "id": "user-correction-aquarium-mutual-confession",
+      "kind": "project-authority",
+      "location": "用户对第三集动画水族馆原台词与打断点的纠正（2026-07-27）",
+      "supports": "春菜先重提 User 与菈菈很般配，也肯定菈菈是很棒的女孩；随后说 User 同样温柔，并以他从初中起在无人要求时自发照料教室花草为证，表明自己长期关注他。春菜与 User 都把告白说到开头，随后被菈菈造成的鱼群骚动打断。"
+    },
+    {
+      "id": "current-riko-lore",
+      "kind": "project-authority",
+      "location": "../../../data/lore-books/tolove-character-riko.txt",
+      "supports": "夕崎梨子的当前关系定位是 User 的青梅竹马；她提供有限提醒，保有独立行动与攻略可能，不是梨斗性转，也不接管 User 的婚约、家人或感情线。"
+    },
+    {
+      "id": "current-episode01-confession",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/episode01/acts/act02.ts",
+      "supports": "第一集当前运行时已经记录 User 准备向春菜告白、却被菈菈误接；这是过去动作，不自动规定第三集之后的感情选择。"
+    },
+    {
+      "id": "local-summary",
+      "kind": "project-authority",
+      "location": "第三集剧情总结.md",
+      "supports": "当前改编梳理冻结了三幕日历、User 主角位、梨子的边界，以及美柑先邀请、菈菈再撒娇提出水族馆、春菜最后答应的因果顺序。"
+    },
+    {
+      "id": "shot-rooftop",
+      "kind": "direct-frame",
+      "location": "../QQ_1785039340861.png",
+      "supports": "转学生揭晓后，原作男主在学校屋顶追问菈菈为何突然转学。"
+    },
+    {
+      "id": "shot-principal",
+      "kind": "direct-frame",
+      "location": "../QQ_1785042064088.png",
+      "supports": "校长因为觉得菈菈可爱而同意转学。"
+    },
+    {
+      "id": "shot-school-spectacle",
+      "kind": "direct-frame",
+      "location": "../QQ_1785042162211.png",
+      "supports": "菈菈答应低调后仍在校内引起夸张骚动。"
+    },
+    {
+      "id": "shot-risa-mio",
+      "kind": "direct-frame",
+      "location": "../QQ_1785042850779.png",
+      "supports": "里纱和未央在体育课段落出场，里纱以没有距离感的玩笑试探菈菈，未央负责制止。"
+    },
+    {
+      "id": "shot-boys-throw",
+      "kind": "direct-frame",
+      "location": "../QQ_1785042897803.png",
+      "supports": "嫉妒的男生向原作男主扔杂物，形成校园追打笑料。"
+    },
+    {
+      "id": "shot-mikan-outing",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043318162.png",
+      "supports": "美柑看出主角低落，提出第二天带菈菈出去走走。"
+    },
+    {
+      "id": "shot-peke-apology",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043561025.png",
+      "supports": "沛凯因无法继续维持服装向菈菈道歉。"
+    },
+    {
+      "id": "shot-peke-empty",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043571097.png",
+      "supports": "沛凯说明连续换装消耗过大，能量已经用完。"
+    },
+    {
+      "id": "shot-haruna-shop",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043627731.png",
+      "supports": "春菜在服装店意外撞见一行人。"
+    },
+    {
+      "id": "shot-shop-explanation",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043695165.png",
+      "supports": "服装店偶遇后，美柑用陪外地朋友逛街的说法遮住外星人与换装事故。"
+    },
+    {
+      "id": "shot-aquarium-mikan",
+      "kind": "direct-frame",
+      "location": "../QQ_1785043782580.png",
+      "supports": "水族馆里美柑察觉主角与春菜之间气氛微妙，主动给两人留下说话机会。"
+    },
+    {
+      "id": "shot-water-elephant",
+      "kind": "direct-frame",
+      "location": "../QQ_1785044664994.png",
+      "supports": "菈菈拿出增水君，试图用加水解决鱼离开水的问题。"
+    },
+    {
+      "id": "fandom-episode-03",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Love_Triangle",
+      "supports": "社区剧情页提供第三集从转学追问到水族馆洪水、返程和上学路事故的整体事件顺序。"
+    },
+    {
+      "id": "fandom-shopping-panic",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Shopping_Panic",
+      "supports": "漫画章节页补充沛凯连续换装、抓娃娃、服装失效、进入服装店与春菜撞见的因果细节。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "user-role-rule",
+      "location": "本证据包 schemaVersion 1 的同名来源记录",
+      "staleClaim": "把结城梨斗永久性转为夕崎梨子，并把第三集主角位、菈菈婚约、春菜感情和结城家关系全部交给梨子，排除 User。",
+      "resolution": "这是已被用户明确纠正的脏映射。当前权威由 current-role-rule 记录：主角职能归 User，梨子只保留青梅竹马和有限提醒职能。"
+    },
+    {
+      "id": "lala-project-lore",
+      "location": "本证据包 schemaVersion 1 的 sources[lala-project-lore] 历史记录",
+      "staleClaim": "把菈菈前两集经历和婚约对象登记给梨子，并以此证明 User 不在主线关系中。",
+      "resolution": "旧人物书结论不能反向覆盖用户设定。当前主线既有经历和婚约事实归 User，梨子不继承。"
+    },
+    {
+      "id": "legacy-runtime-conflict",
+      "location": "本证据包 schemaVersion 1 的 sources[legacy-runtime-conflict] 历史记录",
+      "staleClaim": "把第二集由 User 承接原作男主位视为跨集冲突，要求第三集改回梨子。",
+      "resolution": "第二集的 User 主角位才是应延续的现行关系；第三集改为 User 后，跨集身份重新一致。"
+    },
+    {
+      "id": "stale-riko-package",
+      "location": "../../../出包王女 (2).json",
+      "staleClaim": "历史导出包中存在梨子接管梨斗身份、结城家关系和主线感情的残留。",
+      "resolution": "该文件只作为历史脏数据证据，不再作为当前角色、剧情或运行时权威。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "第三集主角、菈菈既有婚约对象、春菜未说出口的在意对象与事故喜剧承受者",
+      "target": "User",
+      "inherit": [
+        "前两集已经发生的共同经历",
+        "与菈菈已经成立的婚约事实",
+        "第一集向春菜告白却被菈菈误接的既成动作",
+        "春菜对主角已有但未说破的在意",
+        "第三集的天台、校园、出游、水族馆与平地摔主角位"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名人物并存",
+        "把同一主角职能再分给夕崎梨子",
+        "替 User 决定未来感情、同意或路线结果"
+      ]
+    },
+    {
+      "original": "结城美柑与结城梨斗的兄妹关系",
+      "storyFunction": "共同生活的妹妹、家庭观察者、外出与同行邀请的发起者",
+      "target": "结城美柑与作为结城家养子的 User",
+      "inherit": [
+        "结城家共同生活",
+        "美柑把 User 当作哥哥并称呼老哥",
+        "美柑看出 User 低落并提出第二天出门",
+        "美柑先邀请春菜同行并在水族馆自然留出谈话空间"
+      ],
+      "exclude": ["把夕崎梨子写成美柑的姐姐", "让菈菈或春菜固定照搬老哥称呼", "让美柑替 User 决定感情"]
+    },
+    {
+      "original": "夕崎梨子（企划独立角色）",
+      "storyFunction": "User 的青梅竹马、有限情报提醒者和独立攻略位",
+      "target": "夕崎梨子",
+      "inherit": ["与 User 的童年熟悉感", "对日程、熟人近况和眼前风险的实用提醒", "独立生活、独立选择和独立攻略可能"],
+      "exclude": [
+        "结城梨斗或 User 的主角剧情",
+        "菈菈婚约、春菜既有感情和结城家兄妹关系",
+        "全知视角、幕后操盘或替 User 作决定"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是第三集唯一主角，是结城家的养子，也是美柑认定的老哥；原作梨斗的本集剧情职能由 User 承接。",
+    "fixed": [
+      "故事里不存在另一名男性结城梨斗",
+      "User 与菈菈已经经历前两集事件，既有婚约事实继续有效",
+      "User 第一集曾准备向春菜告白并被菈菈误接",
+      "第三集水族馆里，春菜与 User 都把告白说到开头，但被菈菈造成的骚动打断，没有说完",
+      "春菜已在意 User，但本集不把这份关系结算成告白或路线",
+      "夕崎梨子是 User 的青梅竹马，不是性转梨斗，也不是结城家姐妹"
+    ],
+    "reserved": [
+      "除第一集告白尝试与第三集水族馆未完成的告白开头外，User 当前和未来的感情判断",
+      "User 的同意、拒绝和路线选择",
+      "好感度与关系结果",
+      "AP、日期推进和事件完成状态的运行时结算"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep03.rooftop-transfer",
+      "summary": "转学生揭晓后，User 把菈菈带上天台追问原因；菈菈说想一直陪在他身边。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "local-summary", "shot-rooftop", "fandom-episode-03"],
+      "adaptation": "只替换原作主角承载者：天台追问和菈菈的关系指向 User，不另造男性梨斗，也不交给梨子。"
+    },
+    {
+      "id": "ep03.principal",
+      "summary": "菈菈坦白校长因为觉得她可爱而同意转学，User 只能要求她别太显眼。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "shot-principal", "fandom-episode-03"],
+      "adaptation": "保留校长的荒唐理由，原作男主的反应改由 User 承接。"
+    },
+    {
+      "id": "ep03.school-spectacle",
+      "summary": "菈菈在课程和体育活动里持续做出远超地球常识的表现，引来围观。",
+      "status": "confirmed",
+      "sourceRefs": ["shot-school-spectacle", "fandom-episode-03"]
+    },
+    {
+      "id": "ep03.risa-mio",
+      "summary": "里纱和未央加入围观；里纱毫无距离感地开玩笑，未央及时把她拉开。",
+      "status": "adapted",
+      "sourceRefs": ["local-summary", "shot-risa-mio"],
+      "adaptation": "保留里纱和未央的辨识点，用制止和旁人反应表现笑料，不写露骨身体细节。"
+    },
+    {
+      "id": "ep03.jealous-boys",
+      "summary": "男生因菈菈总黏着 User 而嫉妒，向 User 扔杂物并起哄。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "shot-boys-throw", "fandom-episode-03"],
+      "adaptation": "原作针对梨斗的校园追打改由 User 承受，不把它转给梨子。"
+    },
+    {
+      "id": "ep03.riko-limited-nudge",
+      "summary": "校园骚动后，梨子以青梅竹马身份提醒 User 别忘了让菈菈保持低调，随后把处理权留给他。",
+      "status": "inferred",
+      "sourceRefs": ["current-role-rule", "current-riko-lore", "local-summary"],
+      "adaptation": "这是为了让梨子的有限提醒职能自然落地的短桥段；她不预知后续安排，不解释感情，也不推动主事件。"
+    },
+    {
+      "id": "ep03.haruna-compatible",
+      "summary": "春菜误以为 User 和菈菈关系很好，说两人很般配；菈菈随即来叫 User 回家。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "current-episode01-confession", "local-summary", "fandom-episode-03"],
+      "adaptation": "春菜原作中对男主的在意改为指向 User。台词出于误会和退让，不写成争宠，也不由梨子承接。"
+    },
+    {
+      "id": "ep03.mikan-outing",
+      "summary": "User 回家后明显低落，美柑叫他老哥，并提议第二天三人带菈菈出去走走。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "local-summary", "shot-mikan-outing", "fandom-episode-03"],
+      "adaptation": "美柑作为 User 的妹妹和家庭观察者提出计划。第一幕停在提议，不描写入睡或提前跨日。",
+      "causalOwners": ["结城美柑：发现 User 低落并提出第二天出门", "User：只接收提议，本幕不替他答应或拒绝"]
+    },
+    {
+      "id": "ep03.peke-outfits",
+      "summary": "菈菈的宇宙服太显眼，沛凯连续分析并换装，终于选到普通衣服，却因此耗尽能量。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "local-summary",
+        "shot-peke-apology",
+        "shot-peke-empty",
+        "fandom-episode-03",
+        "fandom-shopping-panic"
+      ]
+    },
+    {
+      "id": "ep03.haruna-shop",
+      "summary": "User 和美柑带菈菈进服装店补救，恰好撞见春菜；美柑用陪外地朋友逛街遮住外星事实。",
+      "status": "adapted",
+      "sourceRefs": [
+        "current-role-rule",
+        "shot-haruna-shop",
+        "shot-shop-explanation",
+        "fandom-episode-03",
+        "fandom-shopping-panic"
+      ],
+      "adaptation": "原作男主的尴尬由 User 承接，美柑负责现场圆场；梨子不在这趟出游中接管主角位。"
+    },
+    {
+      "id": "ep03.invitation-chain",
+      "summary": "美柑先邀请春菜第二天与三人同行；春菜犹豫时，菈菈撒娇并提出去水族馆；美柑说明有四张票，春菜最后答应。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "local-summary", "shot-shop-explanation"],
+      "adaptation": "当前项目权威补足并冻结了截图未能单独证明的邀请顺序。水族馆是菈菈撒娇时提出的次日目的地，不在 4 月 12 日当天发生。",
+      "causalOwners": [
+        "结城美柑：先邀请春菜明日同行",
+        "菈菈：在春菜犹豫后撒娇，并提出水族馆目的地",
+        "结城美柑：说明手里有四张票",
+        "西连寺春菜：最后决定接受邀请"
+      ]
+    },
+    {
+      "id": "ep03.mikan-gives-space",
+      "summary": "水族馆里，美柑察觉 User 和春菜有话想说，找理由带菈菈离开。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "shot-aquarium-mikan", "fandom-episode-03"],
+      "adaptation": "保留美柑的早熟与细腻，但她不说破关系，也不替 User 或春菜告白。"
+    },
+    {
+      "id": "ep03.almost-confession",
+      "summary": "春菜叫住准备结束话题的 User，先重提他与菈菈很般配，再说明自己从初中起就注意到他在无人要求时自发照料教室里的花。春菜与 User 都把告白说到开头，随即被菈菈造成的鱼群骚动打断。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "user-correction-aquarium-mutual-confession", "local-summary", "fandom-episode-03"],
+      "adaptation": "原作主角与春菜的未完成互相告白改由 User 承接。这次开口是用户明确固定的本集动作，但不补完具体告白内容，也不结算交往、好感或路线。",
+      "causalOwners": [
+        "西连寺春菜：重提般配并肯定菈菈，随后揭示自己从初中起一直关注 User 的温柔",
+        "西连寺春菜：以“即使这样，我……”开始告白",
+        "User：听懂后以未完成的“春菜，我也……”回应",
+        "菈菈：用狂战士 DX 引发鱼群骚动，打断两人的告白"
+      ]
+    },
+    {
+      "id": "ep03.aquarium-flood",
+      "summary": "菈菈以为鱼没精神，先用狂战士 DX 让鱼冲出水面；她不知道鱼离水会死，又用增水君把水族馆淹成一团。",
+      "status": "confirmed",
+      "sourceRefs": ["local-summary", "shot-water-elephant", "fandom-episode-03"]
+    },
+    {
+      "id": "ep03.monday-school-road-gag",
+      "summary": "4 月 14 日星期一早晨，User 见到春菜后一慌便平地摔倒；讲义散落，梨子顺手帮忙捡起，故事立即收尾。",
+      "status": "adapted",
+      "sourceRefs": ["current-role-rule", "current-riko-lore", "local-summary", "fandom-episode-03"],
+      "adaptation": "把原作上学路事故落在合理的周一日期，由 User 承接主角笑料；梨子只做顺手帮忙的青梅，不另开行动，也不使用露骨构图。"
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep03.rooftop-transfer",
+    "ep03.principal",
+    "ep03.school-spectacle",
+    "ep03.risa-mio",
+    "ep03.jealous-boys",
+    "ep03.riko-limited-nudge",
+    "ep03.haruna-compatible",
+    "ep03.mikan-outing",
+    "ep03.peke-outfits",
+    "ep03.haruna-shop",
+    "ep03.invitation-chain",
+    "ep03.mikan-gives-space",
+    "ep03.almost-confession",
+    "ep03.aquarium-flood",
+    "ep03.monday-school-road-gag"
+  ],
+  "forbidden": [
+    "让男性结城梨斗作为另一名现实人物登场",
+    "让夕崎梨子接管 User 的主角位、菈菈婚约、春菜感情或结城家兄妹关系",
+    "把夕崎梨子写成永久或临时性转后的结城梨斗",
+    "让梨子全知、幕后安排主线或替 User 决定感情",
+    "颠倒邀请因果：不得写成菈菈先邀请春菜、美柑随后附和",
+    "让水族馆目的地在美柑邀请之前出现，或把水族馆写到 4 月 12 日当天",
+    "让菈菈或春菜固定称 User 为老哥；这一称呼固定属于美柑",
+    "把水族馆谈话简化成泛泛称赞，遗漏‘般配—长期关注—双方开口—菈菈打断’的顺序，或让告白在本集正式说完并结算",
+    "把沛凯断电写成菈菈故意暴露身体，或露骨描写未成年角色",
+    "让菈菈提前知道鱼离开水会死，或让增水君平静收场",
+    "把三幕拆成同日多次行动，或让模型自行重算日期、AP、好感和事件完成",
+    "把 4 月 14 日上学路尾声另开为第四幕，或继续生成第四集"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep03.act1-transfer-and-outing-plan",
+      "targetDate": "2008-04-11",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "第二集转学生揭晓刚结束，菈菈在 4 月 11 日到校后的第一次行动触发。",
+      "end": "User 与春菜谈话后低落回家，美柑提出第二天带菈菈出门；不写入睡或跨日过程。",
+      "mustKeepBeatIds": [
+        "ep03.rooftop-transfer",
+        "ep03.principal",
+        "ep03.school-spectacle",
+        "ep03.risa-mio",
+        "ep03.jealous-boys",
+        "ep03.riko-limited-nudge",
+        "ep03.haruna-compatible",
+        "ep03.mikan-outing"
+      ]
+    },
+    {
+      "id": "ep03.act2-shopping-and-invitation",
+      "targetDate": "2008-04-12",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "4 月 12 日早晨，User、美柑和菈菈按前一天的提议出门。",
+      "end": "服装店里依次完成美柑邀请、菈菈撒娇提出水族馆、春菜答应；约好 4 月 13 日见。",
+      "mustKeepBeatIds": ["ep03.peke-outfits", "ep03.haruna-shop", "ep03.invitation-chain"]
+    },
+    {
+      "id": "ep03.act3-aquarium-and-monday",
+      "targetDate": "2008-04-13",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "4 月 13 日星期日，四人按约进入水族馆。",
+      "end": "水族馆洪水收束后，以 4 月 14 日星期一上学路平地摔作尾声；尾声不另占行动。",
+      "mustKeepBeatIds": [
+        "ep03.mikan-gives-space",
+        "ep03.almost-confession",
+        "ep03.aquarium-flood",
+        "ep03.monday-school-road-gag"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "acts": [
+      {
+        "boundaryId": "ep03.act1-transfer-and-outing-plan",
+        "targetDate": "2008-04-11",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      },
+      {
+        "boundaryId": "ep03.act2-shopping-and-invitation",
+        "targetDate": "2008-04-12",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      },
+      {
+        "boundaryId": "ep03.act3-aquarium-and-monday",
+        "targetDate": "2008-04-13",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ],
+    "settlementPolicy": "每幕只在目标日期的第一次行动触发。完成整天事件后结算当天剩余行动并推进一次日期；4 月 14 日上学路只属于第三幕尾声，不再单独触发。"
+  },
+  "semanticCases": [
+    {
+      "id": "ep03.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选正文换了说法，但仍让 User 承担主角位；三天依次写校园、逛街和水族馆，美柑先邀春菜，菈菈随后撒娇提出水族馆。水族馆里，春菜从‘般配’说到自己长期看见 User 主动照料花草，两个人都开始表白，却被菈菈引发的事故打断；最后只用星期一摔倒收尾，没有把关系结算成路线结果。",
+      "reviewCriteria": [
+        "全部 must-keep beats 可按语义辨认，不要求照抄关键词",
+        "User、梨子、美柑、菈菈与春菜的角色职能没有漂移",
+        "三幕日期、整天成本、邀请因果和结束边界完整"
+      ]
+    },
+    {
+      "id": "ep03.reject-missing-principal-anchor",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选正文完整写了转校、校园骚动和美柑提议，却把转校手续一笔带过，没有出现校长因觉得菈菈可爱而放行的荒谬理由。其余角色与日期都正确。",
+      "reviewCriteria": ["只缺少校长因可爱放行这一高权重锚点也必须拒绝", "不能用总体情节相似替代单个经典节拍"]
+    },
+    {
+      "id": "ep03.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选正文让梨子在天台质问菈菈，又把她写成菈菈的婚约对象和美柑的姐姐；User 只在旁边观看，形成两个互相冲突的主角位。",
+      "reviewCriteria": ["梨子接管任一原作男主关系即拒绝", "User 与梨子不能同时继承同一主角职能"]
+    },
+    {
+      "id": "ep03.reject-invitation-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选正文让菈菈一见春菜便先邀请她去水族馆，美柑随后拿出票附和，春菜答应。事件结果相同，但发起者和目的地出现顺序被改写。",
+      "reviewCriteria": ["必须由美柑先邀请春菜明日同行", "必须由菈菈随后撒娇并首次提出水族馆", "春菜在两步之后答应"]
+    },
+    {
+      "id": "ep03.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选正文把 4 月 11 日校园与春菜谈话拆成当天两次行动，并在第一幕后保留晚间自由 AP；又让 4 月 12 日第二次行动提前进入水族馆。",
+      "reviewCriteria": [
+        "三幕都只能在各自日期的第一次行动触发",
+        "每幕完成后占满当天并只推进一次日期",
+        "水族馆主体只能发生在 4 月 13 日"
+      ]
+    },
+    {
+      "id": "ep03.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选正文写完 4 月 14 日上学路摔倒后继续进入教室，安排新角色和下一起外星事故，实际越过第三集结束点开始了第四集。",
+      "reviewCriteria": ["星期一摔倒与短促吐槽后必须结束", "不得凭空生成第四集开场或新路线结果"]
+    },
+    {
+      "id": "ep03.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选正文宣布 User 接受春菜告白、春菜好感增加二十点、婚约解除，并自行写入行动点清零和第三集完成。",
+      "reviewCriteria": ["正文不能结算 User 感情、同意或路线", "正文不能修改好感、婚约、AP、日期或事件完成状态"]
+    }
+  ]
+}

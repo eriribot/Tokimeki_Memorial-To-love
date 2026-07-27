@@ -40,7 +40,7 @@ export const MIKAN_STORY_CHARACTER = {
       entryOrder: 102,
       entryName: '结城美柑',
       rootTag: 'Mikan Yuuki',
-      requiredContentMarker: '姓名:结城美柑',
+      requiredContentMarker: '关系定位:User是结城家的养子，也是美柑认定的老哥',
       kind: 'character',
     },
   ],

@@ -77,6 +77,16 @@ export const STORY_SCENES = {
     asset: '/artsource/backgrounds/bg009_b.png',
     alt: '夜晚河堤',
   },
+  townStreet: {
+    id: 'townStreet',
+    asset: '/artsource/backgrounds/bg006_a.png',
+    alt: '彩南町白日街道',
+  },
+  aquarium: {
+    id: 'aquarium',
+    asset: '/artsource/backgrounds/bg020_a.png',
+    alt: '彩南町水族馆',
+  },
 } as const satisfies Record<StorySceneId, StorySceneDefinition>;
 
 export const STORY_SCENE_ASSETS = {
@@ -94,6 +104,8 @@ export const STORY_SCENE_ASSETS = {
   schoolRoad: STORY_SCENES.schoolRoad.asset,
   changingRoom: STORY_SCENES.changingRoom.asset,
   riverbank: STORY_SCENES.riverbank.asset,
+  townStreet: STORY_SCENES.townStreet.asset,
+  aquarium: STORY_SCENES.aquarium.asset,
 } as const satisfies Record<StorySceneId, string>;
 
 export function getStoryScene(id: StorySceneId): StorySceneDefinition {

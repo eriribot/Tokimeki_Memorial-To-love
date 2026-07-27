@@ -415,6 +415,8 @@
   top: 50%;
   width: 14.65cqh;
   height: auto;
+  object-fit: contain;
+  image-rendering: auto;
   transform: translate(-50%, -50%);
   pointer-events: none;
   user-select: none;
@@ -543,6 +545,8 @@
 .character-archive-detail-icon {
   position: absolute;
   height: auto;
+  object-fit: contain;
+  image-rendering: auto;
   pointer-events: none;
   user-select: none;
 }

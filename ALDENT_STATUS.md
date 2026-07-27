@@ -1,58 +1,54 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: implementation_complete_human_review_pending
-current_loop: data_archive_monochrome_stage_and_manual_summary_disabled_revision
-authorized_by: user_archive_and_manual_summary_disabled_direction_2026-07-26
+status: implementation_updated_user_manual_test_pending
+current_loop: riko_archive_mikan_format_style_correction
+authorized_by: user_riko_warm_brown_icon_archive_and_dirty_id_cleanup_2026-07-27
 authorized_scope:
-  - enable the map-menu Data entry and keep the archive inside the existing game frame
-  - provide separate player-status and character-file views
-  - read player values from playerStore without reading or rendering the avatar field
-  - use the official 01-11 archive backgrounds, icons, cursors and detail navigation sprites
-  - bind existing character cards to fixed official slots and reuse characterAvailability unlock rules
-  - hide locked character identity before labels, DOM data or render_game_to_text projection
-  - read unlocked names, relationship values, locations and descriptions from current stores
-  - show missing biography fields as unregistered instead of inventing source data
-  - preserve the existing map-side CharacterProfileModal and lock map/bottom controls while Data is open
-  - expose the visible archive state through render_game_to_text
-  - keep the archive mounted inside the existing map frame and let its stage cover that frame at 100 percent width and height
-  - render bg_data1 and bg_data2 with object-fit fill and no gray side bands, glass, card border or panel shadow
-  - show a fixed 主角 heading, four unregistered profile rows, stamina and stress gauges, money and a six-axis SVG radar
-  - do not show the current location or any protagonist image in the player-status view
-  - map 文系/理系/艺术/运动/容姿/根性 to intelligence/intelligence/art/athletics/charm/athletics without expanding PlayerState or the save schema
-  - use heart.png, pressure-icon.png and one shared stamina-track.png through resolveAssetPath, distinguishing the gauges by icon and pink/cyan fill
-  - keep raw growth attributes at TOKIMEKI_ATTRIBUTE_MAX 999 while deriving five display stages from 160/200/240/260, and expose exact radar plus radarStages through render_game_to_text
-  - render only five monochrome concentric rings, six labels with raw values and one stage polygon; do not restore colored sectors, diamond nodes or a MAX badge
-  - use the official clean-paper bg_ht01 through resolveAssetPath and keep the complete bg_data1 spine untouched
-  - remove the duplicate bottom StatPanel while keeping Controls as the only bottom action area
-  - remove the file/URL CardImporter UI and its file/URL loader actions while retaining JSON bootstrap loading
-  - keep manual small-summary disabled and visibly gray when the secondary API is disabled
-  - let only current save/source-matching failed summary jobs block the manual-summary control
+  - use the supplied Riko screenshot for warm medium-brown hair and facial identity
+  - preserve Mikan icon_data10a/icon_data10b and extend the archive with Riko slot 12
+  - create both unlocked and locked high-resolution archive states plus the matching cursor asset
+  - connect a separate 3:4 Riko portrait through CharacterPortrait and the bundled card
+  - replace the active haruka/rin/sakura/miyuki placeholder IDs with momo/yami/lala/yui across direct runtime owners
+  - migrate matching bundled cards and targets from the four old IDs without rewriting unrelated imported cards
 forbidden_scope:
-  - use Yuki Rito imagery or any protagonist avatar resource on the player-status page
-  - invent birthdays, height, weight, blood type or new character-card facts
-  - change AP, date, affection, relationship settlement, save schemas or story progression
-  - change character availability rules or add cards for currently empty official slots
-  - create host messages or connect generation, shujuku, ACU, plugins or databases
-connection_state: local_store_read_only_data_archive_ui_implemented
-overall_connection_label: 只是本地状态演示
+  - change Riko's independent childhood-friend identity or transfer User's protagonist relationships to her
+  - overwrite Mikan's extracted slot 10 assets or historical dirty evidence
+  - add, edit or run tests, lint, TypeScript, builds or browser automation
+  - describe the generated derivative as an extracted official asset
+connection_state: rejected_modern_logo_asset_replaced_with_exact_mikan_format_no_automated_validation
+overall_connection_label: 梨子 12a/12b 已接线；12b 已按用户指定的 ??? 编辑目标修正为橙色短发剪影与桃色底板，等待用户手工检查
 evidence:
-  - static source and reference inspection only; the user explicitly prohibited build, lint, TypeScript, game-page browser, screenshot and inline checks in this loop
-  - read-only reference inspection used the Tokimeki Memorial 4 ordinary-university thresholds at 160/200/240/260; it is design evidence, not runtime acceptance
-  - the source archive tree now contains 41 assets: the existing 37 archive files plus three runtime player-status assets and the official clean-paper bg_ht01; publication was not checked in this loop
-human_review: pending_data_archive_visual_and_interaction_review
+  - slot 12 follows the existing icon_dataNN[a/b] and cursor_dataNN formula and leaves slot 10 untouched
+  - CharacterPortrait uses a dedicated 3:4 Riko path instead of cropping the near-square archive icon
+  - bundled ID migration is name-gated so only the four known placeholder cards are rewritten
+  - NovelAI official guidance supports separating character and style references; V4.5 Precise Reference is incompatible with Vibe Transfer
+  - runtime archive assets are exact 127x136 a/b PNGs and cursor_data12 matches the existing 149x150 cursor format
+  - icon_data12a carries the deterministic label 梨子; icon_data12b uses the orange/peach locked-state treatment and preserves the original ??? label treatment
+  - latest locked revision uses the user-supplied ??? image as the exact edit target; post-processing only removes the green key and performs a premultiplied-alpha resize to 127x136
+  - normal-proportion Riko reference is identity-only; the latest unlocked edit explicitly uses Mikan and the existing Riko chibi to enforce super-deformed Q proportions
+  - latest locked asset no longer rebuilds from Mikan: its Riko short-hair silhouette, orange-on-peach color direction, and ??? label all come from the user-designated locked target
+  - the one-use conversion script and all intermediate/failed Riko archive images were deleted after the final icon_data12b was written
+verification_after_latest_change: not_run_by_user_request
+human_review: pending_user_exact_style_and_identity_review
 counterevidence:
-  - all automated evidence for this loop is intentionally not run by user instruction
-  - sketches and static mockups are not runtime acceptance evidence
-  - the Persona-style colored five-level radar and risei-style pressure gauge candidates were rejected and are not current evidence
-  - the real Tavern save/message bridge, host floors, shujuku, ACU, plugins and database remain unproven
+  - the previous locked asset inverted the intended peach base and orange silhouette and is superseded by the user-designated ??? target
+  - the first direct edit followed the normal-proportion Riko reference too literally and was rejected before this Q-version regeneration
+  - the intervening script-drawn label and script-derived locked silhouette were rejected by the user and are superseded by the direct imagegen edits
+  - user rejected the visible magenta master and modern rounded badge rendering as unlike both Yusaki Riko and the Mikan game assets
+  - the new artwork is a generated derivative at higher pixel dimensions, not official extracted art
+  - no runtime rendering or interaction evidence will be collected because the user reserved testing for manual review
 superseded_evidence:
+  - the permanent-gender-swapped Riko protagonist and four-act episode-03 package below are invalidated by the user's
+    later explicit correction and remain only as failure history
   - ep01-panc-contract invalidated by user runtime screenshot and existing content protocol documentation
   - content-tree-parser acceptance invalidated by a complete content container hidden below malformed planning-tag
     nesting
   - single-content-wrapper acceptance invalidated by the existing 正文/story_scene tags and the user-provided
     story_scence alias
 prior_pending_reviews:
+  - episode03_aquarium_mutual_confession_anchor_correction
+  - data_archive_monochrome_stage_and_manual_summary_disabled_revision
   - memory_plain_text_local_envelope_and_fixed_6_messages_2_5_hierarchy
   - ep01-act01-mikan-runtime-rendering-alignment-fix
   - ep02-act03-mikan-haruna-worldbook-recovery-sources
@@ -65,66 +61,153 @@ prior_pending_reviews:
   - ep01-act1-background-sequence
   - haruna-cross-page-blink-continuity
 completed_human_reviews: []
-next_loop: freeze_after_normal_sortie_and_wait_for_user_data_archive_review
+next_loop: freeze_without_automated_tests_and_wait_for_user_manual_exact_style_result
 ```
+
+## 2026-07-27：User 主角、三幕整天事件与持续改编 skill v2
+
+- 当前身份权威已经统一：User 是唯一主角、结城家的养子，也是美柑认定的“老哥”；男性梨斗不存在。夕崎梨子是 User
+  的青梅竹马、有限情报提醒者和独立可攻略角色，不继承菈菈婚约、美柑亲缘、春菜关系或前三集主角经历。第一、二集的活动模板、恢复源和四份人物 lore 已同步该边界。
+- `episodeTemplate.ts` 新增通用 `single-action / whole-day` 时间成本。整天幕只能在当天第一次行动触发；开始生成不会提前跨日，完成或跳过后才由共享 Store
+  消耗余下时间、推进一次日期并恢复日初 AP。实现没有第三集 ID 特判，也没有修改存档 schema。
+- 第三集改为三个整天幕：`04-11 action 1 / order 155`、`04-12 action 1 / order 156`、`04-13 action 1 / order 157`。
+  `04-14` 星期一上学路摔倒属于第三幕尾声，不另建第四幕。event ID 改为
+  `main.love-triangle-user-2008-04-11`，避免旧梨子主角版楼层继续满足当前合同。
+- 第二幕邀请因果固定为：美柑先邀请春菜第二天同行，菈菈随后撒娇并提出水族馆，春菜最后同意。`04-12`
+  不进入水族馆；主体留在 `04-13`。
+- 用户手工校对补回第三幕被粗略概述漏掉的情感链：春菜先重提 User 与菈菈“很般配”，再说明自己从初中起就注意到 User 在无人要求时自发照料教室里的花；春菜与 User 都把告白说到开头，随后被菈菈造成的鱼群骚动打断。未完成的告白动作是本集锚点，但关系、路线与好感仍不结算。
+- `第三集改编证据.json` 升级为 schema v2，旧梨子主角结论进入 `counterevidence`；每幕同时登记日期、行动序号、`timeCost`
+  与 must-keep beats。证据包还冻结了正向改写、漏锚点、角色漂移、因果漂移、时间成本漂移、越界收尾和玩家状态越权七类语义用例；当前只通过结构校验，尚未调用模型执行这些语义用例。`adapt-fandom-episodes` skill 及校验器同步增加活动态脏数据扫描、角色职能映射、因果所有者、整天结算和旧采用楼层失效规则。
+- 本地恢复源不能改写真实 Tavern 世界书。实机前仍需替换 `order 100-103`、`150-157`，移除或禁用旧
+  `order 158`，再检查加载 marker 与真实生成。
+
+| Check                                      | Status          | Evidence                                                                                 |
+| ------------------------------------------ | --------------- | ---------------------------------------------------------------------------------------- |
+| Current role and stale-data scan           | passed          | 活动模板、默认卡、人物/剧情恢复源和当前态文档统一为 User 主角、梨子青梅；历史脏数据单列       |
+| Whole-day settlement regressions           | passed          | `test:main-story-time` 5/5；另覆盖三幕连续触发并在 4 月 14 日结束                          |
+| Episode 03 static contract                 | not run         | verifier 已按最新水族馆锚点改写；遵照用户要求未执行                                        |
+| Evidence packet and reusable skill         | not run         | 证据包已同步最新纠正；遵照用户要求未执行 validator 或 skill 校验                           |
+| Semantic acceptance fixtures               | not run         | 正向用例已同步双方未完成告白；没有执行结构或模型语义校验                                    |
+| Generated semantic execution               | not run         | 尚未让目标模型实际生成并逐例判定接受/拒绝                                                   |
+| Changed-source ESLint                      | not run         | 最新 `act03.ts` 与 verifier 修改后未执行                                                   |
+| Story text regression                      | not run         | 最新剧情文本纠正后未执行                                                                   |
+| Direct webpack development compilation     | not run         | 最新剧情文本纠正后未执行                                                                   |
+| Project TypeScript                         | failed-existing | 10 个既有错误位于上下文预览、剧情上下文与记忆摘要模块；本轮文件没有新增报错                 |
+| Stale-output retry lifecycle               | failed-existing | 上下文不符的晚到楼层会被拒绝，但切换旧楼层后的 loading 取消/重试仍有既有缺口               |
+| Independent skill forward review           | not run         | 先前独立复核早于本次水族馆纠正；本次未重新执行                                              |
+| Real Tavern World Info scan and generation | not run         | 真实条目尚未替换，未取得 `WORLDINFO_ENTRIES_LOADED`、宿主楼层或生成正文                    |
+| Human story review                         | pending         | 等待用户阅读三幕节拍、称呼、角色声音与情感连续性                                           |
+
+当前最强接通标签：**水族馆互相告白锚点已写入本地合同；未做改后自动验证，等待用户手工测试。**
+
+## 已撤销记录：2026-07-27 梨子主角四幕版第三集
+
+以下内容保留为当时的失败记录，已被本节上方的 User 主角三幕版完全取代，不能再作为当前实现或角色权威。
+
+- 资料策略改为“剧情页给骨架，截图/字幕/时间码锁经典锚点，企划身份表负责改编”。Fandom 第 3 话页能覆盖本集主要事件链，对应漫画章节页补充连续换装、抓娃娃、沛凯耗能和服装店偶遇；两者都不能覆盖用户明确的角色映射。
+- `剧情参考/游戏开发知识库/出包王女/第三集改编证据.json`
+  单独保存来源、可信度、梨斗到梨子的身份继承、User 权限、13 个必保留情节点和四幕边界。`第三集剧情总结.md`
+  已按同一权威重写，保留本地截图锚点。
+- 第三集登记为 event `main.love-triangle-2008-04-11`，四幕依次使用 `order 155/156/157/158`。新增
+  `townStreet`、`aquarium` 场景和四份关闭的世界书恢复源；四幕只选择菈菈与梨子人物 lore。
+- `tolove-character-riko.txt`、梨子默认卡与角色模块统一为：梨子是结城梨斗的永久性转版本，继承固定剧情和关系，男性梨斗不另行存在，User 不重复继承。水族馆和收尾事故保留喜剧因果，但去掉男性视角下的露骨身体构图。
+- 个人技能 `C:/Users/weijunxiang/.codex/skills/adapt-fandom-episodes`
+  已创建。技能要求先产出证据包，再做身份继承与玩家权限表，然后分幕、生成恢复源和数据包，最后分开验证格式、语义、宿主和人工验收。
+- 当前没有反向改写旧集。第一、二集运行时及春菜、美柑恢复源仍采用旧的 User 主角映射，因此“第三集内部身份映射”通过，“三集身份连续性”失败；两者不能合并成一个通过结论。
+
+| Check                                  | Status          | Evidence                                                                                        |
+| -------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| Fandom/local evidence reconciliation   | passed          | 第 3 话页、对应漫画章节页、本地总结与 12 张截图已分层登记                                       |
+| Reusable skill package                 | passed          | `quick_validate.py` 通过，真实第三集证据包通过 `validate_evidence_packet.py`                    |
+| Episode 03 package contract            | passed          | `verify-episode03.cjs` 核对生产注册、四幕 order、角色 lore、场景资源、立绘/表情和 fallback 顺序 |
+| Changed-source ESLint                  | passed          | 第三集、场景、梨子、注册表和 verifier 定向 lint 通过                                            |
+| Story text regression                  | passed          | `pnpm test:story-text`，21/21 通过                                                              |
+| Direct webpack development compilation | passed          | `pnpm exec webpack --mode development` 成功，包含 To-love 入口与其余配置入口                    |
+| Project TypeScript / build:dev         | failed-existing | 10 个既有错误位于摘要与上下文模块；本轮没有修改这些文件                                         |
+| Aquarium SVG structure                 | passed          | XML 解析通过，`viewBox=0 0 1280 720`                                                            |
+| Aquarium visual review                 | not run         | 本地图片查看器不能处理 SVG，等待实际游戏画面或可渲染截图                                        |
+| Real Tavern World Info scan/generation | not run         | 本地恢复源和 bundle 不能证明 `WORLDINFO_ENTRIES_LOADED`、生成质量或宿主楼层                     |
+| Cross-episode role continuity          | failed          | EP01/EP02 与旧春菜、美柑 lore 仍采用 User 主角映射                                              |
 
 ## 2026-07-26：资料页最新全框档案布局与五阶段雷达
 
-- 上一轮文档中的“1:1 正方形 `contain`、显示当前位置、六条横向属性、移除四条占位和雷达图”已被最新实现撤销，不能继续作为 active truth。当前资料页仍绝对挂载在 `.map-section`，不使用浏览器级全屏或 archive-only 视口高度。
-- `CharacterArchivePanel` 的 stage 以 `100% × 100%` 覆盖现有地图框；`bg_data1.png` / `bg_data2.png` 当前使用 `object-fit: fill`。页面不保留灰色侧边，也没有资料页毛玻璃、卡片边框或面板阴影。
+- 上一轮文档中的“1:1 正方形
+  `contain`、显示当前位置、六条横向属性、移除四条占位和雷达图”已被最新实现撤销，不能继续作为 active
+  truth。当前资料页仍绝对挂载在 `.map-section`，不使用浏览器级全屏或 archive-only 视口高度。
+- `CharacterArchivePanel` 的 stage 以 `100% × 100%` 覆盖现有地图框；`bg_data1.png` / `bg_data2.png` 当前使用
+  `object-fit: fill`。页面不保留灰色侧边，也没有资料页毛玻璃、卡片边框或面板阴影。
 - 主角页不显示当前位置，标题固定为“主角”。生日、身高、体重、血型四行固定显示“未登记”；体力使用心形槽，压力使用独立状态槽，并显示零用钱。主角区没有人物图片节点，也不读取梨斗资源。
-- 体力与压力共用 `/artsource/ui/archive/player-status/stamina-track.png`，分别使用 `heart.png` 与 `pressure-icon.png`，并以粉色和青色填充区分；3 个路径都经 `resolveAssetPath()`。`bg_data1.png` 保持唯一完整底图，官方书脊 `x=508–575` 原样露出；同 hash 复制到 `artsource` 的官方 `bg_ht01.png` 只在左上旧字段区域局部羽化，中心不再有重复书脊或 CSS 白页拼接。此前 `pressure-frame.png` / `pressure-fill.png` 与临时 pressure-gauge 复制品已从 `artsource` 删除，官方原件仍保留在 `D:\素材`。
-- 六轴 SVG 雷达标签为“文系 / 理系 / 艺术 / 运动 / 容姿 / 根性”，当前依次读取 `intelligence / intelligence / art / athletics / charm / athletics`。原始成长值仍为 `0–999` 并直接显示；展示阶段按普通大学进路线阈值派生为 `0–159=1`、`160–199=2`、`200–239=3`、`240–259=4`、`260+=5`，默认六维原始值 `30` 均从阶段 1 开始。雷达只保留单色五层同心环、六条轴线和一个阶段多边形；彩色扇区、菱形节点和中心 `MAX` 徽章已撤销。`stores/playerStore.ts` 持有阈值和 resolver，`render_game_to_text()` 同时暴露精确 `radar` 与派生 `radarStages`。本轮没有扩展 `PlayerState`、`GameSnapshot` 或存档 schema。
+- 体力与压力共用 `/artsource/ui/archive/player-status/stamina-track.png`，分别使用 `heart.png` 与
+  `pressure-icon.png`，并以粉色和青色填充区分；3 个路径都经 `resolveAssetPath()`。`bg_data1.png`
+  保持唯一完整底图，官方书脊 `x=508–575` 原样露出；同 hash 复制到 `artsource` 的官方 `bg_ht01.png`
+  只在左上旧字段区域局部羽化，中心不再有重复书脊或 CSS 白页拼接。此前 `pressure-frame.png` / `pressure-fill.png`
+  与临时 pressure-gauge 复制品已从 `artsource` 删除，官方原件仍保留在 `D:\素材`。
+- 六轴 SVG 雷达标签为“文系 / 理系 / 艺术 / 运动 / 容姿 / 根性”，当前依次读取
+  `intelligence / intelligence / art / athletics / charm / athletics`。原始成长值仍为 `0–999`
+  并直接显示；展示阶段按普通大学进路线阈值派生为
+  `0–159=1`、`160–199=2`、`200–239=3`、`240–259=4`、`260+=5`，默认六维原始值 `30`
+  均从阶段 1 开始。雷达只保留单色五层同心环、六条轴线和一个阶段多边形；彩色扇区、菱形节点和中心 `MAX`
+  徽章已撤销。`stores/playerStore.ts` 持有阈值和 resolver，`render_game_to_text()` 同时暴露精确 `radar` 与派生
+  `radarStages`。本轮没有扩展 `PlayerState`、`GameSnapshot` 或存档 schema。
 - Persona 风格彩色五级雷达与 risei 风格压力表都是已被用户否决的历史候选，不得从旧截图、旧文档或素材目录恢复为当前实现。
-- 底部 `StatPanel` 已删除，属性权威展示迁入资料页；`Controls` 成为唯一底部操作区并占满宽度。资料页打开时它仍保留在地图框上下文中，但处于 inert/灰化状态。
-- `CardImporter` 的按钮、面板、文件/URL action、PNG/URL loader 与相关类型已删除；默认角色初始化所需的 `addCardFromJSON()` 保留。
+- 底部 `StatPanel` 已删除，属性权威展示迁入资料页；`Controls`
+  成为唯一底部操作区并占满宽度。资料页打开时它仍保留在地图框上下文中，但处于 inert/灰化状态。
+- `CardImporter` 的按钮、面板、文件/URL action、PNG/URL loader 与相关类型已删除；默认角色初始化所需的
+  `addCardFromJSON()` 保留。
 - 副 API 未启用时，“手动生成小总结”保持原生 disabled 并明确显示灰色。API 启用后，只有正在运行的任务或与当前 save/source 仍匹配的失败任务会阻断；来源已过期的失败记录仍可查看，但不会永久锁死按钮。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Static source/reference inspection | passed | 已只读核对当前挂载、三素材共轨双槽、五阶段阈值、单色雷达、`radar/radarStages` 投影、API 关闭灰色 disabled 与当前失败任务判断；未执行代码 |
-| Build / production build | not run | 用户明确要求“不要测试” |
-| ESLint / TypeScript | not run | 用户明确要求“不要测试” |
-| Game-page browser / screenshot / Playwright | not run | 用户明确要求“不要测试”；仅浏览攻略页核对阈值，不是游戏运行证据 |
-| Inline artifact / bundle verification | not run | 用户明确要求“不要测试” |
-| New archive asset publication | not run | 三个运行时状态素材和 `bg_ht01.png` 已在源码 `artsource`，本轮未构建或核对 `dist` |
-| Secondary API call | not run | 未替用户启用或调用副 API |
-| Real Tavern / host / plugin / database | not run | 本轮没有新增或验证真实宿主链路 |
-| Human acceptance | pending | 等待用户在目标 Tavern game-frame 审查三素材状态槽、五阶段单色雷达、主角档案、尺寸、清晰度和交互 |
+| Check                                       | Status  | Evidence                                                                                                                                 |
+| ------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Static source/reference inspection          | passed  | 已只读核对当前挂载、三素材共轨双槽、五阶段阈值、单色雷达、`radar/radarStages` 投影、API 关闭灰色 disabled 与当前失败任务判断；未执行代码 |
+| Build / production build                    | not run | 用户明确要求“不要测试”                                                                                                                   |
+| ESLint / TypeScript                         | not run | 用户明确要求“不要测试”                                                                                                                   |
+| Game-page browser / screenshot / Playwright | not run | 用户明确要求“不要测试”；仅浏览攻略页核对阈值，不是游戏运行证据                                                                           |
+| Inline artifact / bundle verification       | not run | 用户明确要求“不要测试”                                                                                                                   |
+| New archive asset publication               | not run | 三个运行时状态素材和 `bg_ht01.png` 已在源码 `artsource`，本轮未构建或核对 `dist`                                                         |
+| Secondary API call                          | not run | 未替用户启用或调用副 API                                                                                                                 |
+| Real Tavern / host / plugin / database      | not run | 本轮没有新增或验证真实宿主链路                                                                                                           |
+| Human acceptance                            | pending | 等待用户在目标 Tavern game-frame 审查三素材状态槽、五阶段单色雷达、主角档案、尺寸、清晰度和交互                                          |
 
 当前最强接通标签：**只是本地状态演示**。实现已完成，自动证据按用户要求全部未运行；人工视觉和交互审查仍是接受门。
 
-以下分节是更早循环的历史记录，不覆盖本轮资料页状态。末尾旧的“资料页清晰度与 `record`”证据，以及上一轮“1:1 contain / 当前地点 / 六横条”方案，都属于已被后续实现撤销的候选。
+以下分节是更早循环的历史记录，不覆盖本轮资料页状态。末尾旧的“资料页清晰度与 `record`”证据，以及上一轮“1:1 contain
+/ 当前地点 / 六横条”方案，都属于已被后续实现撤销的候选。
 
 ## 2026-07-23：目录窗口与自动总结首轮闭环
 
 - 用户在真实 Tavern 打开“总结与重试”后得到 React 19 `getSnapshot should be cached` 与 `Maximum update depth`
-  反例。根因是 `SummaryReviewTab` 的两个 Zustand selector 在每次快照读取时执行 `filter().sort()` 并返回新数组。现在 selector
-  只订阅 store 原始数组，按当前 `saveUuid` 的筛选和排序移入 `useMemo`；同文件其余 selector 返回数字或字符串，不属于同类问题。
-- 用户随后在真实 Tavern 证明副 API 已返回正文，但旧解析器要求模型生成 JSON，因此任务以“内容不是有效JSON”失败。现在大小总结 prompt 都只要求纯文本正文；本地 `createMemorySummaryPayloadFromText()` 负责空白、控制字符、长度和批次校验，并生成固定标题与空 facts。来源指纹、全部来源 ID、状态、模型和时间戳仍由 runtime 本地写入，再由 archive 序列化。
-- 当前幕运行时，目录按该幕投影的 `messageIds` 显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”。两者最多选择 6 条完整 User/Assistant 原文。历史楼层没有持久化跨集 history 回执，所以空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。每条原文默认折叠，弹窗正文和原文列表各自滚动。
+  反例。根因是 `SummaryReviewTab` 的两个 Zustand selector 在每次快照读取时执行 `filter().sort()`
+  并返回新数组。现在 selector 只订阅 store 原始数组，按当前 `saveUuid` 的筛选和排序移入
+  `useMemo`；同文件其余 selector 返回数字或字符串，不属于同类问题。
+- 用户随后在真实 Tavern 证明副 API 已返回正文，但旧解析器要求模型生成 JSON，因此任务以“内容不是有效JSON”失败。现在大小总结 prompt 都只要求纯文本正文；本地
+  `createMemorySummaryPayloadFromText()`
+  负责空白、控制字符、长度和批次校验，并生成固定标题与空 facts。来源指纹、全部来源 ID、状态、模型和时间戳仍由 runtime 本地写入，再由 archive 序列化。
+- 当前幕运行时，目录按该幕投影的 `messageIds`
+  显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”。两者最多选择 6 条完整 User/Assistant 原文。历史楼层没有持久化跨集 history 回执，所以空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。每条原文默认折叠，弹窗正文和原文列表各自滚动。
 - 系统设定只保存 API 连接配置，并只读显示固定的 6 条最近原文、2 楼小总结、5 条已接受小总结和 600/1200 字上限。自动存档运行器在挂载时立即检查当前游戏态；只有主存档和 MessageArchive 同次写入成功后才建立摘要锚点。一次自动存档或设置刷新最多启动一个批次，不会在旧档启用 API 后连续清空全部积压。
 - 小总结始终排除最近 6 条消息，并恰好消费更旧的 2 个完整楼层；因此首次触发需要 5 个规范楼层。大总结按规范剧情顺序选择恰好 5 条已接受小总结，而不是按 API 返回时间。候选接受、编辑、人工重试、已拒绝候选重新生成和大总结复用前都会同时核对已保存锚点与当前 live 采用楼层。
 - 候选可接受、编辑标题/正文或拒绝；拒绝本身不调用 API，玩家可在同一记录上显式重新生成。新纯文本候选的 facts 固定为空；结构化事实或变量信号留给未来独立协议，不能从 prose 反推伪证据。
 - 自动任务和人工重试共用同一互斥运行链。当前来源存在失败任务时后续自动批次暂停，失败不会自动循环；重试只在“总结与重试”页出现。地图进度条只短时显示运行、完成或失败，不承担重试。
 - 每条候选和失败任务都把冻结来源放在默认折叠的审查区内。小总结按来源 ID 原顺序回查 4 条本地 User/Assistant 原文，并显示幕、楼层与 Tavern/fallback；大总结按来源 ID 原顺序显示 5 条已接受小总结的标题和正文。展开区独立滚动，缺失来源逐项显示，不用过滤隐藏。
-- jobs 与候选以 v3 键完整保存在浏览器 `localStorage`。空白活动 UUID 会归一为 `null`，不会清空同一份 archive 中其余合法记录；candidate/job 自身的 UUID 必须非空且 `revision >= 1`。旧 v1 JSON 候选与旧 6 楼层 v2 候选不再读取。存档槽可以共用 UUID，所以删除或覆盖槽位不再按 UUID 自动清空浏览器摘要；孤立记录先保留，并由活动身份和来源重验隔离。它仍不是 Tavern 文件侧档，尚不进入剧情上下文，也不写 AP、日期、属性、好感或关系轴。
+- jobs 与候选以 v3 键完整保存在浏览器 `localStorage`。空白活动 UUID 会归一为
+  `null`，不会清空同一份 archive 中其余合法记录；candidate/job 自身的 UUID 必须非空且 `revision >= 1`。旧 v1
+  JSON 候选与旧 6 楼层 v2 候选不再读取。存档槽可以共用 UUID，所以删除或覆盖槽位不再按 UUID 自动清空浏览器摘要；孤立记录先保留，并由活动身份和来源重验隔离。它仍不是 Tavern 文件侧档，尚不进入剧情上下文，也不写 AP、日期、属性、好感或关系轴。
 - 普通自动存档完成主档与原文档配对之前不会清空上一份记忆锚点；写入失败时既有总结和失败任务仍可见，成对成功后才采用新 revision。显式切换失败会恢复并重新排队最新可用的成对上下文。前端 generation/CAS 只能拒绝旧回调；已经发给宿主的固定自动档写入仍不可撤销，关页或纠正写入失败时不能宣称原子切换。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Static source review | passed | 独立复核确认纯文本边界、冻结来源回查、UUID 共享清理风险、revision/活动身份校验、成对成功后采用及显式切换回滚 |
-| TypeScript / lint / formatting | not run | 用户明确禁止本轮运行任何测试或格式化 |
-| Build / watch artifact | not run | 用户明确禁止测试；未检查 `pnpm watch` 产物 |
-| User pre-fix Tavern runtime | failed | 用户控制台出现 getSnapshot 缓存警告、Maximum update depth 与 SummaryReviewTab 崩溃 |
-| User pre-fix summary runtime | failed | 副 API 正文到达后被旧 JSON parser 拒绝；小总结任务错误消费 1 个楼层 |
-| Post-fix browser / screenshot | not run | 遵照用户要求未打开页面、未截图，等待用户刷新现有 watch 页面复验 |
-| Post-fix secondary API | not run | 本轮未发送连接测试或摘要请求；纯文本候选仍待用户实机回读 |
-| Save/message runtime | not run | 未代替用户触发真实 Tavern 文件读写 |
-| Tavern memory side archive | not run | 尚未实现 |
-| Story context injection | not run | 尚未实现 |
-| Host floors / shujuku / ACU / database | not run | 未接通 |
-| Human acceptance | not run | 等待用户实机验收 |
+| Check                                  | Status  | Evidence                                                                                                     |
+| -------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| Static source review                   | passed  | 独立复核确认纯文本边界、冻结来源回查、UUID 共享清理风险、revision/活动身份校验、成对成功后采用及显式切换回滚 |
+| TypeScript / lint / formatting         | not run | 用户明确禁止本轮运行任何测试或格式化                                                                         |
+| Build / watch artifact                 | not run | 用户明确禁止测试；未检查 `pnpm watch` 产物                                                                   |
+| User pre-fix Tavern runtime            | failed  | 用户控制台出现 getSnapshot 缓存警告、Maximum update depth 与 SummaryReviewTab 崩溃                           |
+| User pre-fix summary runtime           | failed  | 副 API 正文到达后被旧 JSON parser 拒绝；小总结任务错误消费 1 个楼层                                          |
+| Post-fix browser / screenshot          | not run | 遵照用户要求未打开页面、未截图，等待用户刷新现有 watch 页面复验                                              |
+| Post-fix secondary API                 | not run | 本轮未发送连接测试或摘要请求；纯文本候选仍待用户实机回读                                                     |
+| Save/message runtime                   | not run | 未代替用户触发真实 Tavern 文件读写                                                                           |
+| Tavern memory side archive             | not run | 尚未实现                                                                                                     |
+| Story context injection                | not run | 尚未实现                                                                                                     |
+| Host floors / shujuku / ACU / database | not run | 未接通                                                                                                       |
+| Human acceptance                       | not run | 等待用户实机验收                                                                                             |
 
 当前最强接通标签：**用户实机证明副 API 响应已到达本地解析层；纯文本到本地候选 v3 的修复后路径尚未复验。**
 
@@ -687,183 +770,189 @@ v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路
 
 ## 本轮增量：第二集春菜更衣室立绘与提示词触发
 
-- `characters/haruna.ts` 登记 `changer-room` 分层立绘；实际可用表情只有 `shy -> b` 与 `anger -> c`，默认
-  `shy`，且闭眼的 `shy` 不播放眨眼。
-- `episodes/episode02/acts/act01.ts` 复用菈菈既有的 `portraitRules` 形式：
-  `scene=changingRoom + focus=haruna` 唯一允许 `portrait=changer-room`，其他本幕场景使用
-  `portrait=school-uniform`；两套立绘都进入当前幕 cast。
-- `storyGenerationContext.ts` 继续从角色 rig 自动投影可用表情，并把幕级 `portraitRules` 传给共享提示词；没有新增
-  episode02 或春菜特判。
-- `storyGenerationPrompt.ts` 保留首个必经场景的主示例，并从同一 `portraitRules` 为未被主示例覆盖的场景专用立绘
-  追加完整合法行。第二集会得到
+- `characters/haruna.ts` 登记 `changer-room` 分层立绘；实际可用表情只有 `shy -> b` 与 `anger -> c`，默认 `shy`，且闭眼的
+  `shy` 不播放眨眼。
+- `episodes/episode02/acts/act01.ts` 复用菈菈既有的 `portraitRules` 形式： `scene=changingRoom + focus=haruna` 唯一允许
+  `portrait=changer-room`，其他本幕场景使用 `portrait=school-uniform`；两套立绘都进入当前幕 cast。
+- `storyGenerationContext.ts` 继续从角色 rig 自动投影可用表情，并把幕级 `portraitRules`
+  传给共享提示词；没有新增 episode02 或春菜特判。
+- `storyGenerationPrompt.ts` 保留首个必经场景的主示例，并从同一 `portraitRules`
+  为未被主示例覆盖的场景专用立绘追加完整合法行。第二集会得到
   `scene=changingRoom;focus=haruna;portrait=changer-room;expression=shy`，同时仍保留场景 IF 强制规则。
 - 本地解析器继续拒绝场景、portrait 或 expression 不匹配的模型正文；世界书、行动结算、宿主消息和数据库链未改动。
 
 | Check                                | Status  | Evidence                                                        |
 | ------------------------------------ | ------- | --------------------------------------------------------------- |
-| Static trigger-chain source review   | passed  | cast、rig、prompt 投影、IF 规则、解析和渲染调用链已逐段对读      |
+| Static trigger-chain source review   | passed  | cast、rig、prompt 投影、IF 规则、解析和渲染调用链已逐段对读     |
 | Prompt generation execution          | not run | 用户明确要求本轮不测试，未执行提示词生成脚本或真实 Tavern 生成  |
 | Formatting / lint / TypeScript       | not run | 用户明确要求本轮不测试                                          |
 | Development / production build       | not run | 用户明确要求本轮不测试                                          |
 | Browser / visual portrait acceptance | not run | 等待用户在实际更衣室剧情中检查 shy、anger、眨眼、口型和图层对齐 |
-| Human acceptance                     | not run | 等待用户审查                                                     |
+| Human acceptance                     | not run | 等待用户审查                                                    |
 
-当前最强接通标签：**静态本地生成链实现**。提示词规则和本地解析边界已写入源码，但未以本轮运行证据证明真实 Tavern
-返回会采用专用立绘，也未新增宿主 hidden floor、shujuku/ACU、插件或数据库接通。
+当前最强接通标签：**静态本地生成链实现**。提示词规则和本地解析边界已写入源码，但未以本轮运行证据证明真实 Tavern 返回会采用专用立绘，也未新增宿主 hidden
+floor、shujuku/ACU、插件或数据库接通。
 
 ## 本轮增量：更衣室脸部校准与通用立绘 model 工具
 
-- `characters/haruna.ts` 不再让 `changer-room` 沿用校服脸部窗口；随后保留用户在 model 校准台确定的位置与尺寸并
-  优化拼接软边：eyes `399,210,221,124,feather=8`，mouth `399,331,221,60,feather=4`。这只修正更衣室 rig，校服 rig
-  保持原值；`shy` 仍禁用眨眼，`anger` 仍允许眨眼。
-- `artsource/model/` 新增角色无关的独立校准页，默认预载 `artsource/sephie/` 示例，但不进入 React、Zustand、剧情、
-  Tavern 或生产资源注册链。它支持替换 body/mask/eyes/mouth、拖动与缩放窗口、方向键微调、逐帧与动作预览、
-  四边 feather、图层/背景诊断、尺寸与越界提示、manifest 导入导出，以及 `regions`/单表情完整 rig 的 TypeScript
-  输出。
-- 校准页的 body `contain`、正方形生产舞台、三帧纵排和四边 feather 语义与当前 `LayeredPortrait` 对齐。844×390
-  默认采用现有 tablet 档 `width=48%, right=4%, bottom=0`；GAL 舞台值只作为构图记录，不伪装成 rig 字段。
-- 校准页允许临时查看 1–12 帧图集，但会把非三帧标为与当前正式组件不兼容；默认表情的 `blinking` 可直接切换，
-  避免闭眼表情导出后遗漏手工修正。
+- `characters/haruna.ts` 不再让 `changer-room`
+  沿用校服脸部窗口；随后保留用户在 model 校准台确定的位置与尺寸并优化拼接软边：eyes `399,210,221,124,feather=8`，mouth
+  `399,331,221,60,feather=4`。这只修正更衣室 rig，校服 rig 保持原值；`shy` 仍禁用眨眼，`anger` 仍允许眨眼。
+- `artsource/model/` 新增角色无关的独立校准页，默认预载 `artsource/sephie/`
+  示例，但不进入 React、Zustand、剧情、Tavern 或生产资源注册链。它支持替换 body/mask/eyes/mouth、拖动与缩放窗口、方向键微调、逐帧与动作预览、四边 feather、图层/背景诊断、尺寸与越界提示、manifest 导入导出，以及
+  `regions`/单表情完整 rig 的 TypeScript 输出。
+- 校准页的 body `contain`、正方形生产舞台、三帧纵排和四边 feather 语义与当前 `LayeredPortrait`
+  对齐。844×390 默认采用现有 tablet 档 `width=48%, right=4%, bottom=0`；GAL 舞台值只作为构图记录，不伪装成 rig 字段。
+- 校准页允许临时查看 1–12 帧图集，但会把非三帧标为与当前正式组件不兼容；默认表情的 `blinking`
+  可直接切换，避免闭眼表情导出后遗漏手工修正。
 
-| Check                                  | Status  | Evidence                                                               |
-| -------------------------------------- | ------- | ---------------------------------------------------------------------- |
-| Source implementation inventory        | recorded | changer-room 专用坐标、model 四文件及生产契约边界已写入源码            |
-| Formatting / lint / TypeScript         | not run | 用户明确要求本轮不运行任何测试或检查命令                               |
-| Development / production build         | not run | 用户明确要求本轮只写代码                                                |
-| Browser / model interaction            | not run | 未打开校准页，等待用户自行加载素材与操作                                |
-| Actual GAL changer-room visual review  | not run | 等待用户在第二集更衣室页检查 shy/anger、接缝、眨眼、口型和构图          |
-| Human acceptance                       | not run | 本轮视觉结果与工具可用性均等待用户验收                                  |
+| Check                                 | Status   | Evidence                                                       |
+| ------------------------------------- | -------- | -------------------------------------------------------------- |
+| Source implementation inventory       | recorded | changer-room 专用坐标、model 四文件及生产契约边界已写入源码    |
+| Formatting / lint / TypeScript        | not run  | 用户明确要求本轮不运行任何测试或检查命令                       |
+| Development / production build        | not run  | 用户明确要求本轮只写代码                                       |
+| Browser / model interaction           | not run  | 未打开校准页，等待用户自行加载素材与操作                       |
+| Actual GAL changer-room visual review | not run  | 等待用户在第二集更衣室页检查 shy/anger、接缝、眨眼、口型和构图 |
+| Human acceptance                      | not run  | 本轮视觉结果与工具可用性均等待用户验收                         |
 
-当前最强接通标签：**源码实现完成，待人工视觉验收**。本轮没有新增生成、宿主消息、World Info、shujuku/ACU、插件或数据库
-接通证据，也不以校准页的本地预览替代真实 GAL/Tavern 画面验收。
+当前最强接通标签：**源码实现完成，待人工视觉验收**。本轮没有新增生成、宿主消息、World
+Info、shujuku/ACU、插件或数据库接通证据，也不以校准页的本地预览替代真实 GAL/Tavern 画面验收。
 
 ## 本轮增量：model 构图与画布同级布局
 
 - `artsource/model/index.html` 把逻辑画布预览与 GAL 构图预览改为同级并排区域；窄屏时恢复纵向排列，减少校准时的上下滚动。
-- 右侧参数把“逻辑画布与图集”和“GAL 构图画布”改为两个同级 fieldset。GAL 构图新增预览宽、高，人物尺寸、right、
-  bottom 仍在同一区块直接调整。
-- 人物舞台继续遵守正式 `LayeredPortrait` 的正方形约束，不新增虚假的独立人物高度字段；界面会从预览宽度和人物尺寸
-  实时显示换算后的 `宽 × 高 px`。manifest 同步保存 `galViewport`，该数据仍只是校准记录，不进入运行时 rig。
+- 右侧参数把“逻辑画布与图集”和“GAL 构图画布”改为两个同级 fieldset。GAL 构图新增预览宽、高，人物尺寸、right、bottom 仍在同一区块直接调整。
+- 人物舞台继续遵守正式 `LayeredPortrait`
+  的正方形约束，不新增虚假的独立人物高度字段；界面会从预览宽度和人物尺寸实时显示换算后的 `宽 × 高 px`。manifest 同步保存
+  `galViewport`，该数据仍只是校准记录，不进入运行时 rig。
 - 逻辑画布缩放改用预览容器百分比，避免两块预览并排后继续以固定 720px 宽度挤出可视区域。
 
-| Check                         | Status  | Evidence                                  |
-| ----------------------------- | ------- | ----------------------------------------- |
-| Source implementation record  | recorded | HTML/CSS/JS 与 README 已更新              |
-| Browser visual interaction    | not run | 等待用户检查并排构图、输入密度和滚动体验  |
-| Formatting / lint / build     | not run | 本轮未执行                                |
-| Human acceptance              | not run | 等待用户确认新的参数层级是否更顺手        |
+| Check                        | Status   | Evidence                                 |
+| ---------------------------- | -------- | ---------------------------------------- |
+| Source implementation record | recorded | HTML/CSS/JS 与 README 已更新             |
+| Browser visual interaction   | not run  | 等待用户检查并排构图、输入密度和滚动体验 |
+| Formatting / lint / build    | not run  | 本轮未执行                               |
+| Human acceptance             | not run  | 等待用户确认新的参数层级是否更顺手       |
 
 当前最强接通标签仍是：**源码实现完成，待人工视觉验收**。
 
 ## 本轮增量：春菜更衣室脸部采用人工坐标并优化拼接
 
-- 用户在 `artsource/model/` 中逐帧调整并提供截图；工作区随后把 eyes Y 微调为 `210`。最终保留该人工位置与窗口尺寸：
-  eyes `x=399,y=210,w=221,h=124`，mouth `x=399,y=331,w=221,h=60`。
-- 基于相同坐标静态合成 shy/anger 的三帧对照后，将 eyes feather 从 `1` 调整为 `8`、mouth feather 从 `0`
-  调整为 `4`，软化 eyes 底边和 mouth 顶边的横向拼接带，同时避免 `10/6` 进一步削弱腮红与线稿。
-- 截图中的 GAL `size=50%, right=4%, bottom=0` 仍属于构图预览记录；本轮目标是优化春菜脸部，没有把该值写入角色 rig，
-  也没有修改会影响其他角色的全局 `.layered-portrait-stage`。
+- 用户在 `artsource/model/` 中逐帧调整并提供截图；工作区随后把 eyes Y 微调为 `210`。最终保留该人工位置与窗口尺寸：eyes
+  `x=399,y=210,w=221,h=124`，mouth `x=399,y=331,w=221,h=60`。
+- 基于相同坐标静态合成 shy/anger 的三帧对照后，将 eyes feather 从 `1` 调整为 `8`、mouth feather 从 `0` 调整为
+  `4`，软化 eyes 底边和 mouth 顶边的横向拼接带，同时避免 `10/6` 进一步削弱腮红与线稿。
+- 截图中的 GAL `size=50%, right=4%, bottom=0`
+  仍属于构图预览记录；本轮目标是优化春菜脸部，没有把该值写入角色 rig，也没有修改会影响其他角色的全局
+  `.layered-portrait-stage`。
 
-| Check                        | Status  | Evidence                                         |
-| ---------------------------- | ------- | ------------------------------------------------ |
-| User calibration screenshot  | recorded | 用户提供 model 校准台坐标与窗口参数截图          |
-| Static all-frame comparison  | recorded | shy/anger 三帧比较 `1/0` 与 `8/4` feather       |
-| Actual GAL visual review     | not run | 新参数仍需用户回到第二集更衣室画面确认           |
-| Formatting / lint / build    | not run | 本轮未执行                                       |
-| Human acceptance             | not run | 等待用户确认脸部接缝、比例、眨眼与口型           |
+| Check                       | Status   | Evidence                                  |
+| --------------------------- | -------- | ----------------------------------------- |
+| User calibration screenshot | recorded | 用户提供 model 校准台坐标与窗口参数截图   |
+| Static all-frame comparison | recorded | shy/anger 三帧比较 `1/0` 与 `8/4` feather |
+| Actual GAL visual review    | not run  | 新参数仍需用户回到第二集更衣室画面确认    |
+| Formatting / lint / build   | not run  | 本轮未执行                                |
+| Human acceptance            | not run  | 等待用户确认脸部接缝、比例、眨眼与口型    |
 
 当前最强接通标签：**人工坐标与静态拼接优化已写入源码，待实际 GAL 验收**。
 
 ## 本轮增量：官方全量脸部坐标映射 CSV
 
-- 扩大只读调查到官方素材库的 `Texture2D` 与 `TextAsset`。`TextAsset/ToLove` 中的
-  `Chara_Eye_Pos`、`Chara_Mouth_Pos` 是 60 组角色/服装原始坐标权威；没有把 `Animator` 的通用情绪 FBX
-  当成脸部坐标来源。
-- `artsource/model/official-face-coordinate-map.csv` 收录 270 个分层立绘家族、1,629 对 eye/mouth 表情图集，另保留
-  4 个官方有坐标但素材库没有对应图集家族的 `position_only` 记录。每行同时记录 body、mask、眼嘴文件、官方原始坐标、
-  1024 逻辑舞台 region、源图集尺寸、三帧合同、官方启用标记和坐标证据方法。
+- 扩大只读调查到官方素材库的 `Texture2D` 与 `TextAsset`。`TextAsset/ToLove` 中的 `Chara_Eye_Pos`、`Chara_Mouth_Pos`
+  是 60 组角色/服装原始坐标权威；没有把 `Animator` 的通用情绪 FBX 当成脸部坐标来源。
+- `artsource/model/official-face-coordinate-map.csv`
+  收录 270 个分层立绘家族、1,629 对 eye/mouth 表情图集，另保留 4 个官方有坐标但素材库没有对应图集家族的 `position_only`
+  记录。每行同时记录 body、mask、眼嘴文件、官方原始坐标、1024 逻辑舞台 region、源图集尺寸、三帧合同、官方启用标记和坐标证据方法。
 - 网页舞台坐标先由官方表定位，再以同家族 `a` 表情首帧和 1024 body 的外圈像素对齐；默认眼窗为 `230x131`、嘴窗为
   `230x57`。猿山与校长的 4 个家族无法从默认 mouth 帧取得可信边缘匹配，相关 24 行明确标为
   `official_projection_from_aligned_eye`，没有把低可信自动结果伪装成实测值。
-- 春菜 `005_02_05_a..f` 全部映射为 eyes `394,221,230,131`、mouth `394,349,230,57`。这份证据进一步确认更衣室
-  body/mask 属于 `005_02_05` 家族；当前 `characters/haruna.ts` 仍使用 `005_03_05_b/c` 与人工窗口，本轮未改运行时代码。
-- 用户截图已经反证此前 `feather=8/4` 的“优化”结论：较大羽化会暴露底图旧脸并产生白雾、重影。旧分节中的该结论仅是
-  历史记录，不再作为当前建议；真正根因是跨家族混用，后续实施应先换成同编号素材再做人审。
+- 春菜 `005_02_05_a..f` 全部映射为 eyes `394,221,230,131`、mouth
+  `394,349,230,57`。这份证据进一步确认更衣室 body/mask 属于 `005_02_05` 家族；当前 `characters/haruna.ts` 仍使用
+  `005_03_05_b/c` 与人工窗口，本轮未改运行时代码。
+- 用户截图已经反证此前 `feather=8/4`
+  的“优化”结论：较大羽化会暴露底图旧脸并产生白雾、重影。旧分节中的该结论仅是历史记录，不再作为当前建议；真正根因是跨家族混用，后续实施应先换成同编号素材再做人审。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Official coordinate/source inventory | passed | 60 个官方坐标键完整覆盖；270 个现存家族均可解析到坐标键 |
-| Atlas pairing and dimensions | passed | 1,629 个 eye 与 1,629 个 mouth 一一配对；尺寸分别固定为 `256x512` 与 `256x256` |
-| CSV static artifact inspection | passed | 1,633 条数据行、50 列可读；错误标记扫描无命中 |
-| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行项目测试或构建 |
-| Browser / GAL runtime | not run | 未打开 model 页面或剧情页面，未验证实际动画与接缝 |
-| Human acceptance | not run | 坐标与特殊回退仍需用户按角色逐帧抽查 |
+| Check                                     | Status  | Evidence                                                                       |
+| ----------------------------------------- | ------- | ------------------------------------------------------------------------------ |
+| Official coordinate/source inventory      | passed  | 60 个官方坐标键完整覆盖；270 个现存家族均可解析到坐标键                        |
+| Atlas pairing and dimensions              | passed  | 1,629 个 eye 与 1,629 个 mouth 一一配对；尺寸分别固定为 `256x512` 与 `256x256` |
+| CSV static artifact inspection            | passed  | 1,633 条数据行、50 列可读；错误标记扫描无命中                                  |
+| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行项目测试或构建                                               |
+| Browser / GAL runtime                     | not run | 未打开 model 页面或剧情页面，未验证实际动画与接缝                              |
+| Human acceptance                          | not run | 坐标与特殊回退仍需用户按角色逐帧抽查                                           |
 
 当前最强接通标签：**官方表与像素对齐形成的本地参考数据**。CSV 是可追溯证据，不等于所有 1,629 组表情已经逐帧通过人工美术验收。
 
 ## 本轮增量：地图菜单 ToLOVE 大百科基础功能
 
-- 本轮只接通地图菜单 `dictionary`，标题页 `tolove-dictionary` 保持原状；没有增加解锁、搜索、假名分类、生成、宿主消息、World Info、shujuku/ACU、插件或数据库链。
-- `data/lore-books/dictionary/entries.json` 保存从厂家 `TextAsset/ToLoveArg` 的 `Dictionary` 表机械提取的 103 条中文词条；`data/dictionary.ts` 只解析和校验随包静态资料，不读取或写入游戏状态。
-- `DictionaryPanel.tsx` 在现有地图框内提供无假名的词条列表、详情、前后词条、返回列表及关闭回地图；背景和左右翻页复用 `bg_ji.png`、`ji_guide_L.png`、`ji_guide_R.png`，横线和滚动条按原截图作为运行时 CSS 绘制。
+- 本轮只接通地图菜单 `dictionary`，标题页 `tolove-dictionary`
+  保持原状；没有增加解锁、搜索、假名分类、生成、宿主消息、World Info、shujuku/ACU、插件或数据库链。
+- `data/lore-books/dictionary/entries.json` 保存从厂家 `TextAsset/ToLoveArg` 的 `Dictionary`
+  表机械提取的 103 条中文词条；`data/dictionary.ts` 只解析和校验随包静态资料，不读取或写入游戏状态。
+- `DictionaryPanel.tsx` 在现有地图框内提供无假名的词条列表、详情、前后词条、返回列表及关闭回地图；背景和左右翻页复用
+  `bg_ji.png`、`ji_guide_L.png`、`ji_guide_R.png`，横线和滚动条按原截图作为运行时 CSS 绘制。
 - 浏览器实拍第一次发现左右翻页素材以详情文章为定位基准并压住正文；随后把按钮移到辞典画框根层，重新打包和重载最新产物后复查，箭头位于画框两侧且不再遮挡正文。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Official dictionary source comparison | passed | 官方表 `RowNum=104` 含表头，实际 ID `0..102` 共 103 条；提取文件保留同 ID、中文名称、标题和说明 |
-| Changed-file ESLint | passed | 本轮 TS/TSX 改动文件 ESLint 无输出错误 |
-| Full ToLove TypeScript | failed | `pnpm typecheck:tolove` 被既有 `ContextPreviewModal.tsx`、`memory/storyTimeline.ts`、`memory/summaryRuntime.ts` 错误阻断；没有辞典文件报错，本轮未越权修改这些模块 |
-| Development webpack artifact | passed | 最新源码和 `entries.json?raw` 已编入 `dist/Tokimeki_Memorial-To-love/index.html` |
-| Browser list/detail interaction | passed | 最新产物中由地图菜单打开 103 条列表；打开第 97 条“寻找幽灵的机器”，右翻到第 98 条“轻轻松松跑步君”，再返回列表并关闭回地图 |
-| Browser visual review | passed | 1280×720 本地页面实拍复查列表、详情、横线、滚动条和修正后的画框两侧箭头；仅证明该视口的实际画面 |
-| Browser console | passed | 辞典交互没有运行错误；仅有本地页面缺少 Tavern Helper 存档接口的既有自动存档报错 |
-| Production build | not run | 本轮只生成开发产物；全项目 TypeScript 断点尚未解除 |
-| Human acceptance | not run | 等待用户确认画风、字体密度、列表/详情布局和基础交互 |
+| Check                                 | Status  | Evidence                                                                                                                                                           |
+| ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Official dictionary source comparison | passed  | 官方表 `RowNum=104` 含表头，实际 ID `0..102` 共 103 条；提取文件保留同 ID、中文名称、标题和说明                                                                    |
+| Changed-file ESLint                   | passed  | 本轮 TS/TSX 改动文件 ESLint 无输出错误                                                                                                                             |
+| Full ToLove TypeScript                | failed  | `pnpm typecheck:tolove` 被既有 `ContextPreviewModal.tsx`、`memory/storyTimeline.ts`、`memory/summaryRuntime.ts` 错误阻断；没有辞典文件报错，本轮未越权修改这些模块 |
+| Development webpack artifact          | passed  | 最新源码和 `entries.json?raw` 已编入 `dist/Tokimeki_Memorial-To-love/index.html`                                                                                   |
+| Browser list/detail interaction       | passed  | 最新产物中由地图菜单打开 103 条列表；打开第 97 条“寻找幽灵的机器”，右翻到第 98 条“轻轻松松跑步君”，再返回列表并关闭回地图                                          |
+| Browser visual review                 | passed  | 1280×720 本地页面实拍复查列表、详情、横线、滚动条和修正后的画框两侧箭头；仅证明该视口的实际画面                                                                    |
+| Browser console                       | passed  | 辞典交互没有运行错误；仅有本地页面缺少 Tavern Helper 存档接口的既有自动存档报错                                                                                    |
+| Production build                      | not run | 本轮只生成开发产物；全项目 TypeScript 断点尚未解除                                                                                                                 |
+| Human acceptance                      | not run | 等待用户确认画风、字体密度、列表/详情布局和基础交互                                                                                                                |
 
 当前最强接通标签：**本地状态演示**。官方静态词条与地图辞典 UI 已接通，但没有词条解锁权威、宿主或数据库状态，也不以浏览器实拍替代用户的最终观感接受。
 
 ## 本轮增量：大百科列表边界与标题锚点校准
 
-- 用户提供的 1619×957 对照截图反证了上一轮 1280×720 浏览器视觉检查的覆盖范围：旧版名牌使用 `left: 12.5%`，正文使用 `left: 14.5%`，两者越过纸张左侧粉色边界且不共线；因此上一轮“Browser visual review passed”不能作为当前几何布局的有效接受证据。
-- 名牌与正文改用共同的 `left: 19%` 锚点；名牌宽度由 `clamp(220px, 31%, 350px)` 收至 `clamp(220px, 28.5%, 320px)`，保持右侧方格装饰但不让名牌过长。
-- 正文右边界改为 `20.5%`，列表标题横线增加 `30px` 右侧收口，使标题线与词条横线均停在滚动条左侧；原有纵向位置和词条行高未调整。
+- 用户提供的 1619×957 对照截图反证了上一轮 1280×720 浏览器视觉检查的覆盖范围：旧版名牌使用 `left: 12.5%`，正文使用
+  `left: 14.5%`，两者越过纸张左侧粉色边界且不共线；因此上一轮“Browser visual review
+  passed”不能作为当前几何布局的有效接受证据。
+- 名牌与正文改用共同的 `left: 19%` 锚点；名牌宽度由 `clamp(220px, 31%, 350px)` 收至
+  `clamp(220px, 28.5%, 320px)`，保持右侧方格装饰但不让名牌过长。
+- 正文右边界改为 `20.5%`，列表标题横线增加 `30px`
+  右侧收口，使标题线与词条横线均停在滚动条左侧；原有纵向位置和词条行高未调整。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| User counterexample | recorded | 1619×957 截图明确显示旧版名牌、标题及横线边界与参考图存在差距，已据此撤销上一轮视觉通过结论的适用性 |
-| CSS formatting | passed | `DictionaryPanel.css` 通过 Prettier 检查；仅输出仓库既有的 `jsxBracketSameLine` 弃用警告 |
-| Changed-file ESLint | passed | `DictionaryPanel.tsx` 与 `data/dictionary.ts` ESLint 无错误 |
-| Development webpack artifact | passed | 最新开发产物已生成；`dist/Tokimeki_Memorial-To-love/index.html` SHA-256 为 `BC125254498898F440D5E622828E04F359311C875DBFA7C6210FE2CF8BEAC437` |
-| Browser visual review | passed | 最新开发产物在 1619×957 浏览器视口复跑地图→菜单→辞典：面板 `x=216,w=1187`，名牌与正文同为 `x=441.5`，标题横线右端 `x=1129.7`，词条区右端 `x=1159.7`；实拍中横线在滚动条前收口 |
-| Fullscreen visual path | not run | 浏览器测试容器拒绝 iframe 全屏权限；本轮没有把非全屏实拍伪装成全屏验收 |
-| Human acceptance | not run | 等待用户对照厂家参考图确认边界、名牌位置与词条列表位置 |
+| Check                        | Status   | Evidence                                                                                                                                                                      |
+| ---------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User counterexample          | recorded | 1619×957 截图明确显示旧版名牌、标题及横线边界与参考图存在差距，已据此撤销上一轮视觉通过结论的适用性                                                                           |
+| CSS formatting               | passed   | `DictionaryPanel.css` 通过 Prettier 检查；仅输出仓库既有的 `jsxBracketSameLine` 弃用警告                                                                                      |
+| Changed-file ESLint          | passed   | `DictionaryPanel.tsx` 与 `data/dictionary.ts` ESLint 无错误                                                                                                                   |
+| Development webpack artifact | passed   | 最新开发产物已生成；`dist/Tokimeki_Memorial-To-love/index.html` SHA-256 为 `BC125254498898F440D5E622828E04F359311C875DBFA7C6210FE2CF8BEAC437`                                 |
+| Browser visual review        | passed   | 最新开发产物在 1619×957 浏览器视口复跑地图→菜单→辞典：面板 `x=216,w=1187`，名牌与正文同为 `x=441.5`，标题横线右端 `x=1129.7`，词条区右端 `x=1159.7`；实拍中横线在滚动条前收口 |
+| Fullscreen visual path       | not run  | 浏览器测试容器拒绝 iframe 全屏权限；本轮没有把非全屏实拍伪装成全屏验收                                                                                                        |
+| Human acceptance             | not run  | 等待用户对照厂家参考图确认边界、名牌位置与词条列表位置                                                                                                                        |
 
 当前最强接通标签仍为：**本地状态演示**。这次修正有同视口浏览器实拍支撑，但不等于用户已接受，也不把局部几何校准扩张成 100% 复刻结论。
 
 ## 本轮增量：把 `005_03_05_b/c` 转成更衣室 body 专用图集
 
-- 用户确认必须保留 `005_03_05_b/c` 的强害羞与生气表情语义，不能改用 `005_02_05` 中不同语义的字母图；直接把
-  `03` 图集套进 `02` body 会让贴片边缘、人物锚点与保存后的 body 像素不一致。
-- 新增四张不覆盖原图的 clean integer atlas：
-  `005_02_05_from_03_b_eye.png`、`005_02_05_from_03_b_mouth.png`、
+- 用户确认必须保留 `005_03_05_b/c` 的强害羞与生气表情语义，不能改用 `005_02_05` 中不同语义的字母图；直接把 `03` 图集套进
+  `02` body 会让贴片边缘、人物锚点与保存后的 body 像素不一致。
+- 新增四张不覆盖原图的 clean integer atlas： `005_02_05_from_03_b_eye.png`、`005_02_05_from_03_b_mouth.png`、
   `005_02_05_from_03_c_eye.png`、`005_02_05_from_03_c_mouth.png`。eye 为 `230x393`，mouth 为
   `230x171`，均为三帧纵排，可直接对应 `230x131` 与 `230x57` 的正式窗口。
-- 转换没有用整块 feather，也没有用会残留睁眼的 RGB 差值迁移。每帧保留 `03_b/c` 的完整表情内核；eyes 的上、左、右
-  外圈和 mouth 的左、右、下外圈，直接取实际 `haruna_changer_room.png` 对应窗口的 edge reference，再在窄带内过渡。
-  eyes 底部与 mouth 顶部继续使用同一个 `03` 表情家族，并由现有 3px region 重叠衔接。
+- 转换没有用整块 feather，也没有用会残留睁眼的 RGB 差值迁移。每帧保留 `03_b/c`
+  的完整表情内核；eyes 的上、左、右外圈和 mouth 的左、右、下外圈，直接取实际 `haruna_changer_room.png` 对应窗口的 edge
+  reference，再在窄带内过渡。eyes 底部与 mouth 顶部继续使用同一个 `03` 表情家族，并由现有 3px region 重叠衔接。
 - 目标 region 固定为官方 `02` 坐标：eyes `394,221,230,131`、mouth `394,349,230,57`，运行时不需要额外
   `feather`。本轮没有修改 `characters/haruna.ts`，因此新图尚未进入剧情渲染。
-- 当前目录中没有裸文件 `haruna_changer_room.png`，只有包含该 PNG 的 `haruna_changer_room.7z`；本轮只解压到临时证据目录
-  进行转换，没有擅自恢复运行资源。正式接入前必须先由用户决定是否把 body PNG 恢复到代码已引用的位置。
+- 当前目录中没有裸文件 `haruna_changer_room.png`，只有包含该 PNG 的
+  `haruna_changer_room.7z`；本轮只解压到临时证据目录进行转换，没有擅自恢复运行资源。正式接入前必须先由用户决定是否把 body
+  PNG 恢复到代码已引用的位置。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Clean atlas dimensions | passed | b/c 两套 eye 均为 `230x393`，mouth 均为 `230x171` |
-| Body-edge equality | passed | 六个 eye 帧的上/左/右最外圈、六个 mouth 帧的左/右/下最外圈与实际 body 对应像素完全相同 |
-| Static actual-body comparison | recorded | 对照了旧人工窗口、原始 03 直贴官方 02 窗口与 edge-graft 转换三种结果 |
-| `haruna.ts` integration | not run | 本轮明确只产出转换素材，没有改角色配置 |
-| Project tests / build / browser | not run | 未运行测试、构建或页面；等待用户先看转换结果 |
-| Human acceptance | not run | shy/anger 六帧接缝与表情仍需用户人工确认 |
+| Check                           | Status   | Evidence                                                                               |
+| ------------------------------- | -------- | -------------------------------------------------------------------------------------- |
+| Clean atlas dimensions          | passed   | b/c 两套 eye 均为 `230x393`，mouth 均为 `230x171`                                      |
+| Body-edge equality              | passed   | 六个 eye 帧的上/左/右最外圈、六个 mouth 帧的左/右/下最外圈与实际 body 对应像素完全相同 |
+| Static actual-body comparison   | recorded | 对照了旧人工窗口、原始 03 直贴官方 02 窗口与 edge-graft 转换三种结果                   |
+| `haruna.ts` integration         | not run  | 本轮明确只产出转换素材，没有改角色配置                                                 |
+| Project tests / build / browser | not run  | 未运行测试、构建或页面；等待用户先看转换结果                                           |
+| Human acceptance                | not run  | shy/anger 六帧接缝与表情仍需用户人工确认                                               |
 
 当前最强接通标签：**实际更衣室 body 专用的静态转换素材已生成，尚未接入运行时，待人工逐帧验收**。
 
@@ -874,108 +963,107 @@ v2 存读档和第二集河边版本，历史段落中的旧 UID 与旧产物路
 - 春菜预设直接加载 `005_03_05_b`（shy）或 `005_03_05_c`（anger），并填入 `005_02_05` 的官方 windows：eyes
   `394,221,230,131`、mouth `394,349,230,57`。默认 edge bands 为 eyes `8/10/10/0`、mouth `0/10/10/8`
   （top/left/right/bottom）；它们只在导出的 PNG 中混入目标 body 边缘，不写进 `PortraitRegion.feather`。
-- 算法按纵排帧数切开源 atlas、缩放到目标窗口；每个选定边缘的最外圈完全取目标 body，对应带内向源表情逐步过渡，未选中的
-  内核保持源表情。它不提供会残留旧眼嘴的 RGB 差值迁移，也没有把全窗口透明 feather 当成修复手段。
+- 算法按纵排帧数切开源 atlas、缩放到目标窗口；每个选定边缘的最外圈完全取目标 body，对应带内向源表情逐步过渡，未选中的内核保持源表情。它不提供会残留旧眼嘴的 RGB 差值迁移，也没有把全窗口透明 feather 当成修复手段。
 - 页面把“源当前帧 → 目标 body crop 与边缘带 → 新 atlas 当前帧”并列展示，并新增较大的目标 body 合成检查画布。eye、mouth
   atlas 与转换 JSON 可分别下载；配置 JSON 会记录输入名、目标画布、坐标、edge bands 和输出尺寸。
 - 逻辑画布所在的主预览也已扩宽：宽屏优先给合成区留空间，参数区收窄；在宽度不足时才把参数与双预览改为纵向排列。
-- 目标更衣室 body 仍只有 `.7z` 内的 PNG，工具明确要求用户选择解出的 `haruna_changer_room.png`，或把上方已经载入的
-  body 作为 edge reference；没有把 archive 伪装成浏览器可读取图片，也没有修改 `characters/haruna.ts`。
+- 目标更衣室 body 仍只有 `.7z` 内的 PNG，工具明确要求用户选择解出的
+  `haruna_changer_room.png`，或把上方已经载入的 body 作为 edge
+  reference；没有把 archive 伪装成浏览器可读取图片，也没有修改 `characters/haruna.ts`。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Static source implementation review | recorded | `index.html`、`model.css`、`model.js`、`README.md` 与转换流程逐项对读 |
-| Browser / canvas interaction | not run | 用户本轮要求不启动页面或运行测试，等待其手动载入更衣室 body 后检查 |
-| Project tests / lint / TypeScript / build | not run | 用户明确要求本轮不测试 |
-| `haruna.ts` runtime integration | not run | 本轮只完善可视化转换与说明，未改角色接入 |
-| Human acceptance | not run | 等待用户检查 shy/anger 六帧、body 合成接缝、边缘带参数与大预览布局 |
+| Check                                     | Status   | Evidence                                                              |
+| ----------------------------------------- | -------- | --------------------------------------------------------------------- |
+| Static source implementation review       | recorded | `index.html`、`model.css`、`model.js`、`README.md` 与转换流程逐项对读 |
+| Browser / canvas interaction              | not run  | 用户本轮要求不启动页面或运行测试，等待其手动载入更衣室 body 后检查    |
+| Project tests / lint / TypeScript / build | not run  | 用户明确要求本轮不测试                                                |
+| `haruna.ts` runtime integration           | not run  | 本轮只完善可视化转换与说明，未改角色接入                              |
+| Human acceptance                          | not run  | 等待用户检查 shy/anger 六帧、body 合成接缝、边缘带参数与大预览布局    |
 
 当前最强接通标签：**转换工具源码已实现并清楚暴露参数，未替代实际 GAL 人工验收**。
 
 ## 本轮增量：完整 02/03 家族反例、流水线试运行与旧算法撤销
 
-- 用户明确反证先前 body-edge-graft 结果“更不对”。前述“边缘像素相等”只证明矩形外圈相等，不能证明眼位、眉位、脸红、
-  刘海、脸型或下巴正确；因此先前转换可用结论已撤销，旧算法只保留为失败对照。
-- 用户补入完整 `005_02_05_a-f` 与 `005_03_05_a-c` 素材；官方库还显示 03_d-f。跨家族字母不是一一语义对应，且
-  03 atlas 同时包含眼嘴以外的脸部与头发内容，不能依靠 11px 窗口偏移、整块扭曲或边缘拼接直接恢复。
+- 用户明确反证先前 body-edge-graft 结果“更不对”。前述“边缘像素相等”只证明矩形外圈相等，不能证明眼位、眉位、脸红、刘海、脸型或下巴正确；因此先前转换可用结论已撤销，旧算法只保留为失败对照。
+- 用户补入完整 `005_02_05_a-f` 与 `005_03_05_a-c` 素材；官方库还显示 03_d-f。跨家族字母不是一一语义对应，且 03
+  atlas 同时包含眼嘴以外的脸部与头发内容，不能依靠 11px 窗口偏移、整块扭曲或边缘拼接直接恢复。
 - `artsource/model/cases/haruna-03-to-02/` 新增隔离的可复现案例：用 03_a/02_a body 窗口求中性 dense flow，按
   `03_b/c - 03_a` 的预乘 RGBA 差异生成变化区，再由 02 家族底图承载低频皮肤、脸型、发际、下巴与窗口边界。
-- 案例提供官方参考、直接套用、整块 warp、02 底图、变化区和候选六阶段，以及“高频替换”“线稿保真”“中性归一”三种公式。
-  中性归一因 shy 眼部出现黄色/棕色偏移被明确否决；高频替换仍仅是研究候选。
+- 案例提供官方参考、直接套用、整块 warp、02 底图、变化区和候选六阶段，以及“高频替换”“线稿保真”“中性归一”三种公式。中性归一因 shy 眼部出现黄色/棕色偏移被明确否决；高频替换仍仅是研究候选。
 - 试运行已为 shy/anger 三种公式分别导出 clean integer atlas：eye `230×393`、mouth `230×171`，全部位于案例
   `outputs/`，没有覆盖角色目录。
-- `artsource/model/index.html` 现在内嵌大尺寸流水线观察器并直接链接高频候选 atlas。原 body-edge-graft 区改名为
-  “旧边缘补图实验（已否决）”，仍可复现旧失败，但不得晋升。
+- `artsource/model/index.html`
+  现在内嵌大尺寸流水线观察器并直接链接高频候选 atlas。原 body-edge-graft 区改名为“旧边缘补图实验（已否决）”，仍可复现旧失败，但不得晋升。
 - 当前 `HARUNA_CHANGER_ROOM_PORTRAIT` 仍引用原始 `005_03_05_b/c` 与人工窗口；mask 仍指向当前工作区中已不存在的
   `005_02_05_a.png`。本轮没有把研究输出接入 `haruna.ts`。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Full-family structural evidence | recorded | 02/03 a-f 图集、两个 body、官方窗口、逐帧配准与失败对照已记录 |
-| Reproducible pipeline case | generated | manifest、输入哈希、生成脚本、48 张 1024px 阶段图与 12 张 clean atlas 均在隔离案例目录 |
-| Legacy edge-graft acceptance | rejected | 用户反例撤销；只保留失败研究区 |
-| Model index presentation | implemented | 大画布案例 iframe、独立入口与 high 输出链接已写入源码 |
-| Browser / canvas interaction | not run | 按用户连续要求不打开浏览器，由用户自行查看 |
-| Project tests / lint / build | not run | 本轮不测试 |
-| `haruna.ts` runtime integration | not run | 未晋升候选；当前 direct-03 与缺失 mask 链仍保持原状 |
-| Human acceptance | not run | 等待用户在 model 大画布逐帧比较后决定公式与底图 |
+| Check                           | Status      | Evidence                                                                               |
+| ------------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| Full-family structural evidence | recorded    | 02/03 a-f 图集、两个 body、官方窗口、逐帧配准与失败对照已记录                          |
+| Reproducible pipeline case      | generated   | manifest、输入哈希、生成脚本、48 张 1024px 阶段图与 12 张 clean atlas 均在隔离案例目录 |
+| Legacy edge-graft acceptance    | rejected    | 用户反例撤销；只保留失败研究区                                                         |
+| Model index presentation        | implemented | 大画布案例 iframe、独立入口与 high 输出链接已写入源码                                  |
+| Browser / canvas interaction    | not run     | 按用户连续要求不打开浏览器，由用户自行查看                                             |
+| Project tests / lint / build    | not run     | 本轮不测试                                                                             |
+| `haruna.ts` runtime integration | not run     | 未晋升候选；当前 direct-03 与缺失 mask 链仍保持原状                                    |
+| Human acceptance                | not run     | 等待用户在 model 大画布逐帧比较后决定公式与底图                                        |
 
-当前最强接通标签：**跨家族转换已形成隔离、可复现、可观察且可导出 clean atlas 的试运行流水线；旧 edge-graft 已撤销，
-高频候选尚未通过人工验收且未进入运行时**。
+当前最强接通标签：**跨家族转换已形成隔离、可复现、可观察且可导出 clean
+atlas 的试运行流水线；旧 edge-graft 已撤销，高频候选尚未通过人工验收且未进入运行时**。
 
 ## 本轮增量：反假验证的 eyes / mouth 分项验收 loop
 
-- 用户指出“脚本成功”“边缘数值”等是假验证，明确要求 eyes 和 mouth 分开制定验收标准，并要求从成熟公开方法中寻找
-  可嵌套的处理链。`cases/haruna-03-to-02/acceptance-contract.json` 因此把审查冻结为
-  `shy/anger x frame 0/1/2 x eyes/mouth = 12` 项；任何一项拒绝都不能晋升运行时资源。
-- 在线资料已写入案例 README 与 config：scikit-image TV-L1 registration、OpenCV seamless clone / inpaint、
-  LearnOpenCV 的 landmark -> triangulation -> clone face-swap 结构，以及 piecewise affine 的控制点前提。
-  这些资料用于约束实现，不被描述为自动美术验收。
-- 实际原尺寸阶段图已反证三条处理型分支：TV-L1 会把官方窗口已经解决的局部几何再次拉坏；连续凸包 Poisson 会把 03 下巴
-  带入 02；目标动态区 Telea inpaint 会抹掉同时位于图层中的刘海。`poisson_normal` 与 `poisson_mixed` 现均为
+- 用户指出“脚本成功”“边缘数值”等是假验证，明确要求 eyes 和 mouth 分开制定验收标准，并要求从成熟公开方法中寻找可嵌套的处理链。`cases/haruna-03-to-02/acceptance-contract.json`
+  因此把审查冻结为 `shy/anger x frame 0/1/2 x eyes/mouth = 12` 项；任何一项拒绝都不能晋升运行时资源。
+- 在线资料已写入案例 README 与 config：scikit-image TV-L1 registration、OpenCV seamless clone /
+  inpaint、LearnOpenCV 的 landmark -> triangulation -> clone face-swap 结构，以及 piecewise
+  affine 的控制点前提。这些资料用于约束实现，不被描述为自动美术验收。
+- 实际原尺寸阶段图已反证三条处理型分支：TV-L1 会把官方窗口已经解决的局部几何再次拉坏；连续凸包 Poisson 会把 03 下巴带入 02；目标动态区 Telea
+  inpaint 会抹掉同时位于图层中的刘海。`poisson_normal` 与 `poisson_mixed` 现均为
   `rejected-visual-artifact`，只可作为失败对照，不能默认选用或拷贝到角色目录。
-- 当前唯一待人审的产物是 `official_window`：按 `official-face-coordinate-map.csv` 的 02 window 原样落位 03 的完整
-  atlas，没有伪称它已经解决跨家族问题。它的边界自动 gate 明确为 `not-applicable`，因为只有最终 alpha 合成后的原尺寸画面
-  能判断是否存在接缝；没有把该缺口伪装成数值通过。
-- 案例页面增加 eyes / mouth 独立放大、12 项可回读的人工判定矩阵、备注与审查 JSON 导出。每个候选的判定只存浏览器
-  localStorage，导出记录仍固定 `promotionAllowed: false`。生成器还输出两张原尺寸审查表：
-  `outputs/review/official_window-eye-review.png` 与 `outputs/review/official_window-mouth-review.png`，均保留目标窗口外上下文。
+- 当前唯一待人审的产物是 `official_window`：按 `official-face-coordinate-map.csv` 的 02
+  window 原样落位 03 的完整 atlas，没有伪称它已经解决跨家族问题。它的边界自动 gate 明确为
+  `not-applicable`，因为只有最终 alpha 合成后的原尺寸画面能判断是否存在接缝；没有把该缺口伪装成数值通过。
+- 案例页面增加 eyes /
+  mouth 独立放大、12 项可回读的人工判定矩阵、备注与审查 JSON 导出。每个候选的判定只存浏览器 localStorage，导出记录仍固定
+  `promotionAllowed: false`。生成器还输出两张原尺寸审查表： `outputs/review/official_window-eye-review.png` 与
+  `outputs/review/official_window-mouth-review.png`，均保留目标窗口外上下文。
 - `haruna.ts`、正式 `haruna_changer_room_*` 资源、GAL 运行时、Tavern 宿主/消息/插件/数据库链均未改动。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| CSV coordinate authority | recorded | `005_02_05`: eyes `394,221,230,131`, mouth `394,349,230,57`; `005_03_05`: eyes `394,232,230,131`, mouth `394,360,230,57` |
-| Candidate material generation | generated | 隔离案例重新生成 manifest、阶段图、三套 clean atlas 与 eyes/mouth 原尺寸审查表；不覆盖运行时文件 |
-| TV-L1 / Poisson / inpaint visual result | rejected | 原尺寸画面分别出现额头/眉眼折线、下巴横带与刘海损坏；保留为失败对照 |
-| Official-window baseline visual result | recorded | shy/anger 六帧和两张审查表已生成，尚未由用户接受 |
-| Automated boundary record | not applicable | `official_window` 是完整官方 alpha 层的坐标基线，不能以零 delta 取代最终组合观感 |
-| Project tests / lint / TypeScript / build | not run | 遵照用户本轮“不要测试”要求 |
-| Browser / actual GAL / Tavern host | not run | 本轮不以页面或宿主实机结果冒充验收 |
-| Human acceptance | not run | 等待用户按 12 项 eyes/mouth 合同审查；未全部接受前不得接入 `haruna.ts` |
+| Check                                     | Status         | Evidence                                                                                                                 |
+| ----------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| CSV coordinate authority                  | recorded       | `005_02_05`: eyes `394,221,230,131`, mouth `394,349,230,57`; `005_03_05`: eyes `394,232,230,131`, mouth `394,360,230,57` |
+| Candidate material generation             | generated      | 隔离案例重新生成 manifest、阶段图、三套 clean atlas 与 eyes/mouth 原尺寸审查表；不覆盖运行时文件                         |
+| TV-L1 / Poisson / inpaint visual result   | rejected       | 原尺寸画面分别出现额头/眉眼折线、下巴横带与刘海损坏；保留为失败对照                                                      |
+| Official-window baseline visual result    | recorded       | shy/anger 六帧和两张审查表已生成，尚未由用户接受                                                                         |
+| Automated boundary record                 | not applicable | `official_window` 是完整官方 alpha 层的坐标基线，不能以零 delta 取代最终组合观感                                         |
+| Project tests / lint / TypeScript / build | not run        | 遵照用户本轮“不要测试”要求                                                                                               |
+| Browser / actual GAL / Tavern host        | not run        | 本轮不以页面或宿主实机结果冒充验收                                                                                       |
+| Human acceptance                          | not run        | 等待用户按 12 项 eyes/mouth 合同审查；未全部接受前不得接入 `haruna.ts`                                                   |
 
-当前最强接通标签：**隔离素材研究与人工验收工具，待用户视觉审查**。它不证明正式 GAL、Tavern、World Info、宿主消息、
-shujuku/ACU、插件或数据库接通，也不证明候选可用。
+当前最强接通标签：**隔离素材研究与人工验收工具，待用户视觉审查**。它不证明正式 GAL、Tavern、World
+Info、宿主消息、shujuku/ACU、插件或数据库接通，也不证明候选可用。
 
 ## 本轮增量：春菜 02 底板 + 语义遮罩候选
 
 - 用户已拒绝完整 `03` 图层直接落到 `02` 官方窗口的额头与下巴结果。本轮不再调整 `haruna.ts` 的官方窗口，也没有覆盖
   `haruna_changer_room_*` 正式资源。
-- 新增 `cases/haruna-03-to-02/semantic-occlusion-config.json` 与
-  `build_semantic_occlusion_candidate.py`。候选每帧以实际 `haruna_changer_room.png` 的同坐标裁片为底板，`03_b/c` 仅在手工
-  语义多边形内覆盖；同一 body 的 edge-connected 紫发区域会在 eyes 最上层回盖，mouth 最后再回盖目标下巴多边形。这避免官方
+- 新增 `cases/haruna-03-to-02/semantic-occlusion-config.json` 与 `build_semantic_occlusion_candidate.py`。候选每帧以实际
+  `haruna_changer_room.png` 的同坐标裁片为底板，`03_b/c`
+  仅在手工语义多边形内覆盖；同一 body 的 edge-connected 紫发区域会在 eyes 最上层回盖，mouth 最后再回盖目标下巴多边形。这避免官方
   `005_02_05_a_mouth` 与当前运行时 body 的下巴边缘差异再次形成白色锯齿线。
-- 生成的 shy/anger clean atlas 位于 `outputs/semantic-occlusion/`，eye 为 `230 x 393`、mouth 为 `230 x 171`；六张全身候选和
-  两张 `2 expressions x 3 frames` 原尺寸审查表也只存在于该案例目录。案例页和 model 首页均默认指向该候选，旧方法仍为失败对照。
+- 生成的 shy/anger clean atlas 位于 `outputs/semantic-occlusion/`，eye 为 `230 x 393`、mouth 为
+  `230 x 171`；六张全身候选和两张 `2 expressions x 3 frames`
+  原尺寸审查表也只存在于该案例目录。案例页和 model 首页均默认指向该候选，旧方法仍为失败对照。
 - `case-manifest.json` 和 `case-data.js` 将该分支标为 `awaiting-human-review`，并将边界记录显式标为
   `not-applicable-human-mask-candidate`；没有用像素数值替代刘海、下巴、重影或表情语义的人眼判断。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Candidate material generation | generated | `semantic-occlusion-manifest.json`、两套 clean atlas、六张合成候选与两张总审查表已写入隔离案例目录 |
-| Runtime asset / `haruna.ts` promotion | not run | 本轮只产生待审候选，未修改正式更衣室 atlas 或角色配置 |
-| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行任何测试或构建命令 |
-| Browser / actual GAL / Tavern host | not run | 未把案例页面或本地输出描述为实机验收 |
-| Human acceptance | not run | 等待用户逐帧检查 shy/anger 的 eyes、mouth、额头和下巴 |
+| Check                                     | Status    | Evidence                                                                                           |
+| ----------------------------------------- | --------- | -------------------------------------------------------------------------------------------------- |
+| Candidate material generation             | generated | `semantic-occlusion-manifest.json`、两套 clean atlas、六张合成候选与两张总审查表已写入隔离案例目录 |
+| Runtime asset / `haruna.ts` promotion     | not run   | 本轮只产生待审候选，未修改正式更衣室 atlas 或角色配置                                              |
+| Project tests / lint / TypeScript / build | not run   | 遵照用户要求未运行任何测试或构建命令                                                               |
+| Browser / actual GAL / Tavern host        | not run   | 未把案例页面或本地输出描述为实机验收                                                               |
+| Human acceptance                          | not run   | 等待用户逐帧检查 shy/anger 的 eyes、mouth、额头和下巴                                              |
 
 当前最强接通标签：**可调语义遮罩候选已生成，待人工视觉验收**。它不证明候选能够进入运行时，也不证明真实 GAL 或宿主链路已接通。
 
@@ -985,80 +1073,86 @@ shujuku/ACU、插件或数据库接通，也不证明候选可用。
   `02` 的下巴。该候选已降为 `rejected-human-review`；旧输出继续留作失败证据，不能恢复为默认候选。
 - 新增 `target-native-feature-config.json` 与 `build_target_native_feature_candidate.py`。当前候选使用 `005_02_05_c`
   原生 atlas 承载皮肤、刘海、脸颊、脸型、发梢和完整下巴；shy 以原生闭眼帧为底，anger 保留原生 0/1/2 眼球开合。
-- 目标旧线稿只在人工限定的小区域内由 `skimage.restoration.inpaint_biharmonic` 清除。`03_b/c` 经局部锚点变换后仅迁入
-  非肤色的挤眼线、斜眉、汗滴轮廓与嘴芯；源皮肤、额头、脸颊、侧发、脸轮廓和下巴均没有像素所有权。
+- 目标旧线稿只在人工限定的小区域内由 `skimage.restoration.inpaint_biharmonic` 清除。`03_b/c`
+  经局部锚点变换后仅迁入非肤色的挤眼线、斜眉、汗滴轮廓与嘴芯；源皮肤、额头、脸颊、侧发、脸轮廓和下巴均没有像素所有权。
 - 为消除 `02_c` eye atlas 与实际 `005_02_05_a` body 的顶边采样直线，eyes 只在上 10px、左右 6px 使用同一 `02_a`
   body 的窄边界参考；mouth 只在左右 6px、下 8px 使用该参考，最外 4px 精确锁回 body。该边带不含任何 `03` 像素。
-- 新 clean atlas、六张完整候选、逐帧像素归属图和 eyes / mouth 两张六帧审查表仅写入
-  `outputs/target-native-features/` 与 `assets/target-native-features/`。manifest 仍为 `promotionAllowed: false`，没有覆盖
-  `haruna_changer_room_*` 正式资源，也没有修改 `GalMainStory/characters/haruna.ts`。
+- 新 clean atlas、六张完整候选、逐帧像素归属图和 eyes / mouth 两张六帧审查表仅写入 `outputs/target-native-features/` 与
+  `assets/target-native-features/`。manifest 仍为 `promotionAllowed: false`，没有覆盖 `haruna_changer_room_*`
+  正式资源，也没有修改 `GalMainStory/characters/haruna.ts`。
 - 当前 VS Code `5500` 静态服务以仓库根目录为根，真实页面位于 `/src/webgame-ui/artsource/model/index.html`。仓库根新增
   `/artsource/model/index.html` 跳转入口，使用户原地址无需改变；本轮按要求没有用浏览器打开或验证该路由。
 - NAI 或其他重绘工具仅记录为现有素材无法通过时的后备预选方案，本轮没有生成式改图、外部调用或运行时接入。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Human rejection of `semantic_occlusion_v1` | failed | 用户提供的两张原尺寸审查图显示错误额头比例与缺失下巴；旧候选已冻结为 rejected |
-| Target-native candidate material generation | generated | 两套 clean atlas、六张完整候选、像素归属图与两张六帧审查表均写入隔离案例目录 |
-| Static 5500 source route | implemented | 仓库根入口只跳转到唯一的 `src/webgame-ui/artsource/model/index.html` 源页面 |
-| Runtime asset / `haruna.ts` promotion | not run | 未得到 12 项人工接受，禁止晋升 |
-| Project tests / lint / TypeScript / build | not run | 遵照用户本轮“不要测试”要求 |
-| Browser / route / actual GAL / Tavern host | not run | 未打开页面、未发起实机或宿主验证 |
-| Human acceptance of new candidate | not run | 等待用户逐帧检查新 eyes / mouth 审查表 |
+| Check                                       | Status      | Evidence                                                                      |
+| ------------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
+| Human rejection of `semantic_occlusion_v1`  | failed      | 用户提供的两张原尺寸审查图显示错误额头比例与缺失下巴；旧候选已冻结为 rejected |
+| Target-native candidate material generation | generated   | 两套 clean atlas、六张完整候选、像素归属图与两张六帧审查表均写入隔离案例目录  |
+| Static 5500 source route                    | implemented | 仓库根入口只跳转到唯一的 `src/webgame-ui/artsource/model/index.html` 源页面   |
+| Runtime asset / `haruna.ts` promotion       | not run     | 未得到 12 项人工接受，禁止晋升                                                |
+| Project tests / lint / TypeScript / build   | not run     | 遵照用户本轮“不要测试”要求                                                    |
+| Browser / route / actual GAL / Tavern host  | not run     | 未打开页面、未发起实机或宿主验证                                              |
+| Human acceptance of new candidate           | not run     | 等待用户逐帧检查新 eyes / mouth 审查表                                        |
 
-当前最强接通标签：**目标家族原生脸片上的稀疏特征迁移候选已生成，仍待人工视觉验收**。素材生成成功与静态入口源码存在均不等于
-页面、真实 GAL 或 Tavern 链路已通过；任何运行时替换必须等待本候选 12 项全部人工接受后的新一轮明确授权。
+当前最强接通标签：**目标家族原生脸片上的稀疏特征迁移候选已生成，仍待人工视觉验收**。素材生成成功与静态入口源码存在均不等于页面、真实 GAL 或 Tavern 链路已通过；任何运行时替换必须等待本候选 12 项全部人工接受后的新一轮明确授权。
 
 ## 本轮增量：拒绝 mouth 肤色矩形 v1，生成中心连通嘴芯 v2
 
-- 用户的新原尺寸截图圈出了 `target_native_features_v1` 的 shy F0/F1/F2 嘴周浅色矩形。像素归属图确认 v1 的绿色源区域是完整
-  矩形而非嘴形：`mouthRednessFloor=18` 把正常偏红的 `03` 肤色误判为嘴部特征。该真人反例撤销 v1 的待审状态并将其冻结为
+- 用户的新原尺寸截图圈出了 `target_native_features_v1` 的 shy
+  F0/F1/F2 嘴周浅色矩形。像素归属图确认 v1 的绿色源区域是完整矩形而非嘴形：`mouthRednessFloor=18` 把正常偏红的 `03`
+  肤色误判为嘴部特征。该真人反例撤销 v1 的待审状态并将其冻结为
   `rejected-human-review`；`outputs/target-native-features/` 保留为失败对照，不再覆盖。
-- 当前 `target_native_features_v2` 不再使用 redness 门。它先从 mouth ROI 外圈像素估计局部肤色，再按亮度或与该肤色的 RGB
-  距离寻找候选连通域；任何接触 ROI 外边界的连通域直接丢弃，只有与嘴部中心 seed 相交的区域可以进入源 mask。
-- 目标 `02_c` 旧嘴也改用同一类中心连通形状定位，只对真实嘴形扩大 2px 后做局部修补，不再 inpaint 整块四边形。eyes 的底板、
-  线稿迁移、body 窄边界和官方 region 坐标均保持上一候选不变。
+- 当前 `target_native_features_v2` 不再使用 redness 门。它先从 mouth
+  ROI 外圈像素估计局部肤色，再按亮度或与该肤色的 RGB 距离寻找候选连通域；任何接触 ROI 外边界的连通域直接丢弃，只有与嘴部中心 seed 相交的区域可以进入源 mask。
+- 目标 `02_c`
+  旧嘴也改用同一类中心连通形状定位，只对真实嘴形扩大 2px 后做局部修补，不再 inpaint 整块四边形。eyes 的底板、线稿迁移、body 窄边界和官方 region 坐标均保持上一候选不变。
 - v2 的源像素归属图已由矩形收缩为嘴线/口腔内部与独立汗滴；新 atlas、六张完整候选、逐帧归属图和两张六帧审查表只写入
-  `outputs/target-native-features-v2/` 与 `assets/target-native-features-v2/`。manifest 仍固定 `promotionAllowed: false`。
-- model 首页、案例页默认公式、clean atlas 链接、输出 manifest 与说明均已切到 v2；v1 与更早失败分支仍可在公式栏中对照。
-  本轮没有覆盖正式 `haruna_changer_room_*` 文件，也没有修改 `GalMainStory/characters/haruna.ts`。
+  `outputs/target-native-features-v2/` 与 `assets/target-native-features-v2/`。manifest 仍固定
+  `promotionAllowed: false`。
+- model 首页、案例页默认公式、clean
+  atlas 链接、输出 manifest 与说明均已切到 v2；v1 与更早失败分支仍可在公式栏中对照。本轮没有覆盖正式
+  `haruna_changer_room_*` 文件，也没有修改 `GalMainStory/characters/haruna.ts`。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Human rejection of `target_native_features_v1` | failed | 用户截图圈出 shy 三帧嘴周浅色矩形；v1 归属图显示源肤色被整块选中 |
-| V2 candidate material generation | generated | v2 两套 clean atlas、六张完整候选、12 张局部归属图与两张六帧审查表写入独立目录 |
-| V2 source ownership | recorded | 当前归属图中的绿色 mouth 区域只覆盖中心嘴芯和独立汗滴，不再覆盖 ROI 矩形 |
-| Runtime asset / `haruna.ts` promotion | not run | 新候选尚未取得人工接受，禁止晋升 |
-| Project tests / lint / TypeScript / build | not run | 遵照用户要求未运行测试或构建 |
-| Browser / actual GAL / Tavern host | not run | 未以当前打开的 model 页面或本地输出冒充实机验收 |
-| Human acceptance of v2 | not run | 等待用户检查新的 eyes / mouth 六帧审查图 |
+| Check                                          | Status    | Evidence                                                                       |
+| ---------------------------------------------- | --------- | ------------------------------------------------------------------------------ |
+| Human rejection of `target_native_features_v1` | failed    | 用户截图圈出 shy 三帧嘴周浅色矩形；v1 归属图显示源肤色被整块选中               |
+| V2 candidate material generation               | generated | v2 两套 clean atlas、六张完整候选、12 张局部归属图与两张六帧审查表写入独立目录 |
+| V2 source ownership                            | recorded  | 当前归属图中的绿色 mouth 区域只覆盖中心嘴芯和独立汗滴，不再覆盖 ROI 矩形       |
+| Runtime asset / `haruna.ts` promotion          | not run   | 新候选尚未取得人工接受，禁止晋升                                               |
+| Project tests / lint / TypeScript / build      | not run   | 遵照用户要求未运行测试或构建                                                   |
+| Browser / actual GAL / Tavern host             | not run   | 未以当前打开的 model 页面或本地输出冒充实机验收                                |
+| Human acceptance of v2                         | not run   | 等待用户检查新的 eyes / mouth 六帧审查图                                       |
 
-当前最强接通标签：**mouth 肤色误选已在隔离 v2 候选中移除，仍待人工原尺寸验收**。v1 人工反例继续有效；生成器运行成功、
-归属区缩小或页面默认项变化都不代表 v2 已被接受，也不授权运行时替换。
+当前最强接通标签：**mouth 肤色误选已在隔离 v2 候选中移除，仍待人工原尺寸验收**。v1 人工反例继续有效；生成器运行成功、归属区缩小或页面默认项变化都不代表 v2 已被接受，也不授权运行时替换。
 
 ## 历史候选（已被本轮审核退回）：资料页清晰度与 `record` 运行时错误修复
 
 - 用户本轮明确要求移除毛玻璃/网页卡片观感、提升资料页尺寸与清晰度，并禁止主角属性页使用男主/梨斗图像。
-- `CharacterArchivePanel` 改为单一响应式 stage：背景仍使用授权 `bg_data1/bg_data2`，但 DOM 字体和官方角色图标按容器高度独立定尺寸，移除整层非等比 `scale(x,y)`；资料线坐标修正为官方背景的四条蓝线；主角属性页不再挂载任何人物图片节点。
+- `CharacterArchivePanel` 改为单一响应式 stage：背景仍使用授权
+  `bg_data1/bg_data2`，但 DOM 字体和官方角色图标按容器高度独立定尺寸，移除整层非等比
+  `scale(x,y)`；资料线坐标修正为官方背景的四条蓝线；主角属性页不再挂载任何人物图片节点。
 - 历史候选曾在资料页打开时隐藏标题、底部行动板、角色卡导入和事件日志，并重新计算 archive-only 高度；该布局已被用户审核退回，当前实现不再采用。
-- `StoryHistoryArchive` 不再读取不存在的 `gameStore.save.record`，改订阅 `useMemorySummaryArchiveStore.activeSaveUuid`；该字段与摘要运行时成对存档上下文一致。远端只有 `main`，当前为 `70ecc44` 且仍含原错误 selector，因此崩溃不是“少 pull 了一个修复”。本地两处 `.git` 都是空目录，当前副本不能执行或证明 branch/pull/merge；此前关于本地 `HEAD` 与 `origin/main` 相等的记录已撤回。
+- `StoryHistoryArchive` 不再读取不存在的 `gameStore.save.record`，改订阅
+  `useMemorySummaryArchiveStore.activeSaveUuid`；该字段与摘要运行时成对存档上下文一致。远端只有 `main`，当前为 `70ecc44`
+  且仍含原错误 selector，因此崩溃不是“少 pull 了一个修复”。本地两处 `.git`
+  都是空目录，当前副本不能执行或证明 branch/pull/merge；此前关于本地 `HEAD` 与 `origin/main` 相等的记录已撤回。
 
-| Check | Status | Evidence |
-| --- | --- | --- |
-| Root cause / source-map mapping | passed | `StoryHistoryArchive.tsx:72` 原 selector 与 dist inline offset `482370` 对应；`GameStore` 没有 `save` 字段 |
-| `record` fix in fresh artifact | passed | fresh 生产包 `dist/webgame-ui/index.html` 中 `save.record` 与 `state.save` 命中数均为 0，`activeSaveUuid` 正常存在 |
-| Player image ban and visual scale | passed | `verify-archive.mjs` 桌面/`844x390` 两视口：主角区图片数 0、stage 无 transform、icon aspect error < 0.02、无 archive frame shadow/radius |
-| Archive interaction/privacy | passed | 14 项专项回归：11 槽、锁定去身份、详情、左右/键盘、Escape、旧侧边档案、关闭、资源与 overflow |
-| Development build / scoped ESLint | passed | `pnpm build:dev`；`pnpm exec eslint` 目标 TSX 文件无 error |
-| Full TypeScript | failed-existing | 10 条错误位于 `ContextPreviewModal`、`storyContextValidation`、`storyTimeline`、`summaryRuntime`；本轮 `StoryHistoryArchive` 的 `save` 错误已消失 |
-| Production build | passed | `pnpm build`；仅有既有的 707 KiB 单文件体积提示 |
-| Production artifact identity | passed | `dist/webgame-ui/index.html`，723584 bytes，SHA-256 `D3712A794BF6976AC258F46F8DC8AA2F97913E77F1AFC01E2A5EA1F18105FF49` |
-| Exact inline safety | passed | 删除前项目检查器的 self-test 通过；`legacyEntityPrefix/currencySign/replacementChar/replacementSpecial/syntaxErrors` 均为 0，inline script 数为 1 |
-| Production browser matrix | passed | 生产包在 `1440x1100` 与 `844x390` 共 14 项通过；控制台、资源、横向溢出、主角禁图、清晰缩放和档案交互均通过 |
-| Screenshot inspection | passed | 已实际打开最新生产截图；桌面和手机横屏无资料页毛玻璃/阴影，图标未拉伸，短横屏占满可用高度 |
-| Remote branch inspection | passed | `git ls-remote` 显示远端仅 `main@70ecc44`；远端同文件第 72 行仍读取 `state.save.record` |
-| Local Git merge | not run | 当前工作副本的 `.git` 目录为空，无法安全执行 pull/merge；需先恢复 Git 元数据或在旁路干净 clone 中迁移本地改动 |
-| Real Tavern/host/plugin/database | not run | 当前证据仍只是本地 Zustand/UI 与协议 mock，不证明真实宿主链路 |
-| Human visual acceptance | pending | 等用户在目标 Tavern game-frame 复核无毛玻璃、尺寸与手机横屏观感 |
+| Check                             | Status          | Evidence                                                                                                                                          |
+| --------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root cause / source-map mapping   | passed          | `StoryHistoryArchive.tsx:72` 原 selector 与 dist inline offset `482370` 对应；`GameStore` 没有 `save` 字段                                        |
+| `record` fix in fresh artifact    | passed          | fresh 生产包 `dist/webgame-ui/index.html` 中 `save.record` 与 `state.save` 命中数均为 0，`activeSaveUuid` 正常存在                                |
+| Player image ban and visual scale | passed          | `verify-archive.mjs` 桌面/`844x390` 两视口：主角区图片数 0、stage 无 transform、icon aspect error < 0.02、无 archive frame shadow/radius          |
+| Archive interaction/privacy       | passed          | 14 项专项回归：11 槽、锁定去身份、详情、左右/键盘、Escape、旧侧边档案、关闭、资源与 overflow                                                      |
+| Development build / scoped ESLint | passed          | `pnpm build:dev`；`pnpm exec eslint` 目标 TSX 文件无 error                                                                                        |
+| Full TypeScript                   | failed-existing | 10 条错误位于 `ContextPreviewModal`、`storyContextValidation`、`storyTimeline`、`summaryRuntime`；本轮 `StoryHistoryArchive` 的 `save` 错误已消失 |
+| Production build                  | passed          | `pnpm build`；仅有既有的 707 KiB 单文件体积提示                                                                                                   |
+| Production artifact identity      | passed          | `dist/webgame-ui/index.html`，723584 bytes，SHA-256 `D3712A794BF6976AC258F46F8DC8AA2F97913E77F1AFC01E2A5EA1F18105FF49`                            |
+| Exact inline safety               | passed          | 删除前项目检查器的 self-test 通过；`legacyEntityPrefix/currencySign/replacementChar/replacementSpecial/syntaxErrors` 均为 0，inline script 数为 1 |
+| Production browser matrix         | passed          | 生产包在 `1440x1100` 与 `844x390` 共 14 项通过；控制台、资源、横向溢出、主角禁图、清晰缩放和档案交互均通过                                        |
+| Screenshot inspection             | passed          | 已实际打开最新生产截图；桌面和手机横屏无资料页毛玻璃/阴影，图标未拉伸，短横屏占满可用高度                                                         |
+| Remote branch inspection          | passed          | `git ls-remote` 显示远端仅 `main@70ecc44`；远端同文件第 72 行仍读取 `state.save.record`                                                           |
+| Local Git merge                   | not run         | 当前工作副本的 `.git` 目录为空，无法安全执行 pull/merge；需先恢复 Git 元数据或在旁路干净 clone 中迁移本地改动                                     |
+| Real Tavern/host/plugin/database  | not run         | 当前证据仍只是本地 Zustand/UI 与协议 mock，不证明真实宿主链路                                                                                     |
+| Human visual acceptance           | pending         | 等用户在目标 Tavern game-frame 复核无毛玻璃、尺寸与手机横屏观感                                                                                   |
 
 历史候选当时的标签是：**本地资料页 UI 与错误 selector 已修复，生产自动回归通过；真实 Tavern/宿主仍未证明，人工视觉验收待完成**。该候选已被用户视觉审核退回，不能作为当前实现结论。

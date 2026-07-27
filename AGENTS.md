@@ -52,7 +52,8 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
   stable order/name, validates their content markers, and arms only their per-scan copies for the next native World Info
   scan. It never changes saved worldbook state.
 - `data/lore-books/tolove-tv-episode-*.txt` are recovery sources for the disabled act-specific Tavern entries; they are
-  not imported into the runtime bundle. Episodes 01 and 02 are both registered at runtime.
+  not imported into the runtime bundle. Episodes 01 through 03 are registered at runtime. Episode 03 has three
+  `whole-day` acts on 2008-04-11, 04-12, and 04-13; its 2008-04-14 school-route fall is an act-03 coda, not act 04.
   `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
 - `save/` and `message/`: snapshots and the game-owned message mirror.
 
@@ -61,6 +62,12 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 ## Invariants
 
 - Zustand plus the save snapshot owns AP, date, event completion, and the current act.
+- Character-role authority is fixed: User is the protagonist, the Yuuki family's adopted son, and the older brother
+  Mikan addresses as “老哥”; no separate male Rito exists. Riko is User's childhood friend, an information/reminder
+  helper, and an independent romance target. She does not inherit the original protagonist role, Lala engagement,
+  Mikan kinship, or Haruna relationship.
+- A `whole-day` act may trigger only on the day's first action. Its completion advances once to the next day and resets
+  the daily AP; shared runtime code must implement this from template `timeCost`, never from an episode-ID branch.
 - Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do not
   reintroduce parallel `active/progress/actIndex/acts` fields or episode-specific store actions.
 - Development snapshots before schema v2 are intentionally incompatible; do not add migration branches unless the
@@ -73,6 +80,8 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 - The selected `出包王女` plot/character entries must remain disabled. Main-story generation validates them, then
   temporarily enables only their copies in the next `WORLDINFO_ENTRIES_LOADED` scan; missing, duplicate, enabled, or
   malformed entries fail visibly before generation.
+- The real Tavern worldbook must be replaced from the current recovery sources for orders 100-103 and 150-157, and the
+  obsolete order 158 must be removed or disabled. Local source consistency does not count as real Tavern verification.
 - `TavernHelper.generate()` proves only the generation call. Real Tavern evidence is still required to prove the
   one-shot World Info hook, and it does not prove hidden host floors, `MESSAGE_SENT`, shujuku/ACU, or database hooks.
 - UI or local file-mirror success must not be described as real host/plugin integration.

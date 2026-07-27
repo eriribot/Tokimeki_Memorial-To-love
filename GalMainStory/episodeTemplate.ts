@@ -8,8 +8,11 @@ export interface StoryActTrigger {
   actionNumber: 1 | 2;
 }
 
+export type StoryActTimeCost = 'single-action' | 'whole-day';
+
 export interface StoryEpisodeActDefinition extends StoryActDefinition {
   trigger: StoryActTrigger;
+  timeCost?: StoryActTimeCost;
   plotLore: DisabledWorldbookLoreReference;
 }
 
@@ -53,6 +56,12 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
     }
     if (!isCalendarDateValue(act.trigger.date) || (act.trigger.actionNumber !== 1 && act.trigger.actionNumber !== 2)) {
       throw new Error(`主线幕“${act.id}”的触发时间无效。`);
+    }
+    if (act.timeCost !== undefined && act.timeCost !== 'single-action' && act.timeCost !== 'whole-day') {
+      throw new Error(`主线幕“${act.id}”的时间成本无效。`);
+    }
+    if (act.timeCost === 'whole-day' && act.trigger.actionNumber !== 1) {
+      throw new Error(`整天主线幕“${act.id}”必须由当天第一次行动触发。`);
     }
     if (previousTrigger) {
       if (compareTriggers(act.trigger, previousTrigger) <= 0) {

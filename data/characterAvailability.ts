@@ -4,10 +4,10 @@ import type { CharacterAvailabilityRule } from '../types';
 export const DEFAULT_CHARACTER_AVAILABILITY: Readonly<Record<string, CharacterAvailabilityRule>> = {
   riko: { kind: 'always' },
   haruna: { kind: 'always' },
-  sakura: { kind: 'after-event', eventId: EPISODE_02_EVENT_ID },
-  haruka: { kind: 'locked' },
-  miyuki: { kind: 'locked' },
-  rin: { kind: 'locked' },
+  lala: { kind: 'after-event', eventId: EPISODE_02_EVENT_ID },
+  momo: { kind: 'locked' },
+  yui: { kind: 'locked' },
+  yami: { kind: 'locked' },
 };
 
 export function isCharacterAvailable(characterId: string, completedEventIds: readonly string[]): boolean {

@@ -9,10 +9,11 @@ export const EPISODE_02_ACT_02 = {
     entryOrder: 153,
     entryName: '剧情第二集·第二幕',
     rootTag: 'To LOVE-Ru TV Episode 02 Act 02',
+    requiredContentMarker: '主角身份:User是结城家的养子，也是美柑的老哥',
     kind: 'plot',
   },
   loreSection: '第二幕·明晚的冷静期',
-  characterLoreIds: ['lala', 'mikan'],
+  characterLoreIds: ['lala', 'mikan', 'riko'],
   presentation: {
     sceneIds: ['home', 'washroomDoor', 'bedroom', 'school', 'riverbank'],
     cast: [
@@ -110,7 +111,7 @@ export const EPISODE_02_ACT_02 = {
     },
     {
       speaker: '美柑',
-      text: '你到底在打什么主意？做事之前想清楚，最后受伤的会是女孩子。',
+      text: '老哥，你到底在打什么主意？做事之前想清楚，最后受伤的会是女孩子。',
       presentation: {
         sceneId: 'home',
         focusCharacterId: 'mikan',

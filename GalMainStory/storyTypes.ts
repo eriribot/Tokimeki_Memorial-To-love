@@ -12,6 +12,8 @@ export const STORY_SCENE_IDS = [
   'schoolRoad',
   'changingRoom',
   'riverbank',
+  'townStreet',
+  'aquarium',
   'night',
 ] as const;
 export const STORY_EFFECTS = ['none', 'flash', 'shake'] as const;

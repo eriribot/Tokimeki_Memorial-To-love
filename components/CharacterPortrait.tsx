@@ -1,6 +1,16 @@
 import { useGameStore } from '../stores/gameStore';
 import { useCardStore } from '../stores/cardStore';
+import type { GameCharacter } from '../types';
 import CharacterCard from './CharacterCard';
+
+const BUNDLED_PORTRAIT_OVERRIDES: Readonly<Record<string, string>> = {
+  riko: '/artsource/characters/riko.png',
+};
+
+function withBundledPortrait(character: GameCharacter): GameCharacter {
+  const portrait = BUNDLED_PORTRAIT_OVERRIDES[character.id];
+  return portrait && portrait !== character.portrait ? { ...character, portrait } : character;
+}
 
 export default function CharacterPortrait() {
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -25,7 +35,11 @@ export default function CharacterPortrait() {
     const character = hereCharacters[0];
     return (
       <div className="character-portrait single">
-        <CharacterCard character={character} isActive={true} onClick={() => setActiveTarget(character.id)} />
+        <CharacterCard
+          character={withBundledPortrait(character)}
+          isActive={true}
+          onClick={() => setActiveTarget(character.id)}
+        />
       </div>
     );
   }
@@ -37,7 +51,7 @@ export default function CharacterPortrait() {
         {hereCharacters.map(character => (
           <CharacterCard
             key={character.id}
-            character={character}
+            character={withBundledPortrait(character)}
             isActive={activeTargetId === character.id}
             onClick={() => setActiveTarget(character.id)}
           />

@@ -23,5 +23,14 @@ export const RIKO_STORY_CHARACTER = {
   nameplate: '/artsource/galbox/riko/wasya00_riko.png',
   defaultPortraitId: RIKO_SCHOOL_PORTRAIT.id,
   portraits: { [RIKO_SCHOOL_PORTRAIT.id]: RIKO_SCHOOL_PORTRAIT },
-  loreReferences: [],
+  loreReferences: [
+    {
+      worldbookName: '出包王女',
+      entryOrder: 103,
+      entryName: '夕崎梨子',
+      rootTag: 'Riko Yusaki',
+      requiredContentMarker: '关系定位:User的青梅竹马',
+      kind: 'character',
+    },
+  ],
 } as const satisfies StoryCharacterDefinition;
