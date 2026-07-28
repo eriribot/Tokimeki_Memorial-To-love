@@ -2,6 +2,35 @@
 
 ```yaml
 status: implementation_updated_user_manual_test_pending
+current_loop: archive_slots_13_15_chibi_assets_and_second_page_2026-07-28
+authorized_by: user_named_tearju_ryoko_risa_selected_palettes_and_said_start
+authorized_scope:
+  - add slot 13 Tearju, slot 14 Ryoko, and slot 15 Risa using the existing a/b/cursor archive contract
+  - use emerald, berry, and violet archive palettes respectively, while retaining white name text with a pink outline and locked ??? labels
+  - add a second archive page without changing the existing 3x4 slot geometry
+  - keep the new targets locked until a matching character card is present
+  - remove temporary image-processing scripts and intermediate project images after publication
+forbidden_scope:
+  - add, edit, or run tests, lint, TypeScript, builds, browser automation, screenshots, or inline artifact checks
+  - create default character cards, invent biography data, force-unlock the new characters, or change gameplay settlement
+  - claim the generated chibi portraits are extracted official artwork
+connection_state: source_assets_and_runtime_slot_pagination_updated_no_build_or_runtime_review
+overall_connection_label: 三名新角色已按梨子档案合同加入第 13-15 槽与第二页；默认仍锁定，等待用户在目标页面手工检查
+verification:
+  passed:
+    - static source inspection confirms slots 13-15 use the generic icon_dataNN a/b and cursor_dataNN paths
+    - visual asset inspection confirms each published set contains a colored name icon, a palette-matched locked silhouette with ???, and a standard yellow cursor mask
+    - user screenshot exposed fractional-alpha eye and edge remnants in slot 14; the locked Ryoko silhouette was flattened to an opaque berry interior while preserving its outer antialias, pale oval, and ??? label
+    - generated masters were derived from the supplied character references and restyled to the existing archive format; they are not represented as official extractions
+  failed: []
+  not_run:
+    - all automated tests and test scripts, by explicit user request
+    - lint, TypeScript, development/production build, browser review, screenshots, and real Tavern review
+human_review: pending_user_visual_identity_palette_pagination_and_runtime_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
 current_loop: fixed_width_resource_values_and_rest_only_limit_2026-07-27
 authorized_by: user_identified_multi_digit_stress_and_full_stress_rest_only_case_2026-07-27
 authorized_scope:

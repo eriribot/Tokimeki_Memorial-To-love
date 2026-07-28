@@ -31,8 +31,8 @@ function createSlot(slot: number, targetId: string | null): CharacterArchiveSlot
 }
 
 /**
- * Slots 01-11 preserve the extracted game order. Slot 12 extends the same
- * a/b/cursor asset contract for Riko without replacing Mikan's slot 10.
+ * Slots 01-11 preserve the extracted game order. Slots 12-15 extend the same
+ * a/b/cursor asset contract without replacing Mikan's slot 10.
  */
 export const CHARACTER_ARCHIVE_SLOTS: readonly CharacterArchiveSlot[] = [
   createSlot(1, 'momo'),
@@ -47,6 +47,9 @@ export const CHARACTER_ARCHIVE_SLOTS: readonly CharacterArchiveSlot[] = [
   createSlot(10, null),
   createSlot(11, null),
   createSlot(12, 'riko'),
+  createSlot(13, 'tearju'),
+  createSlot(14, 'ryoko'),
+  createSlot(15, 'risa'),
 ];
 
 export function resolveCharacterArchiveSlots(

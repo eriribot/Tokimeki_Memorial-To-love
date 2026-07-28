@@ -27,6 +27,7 @@ interface CharacterArchivePanelProps {
 type ArchiveView = 'main' | 'detail';
 
 const DESIGN_SIZE = 1024;
+const ARCHIVE_PAGE_SIZE = 12;
 
 const GRID_COL_CENTERS = [640, 788, 936];
 const GRID_ROW_CENTERS = [160, 395, 630, 865];
@@ -224,31 +225,34 @@ function PlayerStatusSide() {
 
 function ArchiveGridSide({
   slots,
+  slotOffset,
   selectedIndex,
   onSelect,
 }: {
   slots: readonly ResolvedCharacterArchiveSlot[];
+  slotOffset: number;
   selectedIndex: number;
   onSelect: (index: number) => void;
 }) {
   return (
     <div className="character-archive-slot-grid" role="listbox" aria-label="角色档案槽位">
       {slots.map((slot, index) => {
+        const absoluteIndex = slotOffset + index;
         const unlocked = slot.unlocked && slot.character;
         return (
           <button
             key={slot.slot}
             type="button"
             role="option"
-            aria-selected={index === selectedIndex}
+            aria-selected={absoluteIndex === selectedIndex}
             className={`character-archive-slot ${slot.unlocked ? 'is-unlocked' : 'is-locked'} ${
-              index === selectedIndex ? 'is-selected' : ''
+              absoluteIndex === selectedIndex ? 'is-selected' : ''
             }`}
             style={slotPosition(index)}
             aria-label={unlocked ? `查看${slot.character?.name}的档案` : `查看未解锁角色 ${slot.slot}`}
-            onClick={() => onSelect(index)}
+            onClick={() => onSelect(absoluteIndex)}
           >
-            {index === selectedIndex && (
+            {absoluteIndex === selectedIndex && (
               <img
                 className="character-archive-slot-cursor"
                 src={resolveAssetPath(slot.cursor)}
@@ -381,6 +385,7 @@ function ArchiveDetailView({
 export default function CharacterArchivePanel({ onClose }: CharacterArchivePanelProps) {
   const [view, setView] = useState<ArchiveView>('main');
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
+  const [archivePage, setArchivePage] = useState(0);
   const targets = useCardStore(state => state.targets);
   const completedMainStoryEventIds = useGameStore(state => state.mainStory.completedEventIds);
   const locations = useMapStore(state => state.locations);
@@ -392,7 +397,27 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
   const firstUnlockedSlotIndex = useMemo(() => getFirstUnlockedCharacterArchiveSlot(slots), [slots]);
   const activeSlotIndex = selectedSlotIndex ?? firstUnlockedSlotIndex;
   const activeSlot = slots[activeSlotIndex] ?? slots[0];
+  const archivePageCount = Math.max(1, Math.ceil(slots.length / ARCHIVE_PAGE_SIZE));
+  const archivePageStart = archivePage * ARCHIVE_PAGE_SIZE;
+  const visibleSlots = slots.slice(archivePageStart, archivePageStart + ARCHIVE_PAGE_SIZE);
   const background = view === 'main' ? '/artsource/ui/archive/bg_data1.png' : '/artsource/ui/archive/bg_data2.png';
+
+  useEffect(() => {
+    setArchivePage(current => Math.min(current, archivePageCount - 1));
+  }, [archivePageCount]);
+
+  const moveCharacterSelection = (direction: -1 | 1) => {
+    const nextIndex = (activeSlotIndex + direction + slots.length) % slots.length;
+    setSelectedSlotIndex(nextIndex);
+    setArchivePage(Math.floor(nextIndex / ARCHIVE_PAGE_SIZE));
+  };
+
+  const selectArchivePage = (page: number) => {
+    const nextPage = Math.min(archivePageCount - 1, Math.max(0, page));
+    const nextIndex = nextPage * ARCHIVE_PAGE_SIZE;
+    setArchivePage(nextPage);
+    setSelectedSlotIndex(nextIndex);
+  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -404,10 +429,9 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       event.preventDefault();
       const direction = event.key === 'ArrowLeft' ? -1 : 1;
-      setSelectedSlotIndex(current => {
-        const index = current ?? activeSlotIndex;
-        return (index + direction + slots.length) % slots.length;
-      });
+      const nextIndex = (activeSlotIndex + direction + slots.length) % slots.length;
+      setSelectedSlotIndex(nextIndex);
+      setArchivePage(Math.floor(nextIndex / ARCHIVE_PAGE_SIZE));
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -427,6 +451,7 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
       aria-label="数据"
       data-character-archive="true"
       data-view={view}
+      data-archive-page={archivePage + 1}
       data-selected-slot={activeSlot.slot}
       data-selected-slot-unlocked={String(activeSlot.unlocked)}
       data-selected-name={activeSlot.character?.name}
@@ -444,7 +469,35 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
         {view === 'main' ? (
           <>
             <PlayerStatusSide />
-            <ArchiveGridSide slots={slots} selectedIndex={activeSlotIndex} onSelect={selectCharacterSlot} />
+            <ArchiveGridSide
+              slots={visibleSlots}
+              slotOffset={archivePageStart}
+              selectedIndex={activeSlotIndex}
+              onSelect={selectCharacterSlot}
+            />
+            {archivePageCount > 1 && (
+              <nav className="character-archive-pagination" aria-label="Archive pages">
+                <button
+                  type="button"
+                  aria-label="Previous archive page"
+                  disabled={archivePage === 0}
+                  onClick={() => selectArchivePage(archivePage - 1)}
+                >
+                  <span aria-hidden="true">&lsaquo;</span>
+                </button>
+                <span className="character-archive-page-number" aria-live="polite">
+                  {archivePage + 1} / {archivePageCount}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Next archive page"
+                  disabled={archivePage === archivePageCount - 1}
+                  onClick={() => selectArchivePage(archivePage + 1)}
+                >
+                  <span aria-hidden="true">&rsaquo;</span>
+                </button>
+              </nav>
+            )}
             <button type="button" className="character-archive-close" aria-label="关闭数据并返回地图" onClick={onClose}>
               <span className="character-archive-circle-icon" aria-hidden="true">
                 ×
@@ -457,12 +510,7 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
             slot={activeSlot}
             locations={locations}
             onBack={() => setView('main')}
-            onMove={direction => {
-              setSelectedSlotIndex(current => {
-                const index = current ?? activeSlotIndex;
-                return (index + direction + slots.length) % slots.length;
-              });
-            }}
+            onMove={moveCharacterSelection}
           />
         )}
       </div>
