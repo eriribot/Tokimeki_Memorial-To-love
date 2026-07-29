@@ -2,6 +2,63 @@
 
 ```yaml
 status: implementation_updated_user_manual_test_pending
+current_loop: archive_developer_unlock_preview_toggle_2026-07-29
+authorized_by: user_requested_archive_one_click_unlock_mode_with_default_restore
+authorized_scope:
+  - add a developer-visible archive button that previews every slot with its colored a asset
+  - make the button visibly checked while the preview override is active
+  - restore the existing card and characterAvailability unlock result immediately when the button is turned off
+  - keep the control easy to disable or remove before release
+forbidden_scope:
+  - mutate character cards, completed story events, availability rules, saves, relationships, AP, dates, or gameplay settlement
+  - persist the developer override across archive mounts or browser sessions
+  - run tests, lint, TypeScript, builds, browser automation, screenshots, or inline artifact checks
+connection_state: local_archive_presentation_override_only_no_authoritative_state_write
+overall_connection_label: 开发解锁按钮只覆盖档案图标与无资料详情的显示；取消后重新读取原有真实解锁结果
+verification:
+  passed:
+    - static source inspection confirms the override is component-local state initialized to false
+    - static source inspection confirms colored a assets are selected through devUnlockAll without changing resolved slot data
+    - static source inspection confirms missing or locked character data remains unavailable and is labeled as a development material preview in detail view
+    - SHOW_ARCHIVE_DEV_UNLOCK_CONTROL is the single release-time visibility switch for the button
+  failed: []
+  not_run:
+    - all automated tests and test scripts, per the standing user instruction
+    - lint, TypeScript, development/production build, browser review, screenshots, and real Tavern review
+human_review: pending_user_button_position_checked_state_all_slots_and_default_restore_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: archive_slots_16_18_saki_oshizu_kyoko_2026-07-29
+authorized_by: user_supplied_three_official_game_sprite_references_and_requested_archive_addition
+authorized_scope:
+  - add slot 16 Tenjoin Saki, slot 17 Oshizu, and slot 18 Kirisaki Kyoko using the existing a/b/cursor archive contract
+  - preserve the user-supplied hair, eyes, signature accessories, and outfits while translating them into the established Q/chibi archive format
+  - use royal-gold, ghost-indigo, and flame-scarlet badge families respectively
+  - keep white name labels with pink outlines, locked ??? labels, standard yellow cursor masks, and the existing second-page geometry
+  - leave all three locked until a matching character card is present
+forbidden_scope:
+  - create default cards, biographies, availability overrides, gameplay settlement, story content, or host/plugin writes
+  - claim generated chibi portraits are extracted official artwork
+  - run tests, lint, TypeScript, builds, browser automation, screenshots, or inline artifact checks
+connection_state: source_assets_and_slot_mapping_updated_existing_pagination_consumes_18_slots_no_build_or_runtime_review
+overall_connection_label: 沙姬、小静与恭子已加入第 16-18 槽；生成素材与本地槽位已接入，仍待用户在目标页面手工验收
+verification:
+  passed:
+    - official and local references agree on the three supplied character identities and their signature hair, accessories, and costumes
+    - visual asset inspection confirms colored, locked, and yellow-cursor files exist for slots 16-18
+    - locked silhouettes were flattened and labeled separately so facial or clothing details do not leak through the ??? state
+    - static source inspection confirms the existing generic second-page renderer will include all 18 slots without new layout code
+  failed: []
+  not_run:
+    - all automated tests and test scripts, per the standing user instruction
+    - lint, TypeScript, development/production build, browser review, screenshots, and real Tavern review
+human_review: pending_user_identity_palette_locked_mask_and_second_page_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
 current_loop: archive_slots_13_15_chibi_assets_and_second_page_2026-07-28
 authorized_by: user_named_tearju_ryoko_risa_selected_palettes_and_said_start
 authorized_scope:

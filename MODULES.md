@@ -54,10 +54,11 @@
   `resolveTokimekiAttributeStage()`；体力和压力仍是 `PLAYER_RESOURCE_MAX=100`。`render_game_to_text()` 同时暴露精确
   `radar` 与派生 `radarStages`。该展示不扩展 `PlayerState`、`GameSnapshot`
   或存档 schema；先前彩色五级雷达和“理系压力表”候选均已撤销。
-- 主角区不挂载人物图片节点、不读取 `avatar`、不使用梨斗图片资源。角色页保留官方 `01-11` 槽位，并以第 12-15 槽扩充梨子、提亚悠、御门凉子与籾冈里纱；每页最多显示 12 槽，显示
+- 主角区不挂载人物图片节点、不读取 `avatar`、不使用梨斗图片资源。角色页保留官方 `01-11` 槽位，并以第 12-18 槽扩充梨子、提亚悠、御门凉子、籾冈里纱、天条院沙姬、小静与雾崎恭子；每页最多显示 12 槽，显示
   `icon_dataNN[a/b].png` 与 `cursor_dataNN.png`，解锁沿用
   `characterAvailability.ts`，详情中的姓名、类型、关系值、常去地点和简介来自当前
   `cardStore`。锁定槽在展示层移除角色对象，只显示 `???`，不泄漏身份。该页只读，不结算 AP、日期、好感或剧情。
+  开发阶段由 `SHOW_ARCHIVE_DEV_UNLOCK_CONTROL` 显示“开发解锁”按钮：开启只把槽位与详情图切换为彩色 `a` 素材，不改角色卡、剧情条件或存档；关闭立即回到 `characterAvailability.ts` 与角色卡共同决定的默认状态。发布前可将该常量设为 `false` 或移除对应渲染块。
 - 底部独立的 `StatPanel` 已移除，完整属性展示仍集中在资料页；`Controls`
   是唯一底部操作区；“体力 / 压力”以蓝色心形 / 橙色仪表图标和固定三位宽度的精确值显示在系统标题同行，现有六维精确值位于系统组下方。体力为 `0` 或压力达到 `100` 时，个人行动与交谈只允许休息；休息仍正常消耗行动点并恢复资源。资料页打开时该操作区保留在布局中但 inert/灰化。用户角色卡文件/URL 导入 UI、action 和 loader 已删除；`addCardFromJSON()`
   仅保留给默认角色初始化。
@@ -120,8 +121,8 @@
 | `components/DictionaryPanel.tsx`           | 辞典列表、详情、前后翻页和关闭交互                                           | 官方静态词条                              | 地图框内只读辞典 UI            | 解锁、搜索或状态写入                |
 | `data/dictionary.ts`                       | 解析并校验随包词条                                                           | `entries.json`                            | 只读词条数组                   | 推断或改写词条                      |
 | `data/lore-books/dictionary/entries.json`  | 保存官方 Dictionary 表的中文字段                                             | `TextAsset/ToLoveArg`                     | 103 条静态词条                 | 假名、解锁或运行状态                |
-| `components/CharacterArchivePanel.tsx`     | 100% 覆盖地图框的资料 stage；共轨双状态槽、单色五阶段雷达、15 槽分页图标与详情屏 | Player/Card/Game/Map store                | 地图框内只读资料 UI            | 扩展玩家 schema、读取主角头像或结算 |
-| `data/characterArchive.ts`                 | 官方 01-11 槽位与第 12-15 扩充槽资源映射、角色卡绑定和锁定态去身份化             | Card store、角色出场规则                  | 15 个只读资料槽                | 编造人物资料或解锁                  |
+| `components/CharacterArchivePanel.tsx`     | 100% 覆盖地图框的资料 stage；共轨双状态槽、单色五阶段雷达、18 槽分页图标、详情屏与非持久化开发解锁预览 | Player/Card/Game/Map store                | 地图框内只读资料 UI            | 扩展玩家 schema、读取主角头像或结算 |
+| `data/characterArchive.ts`                 | 官方 01-11 槽位与第 12-18 扩充槽资源映射、角色卡绑定和锁定态去身份化             | Card store、角色出场规则                  | 18 个只读资料槽                | 编造人物资料或解锁                  |
 | `components/CharacterProfileModal.tsx`     | 档案入口镜像位置和角色档案弹窗                                               | 当前地图                                  | 档案入口/弹窗状态              | 改写角色状态                        |
 | `data/characterAvailability.ts`            | 默认角色的出场条件                                                           | 角色 ID、主线完成记录                     | 可见/锁定判断                  | 地图位置分配                        |
 | `services/characterPresence.ts`            | 将剧情进度和时段同步到角色位置                                               | Game/Card store                           | 角色出现位置与当前目标         | 改写角色卡                          |

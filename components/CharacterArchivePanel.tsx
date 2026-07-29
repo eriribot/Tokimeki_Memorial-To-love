@@ -28,6 +28,8 @@ type ArchiveView = 'main' | 'detail';
 
 const DESIGN_SIZE = 1024;
 const ARCHIVE_PAGE_SIZE = 12;
+// Development-only archive preview. Set this to false or remove the control before release.
+const SHOW_ARCHIVE_DEV_UNLOCK_CONTROL = true;
 
 const GRID_COL_CENTERS = [640, 788, 936];
 const GRID_ROW_CENTERS = [160, 395, 630, 865];
@@ -227,11 +229,13 @@ function ArchiveGridSide({
   slots,
   slotOffset,
   selectedIndex,
+  devUnlockAll,
   onSelect,
 }: {
   slots: readonly ResolvedCharacterArchiveSlot[];
   slotOffset: number;
   selectedIndex: number;
+  devUnlockAll: boolean;
   onSelect: (index: number) => void;
 }) {
   return (
@@ -239,17 +243,24 @@ function ArchiveGridSide({
       {slots.map((slot, index) => {
         const absoluteIndex = slotOffset + index;
         const unlocked = slot.unlocked && slot.character;
+        const visiblyUnlocked = devUnlockAll || slot.unlocked;
         return (
           <button
             key={slot.slot}
             type="button"
             role="option"
             aria-selected={absoluteIndex === selectedIndex}
-            className={`character-archive-slot ${slot.unlocked ? 'is-unlocked' : 'is-locked'} ${
+            className={`character-archive-slot ${visiblyUnlocked ? 'is-unlocked' : 'is-locked'} ${
               absoluteIndex === selectedIndex ? 'is-selected' : ''
             }`}
             style={slotPosition(index)}
-            aria-label={unlocked ? `查看${slot.character?.name}的档案` : `查看未解锁角色 ${slot.slot}`}
+            aria-label={
+              unlocked
+                ? `查看${slot.character?.name}的档案`
+                : devUnlockAll
+                  ? `开发预览档案槽位 ${slot.slot}`
+                  : `查看未解锁角色 ${slot.slot}`
+            }
             onClick={() => onSelect(absoluteIndex)}
           >
             {absoluteIndex === selectedIndex && (
@@ -262,8 +273,8 @@ function ArchiveGridSide({
             )}
             <img
               className="character-archive-slot-icon"
-              src={resolveAssetPath(slot.unlocked ? slot.unlockedIcon : slot.lockedIcon)}
-              alt={unlocked ? slot.character?.name : '未解锁角色'}
+              src={resolveAssetPath(visiblyUnlocked ? slot.unlockedIcon : slot.lockedIcon)}
+              alt={unlocked ? slot.character?.name : visiblyUnlocked ? '开发预览角色素材' : '未解锁角色'}
               draggable="false"
             />
           </button>
@@ -296,11 +307,13 @@ function RelationshipBar({ label, value, top }: { label: string; value: number; 
 function ArchiveDetailView({
   slot,
   locations,
+  devUnlockAll,
   onBack,
   onMove,
 }: {
   slot: ResolvedCharacterArchiveSlot;
   locations: ReturnType<typeof useMapStore.getState>['locations'];
+  devUnlockAll: boolean;
   onBack: () => void;
   onMove: (direction: -1 | 1) => void;
 }) {
@@ -317,7 +330,7 @@ function ArchiveDetailView({
     <div className="character-archive-character-detail-view">
       {character && <span className="character-archive-detail-type">{character.type}</span>}
       <h3 id="character-archive-detail-heading" className="character-archive-detail-name">
-        {character ? character.name : '???'}
+        {character ? character.name : devUnlockAll ? '开发预览' : '???'}
       </h3>
 
       {DETAIL_BIO_ROWS.map(centerY => (
@@ -341,6 +354,18 @@ function ArchiveDetailView({
             className="character-archive-detail-icon is-unlocked"
             src={resolveAssetPath(slot.unlockedIcon)}
             alt={character.name}
+            draggable="false"
+          />
+        </>
+      ) : devUnlockAll ? (
+        <>
+          <p className="character-archive-locked-hint">
+            开发解锁仅预览彩色档案素材；真实角色卡、剧情解锁和人物资料保持原状。
+          </p>
+          <img
+            className="character-archive-detail-icon is-unlocked"
+            src={resolveAssetPath(slot.unlockedIcon)}
+            alt={`档案槽位 ${slot.slot} 彩色素材`}
             draggable="false"
           />
         </>
@@ -386,6 +411,7 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
   const [view, setView] = useState<ArchiveView>('main');
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
   const [archivePage, setArchivePage] = useState(0);
+  const [devUnlockAll, setDevUnlockAll] = useState(false);
   const targets = useCardStore(state => state.targets);
   const completedMainStoryEventIds = useGameStore(state => state.mainStory.completedEventIds);
   const locations = useMapStore(state => state.locations);
@@ -452,8 +478,9 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
       data-character-archive="true"
       data-view={view}
       data-archive-page={archivePage + 1}
+      data-dev-unlock-all={String(devUnlockAll)}
       data-selected-slot={activeSlot.slot}
-      data-selected-slot-unlocked={String(activeSlot.unlocked)}
+      data-selected-slot-unlocked={String(devUnlockAll || activeSlot.unlocked)}
       data-selected-name={activeSlot.character?.name}
       data-selected-target-id={activeSlot.character?.id}
     >
@@ -473,8 +500,22 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
               slots={visibleSlots}
               slotOffset={archivePageStart}
               selectedIndex={activeSlotIndex}
+              devUnlockAll={devUnlockAll}
               onSelect={selectCharacterSlot}
             />
+            {SHOW_ARCHIVE_DEV_UNLOCK_CONTROL && (
+              <button
+                type="button"
+                className={`character-archive-dev-unlock ${devUnlockAll ? 'is-active' : ''}`}
+                aria-pressed={devUnlockAll}
+                onClick={() => setDevUnlockAll(current => !current)}
+              >
+                <span className="character-archive-dev-unlock-check" aria-hidden="true">
+                  {devUnlockAll ? '✓' : ''}
+                </span>
+                开发解锁
+              </button>
+            )}
             {archivePageCount > 1 && (
               <nav className="character-archive-pagination" aria-label="Archive pages">
                 <button
@@ -509,6 +550,7 @@ export default function CharacterArchivePanel({ onClose }: CharacterArchivePanel
           <ArchiveDetailView
             slot={activeSlot}
             locations={locations}
+            devUnlockAll={devUnlockAll}
             onBack={() => setView('main')}
             onMove={moveCharacterSelection}
           />
