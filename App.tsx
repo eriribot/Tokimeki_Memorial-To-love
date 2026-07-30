@@ -1,6 +1,6 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
-import { CalendarCard, DayTransition } from './CalendarModule';
+import { CalendarCard, DateModule, DayTransition } from './CalendarModule';
 import ClassroomScene from './components/ClassroomScene';
 import Controls from './components/Controls';
 import EventLog from './components/EventLog';
@@ -45,6 +45,7 @@ function App() {
   const [isCharacterArchiveOpen, setIsCharacterArchiveOpen] = useState(false);
   const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
+  const [isDateModuleOpen, setIsDateModuleOpen] = useState(false);
   const [hasPersistedSave, setHasPersistedSave] = useState(false);
   const [isCheckingSaves, setIsCheckingSaves] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -55,6 +56,7 @@ function App() {
     to: CalendarDateValue;
   } | null>(null);
   const appShellRef = useRef<HTMLDivElement | null>(null);
+  const calendarLauncherRef = useRef<HTMLButtonElement | null>(null);
   const previousCalendarDateRef = useRef(calendarDate);
   const viewportSize = useViewportSize();
   const mapWidth = width * cellSize;
@@ -75,13 +77,17 @@ function App() {
   const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
   const isBlockingDialogOpen =
-    isContextPreviewOpen || isCharacterArchiveOpen || isDictionaryOpen || isSystemSettingsOpen;
+    isContextPreviewOpen || isCharacterArchiveOpen || isDictionaryOpen || isSystemSettingsOpen || isDateModuleOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
   } as CSSProperties;
 
   const closeSaveSlots = useCallback(() => setSaveSlotMode(null), []);
+  const closeDateModule = useCallback(() => {
+    setIsDateModuleOpen(false);
+    globalThis.requestAnimationFrame(() => calendarLauncherRef.current?.focus());
+  }, []);
   const updateSaveAvailability = useCallback((hasSaves: boolean) => setHasPersistedSave(hasSaves), []);
 
   const exitPageMode = useCallback(async () => {
@@ -125,8 +131,15 @@ function App() {
   }, [hasMainStoryHistory, isMainStoryActive]);
 
   useEffect(() => {
-    if (isStoryOverlayOpen) setIsSkillPanelOpen(false);
+    if (isStoryOverlayOpen) {
+      setIsSkillPanelOpen(false);
+      setIsDateModuleOpen(false);
+    }
   }, [isStoryOverlayOpen]);
+
+  useEffect(() => {
+    if (currentSceneId) setIsDateModuleOpen(false);
+  }, [currentSceneId]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -270,7 +283,8 @@ function App() {
                       isSkillPanelOpen ||
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
-                      isSystemSettingsOpen
+                      isSystemSettingsOpen ||
+                      isDateModuleOpen
                         ? true
                         : undefined
                     }
@@ -279,7 +293,8 @@ function App() {
                       isSkillPanelOpen ||
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
-                      isSystemSettingsOpen
+                      isSystemSettingsOpen ||
+                      isDateModuleOpen
                         ? true
                         : undefined
                     }
@@ -304,27 +319,40 @@ function App() {
                     !isSkillPanelOpen &&
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
-                    !isSystemSettingsOpen && (
-                      <CalendarCard
-                        className="game-calendar-card"
-                        date={calendarDate}
-                        actionsRemaining={actionPointsRemaining}
-                        animateCorner={actionPointsRemaining === 0}
-                        dayUnit="日"
-                        showMonth
-                      />
+                    !isSystemSettingsOpen &&
+                    !isDateModuleOpen && (
+                      <>
+                        <CalendarCard
+                          className="game-calendar-card"
+                          date={calendarDate}
+                          actionsRemaining={actionPointsRemaining}
+                          animateCorner={actionPointsRemaining === 1}
+                          dayUnit="日"
+                          showMonth
+                        />
+                        <button
+                          ref={calendarLauncherRef}
+                          type="button"
+                          className="game-calendar-launcher"
+                          aria-label={`打开日历，当前日期${calendarDate.year}年${calendarDate.month}月${calendarDate.day}日`}
+                          title="打开日历"
+                          onClick={() => setIsDateModuleOpen(true)}
+                        />
+                      </>
                     )}
                   {!isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
-                    !isSystemSettingsOpen && <CharacterProfileModal />}
+                    !isSystemSettingsOpen &&
+                    !isDateModuleOpen && <CharacterProfileModal />}
                   {!currentSceneId &&
                     !isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
-                    !isSystemSettingsOpen && (
+                    !isSystemSettingsOpen &&
+                    !isDateModuleOpen && (
                       <MapMenu
                         onOpenSave={() => setSaveSlotMode('save')}
                         onOpenLoad={() => setSaveSlotMode('load')}
@@ -341,6 +369,7 @@ function App() {
                   {isCharacterArchiveOpen && <CharacterArchivePanel onClose={() => setIsCharacterArchiveOpen(false)} />}
                   {isDictionaryOpen && <DictionaryPanel onClose={() => setIsDictionaryOpen(false)} />}
                   {isSystemSettingsOpen && <SystemSettingsModal onClose={() => setIsSystemSettingsOpen(false)} />}
+                  {isDateModuleOpen && <DateModule date={calendarDate} onClose={closeDateModule} />}
                 </div>
 
                 <div
@@ -349,7 +378,8 @@ function App() {
                     isSkillPanelOpen ||
                     isCharacterArchiveOpen ||
                     isDictionaryOpen ||
-                    isSystemSettingsOpen
+                    isSystemSettingsOpen ||
+                    isDateModuleOpen
                       ? 'is-story-locked'
                       : ''
                   }`}
@@ -358,7 +388,8 @@ function App() {
                     isSkillPanelOpen ||
                     isCharacterArchiveOpen ||
                     isDictionaryOpen ||
-                    isSystemSettingsOpen
+                    isSystemSettingsOpen ||
+                    isDateModuleOpen
                       ? true
                       : undefined
                   }
@@ -367,7 +398,8 @@ function App() {
                     isSkillPanelOpen ||
                     isCharacterArchiveOpen ||
                     isDictionaryOpen ||
-                    isSystemSettingsOpen
+                    isSystemSettingsOpen ||
+                    isDateModuleOpen
                       ? true
                       : undefined
                   }

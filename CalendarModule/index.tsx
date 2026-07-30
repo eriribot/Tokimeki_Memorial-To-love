@@ -13,6 +13,8 @@ export {
   isLeapYear,
 } from './date';
 export type { CalendarDateValue } from '../types';
+export { DateModule } from './DateModule';
+export type { DateModuleProps } from './DateModule';
 
 const CALENDAR_ASSET_ROOT = '/artsource/calendar';
 const CALENDAR_FACE = `${CALENDAR_ASSET_ROOT}/new_count.png`;

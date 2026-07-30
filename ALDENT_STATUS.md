@@ -2,6 +2,140 @@
 
 ```yaml
 status: implementation_updated_user_manual_test_pending
+current_loop: dimmed_map_book_relative_calendar_controls_2026-07-30
+authorized_by: user_requested_a_slightly_dimmed_background_and_paging_controls_closer_to_the_calendar
+authorized_scope:
+  - dim the map with one neutral 30-percent alpha layer while leaving the calendar and controls undimmed
+  - position L_data.png and R_data.png relative to the calendar book at its left and right outer edges
+  - keep the controls alpha-only with no inherited button plate, radius, shadow, filter, movement, or decorative pseudo-elements
+  - preserve local two-month browsing, per-page years, current-day marking, and authoritative-state isolation
+  - leave build and visual verification to the user
+forbidden_scope:
+  - add a pure white stage, glass, backdrop blur, replacement animation, or opaque paging-button container
+  - edit the daily calendar card, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, saves, or store state
+  - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+connection_state: local_read_only_calendar_browsing_over_a_single_dim_layer_no_authoritative_state_write
+overall_connection_label: 地图只做轻度暗化；透明 L/R 紧邻日历书并随书本缩放定位，翻月仍只改变本地显示
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+human_review: pending_user_dim_strength_book_relative_control_spacing_and_alpha_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: alpha_clean_archive_calendar_controls_2026-07-30
+authorized_by: user_clarified_only_the_two_paging_controls_should_be_fully_transparent
+authorized_scope:
+  - restore the calendar overlay background to transparent so the existing map remains normally visible
+  - keep the archive L_data.png and R_data.png artwork with its original alpha channel
+  - locally neutralize inherited button background, radius, shadow, filter, movement, transition, backdrop filter, and decorative pseudo-elements
+  - preserve local two-month browsing, per-page years, current-day marking, and authoritative-state isolation
+  - leave build and visual verification to the user
+forbidden_scope:
+  - add a pure white stage, glass, blur, dim overlay, translucent button plate, or replacement animation
+  - edit the daily calendar card, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, saves, or store state
+  - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+connection_state: local_read_only_calendar_browsing_with_alpha_only_page_controls_no_authoritative_state_write
+overall_connection_label: 日历继续自然叠在地图上；L/R 只显示原 PNG 图形，不再出现通用按钮白块、圆角底或阴影
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+human_review: pending_user_map_visibility_and_seamless_L_R_alpha_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: opaque_archive_style_calendar_stage_2026-07-30
+authorized_by: user_requested_normal_opaque_presentation_matching_the_archive_screen
+authorized_scope:
+  - cover the map frame with the same solid white stage treatment used by CharacterArchivePanel
+  - replace the floating ji_guide arrows with the archive screen L_data.png and R_data.png controls
+  - place the paging controls at the stage edges with the archive screen sizing convention
+  - preserve local two-month browsing, per-page years, current-day marking, and authoritative-state isolation
+  - leave build and visual verification to the user
+forbidden_scope:
+  - add transparency, glass, blur, dim overlays, replacement daily-card styling, or new page-turn animation
+  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
+  - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+connection_state: local_read_only_calendar_browsing_on_opaque_same_frame_stage_no_authoritative_state_write
+overall_connection_label: 日历采用档案页式不透明同框底层与 L/R 提示，不再透出地图；翻月仍只改变本地显示
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+human_review: pending_user_opaque_stage_archive_style_arrow_position_and_calendar_layout_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: local_two_month_calendar_navigation_and_year_2026-07-30
+authorized_by: user_requested_original_L_R_arrow_month_browsing_and_visible_years
+authorized_scope:
+  - use artsource/ui/ji_guide_L.png and ji_guide_R.png as the calendar page controls
+  - move backward or forward by one two-page spread while the calendar remains open
+  - show the corresponding year on each calendar page, including cross-year spreads
+  - keep the browsing cursor local to DateModule and reset it to the authoritative current month after closing
+  - update active documentation and leave all verification to the user
+forbidden_scope:
+  - add glass, blur, dim overlays, replacement daily-card styling, or new page-turn animation
+  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
+  - add episode-ID branches or change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+connection_state: local_read_only_calendar_browsing_projection_no_authoritative_state_write
+overall_connection_label: L/R 只翻阅本次打开的双月视图；逐页年份可见，关闭后回到游戏当前月，不参与主线或日期结算
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+human_review: pending_user_arrow_position_month_navigation_cross_year_labels_and_existing_visual_identity_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
+current_loop: display_only_two_month_calendar_2026-07-30
+authorized_by: user_requested_calendar_display_first_then_reserved_classic_event_icons_for_later
+authorized_scope:
+  - keep the existing daily calendar card artwork, action-point display, and original corner-frame animation unchanged
+  - play the existing corner fold only while one action point remains
+  - use a separate outer solid cursor as the daily-card launcher feedback
+  - open a read-only current-month and next-month calendar inside the existing map frame
+  - localize visible month and weekday labels to Chinese and mark the authoritative current day
+  - remove the dim translucent backdrop and leave final visual verification to the user
+forbidden_scope:
+  - add glass, blur, translucent panel treatments, hover filters, card movement, or replacement animation to the daily card
+  - add month navigation, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
+  - derive availability from episode IDs or add branches to GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+  - describe packed PSP event icons as implemented runtime behavior before semantic slicing and mapping
+connection_state: local_read_only_ui_projection_of_authoritative_zustand_date_no_state_write_or_host_integration
+overall_connection_label: 左上原日期牌仅增加外层点击光标；双月日历只读显示当前日期，不写游戏态，也不参与主线或约会结算
+verification:
+  passed:
+    - source diff keeps the original game-calendar-card rules and CornerAnimation frame assets while moving click handling to a separate overlay button
+    - source inspection confirms the corner animation is mounted only when actionPointsRemaining equals 1
+    - source inspection confirms DateModule receives only date and onClose, computes the next calendar month locally, and renders no date buttons
+    - source inspection confirms the map stage and bottom controls become inert while the calendar is open and the calendar closes when main story opens
+    - extracted resource audit found named love-event, holiday, birthday, school, festival, and sakura entries but left their packed atlas out of this runtime loop
+    - scoped ESLint, pnpm build:dev, and pnpm build passed after the no-backdrop, Chinese-label, and one-AP-fold corrections
+  failed: []
+  not_run:
+    - final browser screenshots and interaction acceptance, explicitly delegated to the user after the no-glass and localization correction
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only connection
+    - exact inline verifier because src/webgame-ui/verify-inline-bundle.mjs is absent from the current repository
+human_review: pending_user_daily_card_identity_outer_cursor_no_glass_chinese_labels_and_two_month_layout_confirmation
+```
+
+```yaml
+status: implementation_updated_user_manual_test_pending
 current_loop: archive_developer_unlock_preview_toggle_2026-07-29
 authorized_by: user_requested_archive_one_click_unlock_mode_with_default_restore
 authorized_scope:
