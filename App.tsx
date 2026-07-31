@@ -1,6 +1,7 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
 import { CalendarCard, DateModule, DayTransition } from './CalendarModule';
+import { buildCalendarSpecialDateCatalog } from './CalendarModule/specialDates';
 import ClassroomScene from './components/ClassroomScene';
 import Controls from './components/Controls';
 import EventLog from './components/EventLog';
@@ -38,6 +39,7 @@ function App() {
   const storyArchives = useGameStore(state => state.mainStory.archives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
+  const calendarSpecialDates = useMemo(() => buildCalendarSpecialDateCatalog(), []);
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
@@ -369,7 +371,9 @@ function App() {
                   {isCharacterArchiveOpen && <CharacterArchivePanel onClose={() => setIsCharacterArchiveOpen(false)} />}
                   {isDictionaryOpen && <DictionaryPanel onClose={() => setIsDictionaryOpen(false)} />}
                   {isSystemSettingsOpen && <SystemSettingsModal onClose={() => setIsSystemSettingsOpen(false)} />}
-                  {isDateModuleOpen && <DateModule date={calendarDate} onClose={closeDateModule} />}
+                  {isDateModuleOpen && (
+                    <DateModule date={calendarDate} specialDates={calendarSpecialDates} onClose={closeDateModule} />
+                  )}
                 </div>
 
                 <div

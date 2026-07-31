@@ -1,28 +1,30 @@
 # 艾尔登特当前状态
 
 ```yaml
-status: implementation_updated_user_manual_test_pending
-current_loop: dimmed_map_book_relative_calendar_controls_2026-07-30
-authorized_by: user_requested_a_slightly_dimmed_background_and_paging_controls_closer_to_the_calendar
+status: implementation_updated_build_passed_user_manual_visual_test_pending
+current_loop: weekend_blocked_dates_and_clickable_calendar_info_2026-07-31
+authorized_by: user_requested_the_calendar_to_be_functional_with_main_story_weekend_x_marks_and_clickable_dates
 authorized_scope:
-  - dim the map with one neutral 30-percent alpha layer while leaving the calendar and controls undimmed
-  - position L_data.png and R_data.png relative to the calendar book at its left and right outer edges
-  - keep the controls alpha-only with no inherited button plate, radius, shadow, filter, movement, or decorative pseudo-elements
-  - preserve local two-month browsing, per-page years, current-day marking, and authoritative-state isolation
-  - leave build and visual verification to the user
+  - project main-story whole-day dates that fall on Saturday or Sunday into red X blocked calendar cells
+  - allow current and future visible dates to be selected locally and drive the bottom info strip
+  - keep the existing book art, month headers, page-turn motion, and the no-glass overlay treatment intact
+  - add a horizontal paper-like information strip below the book without writing AP, date, or save state
+  - keep DateModule isolated from direct GalMainStory imports and from authoritative state writes
 forbidden_scope:
   - add a pure white stage, glass, backdrop blur, replacement animation, or opaque paging-button container
-  - edit the daily calendar card, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, saves, or store state
+  - edit the daily calendar card, AP settlement, date advancement, saves, or store state
   - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
-connection_state: local_read_only_calendar_browsing_over_a_single_dim_layer_no_authoritative_state_write
-overall_connection_label: 地图只做轻度暗化；透明 L/R 紧邻日历书并随书本缩放定位，翻月仍只改变本地显示
+connection_state: local_selectable_calendar_projection_with_css_drawn_blocked_weekend_markers_and_no_authoritative_state_write
+overall_connection_label: 当前及未来日期可点选查看底部信息；主线周末 whole-day 日期显示非字体绘制红 X 和通用占用说明
 verification:
-  passed: []
+  passed:
+    - pnpm exec eslint src/webgame-ui/App.tsx src/webgame-ui/CalendarModule/DateModule/index.tsx src/webgame-ui/CalendarModule/specialDates/index.ts src/webgame-ui/CalendarModule/specialDates/types.ts src/webgame-ui/CalendarModule/specialDates/selectors.ts src/webgame-ui/CalendarModule/specialDates/mainStoryProjection.ts src/webgame-ui/CalendarModule/specialDates/catalog.ts
+    - pnpm build:dev
   failed: []
   not_run:
-    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
+    - formatting, browser, screenshot, inline, and runtime checks, left for user visual/manual confirmation
     - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
-human_review: pending_user_dim_strength_book_relative_control_spacing_and_alpha_confirmation
+human_review: pending_user_selectable_dates_top_aligned_numbers_css_red_x_bottom_info_strip_and_main_story_blocked_weekend_confirmation
 ```
 
 ```yaml
