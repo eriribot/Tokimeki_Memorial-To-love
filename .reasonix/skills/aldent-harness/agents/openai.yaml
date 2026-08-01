@@ -1,0 +1,6 @@
+interface:
+  display_name: "艾尔登特审查门"
+  short_description: "约束范围、证据、成熟度与人工验收"
+  default_prompt: "Use $aldent-harness in concise normal-sortie mode by default; expand diagnostics or the full human-review package only when the evidence risk requires it."
+policy:
+  allow_implicit_invocation: true
