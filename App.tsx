@@ -16,6 +16,7 @@ import MemorySummaryProgress from './components/MemorySummaryProgress';
 import { queueMemorySummaryAfterAutosave } from './memory/summaryRuntime';
 import SystemSettingsModal from './components/SystemSettingsModal';
 import StartScreen from './components/StartScreen';
+import PlayerRegistration from './start/PlayerRegistration';
 import GalMainStory from './GalMainStory/GalMainStory';
 import { gameSaveApi, startTavernAutosave } from './save';
 import { resumeSession } from './services/gameSession';
@@ -35,6 +36,7 @@ function App() {
   const { width, height, cellSize } = useMapStore();
   const screen = useGameStore((state: { screen: string }) => state.screen);
   const currentSceneId = useGameStore((state: { currentSceneId: string | null }) => state.currentSceneId);
+  const returnToStart = useGameStore(state => state.returnToStart);
   const mainStoryRun = useGameStore(state => state.mainStory.run);
   const storyArchives = useGameStore(state => state.mainStory.archives);
   const calendarDate = useGameStore(state => state.date);
@@ -261,6 +263,8 @@ function App() {
             onContinue={handleContinue}
             saveError={saveError}
           />
+        ) : screen === 'registration' ? (
+          <PlayerRegistration onCancel={returnToStart} />
         ) : (
           <div className="app">
             <header className="game-header" aria-label="To LOVE-Ru">

@@ -1,6 +1,26 @@
 import type { GalStoryFloor, GalStoryMessageSave, MainStoryState } from './GalMainStory/storyTypes';
 
-export type GameScreen = 'start' | 'game';
+export type GameScreen = 'start' | 'registration' | 'game';
+
+export type PlayerBloodType = 'A' | 'B' | 'AB' | 'O' | 'unknown';
+
+export interface PlayerProfile {
+  familyName: string;
+  givenName: string;
+  displayName: string;
+  birthdayMonth: number;
+  birthdayDay: number;
+  bloodType: PlayerBloodType;
+  registrationCompleted: true;
+}
+
+export interface PlayerRegistrationInput {
+  familyName: string;
+  givenName: string;
+  birthdayMonth: number;
+  birthdayDay: number;
+  bloodType: PlayerBloodType;
+}
 
 export interface CalendarDateValue {
   year: number;
@@ -114,6 +134,7 @@ export interface GameActions {
   deleteMainStoryFloor: (floorId: string) => boolean;
   setMainStoryPosition: (actId: string, pageIndex: number) => void;
   finishMainStoryAct: () => boolean;
+  completeRegistration: () => void;
   resetGameState: () => void;
 }
 
@@ -121,6 +142,7 @@ export type GameStore = GameState & GameActions;
 
 export interface PlayerState {
   name: string;
+  profile: PlayerProfile | null;
   color: string;
   avatar: string;
   intelligence: number;
@@ -136,6 +158,7 @@ export interface PlayerActions {
   isTired: () => boolean;
   isStressed: () => boolean;
   setColor: (color: string) => void;
+  completeRegistration: (profile: PlayerProfile) => boolean;
   resetPlayer: () => void;
   study: () => void;
   exercise: () => void;

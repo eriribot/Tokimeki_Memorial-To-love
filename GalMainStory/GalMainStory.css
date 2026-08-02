@@ -150,11 +150,13 @@
 
 .layered-portrait-stage {
   position: absolute;
-  right: 7%;
+  right: auto;
   bottom: -2%;
+  left: 50%;
   z-index: 2;
   width: min(46%, 560px);
   aspect-ratio: 1;
+  transform: translateX(-50%);
   pointer-events: none;
   filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.32));
   animation: layered-portrait-enter 260ms ease-out both;
@@ -1092,11 +1094,11 @@
 @keyframes layered-portrait-enter {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateX(calc(-50% + 24px));
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
 }
 
@@ -1193,8 +1195,9 @@
   }
 
   .layered-portrait-stage {
-    right: 4%;
+    right: auto;
     bottom: 0;
+    left: 50%;
     width: 48%;
   }
 
@@ -1277,8 +1280,9 @@
   }
 
   .layered-portrait-stage {
-    right: 3%;
+    right: auto;
     bottom: 30%;
+    left: 50%;
     width: 38%;
   }
 

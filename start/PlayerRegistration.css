@@ -1,0 +1,804 @@
+.player-registration {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 30 / 17;
+  min-height: 0;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 35%, rgb(255 255 255 / 42%), transparent 40%),
+    linear-gradient(135deg, #fff5f8, #e7f5fb 58%, #fff4d8);
+  color: #151b3b;
+  container: player-registration / size;
+}
+
+.tolove-app-shell.is-page-mode .player-registration {
+  height: var(--tolove-viewport-height, 100svh);
+  aspect-ratio: auto;
+}
+
+.player-registration__opening .layered-portrait-stage {
+  width: min(78cqh, 48cqw, 960px);
+}
+
+.player-registration__event-cg .gal-main-story__background {
+  object-position: center;
+}
+
+/* Keep the same 1400 × 840 logical ceiling as the map. The whole scene scales
+   as one game surface; individual controls never float against the viewport. */
+.player-registration__form-scene {
+  position: relative;
+  width: min(1400px, 100cqw, 166.667cqh);
+  height: min(840px, 100cqh, 60cqw);
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+  isolation: isolate;
+  border: clamp(2px, 0.3cqw, 4px) solid rgb(255 255 255 / 94%);
+  border-radius: clamp(10px, 1.25cqw, 18px);
+  background: #d5edf5;
+  box-shadow:
+    0 18px 54px rgb(50 67 104 / 34%),
+    0 0 0 3px rgb(236 107 164 / 68%);
+  container: registration-stage / size;
+}
+
+.player-registration__background,
+.player-registration__light {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.player-registration__background {
+  z-index: -3;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: auto;
+}
+
+.player-registration__light {
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 13%), transparent 40%),
+    linear-gradient(180deg, transparent 62%, rgb(26 39 67 / 14%));
+  pointer-events: none;
+}
+
+.player-registration__form-scene::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 7% 8%, rgb(255 255 255 / 28%) 0 2px, transparent 3px) 0 0 / 27px 27px,
+    linear-gradient(112deg, transparent 70%, rgb(255 236 246 / 9%));
+  content: '';
+  pointer-events: none;
+}
+
+/* The event CG is shown on the previous page. During registration Riko stays
+   beside the form as a separate, deliberately static portrait. */
+.player-registration__form-scene > .player-registration__riko.layered-portrait-stage {
+  position: absolute;
+  right: auto;
+  bottom: -2%;
+  left: 84%;
+  z-index: 2;
+  display: block;
+  width: auto;
+  height: 87%;
+  max-width: none;
+  opacity: 1;
+  filter: drop-shadow(0 17px 17px rgb(35 43 68 / 28%));
+  transform: translateX(-50%);
+  animation: none;
+  pointer-events: none;
+}
+
+.player-registration__form-scene > .player-registration__riko .layered-portrait {
+  animation: none;
+}
+
+.player-registration__form-shell {
+  position: absolute;
+  inset: 2.8% 2.4% 3.2%;
+  z-index: 4;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) clamp(24px, 4.1cqh, 36px);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: clamp(1px, 0.16cqw, 2px) solid rgb(255 255 255 / 88%);
+  border-radius: clamp(10px, 1.35cqw, 18px);
+  background: rgb(255 255 255 / 6%);
+  box-shadow: 0 12px 34px rgb(32 49 83 / 24%);
+}
+
+.player-registration__header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(7px, 1.25cqh, 12px);
+  padding: 0 clamp(12px, 2.15cqw, 28px);
+}
+
+.player-registration__header > div {
+  position: relative;
+  display: flex;
+  min-height: clamp(42px, 7.8cqh, 66px);
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 clamp(-28px, -2.15cqw, -12px);
+  padding: 0 clamp(18px, 2.65cqw, 36px);
+  gap: 18px;
+  overflow: hidden;
+  border-bottom: 2px solid rgb(15 108 137 / 54%);
+  border-radius: clamp(9px, 1.2cqw, 16px) clamp(9px, 1.2cqw, 16px) 0 0;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 18%) 1px, transparent 1px) 0 0 / 5px 100%,
+    linear-gradient(180deg, #36d1e2 0%, #10aaca 54%, #0788b1 100%);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 74%),
+    inset 0 -4px rgb(1 88 126 / 18%),
+    0 4px 10px rgb(14 87 122 / 24%);
+}
+
+.player-registration__header > div::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgb(255 255 255 / 46%);
+  content: '';
+}
+
+.player-registration__header p {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(9px, 1.25cqw, 16px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 2px rgb(5 67 100 / 62%);
+}
+
+.player-registration__header h1 {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(22px, 3.15cqw, 42px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 2px 0 #237a96,
+    0 0 5px rgb(255 255 255 / 56%);
+}
+
+.player-registration__header h1::before {
+  margin-right: 0.35em;
+  color: #fff7db;
+  content: '♥';
+  font-size: 0.72em;
+  text-shadow:
+    0 1px 0 #087a9f,
+    0 0 4px rgb(255 255 255 / 60%);
+}
+
+.player-registration__header ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(7px, 1.4cqw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-registration__header li {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: clamp(28px, 5.1cqh, 42px);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(3px, 0.5cqw, 7px);
+  padding: 3px clamp(7px, 1.15cqw, 15px);
+  border: clamp(1px, 0.18cqw, 2px) solid #d5c7ae;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff9e9 0%, #f5dfb7 72%, #d7bd91 100%);
+  color: #182143;
+  font-size: clamp(10px, 1.45cqw, 19px);
+  font-weight: 900;
+  text-shadow: 0 1px rgb(255 255 255 / 90%);
+  box-shadow:
+    inset 0 2px rgb(255 255 255 / 88%),
+    0 3px 6px rgb(38 49 82 / 22%);
+}
+
+.player-registration__header li::after {
+  position: absolute;
+  bottom: clamp(-6px, -0.65cqh, -4px);
+  left: 18%;
+  width: 28%;
+  height: clamp(3px, 0.7cqh, 6px);
+  border: 1px solid rgb(183 45 120 / 45%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff91cf, #e84eaa);
+  content: '';
+  opacity: 0;
+  box-shadow: 0 0 5px rgb(255 83 182 / 54%);
+}
+
+.player-registration__header li span {
+  flex: 0 0 auto;
+  color: inherit;
+}
+
+.player-registration__header li.is-complete {
+  color: #356672;
+}
+
+.player-registration__header li.is-current {
+  border-color: #078baa;
+  background: linear-gradient(180deg, #41d9df 0%, #0db7ca 60%, #0790af 100%);
+  color: #fff;
+  text-shadow: 0 2px rgb(4 101 125 / 65%);
+  box-shadow:
+    inset 0 2px rgb(255 255 255 / 62%),
+    0 4px 8px rgb(11 104 139 / 30%);
+}
+
+.player-registration__header li.is-current::after {
+  opacity: 1;
+}
+
+.player-registration__form {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 73%;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  margin-top: clamp(8px, 1.45cqh, 14px);
+  padding: clamp(15px, 2.5cqh, 27px) clamp(24px, 3.4cqw, 46px) clamp(11px, 1.8cqh, 19px);
+  overflow-y: auto;
+  border: clamp(1px, 0.18cqw, 2px) solid rgb(13 143 170 / 74%);
+  border-bottom: 0;
+  border-radius: clamp(8px, 1cqw, 13px) clamp(8px, 1cqw, 13px) 0 0;
+  background:
+    linear-gradient(90deg, rgb(30 154 177 / 5%) 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(180deg, rgb(255 251 236 / 89%), rgb(244 235 209 / 84%));
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 50%),
+    0 8px 20px rgb(23 55 72 / 18%);
+  scrollbar-color: #1aaec5 transparent;
+  scrollbar-width: thin;
+  -webkit-backdrop-filter: blur(1.5px) saturate(0.9);
+  backdrop-filter: blur(1.5px) saturate(0.9);
+}
+
+.player-registration__form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.player-registration__form legend {
+  max-width: 100%;
+  margin-bottom: clamp(8px, 1.35cqh, 14px);
+  padding-left: 0.65em;
+  border-left: clamp(4px, 0.5cqw, 7px) solid #23bfd0;
+  color: #151a3e;
+  font-size: clamp(16px, 2.05cqw, 27px);
+  font-weight: 900;
+  line-height: 1.35;
+  text-shadow: 0 1px #fff;
+}
+
+.player-registration__riko-line {
+  margin: 0 0 clamp(12px, 2cqh, 20px);
+  padding: clamp(7px, 1.15cqh, 11px) clamp(11px, 1.6cqw, 20px);
+  border: clamp(1px, 0.18cqw, 2px) solid #159bb0;
+  border-radius: clamp(5px, 0.7cqw, 9px);
+  background: linear-gradient(90deg, rgb(198 248 245 / 88%), rgb(235 250 239 / 78%));
+  color: #17213e;
+  font-size: clamp(10px, 1.32cqw, 17px);
+  font-weight: 700;
+  line-height: 1.45;
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 54%),
+    0 2px 5px rgb(28 104 122 / 13%);
+}
+
+.player-registration__riko-line::before {
+  margin-right: 0.55em;
+  color: #0a879f;
+  content: '♥';
+  font-size: 0.82em;
+}
+
+.player-registration__name-grid,
+.player-registration__date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2.4cqw, 32px);
+}
+
+.player-registration__name-grid label,
+.player-registration__date-grid label {
+  position: relative;
+  display: grid;
+  gap: clamp(5px, 0.9cqh, 9px);
+}
+
+.player-registration__name-grid label::after {
+  position: absolute;
+  bottom: clamp(7px, 1.1cqh, 11px);
+  left: clamp(10px, 1.3cqw, 17px);
+  width: clamp(46px, 7cqw, 92px);
+  height: clamp(3px, 0.65cqh, 6px);
+  border: 1px solid rgb(171 37 112 / 48%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff96d1, #e64aa7);
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgb(255 72 177 / 50%);
+}
+
+.player-registration__name-grid label:focus-within::after {
+  opacity: 1;
+  animation: registration-caret 1s steps(1, end) infinite;
+}
+
+.player-registration__name-grid label > span,
+.player-registration__date-grid label > span:first-child {
+  color: #17203b;
+  font-size: clamp(11px, 1.4cqw, 18px);
+  font-weight: 900;
+}
+
+.player-registration input,
+.player-registration select {
+  width: 100%;
+  min-width: 0;
+  min-height: clamp(39px, 6.7cqh, 58px);
+  padding: 6px clamp(11px, 1.45cqw, 19px);
+  border: clamp(2px, 0.22cqw, 3px) solid #10a1b7;
+  border-radius: clamp(6px, 0.75cqw, 10px);
+  outline: 1px solid rgb(255 255 255 / 86%);
+  outline-offset: -4px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(249 249 240 / 97%));
+  color: #1b2241;
+  font: inherit;
+  font-size: clamp(14px, 1.8cqw, 23px);
+  font-weight: 900;
+  box-shadow:
+    inset 0 2px 4px rgb(27 90 111 / 11%),
+    0 3px 6px rgb(31 77 94 / 16%);
+}
+
+.player-registration input:focus,
+.player-registration select:focus {
+  border-color: #e65aa8;
+  outline-color: rgb(255 255 255 / 94%);
+  box-shadow:
+    0 0 0 3px rgb(255 224 113 / 78%),
+    inset 0 2px 4px rgb(27 90 111 / 11%);
+}
+
+.player-registration__field-note {
+  margin: clamp(9px, 1.6cqh, 17px) 0 0;
+  color: #282b3a;
+  font-size: clamp(9px, 1.17cqw, 15px);
+  font-weight: 700;
+  text-shadow: 0 1px rgb(255 255 255 / 90%);
+}
+
+.player-registration__select-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.player-registration__select-wrap b {
+  color: #17203b;
+  font-size: clamp(12px, 1.55cqw, 20px);
+}
+
+.player-registration__blood-types {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(7px, 1.25cqw, 16px);
+}
+
+.player-registration__blood-types label {
+  position: relative;
+  display: grid;
+  min-height: clamp(38px, 6.5cqh, 56px);
+  place-items: center;
+  overflow: hidden;
+  border: clamp(2px, 0.22cqw, 3px) solid #c9b994;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffdf2, #eed9ae);
+  color: #1d2648;
+  font-size: clamp(10px, 1.35cqw, 18px);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow:
+    inset 0 2px rgb(255 255 255 / 84%),
+    0 3px 7px rgb(43 57 94 / 18%);
+}
+
+.player-registration__blood-types label.is-selected {
+  border-color: #078ea8;
+  background: linear-gradient(180deg, #41d9df, #0aaec3);
+  color: #fff;
+  text-shadow: 0 2px rgb(4 101 125 / 65%);
+  box-shadow:
+    0 0 0 3px rgb(234 83 163 / 26%),
+    inset 0 2px rgb(255 255 255 / 52%);
+}
+
+.player-registration__blood-types input {
+  position: absolute;
+  width: 1px;
+  min-height: 1px;
+  opacity: 0;
+}
+
+.player-registration__review {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 1.3cqw, 17px);
+  margin: 0;
+}
+
+.player-registration__review div {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: clamp(1px, 0.18cqw, 2px) solid #1599af;
+  border-radius: clamp(6px, 0.75cqw, 10px);
+  background: rgb(255 255 255 / 77%);
+}
+
+.player-registration__review dt,
+.player-registration__review dd {
+  margin: 0;
+  padding: clamp(7px, 1.15cqh, 12px) clamp(10px, 1.4cqw, 18px);
+}
+
+.player-registration__review dt {
+  background: linear-gradient(180deg, #37ccda, #0a9db8);
+  color: #fff;
+  font-size: clamp(9px, 1.1cqw, 14px);
+  font-weight: 900;
+  text-shadow: 0 1px rgb(3 81 102 / 60%);
+}
+
+.player-registration__review dd {
+  color: #1a2242;
+  font-size: clamp(13px, 1.65cqw, 22px);
+  font-weight: 900;
+}
+
+.player-registration__error {
+  margin: 10px 0 0;
+  padding: 7px 10px;
+  border: 2px solid #df4f87;
+  border-radius: 7px;
+  background: #fff0f4;
+  color: #9f224f;
+  font-size: clamp(9px, 1.05cqw, 14px);
+  font-weight: 800;
+}
+
+.player-registration__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: clamp(9px, 1.35cqw, 18px);
+  margin-top: auto;
+  padding-top: clamp(10px, 1.7cqh, 18px);
+}
+
+.player-registration__actions button {
+  min-width: clamp(100px, 14cqw, 180px);
+  min-height: clamp(34px, 5.5cqh, 49px);
+  padding: 5px clamp(16px, 2cqw, 26px);
+  border: clamp(2px, 0.22cqw, 3px) solid rgb(255 255 255 / 94%);
+  border-radius: 999px;
+  color: #17203e;
+  font: inherit;
+  font-size: clamp(10px, 1.3cqw, 17px);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow:
+    0 4px 9px rgb(43 58 92 / 24%),
+    inset 0 0 0 2px rgb(117 97 61 / 15%);
+}
+
+.player-registration__actions button.is-secondary,
+.player-registration__actions button.is-primary {
+  background: linear-gradient(180deg, #fffdf3 0%, #f3dfb9 72%, #d8bf93 100%);
+}
+
+.player-registration__actions button.is-primary {
+  color: #633508;
+  box-shadow:
+    0 4px 10px rgb(137 93 29 / 24%),
+    inset 0 0 0 2px rgb(255 211 100 / 34%);
+}
+
+.player-registration__actions button:hover,
+.player-registration__actions button:focus-visible {
+  border-color: #fff;
+  outline: 3px solid rgb(235 80 162 / 78%);
+  outline-offset: 2px;
+  filter: brightness(1.05);
+}
+
+.player-registration__status-bar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: clamp(24px, 4.1cqh, 36px);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 0 clamp(12px, 2cqw, 26px);
+  gap: clamp(10px, 1.8cqw, 24px);
+  overflow: hidden;
+  border-top: 2px solid rgb(11 122 151 / 70%);
+  border-radius: 0 0 clamp(8px, 1cqw, 13px) clamp(8px, 1cqw, 13px);
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 17%) 1px, transparent 1px) 0 0 / 5px 100%,
+    linear-gradient(180deg, #28c8d2, #0898b5);
+  box-shadow:
+    inset 0 2px rgb(255 255 255 / 43%),
+    0 -2px rgb(255 255 255 / 55%);
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(1 87 112 / 68%);
+}
+
+.player-registration__status-bar strong,
+.player-registration__status-bar b {
+  font-size: clamp(8px, 1.05cqw, 14px);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.player-registration__status-bar strong span {
+  margin-right: 0.35em;
+  color: #fff4c7;
+}
+
+.player-registration__status-bar p {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: clamp(8px, 1.1cqw, 14px);
+  font-weight: 800;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes registration-caret {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.18;
+  }
+}
+
+/* Tablet landscape profile. */
+@container registration-stage (max-width: 1023px) {
+  .player-registration__form-shell {
+    inset: 2.3% 2% 2.7%;
+  }
+
+  .player-registration__header {
+    gap: 7px;
+    padding-inline: 16px;
+  }
+
+  .player-registration__header > div {
+    margin-inline: -16px;
+    padding-inline: 22px;
+  }
+
+  .player-registration__form {
+    width: 74%;
+    margin-top: 7px;
+    padding: 13px 22px 10px;
+  }
+
+  .player-registration__form-scene > .player-registration__riko.layered-portrait-stage {
+    bottom: -1%;
+    left: 85%;
+    height: 84%;
+  }
+}
+
+/* Phone landscape profile: compact the same layout instead of changing its
+   coordinate system or pushing the character to another lane. */
+@container registration-stage (max-width: 639px) {
+  .player-registration__form-shell {
+    inset: 1.7% 1.4% 2%;
+    border-radius: 8px;
+  }
+
+  .player-registration__header {
+    gap: 5px;
+    padding-inline: 9px;
+  }
+
+  .player-registration__header > div {
+    margin-inline: -9px;
+    padding-inline: 13px;
+  }
+
+  .player-registration__header p {
+    font-size: 7px;
+    letter-spacing: 0.04em;
+  }
+
+  .player-registration__header h1 {
+    font-size: 18px;
+  }
+
+  .player-registration__header ol {
+    gap: 5px;
+  }
+
+  .player-registration__header li {
+    min-height: 23px;
+    padding-inline: 4px;
+    font-size: 9px;
+  }
+
+  .player-registration__header li::after {
+    bottom: -4px;
+    height: 3px;
+  }
+
+  .player-registration__form {
+    width: 76%;
+    margin-top: 5px;
+    padding: 7px 12px 5px;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .player-registration__form-scene > .player-registration__riko.layered-portrait-stage {
+    bottom: 0;
+    left: 86%;
+    height: 80%;
+  }
+
+  .player-registration__form legend {
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+
+  .player-registration__riko-line {
+    margin-bottom: 6px;
+    padding: 4px 8px;
+    font-size: 8px;
+  }
+
+  .player-registration__name-grid,
+  .player-registration__date-grid {
+    gap: 8px;
+  }
+
+  .player-registration__name-grid label,
+  .player-registration__date-grid label {
+    gap: 3px;
+  }
+
+  .player-registration input,
+  .player-registration select {
+    min-height: 29px;
+    border-width: 2px;
+    font-size: 12px;
+  }
+
+  .player-registration__field-note {
+    margin-top: 5px;
+    font-size: 7px;
+  }
+
+  .player-registration__blood-types {
+    gap: 4px;
+  }
+
+  .player-registration__blood-types label {
+    min-height: 29px;
+    border-width: 2px;
+    font-size: 9px;
+  }
+
+  .player-registration__review {
+    gap: 5px;
+  }
+
+  .player-registration__review dt,
+  .player-registration__review dd {
+    padding: 5px 7px;
+  }
+
+  .player-registration__actions {
+    gap: 7px;
+    padding-top: 5px;
+  }
+
+  .player-registration__actions button {
+    min-width: 84px;
+    min-height: 27px;
+    padding: 3px 12px;
+    border-width: 2px;
+    font-size: 9px;
+  }
+
+  .player-registration__status-bar {
+    height: 22px;
+    padding-inline: 8px;
+    gap: 6px;
+  }
+
+  .player-registration__status-bar strong {
+    font-size: 7px;
+  }
+
+  .player-registration__status-bar p,
+  .player-registration__status-bar b {
+    font-size: 7px;
+  }
+}
+
+@container registration-stage (max-height: 440px) {
+  .player-registration__header > div {
+    min-height: 34px;
+  }
+
+  .player-registration__header li {
+    min-height: 24px;
+  }
+
+  .player-registration__form {
+    padding-top: 7px;
+    padding-bottom: 4px;
+  }
+
+  .player-registration__riko-line,
+  .player-registration__field-note {
+    margin-top: 3px;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .player-registration {
+    min-height: 100svh;
+    aspect-ratio: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-registration__name-grid label:focus-within::after {
+    animation: none;
+  }
+}

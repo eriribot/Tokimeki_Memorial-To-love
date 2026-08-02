@@ -9,8 +9,8 @@ const RIKO_SCHOOL_PORTRAIT = {
   body: '/artsource/riko/riko_body.png',
   mask: '/artsource/riko/riko_mask.png',
   regions: {
-    eyes: { x: 400, y: 142, width: 230, height: 100 },
-    mouth: { x: 440, y: 225, width: 170, height: 70 },
+    eyes: { x: 400, y: 142, width: 230, height: 100, feather: 10 },
+    mouth: { x: 440, y: 225, width: 170, height: 70, feather: 8 },
   },
   defaultExpressionId: 'neutral',
   expressions: createFaceAtlasExpressions('/artsource/riko/riko_', { neutral: 'a' }),

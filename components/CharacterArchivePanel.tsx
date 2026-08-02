@@ -37,6 +37,7 @@ const GRID_ROW_CENTERS = [160, 395, 630, 865];
 const DETAIL_BIO_ROWS = [275, 330, 385, 440, 495];
 const UNREGISTERED = '未登记';
 const PLAYER_PROFILE_FIELDS = ['生日', '身高', '体重', '血型'] as const;
+const PLAYER_BLOOD_TYPE_LABELS = { A: 'A 型', B: 'B 型', AB: 'AB 型', O: 'O 型', unknown: '不明' } as const;
 
 const clampPercent = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
 
@@ -110,12 +111,10 @@ function PlayerGauge({ label, value, tone }: { label: string; value: number; ton
 function PlayerRadar({ values }: { values: readonly number[] }) {
   const normalizedValues = values.map(clampPlayerAttribute);
   const stages = normalizedValues.map(resolveTokimekiAttributeStage);
-  const ariaValue = RADAR_AXES
-    .map(
-      (axis, index) =>
-        `${axis.label} ${normalizedValues[index] ?? 0}/${TOKIMEKI_ATTRIBUTE_MAX}，阶段 ${stages[index] ?? 1}/${TOKIMEKI_ATTRIBUTE_STAGE_MAX}`,
-    )
-    .join('，');
+  const ariaValue = RADAR_AXES.map(
+    (axis, index) =>
+      `${axis.label} ${normalizedValues[index] ?? 0}/${TOKIMEKI_ATTRIBUTE_MAX}，阶段 ${stages[index] ?? 1}/${TOKIMEKI_ATTRIBUTE_STAGE_MAX}`,
+  ).join('，');
 
   return (
     <svg
@@ -159,6 +158,8 @@ function PlayerRadar({ values }: { values: readonly number[] }) {
 }
 
 function PlayerStatusSide() {
+  const name = usePlayerStore(state => state.name);
+  const profile = usePlayerStore(state => state.profile);
   const intelligence = usePlayerStore(state => state.intelligence);
   const athletics = usePlayerStore(state => state.athletics);
   const art = usePlayerStore(state => state.art);
@@ -176,6 +177,12 @@ function PlayerStatusSide() {
     radar.appearance,
     radar.perseverance,
   ];
+  const profileValues = {
+    生日: profile ? `${profile.birthdayMonth} 月 ${profile.birthdayDay} 日` : UNREGISTERED,
+    身高: UNREGISTERED,
+    体重: UNREGISTERED,
+    血型: profile ? PLAYER_BLOOD_TYPE_LABELS[profile.bloodType] : UNREGISTERED,
+  } satisfies Record<(typeof PLAYER_PROFILE_FIELDS)[number], string>;
 
   return (
     <div className="character-archive-player-view" aria-label="主角属性">
@@ -187,7 +194,7 @@ function PlayerStatusSide() {
         draggable="false"
       />
       <div className="character-archive-player-sheet">
-        <h2 className="character-archive-player-heading">主角</h2>
+        <h2 className="character-archive-player-heading">主角 · {name}</h2>
 
         <div className="character-archive-player-summary">
           <dl className="character-archive-player-profile" aria-label="主角基础档案">
@@ -201,7 +208,7 @@ function PlayerStatusSide() {
                   />
                   {field}
                 </dt>
-                <dd>{UNREGISTERED}</dd>
+                <dd>{profileValues[field]}</dd>
               </div>
             ))}
           </dl>

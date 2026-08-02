@@ -18,8 +18,7 @@ import {
   isStoryCharacterId,
   isStoryCharacterSpeaking,
 } from './characters';
-import { GALBOX_ASSETS } from './galAssets';
-import LayeredPortrait from './LayeredPortrait';
+import GalStoryPage from './GalStoryPage';
 import { getEpisodeStoryActs, getPreviousActiveStoryFloors } from './storyArchive';
 import {
   createMainStoryFallbackAct,
@@ -563,118 +562,95 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
       onClick={goNext}
     >
-      <img
-        key={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.presentation.sceneId}`}
-        className="gal-main-story__background"
-        src={resolveAssetPath(scene.asset)}
-        alt={scene.alt}
-      />
-      <div className="gal-main-story__shade" aria-hidden="true" />
-      <div className="gal-main-story__act-label">
-        {isReplaying && '回放中 · '}第 {visibleActIndex + 1} 幕 · {actMeta?.title ?? visibleAct.id}
-        {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
-      </div>
-
-      {portraitRig && portraitExpressionId && (
-        <LayeredPortrait
-          key={`${portraitRig.characterId}-${portraitRig.id}`}
-          rig={portraitRig}
-          expressionId={portraitExpressionId}
-          isSpeaking={isPortraitSpeaking}
-          beatKey={visibleActIndex * 100 + visiblePageIndex}
-        />
-      )}
-
-      <div className="gal-main-story__dialogue">
-        <img
-          className="gal-main-story__window"
-          src={resolveAssetPath(GALBOX_ASSETS.messageWindow)}
-          alt=""
-          aria-hidden="true"
-        />
-
-        {speakerNameplate ? (
-          <div className="gal-main-story__nameplate" role="img" aria-label={nameplateSpeaker ?? undefined}>
-            <img src={resolveAssetPath(speakerNameplate)} alt="" aria-hidden="true" />
-            <strong>{nameplateSpeaker}</strong>
-          </div>
-        ) : (
-          visibleBeat.speaker && <strong className="gal-main-story__speaker">{visibleBeat.speaker}</strong>
-        )}
-
-        <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">
-          <p className={visibleBeat.speaker ? '' : 'is-narration'}>{visibleBeat.text}</p>
-        </div>
-
-        <span className="gal-main-story__push" aria-hidden="true">
-          {GALBOX_ASSETS.nextIndicatorFrames.map((src, frame) => (
-            <img key={src} className={`push-frame push-frame-${frame}`} src={resolveAssetPath(src)} alt="" />
-          ))}
-        </span>
-
-        <nav className="gal-main-story__controls" aria-label="剧情翻页" onClick={event => event.stopPropagation()}>
-          <button
-            type="button"
-            className="gal-main-story__icon-button"
-            disabled={previousDisabled}
-            onClick={goPrevious}
-            aria-label="上一页"
-            title="上一页"
-          >
-            ←
-          </button>
-          <span className="gal-main-story__progress">
-            {isReplaying && '回放 '}
-            {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
-            {visibleAct.beats.length}
-          </span>
-          <button
-            type="button"
-            className="gal-main-story__skip"
-            onClick={historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct}
-            aria-label={historyMode ? '返回剧情目录' : isReplaying ? '返回当前剧情' : '跳过当前幕'}
-          >
-            {historyMode ? '返回目录' : isReplaying ? '返回当前' : '跳过'}
-          </button>
-          {historyMode ? (
-            historyFloor ? (
+      <GalStoryPage
+        backgroundKey={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.presentation.sceneId}`}
+        backgroundAsset={scene.asset}
+        backgroundAlt={scene.alt}
+        speaker={visibleBeat.speaker}
+        text={visibleBeat.text}
+        portrait={
+          portraitRig && portraitExpressionId
+            ? {
+                rig: portraitRig,
+                expressionId: portraitExpressionId,
+                isSpeaking: isPortraitSpeaking,
+                beatKey: visibleActIndex * 100 + visiblePageIndex,
+              }
+            : null
+        }
+        actLabel={
+          <>
+            {isReplaying && '回放中 · '}第 {visibleActIndex + 1} 幕 · {actMeta?.title ?? visibleAct.id}
+            {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
+          </>
+        }
+        controls={
+          <nav className="gal-main-story__controls" aria-label="剧情翻页" onClick={event => event.stopPropagation()}>
+            <button
+              type="button"
+              className="gal-main-story__icon-button"
+              disabled={previousDisabled}
+              onClick={goPrevious}
+              aria-label="上一页"
+              title="上一页"
+            >
+              ←
+            </button>
+            <span className="gal-main-story__progress">
+              {isReplaying && '回放 '}
+              {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
+              {visibleAct.beats.length}
+            </span>
+            <button
+              type="button"
+              className="gal-main-story__skip"
+              onClick={
+                historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct
+              }
+              aria-label={historyMode ? '返回剧情目录' : isReplaying ? '返回当前剧情' : '跳过当前幕'}
+            >
+              {historyMode ? '返回目录' : isReplaying ? '返回当前' : '跳过'}
+            </button>
+            {historyMode ? (
+              historyFloor ? (
+                <button
+                  type="button"
+                  className="gal-main-story__raw-button"
+                  disabled={isHistoryFloorActive || historyFloor.act === null}
+                  onClick={() => selectStoryFloor(historyFloor.floorId)}
+                >
+                  {isHistoryFloorActive ? '当前采用' : '采用此楼层'}
+                </button>
+              ) : (
+                <button type="button" className="gal-main-story__raw-button" disabled>
+                  全部当前版
+                </button>
+              )
+            ) : (
               <button
                 type="button"
                 className="gal-main-story__raw-button"
-                disabled={isHistoryFloorActive || historyFloor.act === null}
-                onClick={() => selectStoryFloor(historyFloor.floorId)}
+                disabled={!hasRawStoryHistory}
+                aria-haspopup="dialog"
+                aria-controls="gal-main-story-raw-dialog"
+                aria-expanded={isRawHistoryOpen}
+                onClick={() => openRawHistory(currentRawFloorId)}
               >
-                {isHistoryFloorActive ? '当前采用' : '采用此楼层'}
+                AI 原文
               </button>
-            ) : (
-              <button type="button" className="gal-main-story__raw-button" disabled>
-                全部当前版
-              </button>
-            )
-          ) : (
+            )}
             <button
               type="button"
-              className="gal-main-story__raw-button"
-              disabled={!hasRawStoryHistory}
-              aria-haspopup="dialog"
-              aria-controls="gal-main-story-raw-dialog"
-              aria-expanded={isRawHistoryOpen}
-              onClick={() => openRawHistory(currentRawFloorId)}
+              className="gal-main-story__icon-button is-primary"
+              onClick={goNext}
+              aria-label={nextActionLabel}
+              title={nextActionLabel}
             >
-              AI 原文
+              {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
             </button>
-          )}
-          <button
-            type="button"
-            className="gal-main-story__icon-button is-primary"
-            onClick={goNext}
-            aria-label={nextActionLabel}
-            title={nextActionLabel}
-          >
-            {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
-          </button>
-        </nav>
-      </div>
+          </nav>
+        }
+      />
       {rawHistoryTarget && (
         <RawStoryHistoryDialog
           acts={rawStoryArchive}

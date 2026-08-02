@@ -4,11 +4,10 @@ import { useCardStore } from '../stores/cardStore';
 import { beginNewTavernAutosaveIdentity, gameSaveApi } from '../save';
 import { syncCharacterPresence } from './characterPresence';
 import { useSkillStore } from '../skilllogic';
-import {
-  beginMemorySummaryContextTransition,
-  invalidateMemorySummaryContext,
-} from '../memory/summaryRuntime';
+import { beginMemorySummaryContextTransition, invalidateMemorySummaryContext } from '../memory/summaryRuntime';
 import { captureGameMessages } from '../message';
+import { createPlayerProfile } from '../stores/playerStore';
+import type { PlayerProfile, PlayerRegistrationInput } from '../types';
 
 export function startNewSession() {
   beginNewTavernAutosaveIdentity();
@@ -24,6 +23,20 @@ export function startNewSession() {
 
 export function resumeSession() {
   useGameStore.getState().resumeSession();
+}
+
+export function completeNewSessionRegistration(input: PlayerRegistrationInput): PlayerProfile {
+  if (useGameStore.getState().screen !== 'registration') {
+    throw new Error('当前不在新生登记阶段，不能提交玩家资料。');
+  }
+  const profile = createPlayerProfile(input);
+  const player = usePlayerStore.getState();
+  if (!player.completeRegistration(profile)) {
+    throw new Error('玩家资料已经登记，当前新游戏不能再次改名。');
+  }
+  useGameStore.getState().completeRegistration();
+  syncCharacterPresence();
+  return profile;
 }
 
 export function returnToStart() {

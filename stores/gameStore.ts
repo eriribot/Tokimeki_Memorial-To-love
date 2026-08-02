@@ -168,17 +168,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     spawnEvents: spawnRandomEvents,
   }),
 
+  completeRegistration: () =>
+    set(state =>
+      state.screen === 'registration'
+        ? {
+            screen: 'game',
+            hasSession: true,
+            isPlaying: true,
+          }
+        : state,
+    ),
+
   resetGameState: () =>
     set({
-      screen: 'game',
-      hasSession: true,
+      screen: 'registration',
+      hasSession: false,
       day: 1,
       date: { ...GAME_START_DATE },
       actionPointsRemaining: MAX_DAILY_ACTION_POINTS,
       periodIndex: 0,
       currentLocationId: 'classroom',
       currentSceneId: null,
-      isPlaying: true,
+      isPlaying: false,
       log: [INITIAL_LOG],
       events: [],
       mainStory: createInitialMainStoryState(),

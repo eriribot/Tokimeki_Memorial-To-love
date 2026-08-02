@@ -1,6 +1,44 @@
 # 艾尔登特当前状态
 
 ```yaml
+status: implementation_updated_user_manual_and_test_role_review_pending
+current_loop: start_riko_intro_player_registration_snapshot_v3_2026-08-01
+authorized_by: user_confirmed_start_window_scope_and_authorized_coding
+authorized_scope:
+  - route title restart and in-game restart into a dedicated registration screen instead of directly entering game
+  - present a deterministic Riko wake-up opening using the supplied 480x272 room background and current Riko portrait
+  - treat Riko as User's childhood friend and Mikan's older sister in the start opening
+  - collect family name, given name, birthday month/day, and blood type in a local draft
+  - atomically commit one immutable PlayerProfile and enter game only after final confirmation
+  - persist and strictly restore PlayerProfile through GameSnapshot schema v3
+  - project registered name, birthday, and blood type into the existing player archive view
+forbidden_scope:
+  - clean cardStore or its consumers
+  - modify Tavern worldbook loading, story generation, host messages, plugins, databases, or shujuku/ACU
+  - add unconfirmed type, hobby, or club fields
+  - normalize every existing story/worldbook statement about Riko and Mikan in this start-only loop
+  - claim a generated leaning Riko CG before a separate image asset is produced and human-reviewed
+connection_state: source_implemented_local_registration_commit_and_snapshot_v3_path_runtime_not_run
+overall_connection_label: start 源码已形成标题到登记再到游戏的本地状态与 schema v3 接线；尚未运行或人工验收
+verification:
+  passed:
+    - scoped Prettier write completed for the changed source and active documentation
+    - static source inspection confirms registration drafts remain component-local until final submit
+    - static source inspection confirms autosave remains gated to hasSession plus screen game
+    - static asset inspection confirms registration-room.png is 480x272 and the selected Riko source has alpha
+  failed: []
+  not_run:
+    - TypeScript, ESLint, development/production build, browser interaction, screenshots, and automated route/save
+      checks because the user assigned formal testing away from this role
+    - real Tavern save/load, message archive, worldbook, host, plugin, database, shujuku, or ACU verification
+    - generated leaning-angle Riko opening CG and its human visual acceptance; current implementation uses the existing
+      transparent standing portrait
+human_review: pending_user_opening_copy_riko_identity_form_layout_mobile_landscape_and_final_commit_confirmation
+known_followup_outside_scope:
+  - existing character and episode worldbook sources still contain the superseded claim that Riko is not Mikan's sister
+```
+
+```yaml
 status: implementation_updated_build_passed_user_manual_visual_test_pending
 current_loop: weekend_blocked_dates_and_clickable_calendar_info_2026-07-31
 authorized_by: user_requested_the_calendar_to_be_functional_with_main_story_weekend_x_marks_and_clickable_dates
@@ -18,12 +56,17 @@ connection_state: local_selectable_calendar_projection_with_css_drawn_blocked_we
 overall_connection_label: 当前及未来日期可点选查看底部信息；主线周末 whole-day 日期显示非字体绘制红 X 和通用占用说明
 verification:
   passed:
-    - pnpm exec eslint src/webgame-ui/App.tsx src/webgame-ui/CalendarModule/DateModule/index.tsx src/webgame-ui/CalendarModule/specialDates/index.ts src/webgame-ui/CalendarModule/specialDates/types.ts src/webgame-ui/CalendarModule/specialDates/selectors.ts src/webgame-ui/CalendarModule/specialDates/mainStoryProjection.ts src/webgame-ui/CalendarModule/specialDates/catalog.ts
+    - pnpm exec eslint src/webgame-ui/App.tsx src/webgame-ui/CalendarModule/DateModule/index.tsx
+      src/webgame-ui/CalendarModule/specialDates/index.ts src/webgame-ui/CalendarModule/specialDates/types.ts
+      src/webgame-ui/CalendarModule/specialDates/selectors.ts
+      src/webgame-ui/CalendarModule/specialDates/mainStoryProjection.ts
+      src/webgame-ui/CalendarModule/specialDates/catalog.ts
     - pnpm build:dev
   failed: []
   not_run:
     - formatting, browser, screenshot, inline, and runtime checks, left for user visual/manual confirmation
-    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is
+      part of this display-only change
 human_review: pending_user_selectable_dates_top_aligned_numbers_css_red_x_bottom_info_strip_and_main_story_blocked_weekend_confirmation
 ```
 
@@ -34,12 +77,14 @@ authorized_by: user_clarified_only_the_two_paging_controls_should_be_fully_trans
 authorized_scope:
   - restore the calendar overlay background to transparent so the existing map remains normally visible
   - keep the archive L_data.png and R_data.png artwork with its original alpha channel
-  - locally neutralize inherited button background, radius, shadow, filter, movement, transition, backdrop filter, and decorative pseudo-elements
+  - locally neutralize inherited button background, radius, shadow, filter, movement, transition, backdrop filter, and
+    decorative pseudo-elements
   - preserve local two-month browsing, per-page years, current-day marking, and authoritative-state isolation
   - leave build and visual verification to the user
 forbidden_scope:
   - add a pure white stage, glass, blur, dim overlay, translucent button plate, or replacement animation
-  - edit the daily calendar card, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, saves, or store state
+  - edit the daily calendar card, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date
+    advancement, saves, or store state
   - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
 connection_state: local_read_only_calendar_browsing_with_alpha_only_page_controls_no_authoritative_state_write
 overall_connection_label: 日历继续自然叠在地图上；L/R 只显示原 PNG 图形，不再出现通用按钮白块、圆角底或阴影
@@ -47,8 +92,10 @@ verification:
   passed: []
   failed: []
   not_run:
-    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
-    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the
+      user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is
+      part of this display-only change
 human_review: pending_user_map_visibility_and_seamless_L_R_alpha_confirmation
 ```
 
@@ -64,7 +111,8 @@ authorized_scope:
   - leave build and visual verification to the user
 forbidden_scope:
   - add transparency, glass, blur, dim overlays, replacement daily-card styling, or new page-turn animation
-  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
+  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields,
+    or store state
   - change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
 connection_state: local_read_only_calendar_browsing_on_opaque_same_frame_stage_no_authoritative_state_write
 overall_connection_label: 日历采用档案页式不透明同框底层与 L/R 提示，不再透出地图；翻月仍只改变本地显示
@@ -72,8 +120,10 @@ verification:
   passed: []
   failed: []
   not_run:
-    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
-    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the
+      user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is
+      part of this display-only change
 human_review: pending_user_opaque_stage_archive_style_arrow_position_and_calendar_layout_confirmation
 ```
 
@@ -89,7 +139,8 @@ authorized_scope:
   - update active documentation and leave all verification to the user
 forbidden_scope:
   - add glass, blur, dim overlays, replacement daily-card styling, or new page-turn animation
-  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
+  - add date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields,
+    or store state
   - add episode-ID branches or change GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
 connection_state: local_read_only_calendar_browsing_projection_no_authoritative_state_write
 overall_connection_label: L/R 只翻阅本次打开的双月视图；逐页年份可见，关闭后回到游戏当前月，不参与主线或日期结算
@@ -97,8 +148,10 @@ verification:
   passed: []
   failed: []
   not_run:
-    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the user
-    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only change
+    - build, lint, TypeScript, formatting, browser, screenshot, inline, and runtime checks, explicitly delegated to the
+      user
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is
+      part of this display-only change
 human_review: pending_user_arrow_position_month_navigation_cross_year_labels_and_existing_visual_identity_confirmation
 ```
 
@@ -114,24 +167,34 @@ authorized_scope:
   - localize visible month and weekday labels to Chinese and mark the authoritative current day
   - remove the dim translucent backdrop and leave final visual verification to the user
 forbidden_scope:
-  - add glass, blur, translucent panel treatments, hover filters, card movement, or replacement animation to the daily card
-  - add month navigation, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date advancement, save fields, or store state
-  - derive availability from episode IDs or add branches to GalMainStory, story stores, persistence, generation, lore, or host/plugin bridges
+  - add glass, blur, translucent panel treatments, hover filters, card movement, or replacement animation to the daily
+    card
+  - add month navigation, date selection, holidays, appointments, romance dates, birthdays, AP settlement, date
+    advancement, save fields, or store state
+  - derive availability from episode IDs or add branches to GalMainStory, story stores, persistence, generation, lore,
+    or host/plugin bridges
   - describe packed PSP event icons as implemented runtime behavior before semantic slicing and mapping
 connection_state: local_read_only_ui_projection_of_authoritative_zustand_date_no_state_write_or_host_integration
 overall_connection_label: 左上原日期牌仅增加外层点击光标；双月日历只读显示当前日期，不写游戏态，也不参与主线或约会结算
 verification:
   passed:
-    - source diff keeps the original game-calendar-card rules and CornerAnimation frame assets while moving click handling to a separate overlay button
+    - source diff keeps the original game-calendar-card rules and CornerAnimation frame assets while moving click
+      handling to a separate overlay button
     - source inspection confirms the corner animation is mounted only when actionPointsRemaining equals 1
-    - source inspection confirms DateModule receives only date and onClose, computes the next calendar month locally, and renders no date buttons
-    - source inspection confirms the map stage and bottom controls become inert while the calendar is open and the calendar closes when main story opens
-    - extracted resource audit found named love-event, holiday, birthday, school, festival, and sakura entries but left their packed atlas out of this runtime loop
-    - scoped ESLint, pnpm build:dev, and pnpm build passed after the no-backdrop, Chinese-label, and one-AP-fold corrections
+    - source inspection confirms DateModule receives only date and onClose, computes the next calendar month locally,
+      and renders no date buttons
+    - source inspection confirms the map stage and bottom controls become inert while the calendar is open and the
+      calendar closes when main story opens
+    - extracted resource audit found named love-event, holiday, birthday, school, festival, and sakura entries but left
+      their packed atlas out of this runtime loop
+    - scoped ESLint, pnpm build:dev, and pnpm build passed after the no-backdrop, Chinese-label, and one-AP-fold
+      corrections
   failed: []
   not_run:
-    - final browser screenshots and interaction acceptance, explicitly delegated to the user after the no-glass and localization correction
-    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is part of this display-only connection
+    - final browser screenshots and interaction acceptance, explicitly delegated to the user after the no-glass and
+      localization correction
+    - real Tavern, host-message, plugin, shujuku, ACU, database, holiday, or appointment verification because none is
+      part of this display-only connection
     - exact inline verifier because src/webgame-ui/verify-inline-bundle.mjs is absent from the current repository
 human_review: pending_user_daily_card_identity_outer_cursor_no_glass_chinese_labels_and_two_month_layout_confirmation
 ```
@@ -146,7 +209,8 @@ authorized_scope:
   - restore the existing card and characterAvailability unlock result immediately when the button is turned off
   - keep the control easy to disable or remove before release
 forbidden_scope:
-  - mutate character cards, completed story events, availability rules, saves, relationships, AP, dates, or gameplay settlement
+  - mutate character cards, completed story events, availability rules, saves, relationships, AP, dates, or gameplay
+    settlement
   - persist the developer override across archive mounts or browser sessions
   - run tests, lint, TypeScript, builds, browser automation, screenshots, or inline artifact checks
 connection_state: local_archive_presentation_override_only_no_authoritative_state_write
@@ -154,8 +218,10 @@ overall_connection_label: 开发解锁按钮只覆盖档案图标与无资料详
 verification:
   passed:
     - static source inspection confirms the override is component-local state initialized to false
-    - static source inspection confirms colored a assets are selected through devUnlockAll without changing resolved slot data
-    - static source inspection confirms missing or locked character data remains unavailable and is labeled as a development material preview in detail view
+    - static source inspection confirms colored a assets are selected through devUnlockAll without changing resolved
+      slot data
+    - static source inspection confirms missing or locked character data remains unavailable and is labeled as a
+      development material preview in detail view
     - SHOW_ARCHIVE_DEV_UNLOCK_CONTROL is the single release-time visibility switch for the button
   failed: []
   not_run:
@@ -170,9 +236,11 @@ current_loop: archive_slots_16_18_saki_oshizu_kyoko_2026-07-29
 authorized_by: user_supplied_three_official_game_sprite_references_and_requested_archive_addition
 authorized_scope:
   - add slot 16 Tenjoin Saki, slot 17 Oshizu, and slot 18 Kirisaki Kyoko using the existing a/b/cursor archive contract
-  - preserve the user-supplied hair, eyes, signature accessories, and outfits while translating them into the established Q/chibi archive format
+  - preserve the user-supplied hair, eyes, signature accessories, and outfits while translating them into the
+    established Q/chibi archive format
   - use royal-gold, ghost-indigo, and flame-scarlet badge families respectively
-  - keep white name labels with pink outlines, locked ??? labels, standard yellow cursor masks, and the existing second-page geometry
+  - keep white name labels with pink outlines, locked ??? labels, standard yellow cursor masks, and the existing
+    second-page geometry
   - leave all three locked until a matching character card is present
 forbidden_scope:
   - create default cards, biographies, availability overrides, gameplay settlement, story content, or host/plugin writes
@@ -182,10 +250,13 @@ connection_state: source_assets_and_slot_mapping_updated_existing_pagination_con
 overall_connection_label: 沙姬、小静与恭子已加入第 16-18 槽；生成素材与本地槽位已接入，仍待用户在目标页面手工验收
 verification:
   passed:
-    - official and local references agree on the three supplied character identities and their signature hair, accessories, and costumes
+    - official and local references agree on the three supplied character identities and their signature hair,
+      accessories, and costumes
     - visual asset inspection confirms colored, locked, and yellow-cursor files exist for slots 16-18
-    - locked silhouettes were flattened and labeled separately so facial or clothing details do not leak through the ??? state
-    - static source inspection confirms the existing generic second-page renderer will include all 18 slots without new layout code
+    - locked silhouettes were flattened and labeled separately so facial or clothing details do not leak through the ???
+      state
+    - static source inspection confirms the existing generic second-page renderer will include all 18 slots without new
+      layout code
   failed: []
   not_run:
     - all automated tests and test scripts, per the standing user instruction
@@ -199,22 +270,27 @@ current_loop: archive_slots_13_15_chibi_assets_and_second_page_2026-07-28
 authorized_by: user_named_tearju_ryoko_risa_selected_palettes_and_said_start
 authorized_scope:
   - add slot 13 Tearju, slot 14 Ryoko, and slot 15 Risa using the existing a/b/cursor archive contract
-  - use emerald, berry, and violet archive palettes respectively, while retaining white name text with a pink outline and locked ??? labels
+  - use emerald, berry, and violet archive palettes respectively, while retaining white name text with a pink outline
+    and locked ??? labels
   - add a second archive page without changing the existing 3x4 slot geometry
   - keep the new targets locked until a matching character card is present
   - remove temporary image-processing scripts and intermediate project images after publication
 forbidden_scope:
   - add, edit, or run tests, lint, TypeScript, builds, browser automation, screenshots, or inline artifact checks
-  - create default character cards, invent biography data, force-unlock the new characters, or change gameplay settlement
+  - create default character cards, invent biography data, force-unlock the new characters, or change gameplay
+    settlement
   - claim the generated chibi portraits are extracted official artwork
 connection_state: source_assets_and_runtime_slot_pagination_updated_no_build_or_runtime_review
 overall_connection_label: 三名新角色已按梨子档案合同加入第 13-15 槽与第二页；默认仍锁定，等待用户在目标页面手工检查
 verification:
   passed:
     - static source inspection confirms slots 13-15 use the generic icon_dataNN a/b and cursor_dataNN paths
-    - visual asset inspection confirms each published set contains a colored name icon, a palette-matched locked silhouette with ???, and a standard yellow cursor mask
-    - user screenshot exposed fractional-alpha eye and edge remnants in slot 14; the locked Ryoko silhouette was flattened to an opaque berry interior while preserving its outer antialias, pale oval, and ??? label
-    - generated masters were derived from the supplied character references and restyled to the existing archive format; they are not represented as official extractions
+    - visual asset inspection confirms each published set contains a colored name icon, a palette-matched locked
+      silhouette with ???, and a standard yellow cursor mask
+    - user screenshot exposed fractional-alpha eye and edge remnants in slot 14; the locked Ryoko silhouette was
+      flattened to an opaque berry interior while preserving its outer antialias, pale oval, and ??? label
+    - generated masters were derived from the supplied character references and restyled to the existing archive format;
+      they are not represented as official extractions
   failed: []
   not_run:
     - all automated tests and test scripts, by explicit user request
@@ -235,7 +311,8 @@ forbidden_scope:
   - change AP costs, resource deltas, maximum values, dates, story settlement, saves, prompts, or host/plugin chains
   - run tests, builds, formatting, lint, browser automation, or screenshots against the user's explicit no-test request
 untouched_scope:
-  - playerStore resource formulas and schema, gameStore settlement, story modules, save/message modules, and Tavern bridges
+  - playerStore resource formulas and schema, gameStore settlement, story modules, save/message modules, and Tavern
+    bridges
 verification:
   passed:
     - static source inspection confirms both values reserve 3ch and use tabular numerals
@@ -254,34 +331,41 @@ current_loop: nearest_same_name_wrapper_pair_isolation_2026-07-27
 authorized_by: user_runtime_screenshot_showed_planning_text_entering_gal_despite_wrapper_contract_2026-07-27
 authorized_scope:
   - replace non-overlapping whole-response wrapper regex selection with nearest same-name token pairing
-  - select only the most recent complete supported wrapper and discard all text outside its exact opening/closing boundaries
+  - select only the most recent complete supported wrapper and discard all text outside its exact opening/closing
+    boundaries
   - keep tolerant cue defaults inside the selected body without allowing them to admit container-external planning text
   - update active module and Aldent documentation for the corrected isolation boundary
 forbidden_scope:
   - add, edit, or run tests or test scripts
   - run lint, TypeScript, builds, browser automation, screenshots, inline checks, or real Tavern generation
-  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection settlement, persistence, or rendering
+  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection
+    settlement, persistence, or rendering
   - claim the screenshot proves the exact hidden raw Assistant tag nesting beyond the visible leaked planning text
 untouched_scope:
-  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait assets, renderer, and host bridges
+  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait
+    assets, renderer, and host bridges
 connection_state: wrapper_isolation_source_updated_only_no_generated_artifact_or_real_tavern_rerun
 overall_connection_label: 正文边界已改为最近同名标签对隔离；等待用户在真实酒馆手工确认规划文字不再进入 GAL
 verification:
   passed:
-    - source inspection confirms an unmatched earlier playable opening can no longer consume the closing tag of a later complete wrapper
-    - source inspection confirms only text sliced between the selected opening end and matching closing start reaches cue normalization
+    - source inspection confirms an unmatched earlier playable opening can no longer consume the closing tag of a later
+      complete wrapper
+    - source inspection confirms only text sliced between the selected opening end and matching closing start reaches
+      cue normalization
   failed: []
   not_run:
     - all automated tests and test scripts, by explicit user request
     - lint, TypeScript, development/production build, browser review, screenshots, and inline artifact verification
     - corrected real Tavern replay of the screenshot floor
 evidence:
-  - extraction keeps an independent opening stack per supported tag name and pairs each close with the nearest preceding open
+  - extraction keeps an independent opening stack per supported tag name and pairs each close with the nearest preceding
+    open
   - malformed or unsupported planning tags never enter those stacks
   - MODULES.md records the corrected exact-wrapper boundary
 human_review: pending_user_real_tavern_replay_and_visible_text_review
 counterevidence:
-  - the screenshot proves leaked planning text but does not expose the full raw tag sequence needed to reconstruct the exact malformed nesting
+  - the screenshot proves leaked planning text but does not expose the full raw tag sequence needed to reconstruct the
+    exact malformed nesting
   - no fresh dist artifact was built, so the current inline HTML does not contain this source correction yet
 ```
 
@@ -290,27 +374,36 @@ status: implementation_updated_user_manual_test_pending
 current_loop: tolerant_gal_cue_defaults_plain_lines_and_string_concat_unwrap_2026-07-27
 authorized_by: user_reported_missing_expression_exact_line_rejections_and_supplied_real_raw_shape_2026-07-27
 authorized_scope:
-  - replace cue-field rejection with code-owned defaults constrained by current-act scenes, cast, portrait rules, and character manifests
+  - replace cue-field rejection with code-owned defaults constrained by current-act scenes, cast, portrait rules, and
+    character manifests
   - fall back from haruna/changer-room panic to that rig's registered default expression shy
-  - accept full cues, partial cues, speaker-prefixed lines, and plain narration while carrying the previous valid scene/focus when appropriate
-  - unwrap the supplied JavaScript-style newline concatenation around the parsing copy without changing the archived Assistant raw text
+  - accept full cues, partial cues, speaker-prefixed lines, and plain narration while carrying the previous valid
+    scene/focus when appropriate
+  - unwrap the supplied JavaScript-style newline concatenation around the parsing copy without changing the archived
+    Assistant raw text
   - stop rejecting an otherwise playable story solely because every line is narration
   - update active module and Aldent documentation for the tolerant normalization contract
 forbidden_scope:
   - add, edit, or run tests or test scripts
   - run lint, TypeScript, builds, browser automation, screenshots, inline checks, or real Tavern generation
-  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection settlement, persistence, or renderer assets
+  - change prompts, worldbook content, story beats, minimum line count, required scene sequence, AP/date/affection
+    settlement, persistence, or renderer assets
   - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
 untouched_scope:
-  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait assets, rendering components, and host bridges
+  - story templates and lore, stores, settlement, save/message ownership, generation and World Info hooks, portrait
+    assets, rendering components, and host bridges
 connection_state: extraction_and_cue_normalization_source_updated_only_no_generated_artifact_or_real_tavern_run
 overall_connection_label: 字符串拼接外壳与不完整演出字段已由代码宽容归一；等待用户在真实酒馆手工确认
 verification:
   passed:
-    - supplied representation shows newline-plus-quote concatenation that would cause exact-format rejection if those characters are literal Assistant text
-    - source inspection confirms haruna/changer-room resolves an unavailable panic expression to its registered default shy
-    - source inspection confirms plain and speaker-prefixed lines produce complete StoryPresentationCue values instead of the former exact-format error
-    - source inspection confirms scene-specific portrait rules and current-act cast restrictions still bound any rendered portrait
+    - supplied representation shows newline-plus-quote concatenation that would cause exact-format rejection if those
+      characters are literal Assistant text
+    - source inspection confirms haruna/changer-room resolves an unavailable panic expression to its registered default
+      shy
+    - source inspection confirms plain and speaker-prefixed lines produce complete StoryPresentationCue values instead
+      of the former exact-format error
+    - source inspection confirms scene-specific portrait rules and current-act cast restrictions still bound any
+      rendered portrait
   failed: []
   not_run:
     - all automated tests and test scripts, by explicit user request
@@ -318,15 +411,22 @@ verification:
     - corrected real Tavern generation with the user's exact Assistant output
 evidence:
   - storyTextExtraction restores literal concatenated newline boundaries only in the extracted parsing copy
-  - storyPresentation resolves missing or invalid scene, focus, portrait, expression, and effect values through current act metadata and character defaults
-  - paragraph parsing carries the previous normalized presentation forward, while the first line starts from the act's first registered scene
-  - tavernStoryGeneration retains empty-body, minimum-line, required-scene, and JSON guards but no longer requires at least one parsed speaker
-  - MODULES.md records the distinction between strict prompt guidance, tolerant runtime normalization, and unchanged raw-message archival
+  - storyPresentation resolves missing or invalid scene, focus, portrait, expression, and effect values through current
+    act metadata and character defaults
+  - paragraph parsing carries the previous normalized presentation forward, while the first line starts from the act's
+    first registered scene
+  - tavernStoryGeneration retains empty-body, minimum-line, required-scene, and JSON guards but no longer requires at
+    least one parsed speaker
+  - MODULES.md records the distinction between strict prompt guidance, tolerant runtime normalization, and unchanged
+    raw-message archival
 human_review: pending_user_real_tavern_generation_and_visual_cue_review
 counterevidence:
-  - the screenshot proves three parse failures but does not prove whether the pasted newline-plus-quote concatenation is literal Assistant text or a console/source representation
-  - if those concatenation markers are display-only, the supplied cue lines are syntactically valid and only haruna/changer-room panic needs fallback
-  - source inspection does not prove the supplied raw output will satisfy the unchanged minimum-line and required-scene checks after normalization
+  - the screenshot proves three parse failures but does not prove whether the pasted newline-plus-quote concatenation is
+    literal Assistant text or a console/source representation
+  - if those concatenation markers are display-only, the supplied cue lines are syntactically valid and only
+    haruna/changer-room panic needs fallback
+  - source inspection does not prove the supplied raw output will satisfy the unchanged minimum-line and required-scene
+    checks after normalization
   - no fresh dist artifact was built, so the current inline HTML does not contain this source correction yet
 ```
 
@@ -341,15 +441,18 @@ authorized_scope:
   - update active module and Aldent documentation to match the relaxed extraction behavior
 forbidden_scope:
   - add, edit, or run tests, test scripts, lint, TypeScript, builds, browser automation, screenshots, or inline checks
-  - change the generation prompt, line-level GAL protocol, story beats, AP/date/affection settlement, persistence, or rendering
+  - change the generation prompt, line-level GAL protocol, story beats, AP/date/affection settlement, persistence, or
+    rendering
   - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
 untouched_scope:
-  - Tavern generation and World Info hooks, stores, story templates, presentation validation, save/message modules, and host bridges
+  - Tavern generation and World Info hooks, stores, story templates, presentation validation, save/message modules, and
+    host bridges
 connection_state: extraction_source_updated_only_no_generated_artifact_or_real_tavern_run
 overall_connection_label: 正文容器改为宽容的跨行完整标签对检索；等待用户在真实酒馆手工确认
 verification:
   passed:
-    - source inspection confirms the required-wrapper route no longer rejects a valid final wrapper because other supported tags appeared elsewhere
+    - source inspection confirms the required-wrapper route no longer rejects a valid final wrapper because other
+      supported tags appeared elsewhere
     - source inspection confirms multiline body capture and the existing downstream line-level parser remain in place
   failed: []
   not_run:
@@ -357,12 +460,15 @@ verification:
     - lint, TypeScript, development/production build, browser review, screenshots, and inline artifact verification
     - corrected real Tavern generation and malformed planning-tag reproduction
 evidence:
-  - storyTextExtraction now searches complete supported same-name pairs with a multiline regular expression and selects the last complete match
-  - requirePlayableWrapper returns the selected body after tag-markup removal instead of recursively treating inner supported tag names as more wrappers
+  - storyTextExtraction now searches complete supported same-name pairs with a multiline regular expression and selects
+    the last complete match
+  - requirePlayableWrapper returns the selected body after tag-markup removal instead of recursively treating inner
+    supported tag names as more wrappers
   - MODULES.md separates the prompt's one-wrapper instruction from the runtime extractor's tolerant acceptance behavior
 human_review: pending_user_real_tavern_generation_result
 counterevidence:
-  - source inspection is not runtime acceptance and cannot prove the user's exact preset output until they regenerate in Tavern
+  - source inspection is not runtime acceptance and cannot prove the user's exact preset output until they regenerate in
+    Tavern
   - no fresh dist artifact was built, so the existing inline HTML does not contain this source correction yet
 ```
 
@@ -376,16 +482,20 @@ authorized_scope:
   - place the resource block in the right side of the System group, immediately left of the Personal Actions group
   - keep the six exact attribute values below the System row and do not restore the removed standalone StatPanel
 forbidden_scope:
-  - run builds, formatting, lint, browser automation, screenshots, inline checks, or other tests after the final placement correction
+  - run builds, formatting, lint, browser automation, screenshots, inline checks, or other tests after the final
+    placement correction
   - change playerStore values, activity settlement, AP/date/story behavior, persistence, prompts, or Galgame rendering
   - claim real Tavern, host-message, plugin, shujuku, ACU, or database verification
 untouched_scope:
   - stores, settlement services, story modules, save/message modules, host bridges, and archive presentation
-connection_state: Controls reads the existing authoritative playerStore values; final placement is source-updated but not rebuilt or browser-checked by user request
+connection_state:
+  Controls reads the existing authoritative playerStore values; final placement is source-updated but not rebuilt or
+  browser-checked by user request
 overall_connection_label: 已接入真实状态读取（playerStore）；最终位置等待人工页面确认
 verification:
   passed:
-    - source inspection confirms System now renders buttons and the live resource block in one system-control-main row, with six attributes after that row
+    - source inspection confirms System now renders buttons and the live resource block in one system-control-main row,
+      with six attributes after that row
   failed: []
   not_run:
     - Prettier and ESLint after the final placement correction, by explicit user request
@@ -394,13 +504,16 @@ verification:
     - exact Tavern inline safety check because verify-inline-bundle.mjs is absent and the final source was not rebuilt
 evidence:
   - Controls subscribes directly to stamina/stress and renders their values next to the approved heart-pulse/gauge icons
-  - App.css gives system-control-main a buttons-left/resources-right grid; the Personal Actions group remains the next outer grid column
+  - App.css gives system-control-main a buttons-left/resources-right grid; the Personal Actions group remains the next
+    outer grid column
   - MODULES.md records the final resource and six-dimension placement
 human_review: pending_user_visual_confirmation_in_the_target_game_frame
 counterevidence:
-  - the earlier local screenshots and production hash were captured before the user's final placement correction and are superseded for layout acceptance
+  - the earlier local screenshots and production hash were captured before the user's final placement correction and are
+    superseded for layout acceptance
   - dist/webgame-ui/index.html still represents the pre-correction layout because the user stopped further builds/tests
-  - earlier standalone-browser Tavern save/generation errors only prove the host APIs were absent; they do not affect or validate the final source layout
+  - earlier standalone-browser Tavern save/generation errors only prove the host APIs were absent; they do not affect or
+    validate the final source layout
 ```
 
 ```yaml
@@ -409,8 +522,9 @@ current_loop: remove_adopted_son_older_brother_identity_marker_2026-07-27
 authorized_by: user_team_lead_reject_gpt_drafted_identity_loosen_generation_restriction_2026-07-27
 authorized_scope:
   - remove the '养子'(adopted son)/'老哥'(older brother) phrasing and its requiredContentMarker hard runtime check from
-    GalMainStory/characters/*.ts, all 8 episode act files, data/lore-books/*.txt recovery sources, data/default-cards/*.json,
-    and MODULES.md/AGENTS.md/ALDENT_STATUS.md/AI生文与GAL前端整合方案.md/data/lore-books/README.md documentation
+    GalMainStory/characters/*.ts, all 8 episode act files, data/lore-books/*.txt recovery sources,
+    data/default-cards/*.json, and
+    MODULES.md/AGENTS.md/ALDENT_STATUS.md/AI生文与GAL前端整合方案.md/data/lore-books/README.md documentation
   - replace '老哥' dialogue lines in fallbackBeats with '你'
   - update verify-episode03.cjs assertions from requiring the old marker to forbidding '养子'/'老哥' regression
 forbidden_scope:
@@ -430,10 +544,10 @@ evidence:
 verification_after_latest_change: pnpm_build_dev_and_verify_episode03_cjs_both_passed_locally
 human_review: pending_user_review_of_worldview_wording_and_real_tavern_worldbook_consistency
 counterevidence:
-  - real Tavern worldbook entries were not inspected or modified by the assistant in this loop; user states they
-    already removed the phrasing there, but this remains unverified by the assistant
-  - a loose untracked-by-runtime file '出包王女 (2).json' at the repo root still contains unrelated explicit content
-    and was left untouched as out of scope for this identity-only change
+  - real Tavern worldbook entries were not inspected or modified by the assistant in this loop; user states they already
+    removed the phrasing there, but this remains unverified by the assistant
+  - a loose untracked-by-runtime file '出包王女 (2).json' at the repo root still contains unrelated explicit content and
+    was left untouched as out of scope for this identity-only change
 ```
 
 ```yaml
@@ -443,7 +557,8 @@ authorized_by: user_clarified_fix_cursor_shape_and_color_without_reusing_mikan_2
 authorized_scope:
   - preserve the original slot-12 unlocked Riko character artwork, wink, hair, face, pose, and label
   - recolor only the existing unlocked ellipse and locked-state treatment to a distinct Riko mint/teal palette
-  - regenerate cursor_data12 from Riko's own icon_data12a alpha instead of copying Mikan's cursor_data10, while retaining the archive's standard yellow selection color
+  - regenerate cursor_data12 from Riko's own icon_data12a alpha instead of copying Mikan's cursor_data10, while
+    retaining the archive's standard yellow selection color
   - preserve the existing archive paths, dimensions, slot mapping, and 梨子 / ??? labels
 forbidden_scope:
   - redraw, mirror, replace, or otherwise modify Riko's character face and hair pixels
@@ -452,21 +567,28 @@ forbidden_scope:
   - change Riko's independent childhood-friend identity or transfer User's protagonist relationships to her
   - add, edit or run tests, lint, TypeScript, builds or browser automation
 connection_state: riko_specific_standard_yellow_cursor_and_palette_assets_written_no_automated_validation
-overall_connection_label: 梨子原头像保持不变；12 号光标改用梨子自身轮廓并保留统一黄色，椭圆与锁定态使用青绿色，等待用户手工检查
+overall_connection_label:
+  梨子原头像保持不变；12 号光标改用梨子自身轮廓并保留统一黄色，椭圆与锁定态使用青绿色，等待用户手工检查
 evidence:
   - icon_data12a keeps the original Riko character pixels and only remaps the orange ellipse color
-  - icon_data12b keeps its original alpha silhouette and ??? label while shifting the orange/peach treatment to mint/teal
-  - cursor_data12 is generated by scaling icon_data12a's own alpha to the existing 149x150 cursor contract and uses the shared #FFDF00 cursor color
-  - the previous cursor_data12 was byte-identical to Mikan cursor_data10; the new cursor follows Riko's short hair and ellipse instead
+  - icon_data12b keeps its original alpha silhouette and ??? label while shifting the orange/peach treatment to
+    mint/teal
+  - cursor_data12 is generated by scaling icon_data12a's own alpha to the existing 149x150 cursor contract and uses the
+    shared #FFDF00 cursor color
+  - the previous cursor_data12 was byte-identical to Mikan cursor_data10; the new cursor follows Riko's short hair and
+    ellipse instead
   - Mikan icon_data10a/icon_data10b/cursor_data10 and all runtime code remain untouched
-  - no image generation call was needed because the approved correction is a deterministic alpha and palette operation on the original asset
+  - no image generation call was needed because the approved correction is a deterministic alpha and palette operation
+    on the original asset
 verification_after_latest_change: asset_and_white_background_composite_visual_inspection_only_no_automated_validation_by_user_request
 human_review: pending_user_cursor_shape_color_and_runtime_position_review
 counterevidence:
   - the rejected replacement chibi and mirrored-eye revisions were fully restored before this cursor-only correction
-  - the mint/teal cursor revision was rejected by the user's runtime screenshot because selection color is intentionally shared yellow; only Riko's cursor shape may differ
+  - the mint/teal cursor revision was rejected by the user's runtime screenshot because selection color is intentionally
+    shared yellow; only Riko's cursor shape may differ
   - local asset and composite inspection does not prove the final Tavern game-frame appearance
-  - no runtime rendering, interaction, build, lint, TypeScript, browser, or test evidence was collected because the user reserved validation
+  - no runtime rendering, interaction, build, lint, TypeScript, browser, or test evidence was collected because the user
+    reserved validation
 superseded_evidence:
   - the permanent-gender-swapped Riko protagonist and four-act episode-03 package below are invalidated by the user's
     later explicit correction and remain only as failure history
@@ -495,37 +617,38 @@ next_loop: freeze_without_automated_tests_and_wait_for_user_manual_exact_style_r
 
 ## 2026-07-27：User 主角、三幕整天事件与持续改编 skill v2
 
-- 当前身份权威已经统一：User 是唯一主角、与结城家共同生活；男性梨斗不存在。夕崎梨子是 User
-  的青梅竹马、有限情报提醒者和独立可攻略角色，不继承菈菈婚约、美柑亲缘、春菜关系或前三集主角经历。第一、二集的活动模板、恢复源和四份人物 lore 已同步该边界。
-- `episodeTemplate.ts` 新增通用 `single-action / whole-day` 时间成本。整天幕只能在当天第一次行动触发；开始生成不会提前跨日，完成或跳过后才由共享 Store
-  消耗余下时间、推进一次日期并恢复日初 AP。实现没有第三集 ID 特判，也没有修改存档 schema。
+- 当前身份权威已经统一：User 是唯一主角、与结城家共同生活；男性梨斗不存在。夕崎梨子是 User 的青梅竹马、有限情报提醒者和独立可攻略角色，不继承菈菈婚约、美柑亲缘、春菜关系或前三集主角经历。第一、二集的活动模板、恢复源和四份人物 lore 已同步该边界。
+- `episodeTemplate.ts` 新增通用 `single-action / whole-day`
+  时间成本。整天幕只能在当天第一次行动触发；开始生成不会提前跨日，完成或跳过后才由共享 Store 消耗余下时间、推进一次日期并恢复日初 AP。实现没有第三集 ID 特判，也没有修改存档 schema。
 - 第三集改为三个整天幕：`04-11 action 1 / order 155`、`04-12 action 1 / order 156`、`04-13 action 1 / order 157`。
   `04-14` 星期一上学路摔倒属于第三幕尾声，不另建第四幕。event ID 改为
   `main.love-triangle-user-2008-04-11`，避免旧梨子主角版楼层继续满足当前合同。
-- 第二幕邀请因果固定为：美柑先邀请春菜第二天同行，菈菈随后撒娇并提出水族馆，春菜最后同意。`04-12`
-  不进入水族馆；主体留在 `04-13`。
+- 第二幕邀请因果固定为：美柑先邀请春菜第二天同行，菈菈随后撒娇并提出水族馆，春菜最后同意。`04-12` 不进入水族馆；主体留在
+  `04-13`。
 - 用户手工校对补回第三幕被粗略概述漏掉的情感链：春菜先重提 User 与菈菈“很般配”，再说明自己从初中起就注意到 User 在无人要求时自发照料教室里的花；春菜与 User 都把告白说到开头，随后被菈菈造成的鱼群骚动打断。未完成的告白动作是本集锚点，但关系、路线与好感仍不结算。
 - `第三集改编证据.json` 升级为 schema v2，旧梨子主角结论进入 `counterevidence`；每幕同时登记日期、行动序号、`timeCost`
-  与 must-keep beats。证据包还冻结了正向改写、漏锚点、角色漂移、因果漂移、时间成本漂移、越界收尾和玩家状态越权七类语义用例；当前只通过结构校验，尚未调用模型执行这些语义用例。`adapt-fandom-episodes` skill 及校验器同步增加活动态脏数据扫描、角色职能映射、因果所有者、整天结算和旧采用楼层失效规则。
+  与 must-keep
+  beats。证据包还冻结了正向改写、漏锚点、角色漂移、因果漂移、时间成本漂移、越界收尾和玩家状态越权七类语义用例；当前只通过结构校验，尚未调用模型执行这些语义用例。`adapt-fandom-episodes`
+  skill 及校验器同步增加活动态脏数据扫描、角色职能映射、因果所有者、整天结算和旧采用楼层失效规则。
 - 本地恢复源不能改写真实 Tavern 世界书。实机前仍需替换 `order 100-103`、`150-157`，移除或禁用旧
   `order 158`，再检查加载 marker 与真实生成。
 
-| Check                                      | Status          | Evidence                                                                                 |
-| ------------------------------------------ | --------------- | ---------------------------------------------------------------------------------------- |
-| Current role and stale-data scan           | passed          | 活动模板、默认卡、人物/剧情恢复源和当前态文档统一为 User 主角、梨子青梅；历史脏数据单列       |
-| Whole-day settlement regressions           | passed          | `test:main-story-time` 5/5；另覆盖三幕连续触发并在 4 月 14 日结束                          |
-| Episode 03 static contract                 | not run         | verifier 已按最新水族馆锚点改写；遵照用户要求未执行                                        |
-| Evidence packet and reusable skill         | not run         | 证据包已同步最新纠正；遵照用户要求未执行 validator 或 skill 校验                           |
-| Semantic acceptance fixtures               | not run         | 正向用例已同步双方未完成告白；没有执行结构或模型语义校验                                    |
-| Generated semantic execution               | not run         | 尚未让目标模型实际生成并逐例判定接受/拒绝                                                   |
-| Changed-source ESLint                      | not run         | 最新 `act03.ts` 与 verifier 修改后未执行                                                   |
-| Story text regression                      | not run         | 最新剧情文本纠正后未执行                                                                   |
-| Direct webpack development compilation     | not run         | 最新剧情文本纠正后未执行                                                                   |
-| Project TypeScript                         | failed-existing | 10 个既有错误位于上下文预览、剧情上下文与记忆摘要模块；本轮文件没有新增报错                 |
-| Stale-output retry lifecycle               | failed-existing | 上下文不符的晚到楼层会被拒绝，但切换旧楼层后的 loading 取消/重试仍有既有缺口               |
-| Independent skill forward review           | not run         | 先前独立复核早于本次水族馆纠正；本次未重新执行                                              |
-| Real Tavern World Info scan and generation | not run         | 真实条目尚未替换，未取得 `WORLDINFO_ENTRIES_LOADED`、宿主楼层或生成正文                    |
-| Human story review                         | pending         | 等待用户阅读三幕节拍、称呼、角色声音与情感连续性                                           |
+| Check                                      | Status          | Evidence                                                                                |
+| ------------------------------------------ | --------------- | --------------------------------------------------------------------------------------- |
+| Current role and stale-data scan           | passed          | 活动模板、默认卡、人物/剧情恢复源和当前态文档统一为 User 主角、梨子青梅；历史脏数据单列 |
+| Whole-day settlement regressions           | passed          | `test:main-story-time` 5/5；另覆盖三幕连续触发并在 4 月 14 日结束                       |
+| Episode 03 static contract                 | not run         | verifier 已按最新水族馆锚点改写；遵照用户要求未执行                                     |
+| Evidence packet and reusable skill         | not run         | 证据包已同步最新纠正；遵照用户要求未执行 validator 或 skill 校验                        |
+| Semantic acceptance fixtures               | not run         | 正向用例已同步双方未完成告白；没有执行结构或模型语义校验                                |
+| Generated semantic execution               | not run         | 尚未让目标模型实际生成并逐例判定接受/拒绝                                               |
+| Changed-source ESLint                      | not run         | 最新 `act03.ts` 与 verifier 修改后未执行                                                |
+| Story text regression                      | not run         | 最新剧情文本纠正后未执行                                                                |
+| Direct webpack development compilation     | not run         | 最新剧情文本纠正后未执行                                                                |
+| Project TypeScript                         | failed-existing | 10 个既有错误位于上下文预览、剧情上下文与记忆摘要模块；本轮文件没有新增报错             |
+| Stale-output retry lifecycle               | failed-existing | 上下文不符的晚到楼层会被拒绝，但切换旧楼层后的 loading 取消/重试仍有既有缺口            |
+| Independent skill forward review           | not run         | 先前独立复核早于本次水族馆纠正；本次未重新执行                                          |
+| Real Tavern World Info scan and generation | not run         | 真实条目尚未替换，未取得 `WORLDINFO_ENTRIES_LOADED`、宿主楼层或生成正文                 |
+| Human story review                         | pending         | 等待用户阅读三幕节拍、称呼、角色声音与情感连续性                                        |
 
 当前最强接通标签：**水族馆互相告白锚点已写入本地合同；未做改后自动验证，等待用户手工测试。**
 

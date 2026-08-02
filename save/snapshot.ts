@@ -17,7 +17,12 @@ import {
 import { useCardStore } from '../stores/cardStore';
 import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
-import { PLAYER_RESOURCE_MAX, TOKIMEKI_ATTRIBUTE_MAX, usePlayerStore } from '../stores/playerStore';
+import {
+  createPlayerProfile,
+  PLAYER_RESOURCE_MAX,
+  TOKIMEKI_ATTRIBUTE_MAX,
+  usePlayerStore,
+} from '../stores/playerStore';
 import type {
   CalendarDateValue,
   CharacterCard,
@@ -25,11 +30,12 @@ import type {
   GameEvent,
   GameScreen,
   LocationId,
+  PlayerProfile,
   PlayerState,
 } from '../types';
 import type { SavePreview } from './protocol';
 
-export const GAME_SNAPSHOT_SCHEMA_VERSION = 2 as const;
+export const GAME_SNAPSHOT_SCHEMA_VERSION = 3 as const;
 
 export interface GameSnapshot {
   schemaVersion: typeof GAME_SNAPSHOT_SCHEMA_VERSION;
@@ -69,6 +75,37 @@ function isFiniteNumberInRange(value: unknown, minimum: number, maximum: number)
   return typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
 }
 
+function isPlayerProfile(value: unknown): value is PlayerProfile {
+  if (!isRecord(value)) return false;
+  try {
+    const normalized = createPlayerProfile({
+      familyName: typeof value.familyName === 'string' ? value.familyName : '',
+      givenName: typeof value.givenName === 'string' ? value.givenName : '',
+      birthdayMonth: typeof value.birthdayMonth === 'number' ? value.birthdayMonth : Number.NaN,
+      birthdayDay: typeof value.birthdayDay === 'number' ? value.birthdayDay : Number.NaN,
+      bloodType:
+        value.bloodType === 'A' ||
+        value.bloodType === 'B' ||
+        value.bloodType === 'AB' ||
+        value.bloodType === 'O' ||
+        value.bloodType === 'unknown'
+          ? value.bloodType
+          : 'unknown',
+    });
+    return (
+      value.registrationCompleted === true &&
+      value.familyName === normalized.familyName &&
+      value.givenName === normalized.givenName &&
+      value.displayName === normalized.displayName &&
+      value.birthdayMonth === normalized.birthdayMonth &&
+      value.birthdayDay === normalized.birthdayDay &&
+      value.bloodType === normalized.bloodType
+    );
+  } catch {
+    return false;
+  }
+}
+
 function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   if (!isRecord(value) || value.schemaVersion !== GAME_SNAPSHOT_SCHEMA_VERSION) {
     throw new Error('存档版本无效；开发阶段旧存档不再兼容，请新开档。');
@@ -79,7 +116,7 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   const game = value.game;
   const player = value.player;
   if (
-    (game.screen !== 'start' && game.screen !== 'game') ||
+    (game.screen !== 'start' && game.screen !== 'registration' && game.screen !== 'game') ||
     typeof game.hasSession !== 'boolean' ||
     typeof game.day !== 'number' ||
     !Number.isFinite(game.day) ||
@@ -101,8 +138,10 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   ) {
     throw new Error('存档字段格式无效');
   }
+  const profileIsValid = player.profile === null || isPlayerProfile(player.profile);
   if (
     typeof player.name !== 'string' ||
+    !profileIsValid ||
     typeof player.color !== 'string' ||
     typeof player.avatar !== 'string' ||
     !isFiniteNumberInRange(player.intelligence, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
@@ -116,6 +155,14 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
     player.money < 0
   ) {
     throw new Error('玩家存档字段格式或范围无效');
+  }
+  if (
+    (player.profile !== null && player.name !== player.profile.displayName) ||
+    game.hasSession !== (player.profile !== null) ||
+    (game.screen === 'game' && !game.hasSession) ||
+    (game.screen === 'registration' && game.hasSession)
+  ) {
+    throw new Error('玩家登记状态与游戏阶段不一致');
   }
 }
 
@@ -145,6 +192,7 @@ export function createGameSnapshot(): GameSnapshot {
     },
     player: {
       name: player.name,
+      profile: player.profile,
       color: player.color,
       avatar: player.avatar,
       intelligence: player.intelligence,

@@ -15,8 +15,8 @@ action points, meet characters, build affection, and play generated GAL story sc
 
 ## Commands
 
-Run from `D:\card\tolove\tavern_helper_template-main`, where `package.json`, webpack config, TypeScript config, lockfile,
-and dependencies live.
+Run from `D:\card\tolove\tavern_helper_template-main`, where `package.json`, webpack config, TypeScript config,
+lockfile, and dependencies live.
 
 | Command          | Purpose                      |
 | ---------------- | ---------------------------- |
@@ -35,7 +35,8 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 ## Architecture
 
 - `stores/gameStore.ts`: date, period, action points, location/scene, lifecycle, and the stable story-slice wiring.
-- `stores/mainStoryStore.ts`: generic main-story Zustand actions. It may query templates but must not branch on episode IDs.
+- `stores/mainStoryStore.ts`: generic main-story Zustand actions. It may query templates but must not branch on episode
+  IDs.
 - `stores/cardStore.ts`: SillyTavern V2 cards, targets, locations, affection.
 - `stores/characterStore.ts`, `mapStore.ts`, `playerStore.ts`: presentation and player/map state.
 - `services/storyGenerationPrompt.ts`: reusable stage-opening/stage-ending and GAL output contracts. It contains no
@@ -43,10 +44,11 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 - `services/tavernStoryGeneration.ts`: current event adapter, accepted-history context, Tavern generation, and
   plain-text parsing. It does not settle AP, affection, dates, or host floors.
 - `GalMainStory/episodeTemplate.ts` and `episodes/index.ts`: the data-only episode contract and production registry.
-  Adding an episode that reuses existing assets means adding act definitions, one episode `index.ts`, and one registry item;
-  shared store, snapshot, generation, history, and renderer files must not gain episode branches.
-- `GalMainStory/storyRegistry.ts`, `storyArchive.ts`, and `storyPersistence.ts`: generic trigger/query, archive projection,
-  and strict schema-v2 restoration. Persistent identity is `eventId + actId`; act indexes are display-only derivatives.
+  Adding an episode that reuses existing assets means adding act definitions, one episode `index.ts`, and one registry
+  item; shared store, snapshot, generation, history, and renderer files must not gain episode branches.
+- `GalMainStory/storyRegistry.ts`, `storyArchive.ts`, and `storyPersistence.ts`: generic trigger/query, archive
+  projection, and strict schema-v2 restoration. Persistent identity is `eventId + actId`; act indexes are display-only
+  derivatives.
 - `GalMainStory/GalMainStory.tsx`: loading/error/fallback state and GAL rendering. It does not recalculate game state.
 - `data/storyLore.ts` read-only loads the selected disabled plot/character entries from the real Tavern worldbook by
   stable order/name, validates their content markers, and arms only their per-scan copies for the next native World Info
@@ -56,6 +58,8 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
   `whole-day` acts on 2008-04-11, 04-12, and 04-13; its 2008-04-14 school-route fall is an act-03 coda, not act 04.
   `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
 - `save/` and `message/`: snapshots and the game-owned message mirror.
+- `start/PlayerRegistration.tsx`: the deterministic Riko opening and player-profile draft UI. It may commit one
+  validated registration through `services/gameSession.ts`, but it does not write story, card, worldbook, or host state.
 
 Scene switching uses `currentSceneId`; there is no routing library. Three periods exist: morning, afterSchool, evening.
 
@@ -63,13 +67,13 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 
 - Zustand plus the save snapshot owns AP, date, event completion, and the current act.
 - Character-role authority is fixed: User is the protagonist, living together with the Yuuki family; no separate male
-  Rito exists. Riko is User's childhood friend, an information/reminder helper, and an independent romance target.
-  She does not inherit the original protagonist role, Lala engagement, Mikan kinship, or Haruna relationship.
+  Rito exists. Riko is User's childhood friend, Mikan's older sister, an information/reminder helper, and an independent
+  romance target. She does not inherit the original protagonist role, Lala engagement, or Haruna relationship.
 - A `whole-day` act may trigger only on the day's first action. Its completion advances once to the next day and resets
   the daily AP; shared runtime code must implement this from template `timeCost`, never from an episode-ID branch.
-- Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do not
-  reintroduce parallel `active/progress/actIndex/acts` fields or episode-specific store actions.
-- Development snapshots before schema v2 are intentionally incompatible; do not add migration branches unless the
+- Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do
+  not reintroduce parallel `active/progress/actIndex/acts` fields or episode-specific store actions.
+- Development snapshots before schema v3 are intentionally incompatible; do not add migration branches unless the
   product requirement changes explicitly.
 - AI output is a story candidate. It must pass local extraction/normalization before GAL rendering.
 - AI responses do not need a model-emitted completion sentinel. AP, date, and the current act in Zustand select the

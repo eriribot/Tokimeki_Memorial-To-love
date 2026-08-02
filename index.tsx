@@ -74,9 +74,10 @@ window.render_game_to_text = () => {
     screen: game.screen,
     canContinue: game.hasSession,
     isPlaying: game.isPlaying,
+    playerProfile: player.profile,
   };
 
-  if (game.screen === 'start') {
+  if (game.screen !== 'game') {
     return JSON.stringify(session);
   }
 

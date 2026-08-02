@@ -7,6 +7,8 @@ interface LayeredPortraitProps {
   expressionId: string;
   isSpeaking: boolean;
   beatKey: number;
+  className?: string;
+  enableBlink?: boolean;
 }
 
 type FaceWindowStyle = CSSProperties & {
@@ -31,13 +33,24 @@ function getRegionStyle(rig: LayeredPortraitRig, region: 'eyes' | 'mouth'): Face
   return style;
 }
 
-export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey }: LayeredPortraitProps) {
+export default function LayeredPortrait({
+  rig,
+  expressionId,
+  isSpeaking,
+  beatKey,
+  className,
+  enableBlink = true,
+}: LayeredPortraitProps) {
   const maskUrl = resolveAssetPath(rig.mask);
   const expression = rig.expressions[expressionId] ?? rig.expressions[rig.defaultExpressionId];
   if (!expression) throw new Error(`立绘“${rig.id}”没有默认表情“${rig.defaultExpressionId}”。`);
 
   return (
-    <div className="layered-portrait-stage" role="img" aria-label={`${rig.displayName}，表情 ${expression.id}`}>
+    <div
+      className={`layered-portrait-stage${className ? ` ${className}` : ''}`}
+      role="img"
+      aria-label={`${rig.displayName}，表情 ${expression.id}`}
+    >
       <div
         className="layered-portrait"
         style={{
@@ -53,7 +66,11 @@ export default function LayeredPortrait({ rig, expressionId, isSpeaking, beatKey
           style={getRegionStyle(rig, 'eyes')}
           aria-hidden="true"
         >
-          <img className={expression.blinking ? 'is-blinking' : ''} src={resolveAssetPath(expression.eyes)} alt="" />
+          <img
+            className={enableBlink && expression.blinking ? 'is-blinking' : ''}
+            src={resolveAssetPath(expression.eyes)}
+            alt=""
+          />
         </span>
 
         <span
