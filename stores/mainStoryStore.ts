@@ -27,6 +27,7 @@ type MainStoryStoreActions = Pick<
   | 'selectMainStoryFloor'
   | 'deleteMainStoryFloor'
   | 'setMainStoryPosition'
+  | 'selectMainStoryChoice'
   | 'finishMainStoryAct'
 >;
 
@@ -292,6 +293,45 @@ export function createMainStoryStoreActions(
         return { mainStory: { ...state.mainStory, run: { ...run, pageIndex: safePageIndex } } };
       }),
 
+    selectMainStoryChoice: (choiceId, optionId) => {
+      let selected = false;
+      set(state => {
+        const run = state.mainStory.run;
+        if (run?.phase !== 'playing') return state;
+        const actDefinition = getMainStoryEpisode(run.eventId)?.acts.find(act => act.id === run.actId);
+        const activeAct = getActiveStoryAct(state.mainStory.archives, run.eventId, run.actId);
+        const archiveIndex = state.mainStory.archives.findIndex(
+          archive => archive.eventId === run.eventId && archive.actId === run.actId,
+        );
+        if (
+          !actDefinition?.choice ||
+          actDefinition.choice.id !== choiceId ||
+          !actDefinition.choice.options.some(option => option.id === optionId) ||
+          !activeAct ||
+          run.pageIndex !== activeAct.beats.length - 1 ||
+          archiveIndex < 0
+        ) {
+          return state;
+        }
+        const archive = state.mainStory.archives[archiveIndex];
+        if (archive.choiceDecision) return state;
+        selected = true;
+        return {
+          mainStory: {
+            ...state.mainStory,
+            archives: state.mainStory.archives.map((savedArchive, index) =>
+              index === archiveIndex ? { ...savedArchive, choiceDecision: { choiceId, optionId } } : savedArchive,
+            ),
+          },
+          log: [
+            ...state.log,
+            `主线选择：${actDefinition.choice.options.find(option => option.id === optionId)?.label}`,
+          ].slice(-20),
+        };
+      });
+      return selected;
+    },
+
     finishMainStoryAct: () => {
       let finished = false;
       set(state => {
@@ -302,8 +342,10 @@ export function createMainStoryStoreActions(
         const activeAct = getActiveStoryAct(state.mainStory.archives, run.eventId, run.actId);
         if (!episode || actIndex < 0 || !activeAct) return state;
 
-        finished = true;
         const actDefinition = episode.acts[actIndex];
+        const archive = getStoryArchive(state.mainStory.archives, run.eventId, run.actId);
+        if (actDefinition?.choice && archive?.choiceDecision?.choiceId !== actDefinition.choice.id) return state;
+        finished = true;
         const isLastAct = actIndex === episode.acts.length - 1;
         const nextAct = episode.acts[actIndex + 1];
         const advancesDay = state.actionPointsRemaining === 0 || actDefinition?.timeCost === 'whole-day';

@@ -1708,3 +1708,47 @@ Info、宿主消息、shujuku/ACU、插件或数据库接通，也不证明候�
 | Human visual acceptance           | pending         | 等用户在目标 Tavern game-frame 复核无毛玻璃、尺寸与手机横屏观感                                                                                   |
 
 历史候选当时的标签是：**本地资料页 UI 与错误 selector 已修复，生产自动回归通过；真实 Tavern/宿主仍未证明，人工视觉验收待完成**。该候选已被用户视觉审核退回，不能作为当前实现结论。
+
+## 本轮增量：第四集收敛式选择与原作风格 GAL 试作（2026-08-02）
+
+- 用户真人截图已否决上一版把选项压进正文窗口、替换普通正文纹理且标题信息位置错误的方案；旧截图与旧视觉结论均保留为
+  `failed-human-review` 反例，不能继续当作接受证据。
+- 本轮授权范围是第四集数据模板、通用选择结算/存档/提示投影、下一幕 fallback 微变化、GAL 选择层视觉、第四集恢复源与本地浏览器验证。没有写入真实 Tavern 世界书，没有创建宿主楼层，没有触发
+  `MESSAGE_SENT`、shujuku/ACU、数据库或插件钩子。
+- 新增 event `main.love-apron-user-2008-04-15`，三个 `whole-day` 幕分别映射 `2008-04-15/16/17 action 1` 与剧情条目
+  `order 159/160/161`。过时的 `order 158` 没有重新进入注册表。
+- 第一幕结尾提供“立刻追出去”与“写下要说的话”两项。选择由前端在当前幕档案的 `choiceDecision`
+  中一次结算；未选择时不能跳过或结束。两项都进入同一第二幕，只改变开场语气、反应或一句回扣，不新增路线，不允许模型重算 AP、日期、好感或剧情完成状态。
+- 通用生成上下文只把已结算选项的标签与 continuity
+  hint 投影给下一幕；未选分支不会进入 prompt。AI 正文仍须通过既有提取、演出归一与本地接受合同；模型不输出完成哨兵，也不负责选择结算。
+- 本地 fallback 实际点击“立刻追出去”后完成第一幕并推进至
+  `2008-04-16`；第二幕首句实际显示“你昨夜追到街口，只来得及向远去的菈菈喊出道歉……”，证明本地 UI 状态能驱动下一幕收敛式变体。该证据不是 Tavern 生成或 World
+  Info 注入证据。
+- 修正版恢复普通正文的 `msg_window.png`
+  棋盘纹理，不再叠加平面白底或毛玻璃；选项只在最后一页再次前进后作为独立全宽分支出现，不生成正文窗口节点，也不改变普通正文窗口尺寸。普通页左上
+  `midashi01/02` 显示当前幕标题，选择态改为显示“菈菈冲出家门后，你决定——”这类选择语境。
+- 选项层使用用户提供的蓝/粉棋盘原文件；选中/悬停/键盘焦点是 `#75dec5` 实色整行光标，未选项保持
+  `opacity: 1`。选择纹理内部只渲染选项，并按原图上下色带留白。实测舞台 `858.67×512`、选择层 `858.67×133.08`、单项
+  `858.67×48.31`、字号 `20.18px`，选择态不存在正文节点或框内提示段落。
+- 修正版截图：`episode04-dialogue-restored.png`、`episode04-choice-final.png` 与
+  `episode04-choice-selected-final.png`，位于本线程 visualization 目录。截图已由工具打开检查，但仍需用户在目标 Tavern
+  game-frame 作最终视觉接受。
+
+| Check                                           | Status              | Evidence                                                                                                                                                         |
+| ----------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prior embedded-choice visual                    | failed-human-review | 用户截图反证旧版替换正文纹理、选项影响正文且标题位置/内容不符；旧截图不得作为通过证据                                                                            |
+| Episode 04 choice contract                      | passed              | `node src/webgame-ui/verify-episode04.cjs`：三幕注册、159–161、两项选择、两种 fallback 开场、单分支 prompt 投影、收敛约束、存档恢复、素材与无毛玻璃 CSS 全部通过 |
+| Scoped ESLint                                   | passed              | 第四集、通用选择管线、GAL 组件、提示上下文、store、types 与 verifier 定向 ESLint 无 error                                                                        |
+| Development build                               | passed              | `pnpm build:dev` 成功                                                                                                                                            |
+| Production build                                | passed              | `pnpm build` 成功；仅有既有的单文件 798 KiB 体积警告                                                                                                             |
+| Production artifact identity                    | passed              | `dist/webgame-ui/index.html`，816560 bytes，SHA-256 `2C44F189B7F00D803C0DB9AFE371552DAE4342B67B87FE5BDFAD53A00F7C5A6D`，生成时间 `2026-08-02 22:52:39 +08:00`    |
+| Exact inline verifier                           | blocked-missing     | AGENTS.md 指定的 `src/webgame-ui/verify-inline-bundle.mjs` 在当前工作副本不存在；原命令实际返回 `MODULE_NOT_FOUND`，未以生产构建替代该结论                       |
+| Full TypeScript                                 | failed-existing     | 错误位于全局/依赖声明及既有 `ContextPreviewModal`、`storyContextValidation`、`storyTimeline`、`summaryRuntime`、`save/snapshot`；本轮修改文件未出现在错误列表    |
+| Corrected local visual browser flow             | passed-evidence     | 普通正文纹理、同幕两阶段显示、左上短标题、独立全宽选项、整行实色光标与未选项不淡化均在最新开发包实测；不等于人工接受                                             |
+| Local fallback browser flow                     | passed              | 从第四集第一幕选项实际点击、整天结算、跨日到第二幕，并观察到所选追赶分支开场；这是本地浏览器/fallback 证据                                                       |
+| AI prompt projection contract                   | passed-local        | verifier 证明只投影已选分支和收敛约束；未在真实 Tavern 发起本集生成                                                                                              |
+| Real Tavern World Info / generation             | not run             | 真实 `order 159-161` 尚未导入、读取或取得一次性 `WORLDINFO_ENTRIES_LOADED` 扫描证据                                                                              |
+| Host floors / MESSAGE_SENT / shujuku / database | not run             | 本轮没有触碰这些路径                                                                                                                                             |
+| Human visual and narrative acceptance           | pending             | 等待用户审核当前原作风格、光标手感与第四集两项选择的文字力度                                                                                                     |
+
+当前最强接通标签：**第四集本地选择闭环、fallback 微变化、提示投影合同和生产构建已通过；精确内联检查器缺失，真实 Tavern/宿主链路与人工接受仍未完成**。

@@ -56,6 +56,30 @@ export interface StoryActGenerationContract {
   requiredSceneSequence: readonly StorySceneId[];
 }
 
+export interface StoryChoiceOptionDefinition {
+  id: string;
+  label: string;
+  continuityHint: string;
+}
+
+export interface StoryChoiceDefinition {
+  id: string;
+  prompt: string;
+  options: readonly StoryChoiceOptionDefinition[];
+}
+
+export interface StoryChoiceDecision {
+  choiceId: string;
+  optionId: string;
+}
+
+export interface StoryFallbackChoiceVariant {
+  sourceActId: string;
+  choiceId: string;
+  optionId: string;
+  openingBeats: readonly GalStoryBeat[];
+}
+
 export interface StoryActDefinition {
   id: string;
   title: string;
@@ -63,6 +87,8 @@ export interface StoryActDefinition {
   characterLoreIds: readonly string[];
   presentation: StoryActPresentation;
   generation: StoryActGenerationContract;
+  choice?: StoryChoiceDefinition;
+  fallbackChoiceVariants?: readonly StoryFallbackChoiceVariant[];
   fallbackBeats: readonly GalStoryBeat[];
 }
 
@@ -102,6 +128,7 @@ export interface GalStoryActArchive {
   eventId: string;
   actId: string;
   activeFloorId: string | null;
+  choiceDecision: StoryChoiceDecision | null;
   floors: GalStoryFloor[];
 }
 

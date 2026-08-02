@@ -19,7 +19,12 @@ import {
   isStoryCharacterSpeaking,
 } from './characters';
 import GalStoryPage from './GalStoryPage';
-import { getEpisodeStoryActs, getPreviousActiveStoryFloors } from './storyArchive';
+import {
+  getEpisodeStoryActs,
+  getPreviousActiveStoryFloors,
+  getPreviousStoryChoiceDecisions,
+  getStoryChoiceDecision,
+} from './storyArchive';
 import {
   createMainStoryFallbackAct,
   getMainStoryActIndex,
@@ -44,7 +49,9 @@ interface GalMainStoryProps {
 }
 
 type HistoryPlaybackTarget =
-  { kind: 'all'; eventId: string } | { kind: 'floor'; eventId: string; floorId: string } | null;
+  | { kind: 'all'; eventId: string }
+  | { kind: 'floor'; eventId: string; floorId: string }
+  | null;
 type RawHistoryTarget = { floorId: string | null } | null;
 
 function getErrorMessage(error: unknown): string {
@@ -63,6 +70,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const setStoryActContent = useGameStore(state => state.setMainStoryActContent);
   const failGeneration = useGameStore(state => state.failMainStoryGeneration);
   const setStoryPosition = useGameStore(state => state.setMainStoryPosition);
+  const selectStoryChoice = useGameStore(state => state.selectMainStoryChoice);
   const selectStoryFloor = useGameStore(state => state.selectMainStoryFloor);
   const finishMainStoryAct = useGameStore(state => state.finishMainStoryAct);
   const playerName = usePlayerStore(state => state.name);
@@ -70,6 +78,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [historyPlaybackTarget, setHistoryPlaybackTarget] = useState<HistoryPlaybackTarget>(null);
   const [rawHistoryTarget, setRawHistoryTarget] = useState<RawHistoryTarget>(null);
+  const [isChoiceMenuOpen, setIsChoiceMenuOpen] = useState(false);
   const isRawHistoryOpen = rawHistoryTarget !== null;
   const activeEventId = storyRun?.phase === 'playing' ? storyRun.eventId : null;
   const activeActId = storyRun?.phase === 'playing' ? storyRun.actId : null;
@@ -93,6 +102,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
 
   const liveAct = acts[actIndex];
   const liveBeat = liveAct?.beats[pageIndex];
+  const liveActMeta = activeEpisode?.acts[actIndex];
+  const liveChoice = liveActMeta?.choice ?? null;
+  const liveChoiceDecision =
+    activeEventId && activeActId ? getStoryChoiceDecision(storyArchives, activeEventId, activeActId) : null;
   const isLastLivePage = Boolean(liveAct && pageIndex === liveAct.beats.length - 1);
   const isLastLiveAct = Boolean(activeEpisode && actIndex === activeEpisode.acts.length - 1);
   const liveReadCursors = useMemo<StoryCursor[]>(
@@ -208,6 +221,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         : [],
     [activeActId, activeEventId, storyArchives],
   );
+  const previousChoiceDecisions = useMemo(
+    () =>
+      activeEventId && activeActId ? getPreviousStoryChoiceDecisions(storyArchives, activeEventId, activeActId) : [],
+    [activeActId, activeEventId, storyArchives],
+  );
 
   const closeRawHistory = useCallback(() => {
     setRawHistoryTarget(null);
@@ -233,6 +251,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       contextFloorIds,
       historyFloorIds,
       chatHistory: messageHistory,
+      previousChoiceDecisions,
     };
 
     try {
@@ -261,6 +280,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     messageHistory,
     periodIndex,
     playerName,
+    previousChoiceDecisions,
     setStoryActContent,
   ]);
 
@@ -276,6 +296,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     setRawHistoryTarget(null);
   }, [activeEventId, actIndex, historyMode]);
 
+  useEffect(() => {
+    setIsChoiceMenuOpen(false);
+  }, [activeActId, activeEventId, pageIndex]);
+
   const finishCurrentAct = useCallback(() => {
     if (finishMainStoryAct()) syncCharacterPresence();
   }, [finishMainStoryAct]);
@@ -285,7 +309,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     const period = PERIODS[periodIndex] ?? PERIODS[0];
     const floorId = createStoryFloorId(activeEventId, activeActId);
     if (!beginGeneration(floorId)) return;
-    const fallbackAct = createMainStoryFallbackAct(activeEventId, activeActId);
+    const fallbackAct = createMainStoryFallbackAct(activeEventId, activeActId, previousChoiceDecisions);
     const request = {
       eventId: activeEventId,
       actId: activeActId,
@@ -297,6 +321,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       contextFloorIds,
       historyFloorIds,
       chatHistory: messageHistory,
+      previousChoiceDecisions,
     };
     const messages = createFallbackStoryMessages(request, actToPlainText(fallbackAct));
     const floor = createStoryFloor(request, fallbackAct, 'fallback', messages, 'accepted');
@@ -312,6 +337,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     messageHistory,
     periodIndex,
     playerName,
+    previousChoiceDecisions,
     setStoryActContent,
   ]);
 
@@ -352,6 +378,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       if (activeActId) setStoryPosition(activeActId, pageIndex + 1);
       return;
     }
+    if (liveChoice && !liveChoiceDecision) {
+      setIsChoiceMenuOpen(true);
+      return;
+    }
     finishCurrentAct();
   }, [
     activeActId,
@@ -359,6 +389,8 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     isLastLivePage,
     liveAct,
     liveBeat,
+    liveChoice,
+    liveChoiceDecision,
     historyMode,
     pageIndex,
     readCursors.length,
@@ -369,6 +401,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   ]);
 
   const goPrevious = useCallback(() => {
+    if (!historyMode && replayIndex === null && isChoiceMenuOpen) {
+      setIsChoiceMenuOpen(false);
+      return;
+    }
     if (historyMode) {
       const currentIndex = replayCursorIndex ?? 0;
       if (currentIndex > 0) setReplayIndex(currentIndex - 1);
@@ -380,7 +416,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     }
     if (readCursors.length <= 1) return;
     setReplayIndex(readCursors.length - 2);
-  }, [historyMode, readCursors.length, replayCursorIndex, replayIndex]);
+  }, [historyMode, isChoiceMenuOpen, readCursors.length, replayCursorIndex, replayIndex]);
 
   useEffect(() => {
     const isReady = historyMode
@@ -515,9 +551,18 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
 
   const actMeta = visibleEpisode?.acts[visibleActIndex];
   const scene = getStoryScene(visibleBeat.presentation.sceneId);
-  const previousDisabled = isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
+  const isChoiceVisible =
+    !historyMode &&
+    !isReplaying &&
+    isLastLivePage &&
+    Boolean(liveChoice) &&
+    (isChoiceMenuOpen || liveChoiceDecision !== null);
+  const previousDisabled = isChoiceVisible ? false : isReplaying ? replayCursorIndex === 0 : readCursors.length <= 1;
   const isLastHistoryPage = historyMode && replayCursorIndex !== null && replayCursorIndex >= readCursors.length - 1;
   const isLastReplayPage = !historyMode && isReplaying && replayIndex !== null && replayIndex >= readCursors.length - 2;
+  const hasPendingLiveChoice = !historyMode && !isReplaying && Boolean(liveChoice) && liveChoiceDecision === null;
+  const isChoiceRequiredPending = hasPendingLiveChoice && isLastLivePage;
+  const isVisibleChoicePending = isChoiceVisible && liveChoiceDecision === null;
   const historyFloorArchive = historyFloor
     ? storyArchives.find(archive => archive.floors.some(floor => floor.floorId === historyFloor.floorId))
     : undefined;
@@ -530,11 +575,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       : '下一页'
     : isLastReplayPage
       ? '返回当前剧情'
-      : isLastLiveAct && isLastLivePage
-        ? '结束剧情'
-        : isLastLivePage
-          ? '回到自由行动'
-          : '下一页';
+      : isChoiceRequiredPending && !isChoiceVisible
+        ? '显示选项'
+        : isVisibleChoicePending
+          ? '请选择'
+          : isLastLiveAct && isLastLivePage
+            ? '结束剧情'
+            : isLastLivePage
+              ? '回到自由行动'
+              : '下一页';
 
   return (
     <section
@@ -560,6 +609,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-effect={visibleBeat.presentation.effect}
       data-replay={isReplaying ? 'true' : 'false'}
       data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
+      data-choice-state={
+        liveChoice ? (liveChoiceDecision ? 'selected' : isChoiceVisible ? 'waiting' : 'reading') : 'none'
+      }
       onClick={goNext}
     >
       <GalStoryPage
@@ -580,8 +632,10 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
         }
         actLabel={
           <>
-            {isReplaying && '回放中 · '}第 {visibleActIndex + 1} 幕 · {actMeta?.title ?? visibleAct.id}
-            {historyFloorIndex >= 0 && ` · 楼层 ${historyFloorIndex + 1}`}
+            {isReplaying && '回放 · '}
+            {isChoiceVisible && liveChoice
+              ? liveChoice.prompt
+              : (actMeta?.title ?? visibleEpisode?.title ?? visibleAct.id)}
           </>
         }
         controls={
@@ -604,6 +658,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
             <button
               type="button"
               className="gal-main-story__skip"
+              disabled={hasPendingLiveChoice}
               onClick={
                 historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct
               }
@@ -642,6 +697,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
             <button
               type="button"
               className="gal-main-story__icon-button is-primary"
+              disabled={isVisibleChoicePending}
               onClick={goNext}
               aria-label={nextActionLabel}
               title={nextActionLabel}
@@ -649,6 +705,17 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
               {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
             </button>
           </nav>
+        }
+        theme={(visibleEpisode?.episodeNumber ?? 1) % 2 === 0 ? 'pink' : 'blue'}
+        choice={
+          isChoiceVisible && liveChoice
+            ? {
+                prompt: liveChoice.prompt,
+                options: liveChoice.options,
+                selectedOptionId: liveChoiceDecision?.optionId ?? null,
+                onSelect: optionId => selectStoryChoice(liveChoice.id, optionId),
+              }
+            : null
         }
       />
       {rawHistoryTarget && (

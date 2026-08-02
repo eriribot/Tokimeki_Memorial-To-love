@@ -20,6 +20,14 @@ interface GalStoryPageProps {
   portrait?: GalStoryPortraitView | null;
   actLabel?: ReactNode;
   controls?: ReactNode;
+  theme?: 'blue' | 'pink';
+  choice?: {
+    prompt: string;
+    options: readonly { id: string; label: string }[];
+    selectedOptionId: string | null;
+    onSelect: (optionId: string) => void;
+    readOnly?: boolean;
+  } | null;
 }
 
 /**
@@ -36,6 +44,8 @@ export default function GalStoryPage({
   portrait = null,
   actLabel,
   controls,
+  theme = 'pink',
+  choice = null,
 }: GalStoryPageProps) {
   const speakerNameplate = getSpeakerNameplateAsset(speaker);
 
@@ -48,7 +58,12 @@ export default function GalStoryPage({
         alt={backgroundAlt}
       />
       <div className="gal-main-story__shade" aria-hidden="true" />
-      {actLabel && <div className="gal-main-story__act-label">{actLabel}</div>}
+      {actLabel && (
+        <div className={`gal-main-story__act-label is-${theme}`}>
+          <img src={resolveAssetPath(GALBOX_ASSETS.headings[theme])} alt="" aria-hidden="true" />
+          <span>{actLabel}</span>
+        </div>
+      )}
 
       {portrait && (
         <LayeredPortrait
@@ -60,35 +75,64 @@ export default function GalStoryPage({
         />
       )}
 
-      <div className="gal-main-story__dialogue">
-        <img
-          className="gal-main-story__window"
-          src={resolveAssetPath(GALBOX_ASSETS.messageWindow)}
-          alt=""
-          aria-hidden="true"
-        />
-
-        {speakerNameplate ? (
-          <div className="gal-main-story__nameplate" role="img" aria-label={speaker ?? undefined}>
-            <img src={resolveAssetPath(speakerNameplate)} alt="" aria-hidden="true" />
-            <strong>{speaker}</strong>
+      {choice ? (
+        <div
+          className={`gal-main-story__choice is-${theme}`}
+          role="group"
+          aria-label={choice.prompt}
+          onClick={event => event.stopPropagation()}
+        >
+          <img src={resolveAssetPath(GALBOX_ASSETS.choiceWindows[theme])} alt="" aria-hidden="true" />
+          <div className="gal-main-story__choice-options">
+            {choice.options.map(option => {
+              const selected = option.id === choice.selectedOptionId;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={selected ? 'is-selected' : ''}
+                  aria-pressed={selected}
+                  disabled={Boolean(choice.selectedOptionId) || choice.readOnly}
+                  onClick={() => choice.onSelect(option.id)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
-        ) : (
-          speaker && <strong className="gal-main-story__speaker">{speaker}</strong>
-        )}
-
-        <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">
-          <p className={speaker ? '' : 'is-narration'}>{text}</p>
+          {controls}
         </div>
+      ) : (
+        <div className="gal-main-story__dialogue">
+          <img
+            className="gal-main-story__window"
+            src={resolveAssetPath(GALBOX_ASSETS.messageWindow)}
+            alt=""
+            aria-hidden="true"
+          />
 
-        <span className="gal-main-story__push" aria-hidden="true">
-          {GALBOX_ASSETS.nextIndicatorFrames.map((src, frame) => (
-            <img key={src} className={`push-frame push-frame-${frame}`} src={resolveAssetPath(src)} alt="" />
-          ))}
-        </span>
+          {speakerNameplate ? (
+            <div className="gal-main-story__nameplate" role="img" aria-label={speaker ?? undefined}>
+              <img src={resolveAssetPath(speakerNameplate)} alt="" aria-hidden="true" />
+              <strong>{speaker}</strong>
+            </div>
+          ) : (
+            speaker && <strong className="gal-main-story__speaker">{speaker}</strong>
+          )}
 
-        {controls}
-      </div>
+          <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">
+            <p className={speaker ? '' : 'is-narration'}>{text}</p>
+          </div>
+
+          <span className="gal-main-story__push" aria-hidden="true">
+            {GALBOX_ASSETS.nextIndicatorFrames.map((src, frame) => (
+              <img key={src} className={`push-frame push-frame-${frame}`} src={resolveAssetPath(src)} alt="" />
+            ))}
+          </span>
+
+          {controls}
+        </div>
+      )}
     </>
   );
 }

@@ -19,6 +19,11 @@ export interface StoryGenerationPromptContext {
   portraitOptions: readonly StoryPromptPortraitOption[];
   portraitRules?: readonly StoryPromptPortraitRule[];
   continuityMode?: 'fresh' | 'continue';
+  settledChoices?: readonly {
+    prompt: string;
+    selectedLabel: string;
+    continuityHint: string;
+  }[];
 }
 
 function normalizeInline(value: string, fallback: string): string {
@@ -103,6 +108,14 @@ function buildPortraitRuleSection(context: StoryGenerationPromptContext): string
 function buildContinuityInstruction(mode: StoryGenerationPromptContext['continuityMode']): string {
   if (mode !== 'continue') return '';
   return '- 延续已提供的前序剧情中已经发生的事实、人物状态与关系；不要复述前幕，也不要重新演绎已经完成的情节点。';
+}
+
+function buildSettledChoiceInstruction(context: StoryGenerationPromptContext): string {
+  const choices = context.settledChoices ?? [];
+  if (choices.length === 0) return '';
+  return `- 下列玩家选择已经由前端结算，必须当成已发生事实，只改变本幕开场的语气、反应或一句回指，不得据此另开路线、改写后续情节点或重算数值：\n${choices
+    .map(choice => `  - ${choice.prompt} → ${choice.selectedLabel}；本幕微差分：${choice.continuityHint}`)
+    .join('\n')}`;
 }
 
 function buildDirectedExample(context: StoryGenerationPromptContext): string {
@@ -213,6 +226,7 @@ export function buildStoryGenerationPrompt(context: StoryGenerationPromptContext
 - 人物世界书只补充性格、口吻和身份，不能改写剧情世界书规定的事件与关系。
 - 玩家统一写成第二人称“你”。不解释行动点、存档、世界书、生成或资源路径。
 ${buildContinuityInstruction(context.continuityMode)}
+${buildSettledChoiceInstruction(context)}
 
 ${buildStoryOutputProtocol(context)}
 `.trim();

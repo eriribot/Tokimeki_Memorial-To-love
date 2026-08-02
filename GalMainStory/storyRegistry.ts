@@ -3,7 +3,7 @@ import type { CalendarDateValue } from '../types';
 import { getStoryCharacter, isStoryCharacterId } from './characters';
 import type { StoryEpisodeActDefinition, StoryEpisodeTemplate } from './episodeTemplate';
 import { MAIN_STORY_EPISODES } from './episodes';
-import type { GalStoryAct, MainStoryRun, StoryPresentationCue } from './storyTypes';
+import type { GalStoryAct, MainStoryRun, StoryChoiceDecision, StoryPresentationCue } from './storyTypes';
 
 export { MAIN_STORY_EPISODES } from './episodes';
 export type MainStoryEpisodeDefinition = StoryEpisodeTemplate;
@@ -44,11 +44,24 @@ export function getMainStoryLoreReferences(eventId: string, actId: string): Disa
   ];
 }
 
-export function createMainStoryFallbackAct(eventId: string, actId: string): GalStoryAct {
+export function createMainStoryFallbackAct(
+  eventId: string,
+  actId: string,
+  previousDecisions: readonly { actId: string; decision: StoryChoiceDecision }[] = [],
+): GalStoryAct {
   const act = getMainStoryActOrThrow(eventId, actId);
+  const matchingVariant = (act.fallbackChoiceVariants ?? []).find(variant =>
+    previousDecisions.some(
+      saved =>
+        saved.actId === variant.sourceActId &&
+        saved.decision.choiceId === variant.choiceId &&
+        saved.decision.optionId === variant.optionId,
+    ),
+  );
+  const sourceBeats = [...(matchingVariant?.openingBeats ?? []), ...act.fallbackBeats];
   return {
     id: act.id,
-    beats: act.fallbackBeats.map(beat => ({
+    beats: sourceBeats.map(beat => ({
       ...beat,
       presentation: { ...beat.presentation },
     })),

@@ -31,7 +31,9 @@ export interface CalendarDateValue {
 export type PeriodKey = 'morning' | 'afterSchool' | 'evening';
 
 export type CharacterAvailabilityRule =
-  { kind: 'always' } | { kind: 'after-event'; eventId: string } | { kind: 'locked' };
+  | { kind: 'always' }
+  | { kind: 'after-event'; eventId: string }
+  | { kind: 'locked' };
 
 export interface CharacterPresenceContext {
   periodKey: PeriodKey;
@@ -133,6 +135,7 @@ export interface GameActions {
   selectMainStoryFloor: (floorId: string) => boolean;
   deleteMainStoryFloor: (floorId: string) => boolean;
   setMainStoryPosition: (actId: string, pageIndex: number) => void;
+  selectMainStoryChoice: (choiceId: string, optionId: string) => boolean;
   finishMainStoryAct: () => boolean;
   completeRegistration: () => void;
   resetGameState: () => void;

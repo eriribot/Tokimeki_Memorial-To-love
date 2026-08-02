@@ -1,6 +1,6 @@
 import { getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
 import { getMainStoryActOrThrow, getMainStoryEpisodeOrThrow } from '../GalMainStory/storyRegistry';
-import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
+import type { GalStoryMessageSave, StoryChoiceDecision } from '../GalMainStory/storyTypes';
 import { RECENT_CONTEXT_MESSAGE_LIMIT } from '../memory/summaryPolicy';
 import { buildStoryGenerationPrompt, type StoryPromptPortraitOption } from './storyGenerationPrompt';
 
@@ -12,6 +12,7 @@ export interface StoryGenerationContextRequest {
   contextFloorIds: readonly string[];
   historyFloorIds?: readonly string[];
   chatHistory: readonly GalStoryMessageSave[];
+  previousChoiceDecisions?: readonly { actId: string; decision: StoryChoiceDecision }[];
 }
 
 export interface StoryGenerationContextProjection {
@@ -93,6 +94,13 @@ function buildGenerationPrompt(request: StoryGenerationContextRequest): string {
     portraitOptions: getActPortraitOptions(request.eventId, request.actId),
     portraitRules: act.presentation.portraitRules ?? [],
     continuityMode: (request.historyFloorIds ?? request.contextFloorIds).length > 0 ? 'continue' : 'fresh',
+    settledChoices: (request.previousChoiceDecisions ?? []).flatMap(saved => {
+      const sourceAct = episode.acts.find(candidate => candidate.id === saved.actId);
+      const choice = sourceAct?.choice;
+      const option = choice?.options.find(candidate => candidate.id === saved.decision.optionId);
+      if (!choice || choice.id !== saved.decision.choiceId || !option) return [];
+      return [{ prompt: choice.prompt, selectedLabel: option.label, continuityHint: option.continuityHint }];
+    }),
   });
 }
 

@@ -1,4 +1,4 @@
-import type { GalStoryAct, GalStoryActArchive, GalStoryFloor } from './storyTypes';
+import type { GalStoryAct, GalStoryActArchive, GalStoryFloor, StoryChoiceDecision } from './storyTypes';
 import { getMainStoryActIndex, getMainStoryEpisode } from './storyRegistry';
 
 export function mergeStoryMessages<T extends { id: string }>(current: readonly T[], incoming: readonly T[]): T[] {
@@ -31,6 +31,28 @@ export function getActiveStoryAct(
   actId: string,
 ): GalStoryAct | null {
   return getActiveStoryFloor(getStoryArchive(archives, eventId, actId))?.act ?? null;
+}
+
+export function getStoryChoiceDecision(
+  archives: readonly GalStoryActArchive[],
+  eventId: string,
+  actId: string,
+): StoryChoiceDecision | null {
+  return getStoryArchive(archives, eventId, actId)?.choiceDecision ?? null;
+}
+
+export function getPreviousStoryChoiceDecisions(
+  archives: readonly GalStoryActArchive[],
+  eventId: string,
+  actId: string,
+): Array<{ actId: string; decision: StoryChoiceDecision }> {
+  const episode = getMainStoryEpisode(eventId);
+  const actIndex = getMainStoryActIndex(eventId, actId);
+  if (!episode || actIndex < 0) return [];
+  return episode.acts.slice(0, actIndex).flatMap(act => {
+    const decision = getStoryChoiceDecision(archives, eventId, act.id);
+    return decision ? [{ actId: act.id, decision }] : [];
+  });
 }
 
 export function getEpisodeStoryActs(
@@ -90,6 +112,7 @@ export function upsertStoryFloor(
           eventId: floor.eventId,
           actId: floor.actId,
           activeFloorId: null,
+          choiceDecision: null,
           floors: [],
         };
   const floors = current.floors.some(savedFloor => savedFloor.floorId === floor.floorId)

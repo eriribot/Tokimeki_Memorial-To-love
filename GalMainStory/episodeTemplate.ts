@@ -50,6 +50,7 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
     throw new Error(`主线剧情模板“${template.id}”存在重复幕 ID。`);
   }
   let previousTrigger: StoryActTrigger | null = null;
+  const previousChoices = new Map<string, { actId: string; optionIds: Set<string> }>();
   for (const act of template.acts) {
     if (!act.id.trim() || !act.title.trim() || act.fallbackBeats.length === 0) {
       throw new Error(`主线剧情模板“${template.id}”包含空幕或空保底正文。`);
@@ -72,6 +73,42 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
     if (act.plotLore.kind !== 'plot') throw new Error(`主线幕“${act.id}”的 plotLore 不是剧情条目。`);
     if (!Number.isInteger(act.plotLore.entryOrder)) {
       throw new Error(`主线幕“${act.id}”的世界书 order 必须是整数。`);
+    }
+    if (act.choice) {
+      if (
+        !act.choice.id.trim() ||
+        !act.choice.prompt.trim() ||
+        act.choice.options.length < 2 ||
+        act.choice.options.length > 4
+      ) {
+        throw new Error(`主线幕“${act.id}”的玩家选择必须包含提示和 2 到 4 个选项。`);
+      }
+      const optionIds = new Set(act.choice.options.map(option => option.id));
+      if (optionIds.size !== act.choice.options.length) throw new Error(`主线幕“${act.id}”的玩家选项 ID 重复。`);
+      if (
+        act.choice.options.some(option => !option.id.trim() || !option.label.trim() || !option.continuityHint.trim())
+      ) {
+        throw new Error(`主线幕“${act.id}”的玩家选项字段不完整。`);
+      }
+      // Register after validating this act's variants so a variant can only
+      // consume a choice from an earlier act.
+    }
+    for (const variant of act.fallbackChoiceVariants ?? []) {
+      const sourceChoice = previousChoices.get(variant.choiceId);
+      if (
+        !sourceChoice ||
+        sourceChoice.actId !== variant.sourceActId ||
+        !sourceChoice.optionIds.has(variant.optionId) ||
+        variant.openingBeats.length === 0
+      ) {
+        throw new Error(`主线幕“${act.id}”引用了无效的保底选择变体。`);
+      }
+    }
+    if (act.choice) {
+      previousChoices.set(act.choice.id, {
+        actId: act.id,
+        optionIds: new Set(act.choice.options.map(option => option.id)),
+      });
     }
   }
 }

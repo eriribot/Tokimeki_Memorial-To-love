@@ -8,6 +8,7 @@ import {
   type GalStoryMessageSave,
   type MainStoryRun,
   type MainStoryState,
+  type StoryChoiceDecision,
 } from './storyTypes';
 
 export interface MainStorySaveState {
@@ -104,6 +105,18 @@ function normalizeStoryFloor(value: unknown, eventId: string, actId: string): Ga
   };
 }
 
+function normalizeChoiceDecision(value: unknown, eventId: string, actId: string): StoryChoiceDecision | null {
+  if (value === undefined || value === null) return null;
+  if (!isRecord(value) || typeof value.choiceId !== 'string' || typeof value.optionId !== 'string') {
+    throw new Error('剧情选择记录格式无效');
+  }
+  const choice = getMainStoryActOrThrow(eventId, actId).choice;
+  if (!choice || choice.id !== value.choiceId || !choice.options.some(option => option.id === value.optionId)) {
+    throw new Error('剧情选择记录与模板不匹配');
+  }
+  return { choiceId: value.choiceId, optionId: value.optionId };
+}
+
 function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
   if (!Array.isArray(value)) throw new Error('剧情楼层档案必须是数组');
   const seenFloorIds = new Set<string>();
@@ -136,7 +149,13 @@ function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
     ) {
       throw new Error('剧情幕采用楼层不可播放');
     }
-    return { eventId, actId, activeFloorId, floors };
+    return {
+      eventId,
+      actId,
+      activeFloorId,
+      choiceDecision: normalizeChoiceDecision(rawArchive.choiceDecision, eventId, actId),
+      floors,
+    };
   });
 
   const acceptedFloors = new Map(
