@@ -24,6 +24,7 @@ export interface StoryGenerationPromptContext {
     selectedLabel: string;
     continuityHint: string;
   }[];
+  choicePrompt?: string;
 }
 
 function normalizeInline(value: string, fallback: string): string {
@@ -174,12 +175,25 @@ function buildAllowedSpeakerList(options: readonly StoryPromptPortraitOption[]):
   return ['@旁白', '@你', ...characterNames].join('、');
 }
 
+function buildChoiceOutputContract(choicePrompt: string | undefined): string {
+  if (!choicePrompt) return '';
+  return `
+- 本幕结束后，必须紧接正文输出恰好三条由你根据本幕实际结尾提出的玩家候选行动，格式严格为：
+  @选项【index=1】：候选行动｜下一幕微差分提示
+  @选项【index=2】：候选行动｜下一幕微差分提示
+  @选项【index=3】：候选行动｜下一幕微差分提示
+- 三条选项回答“${normalizeInline(choicePrompt, '你决定——')}”，必须互不重复、都是玩家此刻能立即执行的具体行动。
+- 候选行动只写行动本身，不写编号、结果、成功率、属性、路线名或解释；每条不超过 56 个字符。
+- “下一幕微差分提示”只描述下一幕开场的一句回指、语气或直接反应，不得另开路线、改变既定情节点或重算数值；每条不超过 160 个字符。
+- 三条选项必须位于正文容器内部最后三行；其后立即关闭正文容器，不得再写正文。`;
+}
+
 export function buildStoryOutputProtocol(context: StoryGenerationPromptContext): string {
   validatePromptContext(context);
   return `
 只输出一个正文容器，不使用 Markdown 代码块。默认使用 <content>...</content>；如果上层提示已指定其他正文标签，例如 <正文>...</正文>、<story_scene>...</story_scene> 或 <story_scence>...</story_scence>，则沿用那一对同名开闭标签。不得并列或嵌套多个正文容器；容器外不输出任何文字，容器内不输出规划、分析、摘要、标题、其他标签、JSON 或阶段标记。
 
-正文容器内每个非空行必须严格使用：
+正文容器内${context.choicePrompt ? '除最后三条候选行动外，其余每个' : '每个'}非空行必须严格使用：
 @说话人【scene=场景ID;focus=角色ID或none;portrait=立绘ID或none;expression=表情ID或none;effect=效果ID】：正文
 
 - 固定说话人和本幕已登记角色是：${buildAllowedSpeakerList(context.portraitOptions)}。
@@ -210,6 +224,7 @@ ${buildDirectedExample(context)}
 - 至少输出 ${context.minimumLineCount} 行上述 GAL 正文。
 ${buildRequiredSceneContract(context.requiredSceneSequence)}
 - 写完世界书“${context.loreSection}”最后一个情节点后立即结束；禁止用缩短、总结或跳过情节点的方式凑齐行数和场景。
+${buildChoiceOutputContract(context.choicePrompt)}
   `.trim();
 }
 

@@ -33,12 +33,14 @@
   `2008-04-11`、`04-12`、`04-13` 每日第一次行动各触发一幕。第三集三幕都声明
   `timeCost: 'whole-day'`：触发前仍按一次有效行动原子结算，完成该幕后直接进入下一日并恢复日初 AP，不再保留当日晚间自由行动；`04-14`
   的上学路摔倒只属于第三幕尾声，不是第四幕。第四集在 `2008-04-15`、`04-16`、`04-17` 每日第一次行动各触发一个 `whole-day`
-  幕；第一幕结尾的两项选择都汇入第二幕，只允许改变下一幕开场语气、反应或一句回扣，不建立分支路线。四集都从真实世界书读取当前幕，支持加载、错误、保底、GAL 播放和本地 messagesave 镜像。
+幕；第一幕结尾由当前采用楼层提供恰好三项 AI 候选，另有一项独立自由输入页；四种选择都汇入第二幕，只允许改变下一幕开场语气、反应或一句回扣，不建立分支路线。AI 结果不合法时改用模板内恰好三项的保底候选。四集都从真实世界书读取当前幕，支持加载、错误、保底、GAL 播放和本地 messagesave 镜像。
 - 主线运行态只保存 `eventId + actId + phase + pageIndex`。选择结果保存在既有幕档案的
   `choiceDecision`，不建立并行的分集进度字段；恢复时按剧集模板严格校验选择 ID，并按当前行动次数幂等检查等待中的幕。当前幕正文只从对应档案的采用楼层读取，不另存一份正文投影。
 - 当前可执行的默认角色规则是：夕崎梨子与西连寺春菜初始可见，菈菈在第二集完成、以转学生身份登场后可见，梦梦、古手川唯与小暗保持锁定；角色卡只通过程序化 JSON 初始化进入运行态，当前没有用户文件/URL 导入入口。
 - AI 每一页必须按受控格式给出
   `scene/focus/portrait/expression/effect`；当前幕的场景表、演员表、立绘版本和各立绘实际表情集合共同约束可用值。未登记人物可以用真实姓名或明确身份说话，并显示通用文字名牌，但不能带“临时角色”标签，也不能虚构立绘。渲染器直接消费通过校验的演出 cue，不再按页数、关键词或角色特判猜演出。
+- `speaker=null` 的普通正文页保留通用文字 nameplate 并显示“旁白”；人物专用 PNG nameplate 仍只用于已登记且拥有对应素材的说话人，选择页不重复挂载 nameplate。
+- 带选择的幕必须在正文末尾输出三行 `@选项【index=1..3】`，每行包含即时行动和下一幕微差分提示；严格解析器拒绝缺项、多项和重复项。第四项自由输入由玩家在独立同框页填写，最多 80 字，并作为同一种 `choiceDecision` 连续性输入进入下一幕。
 - GAL 表现层用同一个分层立绘组件渲染菈菈、西连寺春菜、结城美柑和夕崎梨子。每名角色是独立模块，并可登记多套立绘；每套立绘拥有自己的 body、mask、眼嘴资源和表情集合。以后新增萨斯丁、猿山、校长等角色时新增角色模块并在需要的幕登记，不修改通用类型。
 - GAL 幕标题使用 `artsource/galbox/midashi01.png` /
   `midashi02.png`，选择框使用蓝/粉棋盘窗口素材；选中、悬停与键盘焦点统一使用 `#75dec5`
@@ -135,7 +137,7 @@
 | 模块                                       | 负责                                                                                                   | 权威输入                                     | 输出或副作用                         | 不负责                              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------ | ----------------------------------- |
 | `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配                                                                     | 玩家行动意图、主线模板触发结果               | AP、日期、事件节点                   | 分集或楼层实现                      |
-| `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作和按 `timeCost` 完成结算                                                 | 模板查询、剧情楼层、Game store               | 主线状态变更                         | 识别具体集数                        |
+| `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作、AI/保底/自由输入选择和按 `timeCost` 完成结算                            | 模板查询、剧情楼层、Game store               | 主线状态与选择决定                   | 识别具体集数                        |
 | `stores/playerStore.ts`                    | 玩家原始数值、`999/100` 上限、大学进路五阶段和六轴投影                                                 | 玩家行动结算、严格快照恢复                   | 玩家状态与资料页派生值               | 新增文理/根性存档字段               |
 | `stores/cardStore.ts`                      | 目标卡、位置与好感；仅保留程序化 JSON 卡初始化                                                         | 角色卡、已结算交谈                           | 角色地图状态                         | 文件/URL 导入、主线触发             |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引                                                                      | 当前地点 ID                                  | 地图背景和当前区域地点               | AP 与剧情结算                       |
@@ -155,9 +157,9 @@
 | `data/skills.ts`                           | 127 项特技定义与六分类                                                                                 | 公开原作资料                                 | 技能静态表                           | 玩家进度                            |
 | `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store                                                          | 技能静态表、日期、已结算行动                 | 本地技能进度                         | 应用技能效果                        |
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉                                                                    | `skilllogic`、当前日期                       | 学习/实践提交意图                    | 重算前置或结算效果                  |
-| `services/storyGenerationPrompt.ts`        | 世界书幕选择和受控 GAL 演出格式                                                                        | lore 小节、场景/立绘可用值                   | 可复用生成契约                       | 重述具体剧情                        |
+| `services/storyGenerationPrompt.ts`        | 世界书幕选择、受控 GAL 演出格式与三项 AI 候选输出协议                                                   | lore 小节、场景/立绘可用值、选择问题          | 可复用生成契约                       | 重述具体剧情                        |
 | `services/storyGenerationContext.ts`       | 生成请求的提示/跨集历史窗口确定性投影                                                                  | 幕定义、规范 history floor、messagesave      | `userInput`、6 条历史、消息 ID       | 改写游戏状态或世界书                |
-| `services/tavernStoryGeneration.ts`        | 生成、消息连续性和受控正文解析                                                                         | 幕定义、已存消息、世界书资料                 | `GalStoryAct`                        | 猜测画面与角色                      |
+| `services/tavernStoryGeneration.ts`        | 生成、消息连续性、受控正文和三项候选的严格解析                                                         | 幕定义、已存消息、世界书资料                 | `GalStoryAct`                        | 猜测画面与角色                      |
 | `services/localContextPreview.ts`          | 本地快照、原文和当前生成投影的只读汇总                                                                 | Game/Card/Player/Skill store、messagesave    | 上下文预览模型                       | 写回状态或触发生成                  |
 | `memory/storyTimeline.ts`                  | 跨集规范时间线、最近 6 条与更旧完整消息对选择                                                          | 主线档案、messagesave、生产剧集注册表        | 楼层和消息只读投影                   | 写档或改 active floor               |
 | `memory/summaryPolicy.ts`                  | 固定 6 消息窗口、2/5 总结批次与 600/1200 字上限                                                        | 产品记忆协议                                 | 共享确定性常量                       | 调 API 或保存候选                   |
@@ -183,7 +185,8 @@
 | `GalMainStory/portraitRules.ts`            | 解析场景与角色唯一绑定的立绘                                                                           | 当前幕场景立绘规则                           | 必选立绘 ID 或无绑定                 | 选择剧情镜头                        |
 | `GalMainStory/storyTextExtraction.ts`      | 从模型标签输出中结构化抽取正文                                                                         | Tavern Assistant 原文                        | 受支持容器内的可播放文本             | 校验逐行演出字段                    |
 | `GalMainStory/storyPresentation.ts`        | 将 AI 正文与可选演出字段归一为合法逐页 cue                                                             | 标签正文、当前幕素材表与立绘绑定             | 正文与代码补全的演出 cue             | 改写剧情语义或角色资源              |
-| `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放和 GAL 播放                                                                    | Store、演出 cue、场景/角色 manifest          | GAL 画面、翻页意图                   | 选择画面或角色                      |
+| `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放和 GAL 播放                                                                    | Store、演出 cue、场景/角色 manifest          | GAL 画面、翻页意图                   | 选择数据和持久化                    |
+| `GalMainStory/GalChoicePanel.tsx`          | 三项生成候选、第四项自由输入入口及独立同框输入页                                                       | 当前幕候选、已存选择、提交回调               | 选择 UI 与玩家意图                   | 生成候选或推进剧情                  |
 | `GalMainStory/StoryHistoryArchive.tsx`     | 候选重生成、采用、回放和删除                                                                           | 各幕楼层档案                                 | 版本管理意图                         | 删除宿主聊天楼层                    |
 | `GalMainStory/storyRawArchive.ts`          | 关联幕、楼层与 Tavern Assistant 原文并分页                                                             | 剧情档案、messagesave                        | 只读原文阅读模型                     | 归一化或改写正文                    |
 | `GalMainStory/RawStoryHistoryDialog.tsx`   | 按幕、版本和页展示 AI 原文                                                                             | 只读原文阅读模型                             | 阅读器选择状态                       | 修改消息或采用楼层                  |

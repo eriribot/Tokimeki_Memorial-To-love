@@ -65,6 +65,11 @@ export function createMainStoryFallbackAct(
       ...beat,
       presentation: { ...beat.presentation },
     })),
+    ...(act.choice
+      ? {
+          choiceOptions: act.choice.options.map(option => ({ ...option })),
+        }
+      : {}),
   };
 }
 

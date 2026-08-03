@@ -1,7 +1,7 @@
 import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import type { CalendarDateValue } from '../types';
 import { isCalendarDateValue } from '../CalendarModule/date';
-import type { StoryActDefinition } from './storyTypes';
+import { STORY_AI_CHOICE_OPTION_COUNT, type StoryActDefinition } from './storyTypes';
 
 export interface StoryActTrigger {
   date: CalendarDateValue;
@@ -78,10 +78,9 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
       if (
         !act.choice.id.trim() ||
         !act.choice.prompt.trim() ||
-        act.choice.options.length < 2 ||
-        act.choice.options.length > 4
+        act.choice.options.length !== STORY_AI_CHOICE_OPTION_COUNT
       ) {
-        throw new Error(`主线幕“${act.id}”的玩家选择必须包含提示和 2 到 4 个选项。`);
+        throw new Error(`主线幕“${act.id}”的玩家选择必须包含提示和 ${STORY_AI_CHOICE_OPTION_COUNT} 个保底选项。`);
       }
       const optionIds = new Set(act.choice.options.map(option => option.id));
       if (optionIds.size !== act.choice.options.length) throw new Error(`主线幕“${act.id}”的玩家选项 ID 重复。`);

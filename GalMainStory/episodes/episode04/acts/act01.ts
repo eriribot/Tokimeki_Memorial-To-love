@@ -41,6 +41,11 @@ export const EPISODE_04_ACT_01 = {
         label: '写下要说的话，明天当面讲清楚',
         continuityHint: '次日开场，美柑看见你没能送出的道歉便签；她要求你今天当面说清，语气比另一选项更严厉。',
       },
+      {
+        id: 'ask-mikan-then-act',
+        label: '先问美柑该怎么补救，再亲自去找菈菈',
+        continuityHint: '次日开场，美柑回想你昨夜认真询问该如何补救；她给出提醒，但强调道歉仍必须由你亲口说。',
+      },
     ],
   },
   fallbackBeats: [

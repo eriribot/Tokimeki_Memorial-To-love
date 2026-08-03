@@ -94,12 +94,18 @@ function buildGenerationPrompt(request: StoryGenerationContextRequest): string {
     portraitOptions: getActPortraitOptions(request.eventId, request.actId),
     portraitRules: act.presentation.portraitRules ?? [],
     continuityMode: (request.historyFloorIds ?? request.contextFloorIds).length > 0 ? 'continue' : 'fresh',
+    choicePrompt: act.choice?.prompt,
     settledChoices: (request.previousChoiceDecisions ?? []).flatMap(saved => {
       const sourceAct = episode.acts.find(candidate => candidate.id === saved.actId);
       const choice = sourceAct?.choice;
-      const option = choice?.options.find(candidate => candidate.id === saved.decision.optionId);
-      if (!choice || choice.id !== saved.decision.choiceId || !option) return [];
-      return [{ prompt: choice.prompt, selectedLabel: option.label, continuityHint: option.continuityHint }];
+      if (!choice || choice.id !== saved.decision.choiceId) return [];
+      return [
+        {
+          prompt: choice.prompt,
+          selectedLabel: saved.decision.selectedLabel,
+          continuityHint: saved.decision.continuityHint,
+        },
+      ];
     }),
   });
 }

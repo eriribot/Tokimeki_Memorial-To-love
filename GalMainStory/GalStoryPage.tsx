@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
 import { getSpeakerNameplateAsset, type LayeredPortraitRig } from './characters';
 import { GALBOX_ASSETS } from './galAssets';
+import GalChoicePanel from './GalChoicePanel';
 import LayeredPortrait from './LayeredPortrait';
 
 interface GalStoryPortraitView {
@@ -24,8 +25,10 @@ interface GalStoryPageProps {
   choice?: {
     prompt: string;
     options: readonly { id: string; label: string }[];
+    optionSource: 'ai' | 'fallback';
     selectedOptionId: string | null;
-    onSelect: (optionId: string) => void;
+    selectedLabel?: string | null;
+    onSelect: (optionId: string, customText?: string) => void;
     readOnly?: boolean;
   } | null;
 }
@@ -76,32 +79,7 @@ export default function GalStoryPage({
       )}
 
       {choice ? (
-        <div
-          className={`gal-main-story__choice is-${theme}`}
-          role="group"
-          aria-label={choice.prompt}
-          onClick={event => event.stopPropagation()}
-        >
-          <img src={resolveAssetPath(GALBOX_ASSETS.choiceWindows[theme])} alt="" aria-hidden="true" />
-          <div className="gal-main-story__choice-options">
-            {choice.options.map(option => {
-              const selected = option.id === choice.selectedOptionId;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={selected ? 'is-selected' : ''}
-                  aria-pressed={selected}
-                  disabled={Boolean(choice.selectedOptionId) || choice.readOnly}
-                  onClick={() => choice.onSelect(option.id)}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-          {controls}
-        </div>
+        <GalChoicePanel {...choice} controls={controls} theme={theme} />
       ) : (
         <div className="gal-main-story__dialogue">
           <img
@@ -117,7 +95,7 @@ export default function GalStoryPage({
               <strong>{speaker}</strong>
             </div>
           ) : (
-            speaker && <strong className="gal-main-story__speaker">{speaker}</strong>
+            <strong className={`gal-main-story__speaker${speaker ? '' : ' is-narration'}`}>{speaker ?? '旁白'}</strong>
           )}
 
           <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">

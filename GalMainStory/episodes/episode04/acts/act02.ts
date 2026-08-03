@@ -50,6 +50,31 @@ const NOTE_OPENING = [
   },
 ] as const;
 
+const ASK_MIKAN_OPENING = [
+  {
+    speaker: null,
+    text: '昨夜，你没有急着替自己辩解，而是先问美柑该怎样才能把伤人的话补救回来。第二天清晨，她已经等在客厅。',
+    presentation: {
+      sceneId: 'home',
+      focusCharacterId: 'mikan',
+      portraitId: 'arrival-default',
+      expressionId: 'serious',
+      effect: 'none',
+    },
+  },
+  {
+    speaker: '结城美柑',
+    text: '我能提醒你别再说重话，但不能替你道歉。见到菈菈以后，把真正害怕的事情亲口告诉她。',
+    presentation: {
+      sceneId: 'home',
+      focusCharacterId: 'mikan',
+      portraitId: 'arrival-default',
+      expressionId: 'serious',
+      effect: 'none',
+    },
+  },
+] as const;
+
 export const EPISODE_04_ACT_02 = {
   id: 'ep04.act2-return-and-explanation',
   title: '回来把话说清楚',
@@ -85,6 +110,12 @@ export const EPISODE_04_ACT_02 = {
       choiceId: 'ep04.after-lala-leaves',
       optionId: 'write-and-face-her',
       openingBeats: NOTE_OPENING,
+    },
+    {
+      sourceActId: 'ep04.act1-warm-meal-and-hurtful-words',
+      choiceId: 'ep04.after-lala-leaves',
+      optionId: 'ask-mikan-then-act',
+      openingBeats: ASK_MIKAN_OPENING,
     },
   ],
   fallbackBeats: [

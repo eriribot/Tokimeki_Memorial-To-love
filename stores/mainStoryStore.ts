@@ -14,7 +14,15 @@ import {
   getPendingMainStoryEntry,
   type PendingMainStoryEntry,
 } from '../GalMainStory/storyRegistry';
-import type { GalStoryActArchive, MainStoryGenerationState, MainStoryState } from '../GalMainStory/storyTypes';
+import {
+  buildPlayerChoiceContinuityHint,
+  normalizePlayerChoiceText,
+  STORY_CUSTOM_CHOICE_OPTION_ID,
+  type GalStoryActArchive,
+  type MainStoryGenerationState,
+  type MainStoryState,
+  type StoryChoiceDecision,
+} from '../GalMainStory/storyTypes';
 import type { GameActions, GameEvent, GameState, GameStore } from '../types';
 
 type MainStoryStoreActions = Pick<
@@ -293,7 +301,7 @@ export function createMainStoryStoreActions(
         return { mainStory: { ...state.mainStory, run: { ...run, pageIndex: safePageIndex } } };
       }),
 
-    selectMainStoryChoice: (choiceId, optionId) => {
+    selectMainStoryChoice: (choiceId, optionId, customText) => {
       let selected = false;
       set(state => {
         const run = state.mainStory.run;
@@ -303,30 +311,55 @@ export function createMainStoryStoreActions(
         const archiveIndex = state.mainStory.archives.findIndex(
           archive => archive.eventId === run.eventId && archive.actId === run.actId,
         );
+        const archive = state.mainStory.archives[archiveIndex];
+        const activeFloor = archive?.floors.find(floor => floor.floorId === archive.activeFloorId);
+        const availableOptions = activeAct?.choiceOptions ?? actDefinition?.choice?.options ?? [];
+        let decision: StoryChoiceDecision | null = null;
+        if (optionId === STORY_CUSTOM_CHOICE_OPTION_ID) {
+          try {
+            const selectedLabel = normalizePlayerChoiceText(customText);
+            decision = {
+              choiceId,
+              optionId,
+              source: 'custom',
+              selectedLabel,
+              continuityHint: buildPlayerChoiceContinuityHint(selectedLabel),
+            };
+          } catch {
+            return state;
+          }
+        } else {
+          const option = availableOptions.find(candidate => candidate.id === optionId);
+          if (option) {
+            decision = {
+              choiceId,
+              optionId,
+              source: activeFloor?.source === 'tavern' ? 'ai' : 'fallback',
+              selectedLabel: option.label,
+              continuityHint: option.continuityHint,
+            };
+          }
+        }
         if (
           !actDefinition?.choice ||
           actDefinition.choice.id !== choiceId ||
-          !actDefinition.choice.options.some(option => option.id === optionId) ||
+          !decision ||
           !activeAct ||
           run.pageIndex !== activeAct.beats.length - 1 ||
           archiveIndex < 0
         ) {
           return state;
         }
-        const archive = state.mainStory.archives[archiveIndex];
         if (archive.choiceDecision) return state;
         selected = true;
         return {
           mainStory: {
             ...state.mainStory,
             archives: state.mainStory.archives.map((savedArchive, index) =>
-              index === archiveIndex ? { ...savedArchive, choiceDecision: { choiceId, optionId } } : savedArchive,
+              index === archiveIndex ? { ...savedArchive, choiceDecision: decision } : savedArchive,
             ),
           },
-          log: [
-            ...state.log,
-            `主线选择：${actDefinition.choice.options.find(option => option.id === optionId)?.label}`,
-          ].slice(-20),
+          log: [...state.log, `主线选择：${decision.selectedLabel}`].slice(-20),
         };
       });
       return selected;

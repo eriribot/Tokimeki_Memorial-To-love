@@ -2,7 +2,10 @@ import { normalizeStoryMessages } from '../message/protocol';
 import { getActiveStoryAct } from './storyArchive';
 import { getMainStoryActIndex, getMainStoryActOrThrow, getMainStoryEpisode } from './storyRegistry';
 import {
+  buildPlayerChoiceContinuityHint,
   normalizeGalStoryActs,
+  normalizePlayerChoiceText,
+  STORY_CUSTOM_CHOICE_OPTION_ID,
   type GalStoryActArchive,
   type GalStoryFloor,
   type GalStoryMessageSave,
@@ -23,6 +26,17 @@ function cloneJson<T>(value: T): T {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function normalizeStoredChoiceInline(value: unknown, maximumLength: number): string {
+  if (typeof value !== 'string') throw new Error('剧情选择记录文本无效');
+  const normalized = value
+    .normalize('NFC')
+    .replace(/[\r\n\t]+/gu, ' ')
+    .replace(/\s{2,}/gu, ' ')
+    .trim();
+  if (!normalized || normalized.length > maximumLength) throw new Error('剧情选择记录文本无效');
+  return normalized;
 }
 
 function normalizeRun(value: unknown): MainStoryRun | null {
@@ -105,16 +119,55 @@ function normalizeStoryFloor(value: unknown, eventId: string, actId: string): Ga
   };
 }
 
-function normalizeChoiceDecision(value: unknown, eventId: string, actId: string): StoryChoiceDecision | null {
+function normalizeChoiceDecision(
+  value: unknown,
+  eventId: string,
+  actId: string,
+  activeFloor: GalStoryFloor | null,
+): StoryChoiceDecision | null {
   if (value === undefined || value === null) return null;
   if (!isRecord(value) || typeof value.choiceId !== 'string' || typeof value.optionId !== 'string') {
     throw new Error('剧情选择记录格式无效');
   }
   const choice = getMainStoryActOrThrow(eventId, actId).choice;
-  if (!choice || choice.id !== value.choiceId || !choice.options.some(option => option.id === value.optionId)) {
+  if (!choice || choice.id !== value.choiceId) {
     throw new Error('剧情选择记录与模板不匹配');
   }
-  return { choiceId: value.choiceId, optionId: value.optionId };
+
+  if (value.optionId === STORY_CUSTOM_CHOICE_OPTION_ID) {
+    const selectedLabel = normalizePlayerChoiceText(value.selectedLabel);
+    return {
+      choiceId: value.choiceId,
+      optionId: value.optionId,
+      source: 'custom',
+      selectedLabel,
+      continuityHint: buildPlayerChoiceContinuityHint(selectedLabel),
+    };
+  }
+
+  const activeOption = (activeFloor?.act?.choiceOptions ?? choice.options).find(option => option.id === value.optionId);
+  if (
+    value.source === 'ai' &&
+    /^ai-option-[1-3]$/u.test(value.optionId) &&
+    typeof value.selectedLabel === 'string' &&
+    typeof value.continuityHint === 'string'
+  ) {
+    return {
+      choiceId: value.choiceId,
+      optionId: value.optionId,
+      source: 'ai',
+      selectedLabel: normalizeStoredChoiceInline(value.selectedLabel, 56),
+      continuityHint: normalizeStoredChoiceInline(value.continuityHint, 160),
+    };
+  }
+  if (!activeOption) throw new Error('剧情选择记录与采用楼层不匹配');
+  return {
+    choiceId: value.choiceId,
+    optionId: value.optionId,
+    source: activeFloor?.source === 'tavern' ? 'ai' : 'fallback',
+    selectedLabel: activeOption.label,
+    continuityHint: activeOption.continuityHint,
+  };
 }
 
 function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
@@ -149,11 +202,12 @@ function normalizeStoryArchives(value: unknown): GalStoryActArchive[] {
     ) {
       throw new Error('剧情幕采用楼层不可播放');
     }
+    const activeFloor = floors.find(floor => floor.floorId === activeFloorId) ?? null;
     return {
       eventId,
       actId,
       activeFloorId,
-      choiceDecision: normalizeChoiceDecision(rawArchive.choiceDecision, eventId, actId),
+      choiceDecision: normalizeChoiceDecision(rawArchive.choiceDecision, eventId, actId, activeFloor),
       floors,
     };
   });

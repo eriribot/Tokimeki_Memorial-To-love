@@ -49,9 +49,7 @@ interface GalMainStoryProps {
 }
 
 type HistoryPlaybackTarget =
-  | { kind: 'all'; eventId: string }
-  | { kind: 'floor'; eventId: string; floorId: string }
-  | null;
+  { kind: 'all'; eventId: string } | { kind: 'floor'; eventId: string; floorId: string } | null;
 type RawHistoryTarget = { floorId: string | null } | null;
 
 function getErrorMessage(error: unknown): string {
@@ -601,7 +599,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-act-id={visibleAct.id}
       data-page-index={visiblePageIndex}
       data-speaker={visibleBeat.speaker ?? 'narration'}
-      data-speaker-ui={speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration'}
+      data-speaker-ui={
+        speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration-nameplate'
+      }
       data-focus-character={focusCharacterId ?? 'hidden'}
       data-portrait-id={portraitRig?.id ?? 'hidden'}
       data-expression-id={portraitExpressionId ?? 'hidden'}
@@ -711,9 +711,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
           isChoiceVisible && liveChoice
             ? {
                 prompt: liveChoice.prompt,
-                options: liveChoice.options,
+                options: liveAct?.choiceOptions ?? liveChoice.options,
+                optionSource: generationSource === 'tavern' ? 'ai' : 'fallback',
                 selectedOptionId: liveChoiceDecision?.optionId ?? null,
-                onSelect: optionId => selectStoryChoice(liveChoice.id, optionId),
+                selectedLabel: liveChoiceDecision?.selectedLabel ?? null,
+                onSelect: (optionId, customText) => selectStoryChoice(liveChoice.id, optionId, customText),
               }
             : null
         }

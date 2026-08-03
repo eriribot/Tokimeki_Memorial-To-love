@@ -62,6 +62,11 @@ export interface StoryChoiceOptionDefinition {
   continuityHint: string;
 }
 
+export const STORY_AI_CHOICE_OPTION_COUNT = 3;
+export const STORY_CUSTOM_CHOICE_OPTION_ID = 'player-custom';
+
+export type StoryChoiceDecisionSource = 'ai' | 'fallback' | 'custom';
+
 export interface StoryChoiceDefinition {
   id: string;
   prompt: string;
@@ -71,6 +76,9 @@ export interface StoryChoiceDefinition {
 export interface StoryChoiceDecision {
   choiceId: string;
   optionId: string;
+  source: StoryChoiceDecisionSource;
+  selectedLabel: string;
+  continuityHint: string;
 }
 
 export interface StoryFallbackChoiceVariant {
@@ -101,6 +109,7 @@ export interface GalStoryBeat {
 export interface GalStoryAct {
   id: string;
   beats: GalStoryBeat[];
+  choiceOptions?: StoryChoiceOptionDefinition[];
 }
 
 export interface GalStoryGenerationContext {
@@ -143,6 +152,43 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isOneOf<T extends string>(value: unknown, values: readonly T[]): value is T {
   return typeof value === 'string' && values.includes(value as T);
+}
+
+function normalizeChoiceInline(value: unknown, fieldName: string, maximumLength: number): string {
+  if (typeof value !== 'string') throw new Error(`剧情选择的${fieldName}无效。`);
+  const normalized = value
+    .normalize('NFC')
+    .replace(/[\r\n\t]+/gu, ' ')
+    .replace(/\s{2,}/gu, ' ')
+    .trim();
+  if (!normalized || normalized.length > maximumLength) throw new Error(`剧情选择的${fieldName}无效。`);
+  return normalized;
+}
+
+export function normalizeStoryChoiceOptions(value: unknown): StoryChoiceOptionDefinition[] {
+  if (!Array.isArray(value) || value.length !== STORY_AI_CHOICE_OPTION_COUNT) {
+    throw new Error(`剧情选择必须恰好包含 ${STORY_AI_CHOICE_OPTION_COUNT} 个候选行动。`);
+  }
+  const options = value.map((rawOption, index) => {
+    if (!isRecord(rawOption)) throw new Error(`剧情选择 ${index + 1} 格式无效。`);
+    return {
+      id: normalizeChoiceInline(rawOption.id, '候选 ID', 64),
+      label: normalizeChoiceInline(rawOption.label, '候选行动', 56),
+      continuityHint: normalizeChoiceInline(rawOption.continuityHint, '微差分提示', 160),
+    };
+  });
+  if (new Set(options.map(option => option.id)).size !== options.length) throw new Error('剧情选择候选 ID 重复。');
+  if (new Set(options.map(option => option.label)).size !== options.length) throw new Error('剧情选择候选行动重复。');
+  return options;
+}
+
+export function normalizePlayerChoiceText(value: unknown): string {
+  return normalizeChoiceInline(value, '玩家输入', 80);
+}
+
+export function buildPlayerChoiceContinuityHint(playerText: string): string {
+  const normalized = normalizePlayerChoiceText(playerText);
+  return `玩家自行决定“${normalized}”。下一幕只在开场回指这一即时行动及人物的直接反应，不得另开路线或改写既定情节点。`;
 }
 
 function normalizeNullableId(value: unknown, fieldName: string): string | null {
@@ -225,9 +271,12 @@ export function normalizeGalStoryActs(value: unknown, options: StoryValidationOp
       throw new Error(`第 ${index + 1} 幕至少要有一页正文。`);
     }
 
+    const choiceOptions =
+      rawAct.choiceOptions === undefined ? undefined : normalizeStoryChoiceOptions(rawAct.choiceOptions);
     return {
       id: expectedId,
       beats: rawAct.beats.map(beat => normalizeBeat(beat)),
+      ...(choiceOptions ? { choiceOptions } : {}),
     };
   });
 }

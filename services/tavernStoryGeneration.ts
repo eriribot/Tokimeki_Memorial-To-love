@@ -8,12 +8,15 @@ import { parseStoryParagraphs, type ParsedStoryLine } from '../GalMainStory/stor
 import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
 import {
   normalizeGalStoryActs,
+  normalizeStoryChoiceOptions,
+  STORY_AI_CHOICE_OPTION_COUNT,
   type GalStoryAct,
   type GalStoryFloor,
   type GalStoryFloorOutcome,
   type GalStoryMessageSave,
   type GalStoryMessageSource,
   type StoryPresentationCue,
+  type StoryChoiceOptionDefinition,
 } from '../GalMainStory/storyTypes';
 import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
 import { createSaveUuid } from '../save/uuid';
@@ -210,7 +213,44 @@ function looksLikeJsonStory(text: string): boolean {
   );
 }
 
-function parsePlainTextAct(raw: string, eventId: string, actId: string, playerName: string): GalStoryAct {
+const GENERATED_CHOICE_PATTERN = /^@选项【index=([1-3])】：(.+)$/u;
+
+function extractGeneratedChoices(
+  lines: readonly string[],
+  requiresChoices: boolean,
+): { storyLines: string[]; choiceOptions?: StoryChoiceOptionDefinition[] } {
+  const firstChoiceIndex = lines.findIndex(line => GENERATED_CHOICE_PATTERN.test(line));
+  if (!requiresChoices) {
+    if (firstChoiceIndex >= 0) throw new Error('当前幕没有登记玩家选择，AI 不应输出候选行动。');
+    return { storyLines: [...lines] };
+  }
+  if (firstChoiceIndex < 0) throw new Error(`AI 没有在正文末尾输出 ${STORY_AI_CHOICE_OPTION_COUNT} 个候选行动。`);
+
+  const storyLines = lines.slice(0, firstChoiceIndex);
+  const choiceLines = lines.slice(firstChoiceIndex);
+  if (choiceLines.length !== STORY_AI_CHOICE_OPTION_COUNT) {
+    throw new Error(`AI 候选行动必须恰好为 ${STORY_AI_CHOICE_OPTION_COUNT} 条，并且位于正文最后。`);
+  }
+  const choiceOptions = choiceLines.map((line, optionIndex) => {
+    const match = line.match(GENERATED_CHOICE_PATTERN);
+    const expectedIndex = optionIndex + 1;
+    if (!match || Number(match[1]) !== expectedIndex)
+      throw new Error(`AI 候选行动 ${expectedIndex} 的编号或格式无效。`);
+    const payload = match[2] ?? '';
+    const separatorIndex = payload.indexOf('｜');
+    if (separatorIndex <= 0 || payload.indexOf('｜', separatorIndex + 1) >= 0) {
+      throw new Error(`AI 候选行动 ${expectedIndex} 必须用一个全角竖线分隔行动与微差分提示。`);
+    }
+    return {
+      id: `ai-option-${expectedIndex}`,
+      label: payload.slice(0, separatorIndex),
+      continuityHint: payload.slice(separatorIndex + 1),
+    };
+  });
+  return { storyLines, choiceOptions: normalizeStoryChoiceOptions(choiceOptions) };
+}
+
+export function parsePlainTextAct(raw: string, eventId: string, actId: string, playerName: string): GalStoryAct {
   const act = getMainStoryActOrThrow(eventId, actId);
   const trimmed = raw.trim();
   if (!trimmed) throw new Error('酒馆没有返回本幕正文。');
@@ -218,10 +258,12 @@ function parsePlainTextAct(raw: string, eventId: string, actId: string, playerNa
   const playableText = extractPlayableText(trimmed);
   if (looksLikeJsonStory(playableText)) throw new Error('酒馆返回了JSON，当前剧情生成只接受逐行正文。');
 
-  const paragraphs = playableText
+  const lines = playableText
     .split(/\r?\n+/u)
     .map(line => line.trim())
     .filter(line => line && !/^#{1,6}\s/u.test(line));
+
+  const { storyLines: paragraphs, choiceOptions } = extractGeneratedChoices(lines, Boolean(act.choice));
 
   if (paragraphs.length === 0) throw new Error('酒馆返回的本幕正文没有可播放段落。');
 
@@ -250,7 +292,9 @@ function parsePlainTextAct(raw: string, eventId: string, actId: string, playerNa
     presentation: { ...line.presentation },
   }));
 
-  return normalizeGalStoryActs([{ id: act.id, beats }], { expectedActIds: [act.id] })[0];
+  return normalizeGalStoryActs([{ id: act.id, beats, ...(choiceOptions ? { choiceOptions } : {}) }], {
+    expectedActIds: [act.id],
+  })[0];
 }
 
 function presentationToDirective(presentation: StoryPresentationCue): string {
@@ -264,9 +308,13 @@ function presentationToDirective(presentation: StoryPresentationCue): string {
 }
 
 export function actToPlainText(act: GalStoryAct): string {
-  return act.beats
+  const storyText = act.beats
     .map(beat => `@${beat.speaker ?? '旁白'}【${presentationToDirective(beat.presentation)}】：${beat.text}`)
     .join('\n');
+  const choiceText = (act.choiceOptions ?? [])
+    .map((option, index) => `@选项【index=${index + 1}】：${option.label}｜${option.continuityHint}`)
+    .join('\n');
+  return [storyText, choiceText].filter(Boolean).join('\n');
 }
 
 export async function generateStoryAct(request: GenerateStoryActRequest): Promise<GeneratedStoryAct> {

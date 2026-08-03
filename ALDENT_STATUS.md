@@ -1752,3 +1752,134 @@ Info、宿主消息、shujuku/ACU、插件或数据库接通，也不证明候�
 | Human visual and narrative acceptance           | pending             | 等待用户审核当前原作风格、光标手感与第四集两项选择的文字力度                                                                                                     |
 
 当前最强接通标签：**第四集本地选择闭环、fallback 微变化、提示投影合同和生产构建已通过；精确内联检查器缺失，真实 Tavern/宿主链路与人工接受仍未完成**。
+
+# 2026-08-02 choice prompt and portrait-stage review
+
+```yaml
+status: implementation_updated_local_playwright_visual_review_passed_user_acceptance_pending
+current_loop: gal_choice_prompt_and_portrait_stage_utilization_2026-08-02
+authorized_by: user_limited_changes_to_triggered_choice_ui_and_character_stage_utilization
+authorized_scope:
+  - keep the current act title visible while rendering the existing branch prompt inside the choice panel
+  - increase only the complete portrait stage width and vertical utilization within the existing game frame
+  - use a local mocked Tavern save bridge for Playwright screenshot evidence
+forbidden_scope:
+  - change selectStoryChoice, choiceDecision, fallbackChoiceVariants, continuity hints, or next-act settlement
+  - integrate or modify Tavern World Info, generation, host messages, plugins, databases, shujuku, or ACU
+  - change facial-region coordinates, mouth/eye masks, portrait layer registration, or the outer game frame
+connection_state: local_choice_selection_and_visual_stage_verified_without_worldbook_or_next_act_execution
+verification:
+  passed:
+    - scoped Prettier completed for GalMainStory.tsx, GalStoryPage.tsx, and GalMainStory.css
+    - scoped ESLint passed for GalMainStory.tsx and GalStoryPage.tsx
+    - development webpack build passed and emitted dist/Tokimeki_Memorial-To-love/index.html
+    - Playwright loaded episode 04 act 01 through the actual save UI using an evidence-only mock bridge
+    - the choice prompt is exposed as a group label and visible paragraph while the act title remains visible
+    - selecting the first choice produces pressed plus disabled state, disables its sibling, enables return navigation,
+      and appends the expected choice event without advancing to a final ending
+    - browser console contained zero errors and zero warnings during the verified flow
+  failed:
+    - full pnpm typecheck:tolove remains red on 13 pre-existing errors outside this change; neither added TSX change
+      appears in the error list
+  not_run:
+    - real Tavern World Info import, AI generation, host-message floors, shujuku, ACU, or database verification
+    - next-act fallback variant execution, intentionally excluded by the user's scope restriction
+human_review: pending_user_choice_panel_and_portrait_stage_visual_acceptance
+evidence:
+  - output/playwright/gal-choice-round1/gal-choice-round1.png
+  - output/playwright/gal-choice-round1/gal-choice-round1-selected.png
+```
+
+# 2026-08-03 three AI choices, custom choice page, and 90% portrait-stage review
+
+```yaml
+status: implementation_updated_local_playwright_visual_review_passed_user_acceptance_pending
+current_loop: gal_three_ai_choices_custom_page_and_portrait_stage_2026-08-03
+authorized_by: user_requested_three_ai_candidates_plus_a_fourth_separate_custom_input_page_and_limited_visual_changes
+authorized_scope:
+  - require exactly three AI-generated immediate-action candidates for a choice act
+  - preserve one convergent next act while projecting the selected candidate's bounded micro-difference hint
+  - add a fourth custom-action entry that opens a separate same-frame input page with an 80-character limit
+  - place the choice prompt flush at the top-left game-frame boundary
+  - render the complete square portrait stage at 90% of game-frame width with uniform scaling
+forbidden_scope:
+  - add routes, endings, affinity, AP, date, or completion-state effects to a choice
+  - integrate or modify real Tavern World Info, host-message floors, plugins, databases, shujuku, or ACU
+  - alter portrait face-atlas coordinates, masks, layer registration, or use non-uniform scaleX/scaleY distortion
+connection_state: local_source_contract_and_mocked_choice_ui_verified_real_tavern_generation_not_run
+verification:
+  passed:
+    - scoped Prettier and scoped ESLint passed for all modified TypeScript and TSX files
+    - verify-episode04.cjs passed the exactly-three parser, missing-third rejection, fallback, custom page, persistence,
+      next-act prompt, asset, and no-glass CSS contract
+    - webpack development build passed and emitted dist/Tokimeki_Memorial-To-love/index.html
+    - Playwright loaded episode 04 act 01 through the actual save UI using an evidence-only mocked Tavern bridge
+    - the final choice page exposes three AI candidates and a fourth custom-action entry with the prompt on the top ribbon
+    - the separate custom page enforces maxLength 80, enables submission after text entry, records the custom decision,
+      enables return navigation, and appends the selected custom action to the event log
+    - browser console contained zero errors and zero warnings during the verified final flow
+    - runtime geometry measured the portrait stage and body at 772.78125 by 772.78125 pixels; the 1024 by 1024 body
+      uses object-fit contain and transform matrix(1, 0, 0, 1, -386.391, 0), proving no horizontal flattening
+  failed:
+    - pnpm typecheck:tolove and pnpm build:dev remain red on 13 pre-existing errors outside this change; the one new
+      nullable liveAct issue was fixed and no modified choice file remains in that error list
+  not_run:
+    - real Tavern World Info import, one real AI response, host-message floors, shujuku, ACU, or database verification
+    - real next-act generation from an AI or custom choice, because no worldbook is connected yet
+artifact:
+  path: dist/Tokimeki_Memorial-To-love/index.html
+  bytes: 3398171
+  sha256: 6E6C94D162E76F58EA3267AE94C24648C1E413A8D2BAADB55E562FD455E066BF
+human_review: pending_user_choice_ui_and_portrait_scale_acceptance
+evidence:
+  - output/playwright/gal-choice-ai-custom/choice-page-final.png
+  - output/playwright/gal-choice-ai-custom/custom-page-final.png
+```
+
+# 2026-08-03 Mikan aspect-ratio trial and narrator nameplate restoration
+
+```yaml
+status: implementation_updated_local_playwright_visual_review_passed_user_acceptance_pending
+current_loop: mikan_94x_104y_and_narrator_nameplate_2026-08-03
+authorized_by:
+  - user_requested_the_simplest_visible_mikan_taller_and_narrower_trial
+  - user_required_the_missing_narrator_nameplate_to_be_restored
+authorized_scope:
+  - apply one character-specific transform to the complete Mikan body, mask, eyes, and mouth composite
+  - preserve the existing 90-percent square stage while using scaleX 0.94 and scaleY 1.04 for Mikan only
+  - anchor Mikan at the stage top so the increased height extends downward without clipping her ahoge
+  - render a generic text nameplate labelled 旁白 when a normal dialogue beat has speaker null
+forbidden_scope:
+  - alter Mikan source PNGs, mask, facial-region coordinates, atlas sampling, or any other character's aspect ratio
+  - render a narrator nameplate on the choice page or invent a narrator-specific PNG asset
+  - change choice generation, settlement, persistence, next-act continuity, or any Tavern/host/plugin/database path
+connection_state: local_built_game_frame_visual_and_runtime_geometry_verified_with_mocked_save_bridge
+verification:
+  passed:
+    - scoped Prettier completed for CSS, GalStoryPage, GalMainStory, and the episode verifier
+    - scoped ESLint passed for GalStoryPage.tsx and GalMainStory.tsx
+    - verify-episode04.cjs passed including Mikan whole-composite scaling and narrator nameplate assertions
+    - webpack development build passed and emitted a fresh dist/Tokimeki_Memorial-To-love/index.html
+    - desktop Playwright screenshot shows the full ahoge, a visibly narrower and taller Mikan, and the restored 旁白 nameplate
+    - 915 by 412 landscape Playwright screenshots keep the portrait, four choice rows, and narrator nameplate inside the game frame
+    - computed focus is mikan; CSS variables are 0.94 and 1.04; the animated matrix measured x 0.94 and y 1.04172
+      while body, mask, eyes, and mouth remain under the same transformed parent
+    - browser console contained zero errors and zero warnings
+  failed:
+    - pnpm typecheck:tolove remains red on the same 13 pre-existing errors; neither the new narrator rendering nor the
+      Mikan CSS trial introduced a listed error
+  not_run:
+    - Stylelint because the project does not install a stylelint executable
+    - real Tavern World Info, generation, host-message floors, shujuku, ACU, or database verification
+artifact:
+  path: dist/Tokimeki_Memorial-To-love/index.html
+  bytes: 3398778
+  mtime: 2026-08-03 01:50:03 +08:00
+  sha256: 091485DC5A260D8547B24D01287412FDA2BE41E31C30EC7B65E8135938F21090
+human_review: pending_user_acceptance_of_mikan_aspect_and_narrator_nameplate
+evidence:
+  - output/playwright/mikan-aspect-trial/mikan-94x-104y-narrator-final.png
+  - output/playwright/mikan-aspect-trial/mikan-94x-104y-choice-final.png
+  - output/playwright/mikan-aspect-trial/mikan-94x-104y-narrator-915x412.png
+  - output/playwright/mikan-aspect-trial/mikan-94x-104y-choice-915x412.png
+```
