@@ -3,8 +3,8 @@ import type { StoryEpisodeActDefinition } from '../../../episodeTemplate';
 export const EPISODE_04_ACT_03 = {
   id: 'ep04.act3-cosmic-kitchen-war',
   title: '宇宙料理校园战争',
-  trigger: { date: { year: 2008, month: 4, day: 17 }, actionNumber: 1 },
-  timeCost: 'whole-day',
+  trigger: { date: { year: 2008, month: 4, day: 16 }, actionNumber: 2 },
+  timeCost: 'single-action',
   plotLore: {
     worldbookName: '出包王女',
     entryOrder: 161,
@@ -113,7 +113,7 @@ export const EPISODE_04_ACT_03 = {
     },
     {
       speaker: '你',
-      text: '料理可以先从地球食材学。现在先把这场比星际战争还夸张的厨房事故收拾掉！',
+      text: '这哪里还是做饭啊——简直比星际战争还惨！',
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',

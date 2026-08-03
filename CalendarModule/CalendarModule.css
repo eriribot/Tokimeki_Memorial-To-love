@@ -145,6 +145,7 @@
 .tm-calendar-card__month-total {
   position: absolute;
   z-index: 10;
+  display: none;
   right: calc(2 * var(--tm-calendar-pixel));
   bottom: calc(39 * var(--tm-calendar-pixel));
   color: var(--tm-calendar-soft-ink);
@@ -391,6 +392,7 @@
 .tm-day-transition__month-total {
   position: absolute;
   z-index: 5;
+  display: none;
   right: calc(10 * var(--tm-day-pixel));
   bottom: calc(142 * var(--tm-day-pixel));
   min-width: calc(100 * var(--tm-day-pixel));

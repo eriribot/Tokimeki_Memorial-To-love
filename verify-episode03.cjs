@@ -121,6 +121,10 @@ assert(episode, '生产注册表没有第三集。');
 assert(episode.id === 'main.love-triangle-user-2008-04-11', '第三集必须使用修订后的 event ID。');
 assert(episode.acts.length === 3, '第三集必须保持三幕。');
 assert(
+  STORY_SCENES.aquarium.asset === '/artsource/backgrounds/bg029_a.png',
+  '水族馆场景必须使用实际的 bg029_a.png，不能继续复用体育器材室 bg020_a.png。',
+);
+assert(
   episode.acts.map(act => act.plotLore.entryOrder).join(',') === '155,156,157',
   '第三集世界书 order 必须连续为 155—157。',
 );

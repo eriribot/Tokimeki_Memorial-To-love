@@ -31,6 +31,7 @@ function assert(condition, message) {
 
 const act1 = EPISODE_04_STORY.acts[0];
 const act2 = EPISODE_04_STORY.acts[1];
+const act3 = EPISODE_04_STORY.acts[2];
 const createFallbackDecision = option => ({
   choiceId: act1.choice.id,
   optionId: option.id,
@@ -54,6 +55,39 @@ assert(
   EPISODE_04_STORY.acts.map(act => act.plotLore.entryOrder).join(',') === '159,160,161',
   '第四集必须避开废弃 order 158，并使用 159-161。',
 );
+assert(EPISODE_04_STORY.dateLabel === '2008 年 4 月 15 日—16 日', '第四集的两日剧情不能被错误拉长到 4 月 17 日。');
+assert(
+  EPISODE_04_STORY.acts
+    .map(
+      act => `${act.trigger.date.year}-${act.trigger.date.month}-${act.trigger.date.day}#${act.trigger.actionNumber}`,
+    )
+    .join(',') === '2008-4-15#1,2008-4-16#1,2008-4-16#2',
+  '第四集分幕必须保持第一天一幕、第二天连续两幕。',
+);
+assert(
+  EPISODE_04_STORY.acts.map(act => act.timeCost).join(',') === 'whole-day,single-action,single-action',
+  '第四集时间成本必须让返校说明与校园混战发生在同一天。',
+);
+const act1UserText = act1.fallbackBeats
+  .filter(beat => beat.speaker === '你')
+  .map(beat => beat.text)
+  .join('\n');
+const act1Text = act1.fallbackBeats.map(beat => beat.text).join('\n');
+const act2UserText = act2.fallbackBeats
+  .filter(beat => beat.speaker === '你')
+  .map(beat => beat.text)
+  .join('\n');
+const act3Text = act3.fallbackBeats.map(beat => beat.text).join('\n');
+assert(act1Text.includes('扩张与防卫战争'), '第一幕缺少萨斯丁的战争说明。');
+assert(act1Text.includes('脑内'), '第一幕没有把战争恐惧限制在 User 的脑内灾难幻想。');
+assert(!act1UserText.includes('战争'), 'User 不得在第一幕提前说破战争恐惧。');
+assert(!act1UserText.includes('真正害怕'), 'User 不得在第一幕提前完成第二幕的坦白。');
+assert(
+  act1UserText.includes('不会和连饭都做不好的人结婚') && act1UserText.includes('回戴比路克'),
+  '第一幕必须保留伤人的厨艺退婚借口与离家因果。',
+);
+assert(act2UserText.includes('真正害怕的是婚后被要求指挥星际战争'), '真正的战争恐惧必须留到第二幕由 User 向菈菈说明。');
+assert(act3Text.includes('比星际战争还惨'), '第三幕必须以 Fandom 记载的战争回环笑点收束。');
 assert(act1.choice.options.length === 3, '第一幕必须登记三个离线保底候选。');
 assert(fallbackAct1.choiceOptions.length === 3, '保底正文没有携带三个候选行动。');
 assert(fallbackAct2.beats[0].text.includes('追到街口'), '追赶选择没有改变第二幕 fallback 开场。');
@@ -169,15 +203,26 @@ assert(
   '普通正文必须直接显示原纹理素材。',
 );
 assert(
-  css.includes(".gal-main-story[data-focus-character='mikan'] .layered-portrait") &&
-    css.includes('--portrait-scale-x: 0.94') &&
-    css.includes('--portrait-scale-y: 1.04') &&
-    css.includes('transform-origin: center top'),
-  '美柑试版必须只对完整合成立绘做轻微变窄、变高处理。',
+  ['lala', 'mikan', 'haruna'].every(characterId =>
+    css.includes(
+      `.gal-main-story:not(.player-registration__opening)[data-focus-character='${characterId}'] > .layered-portrait-stage`,
+    ),
+  ) &&
+    css.includes('.map-section > .gal-main-story') &&
+    css.includes('aspect-ratio: 30 / 17') &&
+    css.includes("[data-focus-character='riko'] > .layered-portrait-stage") &&
+    css.includes('left: 48.888889%') &&
+    css.includes('width: 53.333333%') &&
+    css.includes('top: 13.72549%') &&
+    css.includes('top: 12.5%') &&
+    css.includes('top: 16.176471%') &&
+    css.includes('--portrait-scale-x: 0.96') &&
+    css.includes('--portrait-scale-y: 1.04'),
+  '主剧情必须把 ToLove 的 720x408 逻辑 Chara_Pos 换算到 Vita 30:17 视口，并统一梨子的视觉舞台。',
 );
 assert(
-  css.includes('scaleX(var(--portrait-scale-x)) scaleY(var(--portrait-scale-y))'),
-  '美柑高宽试版必须让 body、mask 与脸部图层共享同一整体变换。',
+  !css.includes('--portrait-scale-x: 0.88'),
+  '原作立绘不得恢复被人工否决的过度横向压缩。',
 );
 
 console.log('Episode 04 AI choices, custom page, fallback, persistence and no-glass asset contract passed.');

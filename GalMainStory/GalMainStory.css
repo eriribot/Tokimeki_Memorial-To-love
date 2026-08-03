@@ -10,6 +10,20 @@
   touch-action: manipulation;
 }
 
+/* The map frame is 5:3, while the original Vita ADV viewport is 960x544.
+   Keep the story on its native 30:17 coordinate system and letterbox the
+   small height difference instead of making every background and portrait
+   look slightly too large. Registration scenes live outside .map-section. */
+.map-section > .gal-main-story {
+  inset: auto 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 30 / 17;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 100vmax #000;
+}
+
 .gal-main-story:focus {
   outline: none;
 }
@@ -152,9 +166,12 @@
   animation: story-flash 420ms ease-out both;
 }
 
-.gal-main-story[data-effect='shake'] .gal-main-story__background,
-.gal-main-story[data-effect='shake'] .layered-portrait-stage {
+.gal-main-story[data-effect='shake'] .gal-main-story__background {
   animation: story-shake 300ms ease-out both;
+}
+
+.gal-main-story[data-effect='shake'] .layered-portrait-stage {
+  animation: story-shake-centered 300ms ease-out both;
 }
 
 .gal-main-story__background {
@@ -203,10 +220,45 @@
   animation: layered-portrait-breathe 4.2s ease-in-out 280ms infinite;
 }
 
-.gal-main-story[data-focus-character='mikan'] .layered-portrait {
-  --portrait-scale-x: 0.94;
+/* The original ADV commands use a 720x408 logical stage and Vita scales that
+   surface to 960x544. In the 1a_b slot a 512px source canvas is shown at 75%,
+   so it returns to 512px after the 4/3 Vita output scale. Convert Chara_Pos in
+   the logical coordinate system; treating x/y as native Vita pixels shifts
+   every portrait visibly left and upward. */
+.gal-main-story:not(.player-registration__opening)[data-focus-character='lala'] > .layered-portrait-stage,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='mikan'] > .layered-portrait-stage,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='haruna'] > .layered-portrait-stage,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='riko'] > .layered-portrait-stage {
+  right: auto;
+  bottom: auto;
+  left: 48.888889%;
+  width: 53.333333%;
+}
+
+.gal-main-story:not(.player-registration__opening)[data-focus-character='lala'] > .layered-portrait-stage {
+  top: 13.72549%;
+}
+
+.gal-main-story:not(.player-registration__opening)[data-focus-character='haruna'] > .layered-portrait-stage {
+  top: 12.5%;
+}
+
+.gal-main-story:not(.player-registration__opening)[data-focus-character='mikan'] > .layered-portrait-stage {
+  top: 16.176471%;
+}
+
+.gal-main-story:not(.player-registration__opening)[data-focus-character='riko'] > .layered-portrait-stage {
+  top: 13.72549%;
+}
+
+/* The extracted source portraits read slightly squat beside the separately
+   authored Riko composite. Keep the whole layered composite together and use
+   one restrained stage correction rather than altering any source PNG. */
+.gal-main-story:not(.player-registration__opening)[data-focus-character='lala'] > .layered-portrait-stage > .layered-portrait,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='mikan'] > .layered-portrait-stage > .layered-portrait,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='haruna'] > .layered-portrait-stage > .layered-portrait {
+  --portrait-scale-x: 0.96;
   --portrait-scale-y: 1.04;
-  transform-origin: center top;
 }
 
 .layered-portrait__body {
@@ -1389,6 +1441,22 @@
   }
   78% {
     transform: translateX(-3px);
+  }
+}
+
+@keyframes story-shake-centered {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  25% {
+    transform: translateX(calc(-50% - 7px));
+  }
+  55% {
+    transform: translateX(calc(-50% + 6px));
+  }
+  78% {
+    transform: translateX(calc(-50% - 3px));
   }
 }
 

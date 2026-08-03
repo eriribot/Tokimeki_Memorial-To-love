@@ -38,6 +38,81 @@ known_followup_outside_scope:
   - existing character and episode worldbook sources still contain the superseded claim that Riko is not Mikan's sister
 ```
 
+# 2026-08-03 Episode 03 aquarium, Episode 04 chronology, and portrait-layout correction
+
+```yaml
+status: implementation_updated_user_verification_pending
+current_loop: episode03_aquarium_episode04_fandom_order_and_portrait_layout_2026-08-03
+authorized_by:
+  - user_requested_bg029_a_for_the_episode03_aquarium
+  - user_requested_episode04_to_follow_the_fandom_event_order
+  - user_reported_lala_and_riko_scale_shake_offset_registration_position_calendar_total_and_wrong_riko_cast
+authorized_scope:
+  - use bg029_a for the registered aquarium scene
+  - keep episode04 convergent while moving the explicit war explanation to the second day and keeping the accident continuation on that day
+  - normalize Lala and Riko portrait framing without changing the accepted Mikan framing
+  - preserve centered portraits during shake, reposition opening Riko, hide the visual month-total suffix, and remove Riko from episode04 act01
+forbidden_scope:
+  - modify real Tavern World Info or claim the recovery text files are already imported
+  - trigger host-message floors, MESSAGE_SENT, shujuku, ACU, plugin, or database paths
+  - treat browser mocks, a bare background image, or an earlier build as proof of the final post-CSS artifact
+connection_state: local_source_and_production_bundle_updated_real_tavern_generation_and_final_visual_verification_not_run
+verification:
+  passed_before_latest_visual_patch:
+    - verify-episode03.cjs and verify-episode04.cjs passed after the aquarium and episode04 chronology corrections
+    - scoped formatting and lint passed for the earlier story correction set
+    - development and production webpack builds passed for the earlier story correction set
+    - user explicitly confirmed that the aquarium background change is successful
+  passed_after_latest_visual_patch:
+    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing bundle-size warnings
+  not_run_after_latest_visual_patch:
+    - episode verifiers, formatting, lint, and development build, at the user's explicit request
+    - Playwright or other browser verification, because the user chose to perform the visual check personally
+    - exact inline-artifact verification; the AGENTS.md command target verify-inline-bundle.mjs is absent in this checkout
+    - real Tavern World Info import, one-shot scan, AI generation, host-message floors, shujuku, ACU, plugin, or database verification
+human_review: pending_user_verification_of_the_latest_portrait_calendar_and_episode04_cast_patch
+```
+
+# 2026-08-03 Original Unity portrait-canvas placement correction
+
+```yaml
+status: implementation_updated_user_visual_verification_pending
+current_loop: original_vita_viewport_and_unity_chara_pos_placement_2026-08-03
+authorized_by:
+  - user_requested_live_vita3k_reference_review_and_css_only_portrait_update
+  - user_reported_that_the_shared_non_uniform_scale_still_produced_the_wrong_size
+  - user_directed_inspection_of_D_drive_source_asset_library_for_placement_guidance
+authorized_scope:
+  - inspect the running Vita3K 960x544 game window without advancing or changing game state
+  - inspect the exported Unity TextAsset placement tables without changing the source asset library
+  - place Lala, Mikan, and Haruna from the original 512x512 portrait canvas and one-character slot coordinates
+  - letterbox the 5:3 map frame to the original 960x544 ADV aspect ratio during main-story playback
+  - remove the rejected non-uniform portrait transform
+  - keep the separately authored Riko composite at its native aspect ratio
+  - preserve the existing three-size container layout and leave final visual acceptance to the user
+forbidden_scope:
+  - advance the Vita3K game, alter emulator settings, or modify game data
+  - change portrait PNGs, masks, face atlas coordinates, scene content, or story settlement
+  - use browser or automated screenshots as final visual acceptance
+connection_state: local_css_and_production_bundle_updated_pending_user_visual_review
+evidence:
+  - live Vita3K gameplay window observed at 960x544; character hair occupies roughly one quarter to one third of frame width and extends vertically behind the dialogue window
+  - D:/素材/出包女王素材库/TextAsset/ToLove contains Chara_Pos with 2161 placement rows plus Chara_Eye_Pos and Chara_Mouth_Pos
+  - the original one-character entries are 0041a_b=160,56 for Lala, 0051a_b=160,51 for Haruna, and 0101a_b=160,66 for Mikan
+  - the exported masks are 512x512 while their color textures are 1024x1024, confirming a 512x512 logical portrait canvas rather than a viewport-wide portrait
+  - the earlier shared scaleX 0.88 and scaleY 1.04 treatment was rejected by the user's visual counterexample and has been removed
+  - live comparison confirmed that the web story frame was 1400x840 (5:3) while Vita rendered 960x544 (30:17), making the same portrait remain too wide relative to the web frame
+  - the main story now uses a centered 1400x793.33 equivalent 30:17 viewport with the 512x512 portrait canvas occupying its original 53.33 percent width
+  - Riko is excluded from the shared aspect-ratio selector
+verification:
+  passed:
+    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing bundle-size warnings
+  not_run:
+    - Playwright, browser screenshots, episode verifier, lint, formatting, and automated visual comparison at the user's request
+    - real Tavern World Info, AI generation, host-message floors, shujuku, ACU, plugin, or database verification
+human_review: pending_user_manual_review_across_the_three_supported_canvas_sizes
+```
+
 ```yaml
 status: implementation_updated_build_passed_user_manual_visual_test_pending
 current_loop: weekend_blocked_dates_and_clickable_calendar_info_2026-07-31
@@ -1882,4 +1957,30 @@ evidence:
   - output/playwright/mikan-aspect-trial/mikan-94x-104y-choice-final.png
   - output/playwright/mikan-aspect-trial/mikan-94x-104y-narrator-915x412.png
   - output/playwright/mikan-aspect-trial/mikan-94x-104y-choice-915x412.png
+```
+
+# 2026-08-03 Vita character-slot coordinate correction
+
+```yaml
+status: implementation_updated_user_visual_acceptance_pending
+current_loop: vita_720x408_character_layout_correction_2026-08-03
+authorized_by: user_requested_character_layout_only_and_explicitly_forbade_nameplate_changes
+authorized_scope:
+  - convert the original 1a_b Chara_Pos values from the 720x408 ADV coordinate system to the 960x544 Vita surface
+  - move Lala, Haruna, Mikan, and Riko to the corrected one-character stage center
+  - remove Riko's unrelated 82-percent stage and give her the same 512-square visual stage
+  - apply one restrained whole-composite aspect correction to the three extracted source portraits
+forbidden_scope:
+  - change any nameplate asset, mapping, text, or layout
+  - edit portrait PNGs, masks, face windows, expressions, episode data, or runtime state
+connection_state: local_css_character_layout_only
+verification:
+  passed:
+    - git diff --check completed without whitespace errors
+    - pnpm build completed and refreshed dist/webgame-ui/index.html; only the existing webpack size warnings remain
+  failed: []
+  not_run:
+    - Playwright, screenshots, lint, episode verifier, and inline verification per user-owned visual acceptance
+    - real Tavern World Info, generation, host-message floors, plugins, shujuku, ACU, or database checks
+human_review: pending_user_localhost_5500_character_layout_acceptance
 ```

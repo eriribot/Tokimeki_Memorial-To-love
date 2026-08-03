@@ -79,7 +79,7 @@ export const EPISODE_04_ACT_02 = {
   id: 'ep04.act2-return-and-explanation',
   title: '回来把话说清楚',
   trigger: { date: { year: 2008, month: 4, day: 16 }, actionNumber: 1 },
-  timeCost: 'whole-day',
+  timeCost: 'single-action',
   plotLore: {
     worldbookName: '出包王女',
     entryOrder: 160,
@@ -143,7 +143,7 @@ export const EPISODE_04_ACT_02 = {
     },
     {
       speaker: '你',
-      text: '昨晚的话伤到你，是我的错。我真正害怕的是婚后被要求指挥战争，不是你的料理，也不是你。',
+      text: '昨晚的话伤到你，是我的错。我真正害怕的是婚后被要求指挥星际战争，不是你的料理，也不是你。',
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
@@ -183,6 +183,17 @@ export const EPISODE_04_ACT_02 = {
         portraitId: 'arrival-default',
         expressionId: 'happy',
         effect: 'none',
+      },
+    },
+    {
+      speaker: '沛凯',
+      text: '料理要先穿围裙。菈菈大人，我来变成适合下厨的衣服。',
+      presentation: {
+        sceneId: 'school',
+        focusCharacterId: 'lala',
+        portraitId: 'arrival-default',
+        expressionId: 'happy',
+        effect: 'flash',
       },
     },
     {

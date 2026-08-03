@@ -13,19 +13,18 @@ export const EPISODE_04_ACT_01 = {
     kind: 'plot',
   },
   loreSection: '第一幕·热饭与说重的话',
-  characterLoreIds: ['lala', 'haruna', 'mikan', 'riko'],
+  characterLoreIds: ['lala', 'haruna', 'mikan'],
   presentation: {
     sceneIds: ['bedroom', 'home', 'school', 'rooftop'],
     cast: [
       { characterId: 'lala', portraitIds: ['arrival-default'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
-      { characterId: 'riko', portraitIds: ['school-uniform'] },
     ],
   },
   generation: {
     minimumLineCount: 26,
-    requiredSceneSequence: ['bedroom', 'home', 'school', 'rooftop', 'home'],
+    requiredSceneSequence: ['bedroom', 'home', 'school', 'rooftop', 'school', 'home'],
   },
   choice: {
     id: 'ep04.after-lala-leaves',
@@ -117,7 +116,7 @@ export const EPISODE_04_ACT_01 = {
     },
     {
       speaker: null,
-      text: '屋顶上，萨斯丁把戴比路克国王的职责说成扩张与防卫战争。你没有含糊，直接指出自己不会接受被推上战场。',
+      text: '屋顶上，萨斯丁拔剑逼问你是否后悔婚约。你没有向他承认真实想法，只拿“自己还是学生”挡住追问；他随即说明戴比路克国王必须指挥领土扩张与防卫战争。',
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: null,
@@ -127,14 +126,36 @@ export const EPISODE_04_ACT_01 = {
       },
     },
     {
-      speaker: '你',
-      text: '我怕的是有人替我决定一生，还把战争说成结婚附带的义务。这个问题我会亲自和菈菈谈。',
+      speaker: null,
+      text: '进攻时被围歼、防守时全线崩溃，两场必败的星际大战在你脑内接连上演。你越想越觉得自己绝不能走进那种未来。',
       presentation: {
         sceneId: 'rooftop',
-        focusCharacterId: 'riko',
-        portraitId: 'school-uniform',
-        expressionId: 'neutral',
+        focusCharacterId: null,
+        portraitId: null,
+        expressionId: null,
+        effect: 'shake',
+      },
+    },
+    {
+      speaker: null,
+      text: '镜头切回教室，骨川老师正好点到你的名字。你还陷在脑内灾难片里，脱口而出的回答让全班一起安静下来。',
+      presentation: {
+        sceneId: 'school',
+        focusCharacterId: null,
+        portraitId: null,
+        expressionId: null,
         effect: 'none',
+      },
+    },
+    {
+      speaker: '你',
+      text: '我不要！',
+      presentation: {
+        sceneId: 'school',
+        focusCharacterId: null,
+        portraitId: null,
+        expressionId: null,
+        effect: 'shake',
       },
     },
     {
@@ -161,7 +182,7 @@ export const EPISODE_04_ACT_01 = {
     },
     {
       speaker: '你',
-      text: '我怕的不是你的料理。我是不愿在什么都没说清的时候，就把结婚和战争一起答应下来。',
+      text: '我想吃喜欢的女朋友亲手做的饭。我不会和连饭都做不好的人结婚。你还是回戴比路克去吧。',
       presentation: {
         sceneId: 'home',
         focusCharacterId: 'lala',
@@ -183,7 +204,7 @@ export const EPISODE_04_ACT_01 = {
     },
     {
       speaker: null,
-      text: '你想补充“不是因为讨厌你”，菈菈却已经转身冲出家门。门在眼前合上，留下必须由你决定的下一步。',
+      text: '你想补充“不是因为讨厌你”，菈菈却已经冲出家门，转眼飞向夜空。萨斯丁追了出去，只留下必须由你决定的下一步。',
       presentation: {
         sceneId: 'home',
         focusCharacterId: 'mikan',

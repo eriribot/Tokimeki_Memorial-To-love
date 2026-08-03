@@ -20,7 +20,8 @@
 }
 
 .player-registration__opening .layered-portrait-stage {
-  width: min(78cqh, 48cqw, 960px);
+  bottom: -10%;
+  width: min(88cqh, 52cqw, 960px);
 }
 
 .player-registration__event-cg .gal-main-story__background {

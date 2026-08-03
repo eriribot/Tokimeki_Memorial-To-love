@@ -84,7 +84,7 @@ export const STORY_SCENES = {
   },
   aquarium: {
     id: 'aquarium',
-    asset: '/artsource/backgrounds/bg020_a.png',
+    asset: '/artsource/backgrounds/bg029_a.png',
     alt: '彩南町水族馆',
   },
 } as const satisfies Record<StorySceneId, StorySceneDefinition>;
