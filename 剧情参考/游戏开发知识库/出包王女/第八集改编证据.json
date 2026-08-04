@@ -1,0 +1,438 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 8,
+    "sourceTitle": "清廉潔白風紀委員",
+    "targetTitle": "清廉洁白风纪委员（Fandom 初步研究稿）"
+  },
+  "sources": [
+    {
+      "id": "tbs-episode-08",
+      "kind": "official-metadata",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "supports": "第八集标题、2008-05-22 播出日，以及唯强化校规、推动两周女生交谈禁令、发现骚动未停并尾随梨斗的官方主轴。"
+    },
+    {
+      "id": "xebec-episode-08",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode08.html",
+      "supports": "唯作为风纪委员试图贯彻健康校园生活，却被菈菈发明打乱；并提供本集脚本、分镜、演出和作画监督。"
+    },
+    {
+      "id": "fandom-episode-08",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/The_Prefect_of_Spotless_Integrity",
+      "supports": "校门磁力装置、伦与连、沙姬挑战、制服徽章、梨斗受罚、放学观察、迷路女孩、磁力结尾和次日事故的顺序骨架；页面正文开头存在串入第九集标题的错误。"
+    },
+    {
+      "id": "project-role-authority",
+      "kind": "project-authority",
+      "location": "../../../MODULES.md",
+      "supports": "User 是唯一主角并承接原作男性梨斗的剧情职能；男性梨斗不作为另一人物存在；夕崎梨子是独立青梅与有限提醒位。"
+    },
+    {
+      "id": "project-yui-card",
+      "kind": "project-authority",
+      "location": "../../../data/default-cards/yui.json",
+      "supports": "唯的当前性格卡确认她认真、正义感强、重视风纪、容易害羞并喜欢猫，但其中对男性梨斗的关系措辞与现行主角规则冲突。"
+    },
+    {
+      "id": "runtime-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "supports": "当前主线只注册第一至第四集，第八集尚无运行时模板、世界书幕、场景与角色解锁接线。"
+    },
+    {
+      "id": "research-date-placeholder",
+      "kind": "inference",
+      "location": "本证据包研究期结构占位（2026-08-04）",
+      "supports": "为满足研究包 v2 结构，暂以官方播出日 2008-05-22 作为未注册研究单元的日期占位；它不是游戏内日期，正式适配前必须在第五至第七集连续性确定后改写。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "fandom-wrong-title",
+      "location": "https://toloveru.fandom.com/wiki/The_Prefect_of_Spotless_Integrity",
+      "staleClaim": "页面正文开头把第八集写成 The Perfect of Spotless Integrity，并混入第九集《光星より愛を込めて》的罗马字和日文标题。",
+      "resolution": "以 Fandom 信息框、TBS 与 XEBEC 一致的第八集标题《清廉潔白風紀委員》为准；串集文字不得进入标题或剧情证据。"
+    },
+    {
+      "id": "stale-male-rito-card-phrase",
+      "location": "../../../data/default-cards/yui.json",
+      "staleClaim": "唯的角色卡把她的感情对象继续写成现实存在的男性梨斗。",
+      "resolution": "现行 MODULES.md 权威优先：原作梨斗的第八集故事职能只映射给 User，男性梨斗不能作为另一人物回归；角色卡需在正式集成前另行修正。"
+    },
+    {
+      "id": "unassigned-runtime-date",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "staleClaim": "研究包中的 2008-05-22 可以直接作为第八集游戏内触发日期。",
+      "resolution": "该日期只是官方播出日和结构占位。当前仅注册第一至第四集，第五至第七集尚未冻结，故第八集不得注册或据此推进游戏时间。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "第八集事故中心、被唯误判和处罚的人、放学后助人者及与唯共同寻找迷路女孩的人",
+      "target": "User",
+      "inherit": [
+        "被磁力发明拖动和卷入误会的外部事件",
+        "被唯观察到的自发助人行为",
+        "与唯共同帮助迷路女孩并获得道歉的关系起点"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名现实人物并存",
+        "替 User 固定嫉妒、恋爱选择或对事故的主动同意",
+        "把同一剧情职能分给夕崎梨子"
+      ]
+    },
+    {
+      "original": "古手川唯",
+      "storyFunction": "首次登场的风纪委员、错误归因者、处罚推动者、观察者和承认误判者",
+      "target": "古手川唯",
+      "inherit": [
+        "严格整顿风纪与过度执行校规",
+        "因亲眼观察善行而修正判断",
+        "道歉并解除处罚的行动"
+      ],
+      "exclude": [
+        "把本集软化直接结算成明确恋爱或攻略完成",
+        "让她无证据地恶意栽赃 User",
+        "让旧角色卡恢复男性梨斗"
+      ]
+    },
+    {
+      "original": "菈菈与沛凯",
+      "storyFunction": "磁力事故、制服徽章和服装失效笑点的技术发起者",
+      "target": "菈菈与沛凯",
+      "inherit": [
+        "等待主角、帮助同学和鼓励主角的善意动机",
+        "发明失控造成的校门、制服和结尾事故",
+        "沛凯被碰落后无法维持服装的既有机制"
+      ],
+      "exclude": [
+        "把事故改写成 User 主动策划或触碰",
+        "把菈菈写成故意栽赃唯",
+        "露骨展示未成年角色身体"
+      ]
+    },
+    {
+      "original": "伦与连",
+      "storyFunction": "共享经历的两种性别形态、追求主角和喷嚏变身的开场参与者",
+      "target": "伦与连（同一角色的两种形态）",
+      "inherit": [
+        "上一集意外吻的共同记忆",
+        "伦主动逼近主角",
+        "鼻部刺激与喷嚏触发形态切换"
+      ],
+      "exclude": [
+        "把伦和连拆成能同时在场的两个人",
+        "把意外吻结算成已确立恋爱关系",
+        "把该性别转换设定转移给夕崎梨子"
+      ]
+    },
+    {
+      "original": "西连寺春菜、天条院沙姬、九条凛与藤崎绫",
+      "storyFunction": "校门误会、挑战与唯所见风纪骚动的参与者",
+      "target": "各角色本人",
+      "inherit": [
+        "春菜对突发衣着事故的惊吓反应",
+        "沙姬再次挑战菈菈并以抢走主角刺激她",
+        "凛与绫作为沙姬随行者"
+      ],
+      "exclude": [
+        "把春菜反应写成争宠",
+        "让沙姬的威胁成为 User 已接受的亲密行为",
+        "扩写夸张服装为露骨身体展示"
+      ]
+    },
+    {
+      "original": "校长、猿山与风纪委员会",
+      "storyFunction": "处罚批准者、隔离后的校园对照与校规执行者",
+      "target": "各角色或群体本人",
+      "inherit": [
+        "校长批准两周女生交谈禁令",
+        "猿山等男生在主角隔离后接近菈菈",
+        "风纪委员会检查服装、物品与异性交往"
+      ],
+      "exclude": [
+        "虚构未由来源确认的固定委员姓名",
+        "把梨斗受罚写成自愿安排",
+        "用猿山接管主角与唯的关系变化"
+      ]
+    },
+    {
+      "original": "夕崎梨子（企划独立角色）",
+      "storyFunction": "同班青梅、有限公开信息与提醒位",
+      "target": "夕崎梨子",
+      "inherit": [
+        "对校园公开风纪整顿的正常目击",
+        "符合青梅身份的短促提醒或吐槽",
+        "独立角色和独立攻略可能"
+      ],
+      "exclude": [
+        "原作梨斗的被罚、助人和唯关系位",
+        "替唯进行尾随和改观",
+        "全知后续事故或替 User 决定感情"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是正式改编时唯一承接原作梨斗第八集剧情职能的主角；本初稿仍以原作姓名整理动画事实。",
+    "fixed": [
+      "正式改编中不存在另一名男性结城梨斗",
+      "磁力装置、徽章、沛凯脱落等事故的外部因果不得转成 User 主动策划",
+      "唯会因观察善行而承认误判并解除处罚",
+      "夕崎梨子不继承原作主角与唯的首次关系变化"
+    ],
+    "reserved": [
+      "User 对菈菈与男生交谈是否嫉妒",
+      "User 对唯的好感、同意、拒绝和路线选择",
+      "唯在本集之后是否以及何时确认恋爱感情",
+      "正式游戏触发日期、行动点、好感和事件完成状态"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep08.gate-magnet-chaos",
+      "summary": "菈菈用无名磁力发明把刚从厕所出来的梨斗拖到校门，梨斗先后卷入春菜误会、伦逼近与沙姬挑战，唯第一次出面制止。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-08", "xebec-episode-08", "project-role-authority"],
+      "adaptation": "正式改编时只把事故承受者由原作梨斗映射给 User；菈菈、伦、沙姬和唯各自保留发起动作。",
+      "causalOwners": [
+        "菈菈：因等待过久而启动磁力发明",
+        "春菜：因突发衣着事故受到惊吓并误会",
+        "伦：主动抱住并试图亲近主角",
+        "沙姬：发起再挑战并以抢走主角刺激菈菈",
+        "古手川唯：看见混乱后出面制止"
+      ]
+    },
+    {
+      "id": "ep08.run-ren-peke",
+      "summary": "主角刺激伦的鼻子使她打喷嚏变回连；连阻止菈菈看女生制服时碰落沛凯，服装失效令唯昏倒。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-08", "project-role-authority"],
+      "adaptation": "保留喷嚏变身和事故链，用遮挡与反应表现服装失效，不扩写身体细节。",
+      "causalOwners": [
+        "User：只为脱身而刺激伦鼻部",
+        "伦／连：喷嚏触发形态切换",
+        "连：慌乱中碰落沛凯",
+        "古手川唯：因连续冲击而昏倒"
+      ]
+    },
+    {
+      "id": "ep08.discipline-crackdown",
+      "summary": "唯把接连骚动归因于主角，推动风纪委员会严格检查制服、物品和男女交往。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-08", "xebec-episode-08", "fandom-episode-08", "project-role-authority"],
+      "adaptation": "将原作针对梨斗的错误判断指向 User，但保留唯从可见事故得出错误结论的视角依据。"
+    },
+    {
+      "id": "ep08.badge-magnet-collision",
+      "summary": "菈菈制作改变制服的徽章，唯没收后被徽章意外改装制服；磁力装置又把主角拉来撞上唯。",
+      "status": "adapted",
+      "sourceRefs": ["xebec-episode-08", "fandom-episode-08", "project-role-authority"],
+      "adaptation": "保留菈菈发明和唯没收物品的因果，禁止改成 User 主动扑倒或触碰唯。",
+      "causalOwners": [
+        "菈菈：为不满长裙的女生制造徽章",
+        "古手川唯：以校外物品为由没收徽章",
+        "徽章：意外在唯身上启动",
+        "菈菈：掉落或启动磁力装置",
+        "User：被动撞向唯"
+      ]
+    },
+    {
+      "id": "ep08.two-week-ban",
+      "summary": "唯促使校长下达两周不得与女生交谈的处分，主角被隔离并挂上告示。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-08", "fandom-episode-08", "project-role-authority"],
+      "adaptation": "处罚对象改为 User；校长批准和唯推动的责任不能转给 User。",
+      "causalOwners": [
+        "古手川唯：提出或推动处罚",
+        "校长：批准两周禁令",
+        "User：被动承受隔离与告示"
+      ]
+    },
+    {
+      "id": "ep08.chaos-without-protagonist",
+      "summary": "主角被隔离后，菈菈等人周围的风纪骚动仍继续，唯开始怀疑自己对原因的判断。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-08", "fandom-episode-08", "project-role-authority"],
+      "adaptation": "保留反证结构；只表现 User 对单独受罚不满，不固定他对菈菈的嫉妒。"
+    },
+    {
+      "id": "ep08.after-school-kindness",
+      "summary": "唯尾随独自回家的主角，看到他帮助老妇人、急救伤者并重新栽好花草。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-08", "fandom-episode-08", "project-role-authority"],
+      "adaptation": "原作梨斗被观察到的善行由 User 承接；具体助人项目仍待直接看片确认。",
+      "causalOwners": [
+        "古手川唯：为核实判断而主动尾随",
+        "User：在无人要求时主动帮助陌生人和照料花草"
+      ]
+    },
+    {
+      "id": "ep08.lost-child-apology",
+      "summary": "唯加入主角，一起帮助迷路女孩找到母亲；唯承认误判、道歉并解除处罚。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-08", "project-role-authority", "project-yui-card"],
+      "adaptation": "把首次信任建立在 User 身上，但不把唯的软化升级成已确认恋爱或路线结算。",
+      "causalOwners": [
+        "User 与古手川唯：共同帮助迷路女孩",
+        "古手川唯：根据亲身观察修正判断并解除处罚"
+      ]
+    },
+    {
+      "id": "ep08.magnet-finale",
+      "summary": "菈菈为鼓励主角再次启动磁力发明，主角失控时连带唯一起穿过障碍，抵达朋友所在处并形成新误会。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-08", "project-role-authority"],
+      "adaptation": "主角保持被动；撞击和最终姿势由菈菈的装置造成，不写成 User 刚获原谅便主动冒犯唯。",
+      "causalOwners": [
+        "菈菈：召集朋友并启动磁力发明",
+        "User：被装置强制拉动",
+        "古手川唯：被 User 意外带入失控路线"
+      ]
+    },
+    {
+      "id": "ep08.next-day-reset",
+      "summary": "次日菈菈向唯打招呼时撞上主角，沛凯再次脱落并造成误会；唯大喊后留下新的贬义告示。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-08", "project-role-authority"],
+      "adaptation": "作为同一研究单元的次日尾声，不提前进入第九集，也不宣称正式恢复两周处分。"
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep08.gate-magnet-chaos",
+    "ep08.run-ren-peke",
+    "ep08.discipline-crackdown",
+    "ep08.badge-magnet-collision",
+    "ep08.two-week-ban",
+    "ep08.chaos-without-protagonist",
+    "ep08.after-school-kindness",
+    "ep08.lost-child-apology",
+    "ep08.magnet-finale",
+    "ep08.next-day-reset"
+  ],
+  "forbidden": [
+    "把 Fandom 正文误混入的第九集标题《光星より愛を込めて》当成第八集标题",
+    "让男性结城梨斗作为另一名现实人物登场",
+    "让夕崎梨子接管 User 的受罚、助人、迷路女孩或唯关系位",
+    "把伦与连拆成能够同时在场的两个人",
+    "把 Fandom 的可能嫉妒推测写成 User 固定内心",
+    "把唯本集的道歉和态度软化直接结算成明确恋爱、告白或攻略完成",
+    "把磁力碰撞、徽章启动或沛凯脱落改写成 User 主动策划、扑倒、脱衣或触碰",
+    "露骨描写未成年角色身体或把事故扩大为围观展示",
+    "把研究日期占位 2008-05-22 当作获准的游戏内触发日期",
+    "让模型结算日期、AP、好感、处罚状态、角色解锁或事件完成",
+    "越过次日告示笑点继续生成第九集"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep08.research-unit",
+      "targetDate": "2008-05-22",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "研究结构从校门前菈菈因等待过久而启动磁力发明开始；日期暂借官方播出日占位，不是游戏内授权日期。",
+      "end": "唯在放学后承认误判、磁力发明再次造成事故，并以次日沛凯脱落和新告示作尾声；不得进入第九集。",
+      "mustKeepBeatIds": [
+        "ep08.gate-magnet-chaos",
+        "ep08.run-ren-peke",
+        "ep08.discipline-crackdown",
+        "ep08.badge-magnet-collision",
+        "ep08.two-week-ban",
+        "ep08.chaos-without-protagonist",
+        "ep08.after-school-kindness",
+        "ep08.lost-child-apology",
+        "ep08.magnet-finale",
+        "ep08.next-day-reset"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "integrationStatus": "unregistered-research-placeholder",
+    "dateBasis": "2008-05-22 是官方播出日占位，不是游戏内日期；第五至第七集连续性和第八集直接证据冻结前不得注册。",
+    "acts": [
+      {
+        "boundaryId": "ep08.research-unit",
+        "targetDate": "2008-05-22",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ]
+  },
+  "semanticCases": [
+    {
+      "id": "ep08.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选用自然语言写 User 被菈菈装置拉进校门混乱，唯据此误判并强化校规；徽章和磁力事故令处罚升级。User 被隔离后骚动仍继续，唯放学尾随时看到他主动帮助路人，又与他一起送迷路孩子回到母亲身边，于是道歉撤罚。菈菈再次启动装置造成新误会，故事只用次日告示收尾。",
+      "reviewCriteria": [
+        "十个 must-keep 节拍均可按语义辨认",
+        "装置、处罚、观察和道歉的发起者没有漂移",
+        "没有替 User 或唯结算恋爱和运行时状态"
+      ]
+    },
+    {
+      "id": "ep08.reject-missing-lost-child",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选完整写了唯尾随 User 并看见他扶老人、救伤者和照料花草，随后直接让唯道歉撤罚，却完全省略两人共同帮助迷路女孩寻找母亲。",
+      "reviewCriteria": [
+        "共同帮助迷路女孩是唯从旁观转为参与的标志性锚点",
+        "其余顺序正确也不能替代这一缺失"
+      ]
+    },
+    {
+      "id": "ep08.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选让夕崎梨子代替 User 接受两周处罚、在放学后连续助人并与唯寻找孩子，同时又保留 User 被磁力装置拖走，形成两个原作主角承载者。",
+      "reviewCriteria": [
+        "原作梨斗的第八集主角职能只能由 User 承接",
+        "梨子只能保留青梅与有限提醒位"
+      ]
+    },
+    {
+      "id": "ep08.reject-magnet-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选写成 User 为戏弄唯而主动启动磁力装置、扑向她并扯乱制服，菈菈只在旁边惊讶；后来又说是唯主动要求校长处罚自己。",
+      "reviewCriteria": [
+        "磁力与制服事故的技术发起者必须是菈菈及其发明",
+        "处罚必须由唯推动、校长批准、User 被动承受"
+      ]
+    },
+    {
+      "id": "ep08.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选把校门、风纪整顿和放学尾随拆成同一天三次自由行动，并在每段后自行保留或扣除 AP；又把研究占位日期直接写入正式运行时。",
+      "reviewCriteria": [
+        "当前只能视作未注册的整集研究单元",
+        "不得自行结算 AP 或把播出日占位冒充游戏日期"
+      ]
+    },
+    {
+      "id": "ep08.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选写完次日沛凯事故和告示后继续进入保健室，引入御门凉子与来自キラーラ星的求婚者，实际开始生成第九集。",
+      "reviewCriteria": [
+        "第八集必须停在次日关系重置笑点",
+        "不得提前引入第九集事件"
+      ]
+    },
+    {
+      "id": "ep08.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选宣布 User 爱上唯、唯正式成为恋人并增加二十点好感，随后解锁古手川唯角色卡、清空 AP、推进日期并标记第八集完成。",
+      "reviewCriteria": [
+        "正文不能替 User 或唯结算恋爱关系",
+        "正文不能修改好感、角色解锁、日期、AP 或事件完成"
+      ]
+    }
+  ]
+}
