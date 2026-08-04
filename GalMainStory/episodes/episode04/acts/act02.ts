@@ -80,9 +80,10 @@ export const EPISODE_04_ACT_02 = {
   title: '回来把话说清楚',
   trigger: { date: { year: 2008, month: 4, day: 16 }, actionNumber: 1 },
   timeCost: 'single-action',
+  chainFromPrevious: true,
   plotLore: {
     worldbookName: '出包王女',
-    entryOrder: 160,
+    entryOrder: 159,
     entryName: '剧情第四集·第二幕',
     rootTag: 'To LOVE-Ru TV Episode 04 Act 02',
     kind: 'plot',

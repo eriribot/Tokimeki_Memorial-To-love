@@ -41,6 +41,8 @@ type MainStoryStoreActions = Pick<
 
 interface MainStoryStoreDependencies {
   maxDailyActionPoints: number;
+  afterSchoolPeriodIndex: number;
+  eveningPeriodIndex: number;
   spawnEvents: (day: number) => GameEvent[];
 }
 
@@ -383,9 +385,22 @@ export function createMainStoryStoreActions(
         const nextAct = episode.acts[actIndex + 1];
         const advancesDay = state.actionPointsRemaining === 0 || actDefinition?.timeCost === 'whole-day';
         const nextDay = advancesDay ? state.day + 1 : state.day;
+        const nextDate = advancesDay ? getNextCalendarDate(state.date) : state.date;
+        const baseActionPoints = advancesDay ? dependencies.maxDailyActionPoints : state.actionPointsRemaining;
+        const chainedActionPoints = baseActionPoints - 1;
+        const canChain =
+          !isLastAct &&
+          nextAct?.chainFromPrevious === true &&
+          chainedActionPoints >= 0 &&
+          nextDate.year === nextAct.trigger.date.year &&
+          nextDate.month === nextAct.trigger.date.month &&
+          nextDate.day === nextAct.trigger.date.day &&
+          dependencies.maxDailyActionPoints - chainedActionPoints === nextAct.trigger.actionNumber;
         const nextRun =
           !isLastAct && nextAct
-            ? { eventId: episode.id, actId: nextAct.id, phase: 'waiting' as const, pageIndex: 0 }
+            ? canChain
+              ? { eventId: episode.id, actId: nextAct.id, phase: 'playing' as const, pageIndex: 0 }
+              : { eventId: episode.id, actId: nextAct.id, phase: 'waiting' as const, pageIndex: 0 }
             : null;
         const completedEventIds = isLastAct
           ? [...new Set([...state.mainStory.completedEventIds, episode.id])]
@@ -395,10 +410,17 @@ export function createMainStoryStoreActions(
           ...(advancesDay
             ? {
                 day: nextDay,
-                date: getNextCalendarDate(state.date),
+                date: nextDate,
                 actionPointsRemaining: dependencies.maxDailyActionPoints,
                 periodIndex: 0,
                 events: dependencies.spawnEvents(nextDay),
+              }
+            : {}),
+          ...(canChain
+            ? {
+                actionPointsRemaining: chainedActionPoints,
+                periodIndex:
+                  chainedActionPoints > 0 ? dependencies.afterSchoolPeriodIndex : dependencies.eveningPeriodIndex,
               }
             : {}),
           currentSceneId: null,
@@ -414,6 +436,7 @@ export function createMainStoryStoreActions(
               ? `主线事件「${episode.title}」结束。`
               : `主线事件「${episode.title}」第 ${actIndex + 1} 幕暂告一段落。`,
             ...(advancesDay ? [`第 ${state.day} 天结束，第 ${nextDay} 天的早晨到了。`] : []),
+            ...(canChain ? [`主线事件「${episode.title}」第 ${actIndex + 2} 幕开始。`] : []),
           ],
         };
       });

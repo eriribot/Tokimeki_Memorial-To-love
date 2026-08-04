@@ -5,6 +5,12 @@ import { resolveAssetPath } from '../utils/assetPath';
 import { useEffect, useRef, useState } from 'react';
 import './Menu.css';
 
+const TITLE_MUSIC_TRACKS = ['/artsource/music/op.mp3', '/artsource/music/to_love_op1.mp3'];
+
+// 每次页面加载（刷新）随机选一首 OP。模块只求值一次，与组件挂载次数无关，
+// 刷新页面即重新随机；同一次会话内回到标题画面保持同一首。
+const PAGE_LOAD_TITLE_MUSIC = TITLE_MUSIC_TRACKS[Math.floor(Math.random() * TITLE_MUSIC_TRACKS.length)];
+
 interface StartScreenProps {
   hasPersistedSave: boolean;
   isCheckingSaves: boolean;
@@ -19,6 +25,7 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
   const menuButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [audioState, setAudioState] = useState<'pending' | 'playing' | 'blocked'>('pending');
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+  const [titleMusicTrack, setTitleMusicTrack] = useState(PAGE_LOAD_TITLE_MUSIC);
 
   const playTitleMusic = () => {
     const audio = audioRef.current;
@@ -74,11 +81,18 @@ export default function StartScreen({ hasPersistedSave, isCheckingSaves, onConti
       <audio
         ref={audioRef}
         id="title-op-music"
-        src={resolveAssetPath('/artsource/music/op.mp3')}
+        src={resolveAssetPath(titleMusicTrack)}
         autoPlay
         loop
         preload="auto"
         aria-label="标题画面音乐"
+        onError={() => {
+          // 当前曲目加载失败（如文件缺失）时切换到另一首，保证标题画面一定有音乐
+          const fallback = TITLE_MUSIC_TRACKS.find(track => track !== titleMusicTrack);
+          if (fallback) {
+            setTitleMusicTrack(fallback);
+          }
+        }}
       />
 
       <section className="start-screen-content" aria-labelledby="game-title">

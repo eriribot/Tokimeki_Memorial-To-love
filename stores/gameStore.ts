@@ -165,6 +165,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   ...createMainStoryStoreActions(set, get, {
     maxDailyActionPoints: MAX_DAILY_ACTION_POINTS,
+    afterSchoolPeriodIndex: AFTER_SCHOOL_PERIOD_INDEX,
+    eveningPeriodIndex: EVENING_PERIOD_INDEX,
     spawnEvents: spawnRandomEvents,
   }),
 

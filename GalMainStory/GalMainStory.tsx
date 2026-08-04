@@ -715,7 +715,9 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
                 optionSource: generationSource === 'tavern' ? 'ai' : 'fallback',
                 selectedOptionId: liveChoiceDecision?.optionId ?? null,
                 selectedLabel: liveChoiceDecision?.selectedLabel ?? null,
-                onSelect: (optionId, customText) => selectStoryChoice(liveChoice.id, optionId, customText),
+                onSelect: (optionId, customText) => {
+                  if (selectStoryChoice(liveChoice.id, optionId, customText)) finishCurrentAct();
+                },
               }
             : null
         }

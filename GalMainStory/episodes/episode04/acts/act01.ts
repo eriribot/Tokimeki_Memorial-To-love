@@ -7,7 +7,7 @@ export const EPISODE_04_ACT_01 = {
   timeCost: 'whole-day',
   plotLore: {
     worldbookName: '出包王女',
-    entryOrder: 159,
+    entryOrder: 158,
     entryName: '剧情第四集·第一幕',
     rootTag: 'To LOVE-Ru TV Episode 04 Act 01',
     kind: 'plot',

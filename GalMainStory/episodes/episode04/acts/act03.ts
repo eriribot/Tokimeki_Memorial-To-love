@@ -5,9 +5,10 @@ export const EPISODE_04_ACT_03 = {
   title: '宇宙料理校园战争',
   trigger: { date: { year: 2008, month: 4, day: 16 }, actionNumber: 2 },
   timeCost: 'single-action',
+  chainFromPrevious: true,
   plotLore: {
     worldbookName: '出包王女',
-    entryOrder: 161,
+    entryOrder: 160,
     entryName: '剧情第四集·第三幕',
     rootTag: 'To LOVE-Ru TV Episode 04 Act 03',
     kind: 'plot',

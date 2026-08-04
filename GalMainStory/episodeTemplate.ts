@@ -1,6 +1,6 @@
 import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import type { CalendarDateValue } from '../types';
-import { isCalendarDateValue } from '../CalendarModule/date';
+import { getNextCalendarDate, isCalendarDateValue } from '../CalendarModule/date';
 import { STORY_AI_CHOICE_OPTION_COUNT, type StoryActDefinition } from './storyTypes';
 
 export interface StoryActTrigger {
@@ -13,6 +13,12 @@ export type StoryActTimeCost = 'single-action' | 'whole-day';
 export interface StoryEpisodeActDefinition extends StoryActDefinition {
   trigger: StoryActTrigger;
   timeCost?: StoryActTimeCost;
+  /**
+   * 上一幕结算后立即接续播放本幕，接续时消耗 1 行动点。
+   * trigger 必须恰好等于上一幕结算后的下一个时点：
+   * 上一幕 whole-day → 次日 actionNumber 1；否则 → 同日 actionNumber+1。
+   */
+  chainFromPrevious?: boolean;
   plotLore: DisabledWorldbookLoreReference;
 }
 
@@ -50,6 +56,7 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
     throw new Error(`主线剧情模板“${template.id}”存在重复幕 ID。`);
   }
   let previousTrigger: StoryActTrigger | null = null;
+  let previousAct: StoryEpisodeActDefinition | null = null;
   const previousChoices = new Map<string, { actId: string; optionIds: Set<string> }>();
   for (const act of template.acts) {
     if (!act.id.trim() || !act.title.trim() || act.fallbackBeats.length === 0) {
@@ -69,7 +76,23 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
         throw new Error(`主线幕“${act.id}”的触发时间没有排在上一幕之后。`);
       }
     }
+    if (act.chainFromPrevious) {
+      if (!previousAct) {
+        throw new Error(`主线剧情模板“${template.id}”的首幕不能声明接续。`);
+      }
+      const expectedTrigger: StoryActTrigger =
+        previousAct.timeCost === 'whole-day'
+          ? { date: getNextCalendarDate(previousAct.trigger.date), actionNumber: 1 }
+          : {
+              date: previousAct.trigger.date,
+              actionNumber: (previousAct.trigger.actionNumber + 1) as 1 | 2,
+            };
+      if (compareTriggers(act.trigger, expectedTrigger) !== 0) {
+        throw new Error(`主线幕“${act.id}”声明了接续，但触发时间不是上一幕结算后的下一个时点。`);
+      }
+    }
     previousTrigger = act.trigger;
+    previousAct = act;
     if (act.plotLore.kind !== 'plot') throw new Error(`主线幕“${act.id}”的 plotLore 不是剧情条目。`);
     if (!Number.isInteger(act.plotLore.entryOrder)) {
       throw new Error(`主线幕“${act.id}”的世界书 order 必须是整数。`);

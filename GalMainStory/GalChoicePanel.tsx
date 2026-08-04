@@ -78,22 +78,24 @@ export default function GalChoicePanel({
           </div>
         </form>
       ) : (
-        <div className="gal-main-story__choice-options">
-          {options.map(option => {
-            const selected = option.id === selectedOptionId;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                className={selected ? 'is-selected' : ''}
-                aria-pressed={selected}
-                disabled={locked}
-                onClick={() => onSelect(option.id)}
-              >
-                {option.label}
-              </button>
-            );
-          })}
+        <>
+          <div className="gal-main-story__choice-options">
+            {options.map(option => {
+              const selected = option.id === selectedOptionId;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={selected ? 'is-selected' : ''}
+                  aria-pressed={selected}
+                  disabled={locked}
+                  onClick={() => onSelect(option.id)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
           <button
             type="button"
             className={`gal-main-story__custom-choice-entry ${
@@ -107,7 +109,7 @@ export default function GalChoicePanel({
               ? `已决定：${selectedLabel}`
               : '✎ 自己输入行动……'}
           </button>
-        </div>
+        </>
       )}
       <span className="gal-main-story__choice-source">
         {optionSource === 'ai' ? 'AI 即时提议 · 也可以自己决定' : '离线保底提议 · 也可以自己决定'}
