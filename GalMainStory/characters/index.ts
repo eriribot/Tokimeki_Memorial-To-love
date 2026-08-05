@@ -8,7 +8,14 @@ export { HARUNA_STORY_CHARACTER } from './haruna';
 export { LALA_STORY_CHARACTER } from './lala';
 export { MIKAN_STORY_CHARACTER } from './mikan';
 export { RIKO_STORY_CHARACTER } from './riko';
-export type { LayeredPortraitExpression, LayeredPortraitRig, PortraitRegion, StoryCharacterDefinition } from './types';
+export { STORY_USER_ADDRESS_TAG } from './types';
+export type {
+  LayeredPortraitExpression,
+  LayeredPortraitRig,
+  PortraitRegion,
+  StoryCharacterDefinition,
+  StoryUserAddressingContext,
+} from './types';
 
 export const STORY_CHARACTERS = {
   lala: LALA_STORY_CHARACTER,

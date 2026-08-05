@@ -2,8 +2,10 @@ import {
   getMainStoryActIndex,
   getMainStoryActOrThrow,
   getMainStoryEpisodeOrThrow,
-  getMainStoryLoreReferences,
+  getMainStoryLoreSelections,
+  type MainStoryLoreSelection,
 } from '../GalMainStory/storyRegistry';
+import { getStoryCharacter, STORY_USER_ADDRESS_TAG } from '../GalMainStory/characters';
 import { parseStoryParagraphs, type ParsedStoryLine } from '../GalMainStory/storyPresentation';
 import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
 import {
@@ -18,7 +20,15 @@ import {
   type StoryPresentationCue,
   type StoryChoiceOptionDefinition,
 } from '../GalMainStory/storyTypes';
-import { armStoryLoresForNextWorldInfoScan, readDisabledWorldbookStoryLores } from '../data/storyLore';
+import {
+  armStoryLoresForNextWorldInfoScan,
+  assertStoryLoreTaggedBlock,
+  readDisabledWorldbookStoryLores,
+  replaceStoryLoreTaggedBlock,
+  type LoadedStoryLore,
+} from '../data/storyLore';
+import { useCardStore } from '../stores/cardStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { createSaveUuid } from '../save/uuid';
 import { createStoryGenerationContextProjection } from './storyGenerationContext';
 
@@ -317,14 +327,45 @@ export function actToPlainText(act: GalStoryAct): string {
   return [storyText, choiceText].filter(Boolean).join('\n');
 }
 
+/**
+ * Rewrites each character lore's `<称呼绑定>` block with the concrete addressing
+ * line for the registered player. The tag pair is validated even without a
+ * registered profile; in that case the entry's static block content remains as
+ * its own fallback.
+ */
+function applyUserAddressBindings(
+  lores: readonly LoadedStoryLore[],
+  selections: readonly MainStoryLoreSelection[],
+): void {
+  const profile = usePlayerStore.getState().profile;
+  const targets = useCardStore.getState().targets;
+  lores.forEach((lore, index) => {
+    const characterId = selections[index]?.characterId;
+    if (!characterId) return;
+    const buildBinding = getStoryCharacter(characterId).buildUserAddressBinding;
+    if (!buildBinding) return;
+    assertStoryLoreTaggedBlock(lore.content, STORY_USER_ADDRESS_TAG);
+    if (!profile) {
+      console.warn(`[ToLove Story] 玩家未注册，人物条目「${lore.entryName}」的称呼绑定保留静态兜底文本。`);
+      return;
+    }
+    const affection = targets.find(target => target.id === characterId)?.affection ?? 0;
+    lore.content = replaceStoryLoreTaggedBlock(
+      lore.content,
+      STORY_USER_ADDRESS_TAG,
+      buildBinding({ familyName: profile.familyName, givenName: profile.givenName, affection }),
+    );
+  });
+}
+
 export async function generateStoryAct(request: GenerateStoryActRequest): Promise<GeneratedStoryAct> {
   getMainStoryActOrThrow(request.eventId, request.actId);
   const api = getTavernGenerateApi();
   const generationContext = createStoryGenerationContextProjection(request);
   const userInput = generationContext.userInput;
-  const selectedLores = await readDisabledWorldbookStoryLores(
-    getMainStoryLoreReferences(request.eventId, request.actId),
-  );
+  const loreSelections = getMainStoryLoreSelections(request.eventId, request.actId);
+  const selectedLores = await readDisabledWorldbookStoryLores(loreSelections.map(selection => selection.reference));
+  applyUserAddressBindings(selectedLores, loreSelections);
   const stopWorldInfoScanHook = armStoryLoresForNextWorldInfoScan(selectedLores);
   let result: Awaited<ReturnType<typeof api.generate>>;
   try {

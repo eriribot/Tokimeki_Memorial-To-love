@@ -23,8 +23,21 @@ export function getCalendarWeekdayIndex(date: CalendarDateValue): number {
   return new Date(Date.UTC(date.year, date.month - 1, date.day)).getUTCDay();
 }
 
-export function createSpecialDateLookup(specialDates: readonly SpecialDateDefinition[]): Map<string, SpecialDateDefinition> {
-  return new Map(specialDates.map(specialDate => [calendarDateKey(specialDate.date), specialDate]));
+export function createSpecialDateLookup(
+  specialDates: readonly SpecialDateDefinition[],
+): Map<string, SpecialDateDefinition[]> {
+  // 同一日期可能同时有生日和主线日程等多种标记，按日期分组全部保留，由渲染层组合展示。
+  const lookup = new Map<string, SpecialDateDefinition[]>();
+  for (const specialDate of specialDates) {
+    const key = calendarDateKey(specialDate.date);
+    const group = lookup.get(key);
+    if (group) {
+      group.push(specialDate);
+    } else {
+      lookup.set(key, [specialDate]);
+    }
+  }
+  return lookup;
 }
 
 export function sortSpecialDates(specialDates: readonly SpecialDateDefinition[]): SpecialDateDefinition[] {

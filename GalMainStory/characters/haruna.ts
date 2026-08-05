@@ -1,5 +1,19 @@
 import { createFaceAtlasExpressions } from './portraitFactory';
-import type { StoryCharacterDefinition } from './types';
+import type { StoryCharacterDefinition, StoryUserAddressingContext } from './types';
+
+// Affection thresholds for how Haruna addresses User: family name, given name, then plain given name.
+const HARUNA_ADDRESS_TIER_FAMILIAR = 40;
+const HARUNA_ADDRESS_TIER_INTIMATE = 80;
+
+function buildHarunaUserAddressBinding({ familyName, givenName, affection }: StoryUserAddressingContext): string {
+  if (affection >= HARUNA_ADDRESS_TIER_INTIMATE) {
+    return `-User:直呼名字“${givenName}”，不加“同学”。User姓“${familyName}”、名“${givenName}”，关系已足够亲密；不要再改回姓氏称呼或全名。`;
+  }
+  if (affection >= HARUNA_ADDRESS_TIER_FAMILIAR) {
+    return `-User:统一称呼为“${givenName}同学”。User姓“${familyName}”、名“${givenName}”，关系已经熟悉，改用名字加“同学”；不要改回姓氏称呼、全名或“你”。`;
+  }
+  return `-User:统一称呼为“${familyName}同学”。User姓“${familyName}”、名“${givenName}”；不要改称全名、单喊名字或“你”。`;
+}
 
 const HARUNA_SCHOOL_PORTRAIT = {
   id: 'school-uniform',
@@ -68,4 +82,5 @@ export const HARUNA_STORY_CHARACTER = {
       kind: 'character',
     },
   ],
+  buildUserAddressBinding: buildHarunaUserAddressBinding,
 } as const satisfies StoryCharacterDefinition;

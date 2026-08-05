@@ -10,3 +10,4 @@ export {
 } from './selectors';
 export { buildCalendarSpecialDateCatalog } from './catalog';
 export { projectMainStoryBlockedSpecialDates } from './mainStoryProjection';
+export { projectBirthdaySpecialDates } from './birthdays';

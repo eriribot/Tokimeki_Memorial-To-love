@@ -1,6 +1,6 @@
 import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import type { CalendarDateValue } from '../types';
-import { getStoryCharacter, isStoryCharacterId } from './characters';
+import { getStoryCharacter, isStoryCharacterId, type StoryCharacterId } from './characters';
 import type { StoryEpisodeActDefinition, StoryEpisodeTemplate } from './episodeTemplate';
 import { MAIN_STORY_EPISODES } from './episodes';
 import type { GalStoryAct, MainStoryRun, StoryChoiceDecision, StoryPresentationCue } from './storyTypes';
@@ -33,13 +33,22 @@ export function getMainStoryActIndex(eventId: string, actId: string): number {
   return getMainStoryEpisode(eventId)?.acts.findIndex(act => act.id === actId) ?? -1;
 }
 
-export function getMainStoryLoreReferences(eventId: string, actId: string): DisabledWorldbookLoreReference[] {
+export interface MainStoryLoreSelection {
+  reference: DisabledWorldbookLoreReference;
+  /** Owning story character for character lores; null for the act's plot lore. */
+  characterId: StoryCharacterId | null;
+}
+
+export function getMainStoryLoreSelections(eventId: string, actId: string): MainStoryLoreSelection[] {
   const act = getMainStoryActOrThrow(eventId, actId);
   return [
-    act.plotLore,
+    { reference: act.plotLore, characterId: null },
     ...act.characterLoreIds.flatMap(characterId => {
       if (!isStoryCharacterId(characterId)) throw new Error(`主线幕“${act.id}”引用了未登记角色“${characterId}”。`);
-      return getStoryCharacter(characterId).loreReferences;
+      return getStoryCharacter(characterId).loreReferences.map(reference => ({
+        reference,
+        characterId,
+      }));
     }),
   ];
 }

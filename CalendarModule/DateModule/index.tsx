@@ -123,8 +123,13 @@ function MonthPage({
             currentDate.year === year && currentDate.month === month && currentDate.day === day;
           const isSelected =
             selectedDate.year === year && selectedDate.month === month && selectedDate.day === day;
-          const specialDate = specialDateLookup.get(calendarDateKey(dateValue));
-          const isBlocked = specialDate?.marker === 'blocked';
+          const specialDateGroup = specialDateLookup.get(calendarDateKey(dateValue)) ?? [];
+          const isBlocked = specialDateGroup.some(entry => entry.marker === 'blocked');
+          const isBirthday = specialDateGroup.some(entry => entry.marker === 'birthday');
+          const specialSummary = [
+            ...specialDateGroup.filter(entry => entry.marker !== 'blocked').map(entry => entry.label),
+            ...(isBlocked ? ['已有重要日程，该日期暂不可安排'] : []),
+          ].join(' / ');
           const isSelectable = isSelectableCalendarDate(dateValue, currentDate);
           const classes = [
             'tm-date-module__date-button',
@@ -133,6 +138,7 @@ function MonthPage({
             isToday ? 'is-today' : '',
             isSelected ? 'is-selected' : '',
             isBlocked ? 'is-blocked' : '',
+            isBirthday ? 'is-birthday' : '',
             !isSelectable ? 'is-disabled' : '',
           ]
             .filter(Boolean)
@@ -144,7 +150,7 @@ function MonthPage({
               type="button"
               className={classes}
               disabled={!isSelectable}
-              aria-label={`${formatDateLabel(dateValue)}${isBlocked ? '，已有重要日程，该日期暂不可安排' : '，暂无特别日程'}${
+              aria-label={`${formatDateLabel(dateValue)}，${specialSummary || '暂无特别日程'}${
                 isSelectable ? '，点击查看' : '，已过去'
               }`}
               aria-current={isToday ? 'date' : undefined}
@@ -154,7 +160,19 @@ function MonthPage({
               <span className="tm-date-module__date-number" aria-hidden="true">
                 {day}
               </span>
-              {isBlocked && <span className="tm-date-module__date-mark" aria-hidden="true" />}
+              {isBlocked && isBirthday ? (
+                <span className="tm-date-module__date-marks" aria-hidden="true">
+                  <span className="tm-date-module__date-mark tm-date-module__date-mark--compact" />
+                  <span className="tm-date-module__date-marks-separator">/</span>
+                  <span className="tm-date-module__date-birthday tm-date-module__date-birthday--compact">🎂</span>
+                </span>
+              ) : isBlocked ? (
+                <span className="tm-date-module__date-mark" aria-hidden="true" />
+              ) : isBirthday ? (
+                <span className="tm-date-module__date-birthday" aria-hidden="true">
+                  🎂
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -170,12 +188,13 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
   const [selectedDate, setSelectedDate] = useState<CalendarDateValue>(() => ({ ...date }));
   const specialDateLookup = useMemo(() => createSpecialDateLookup(specialDates), [specialDates]);
   const nextMonth = addMonths(visibleMonth, 1);
-  const selectedSpecialDate = specialDateLookup.get(calendarDateKey(selectedDate));
+  const selectedSpecialDateGroup = specialDateLookup.get(calendarDateKey(selectedDate)) ?? [];
   const selectedDateLabel = formatDateLabel(selectedDate);
   const selectedDateStatus =
-    selectedSpecialDate?.marker === 'blocked'
-      ? '已有重要日程，该日期暂不可安排'
-      : (selectedSpecialDate?.label ?? '暂无特别日程');
+    [
+      ...selectedSpecialDateGroup.filter(entry => entry.marker !== 'blocked').map(entry => entry.label),
+      ...(selectedSpecialDateGroup.some(entry => entry.marker === 'blocked') ? ['已有重要日程，该日期暂不可安排'] : []),
+    ].join(' / ') || '暂无特别日程';
   const dialogLabel = `${visibleMonth.year}年${visibleMonth.month}月与${nextMonth.year}年${nextMonth.month}月日历，今天是${date.year}年${date.month}月${date.day}日`;
 
   const turnPages = (offset: number) => {
@@ -253,7 +272,7 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
           <div className="tm-date-module__info-date">{selectedDateLabel}</div>
           <div
             className={`tm-date-module__info-status ${
-              selectedSpecialDate?.marker === 'blocked' ? 'is-blocked' : ''
+              selectedSpecialDateGroup.some(entry => entry.marker === 'blocked') ? 'is-blocked' : ''
             }`}
           >
             {selectedDateStatus}

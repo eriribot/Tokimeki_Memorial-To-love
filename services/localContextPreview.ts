@@ -1,6 +1,7 @@
-import { getMainStoryLoreReferences } from '../GalMainStory/storyRegistry';
+import { getMainStoryLoreSelections } from '../GalMainStory/storyRegistry';
 import { getPreviousActiveStoryFloors } from '../GalMainStory/storyArchive';
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
+import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import { captureGameMessages } from '../message';
 import { createGameSnapshot, type GameSnapshot } from '../save/snapshot';
 import {
@@ -11,7 +12,7 @@ import { getCanonicalStoryTimeline, selectRecentStoryMessages } from '../memory/
 
 export interface LocalContextPreviewGeneration {
   projection: StoryGenerationContextProjection;
-  loreReferences: ReturnType<typeof getMainStoryLoreReferences>;
+  loreReferences: DisabledWorldbookLoreReference[];
   activeFloorId: string | null;
   source: 'active-run' | 'latest-floor';
 }
@@ -89,7 +90,7 @@ export function createLocalContextPreview(): LocalContextPreview {
     messages,
     generation: {
       projection: target.exactUserInput ? { ...projection, userInput: target.exactUserInput } : projection,
-      loreReferences: getMainStoryLoreReferences(target.eventId, target.actId),
+      loreReferences: getMainStoryLoreSelections(target.eventId, target.actId).map(selection => selection.reference),
       activeFloorId: target.activeFloorId,
       source: target.source,
     },

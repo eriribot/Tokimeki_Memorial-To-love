@@ -135,6 +135,29 @@ export async function readDisabledWorldbookStoryLores(
   );
 }
 
+/**
+ * 校验背景设定条目包含且仅包含一对 `<tag>...</tag>` 标签.
+ * 即使没有替换计划也要执行，从而让格式错误的条目在生成前暴露.
+ */
+export function assertStoryLoreTaggedBlock(content: string, tag: string): void {
+  const pattern = new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`, 'gu');
+  const matches = content.match(pattern) ?? [];
+  if (matches.length !== 1) {
+    throw new Error(`世界书条目应包含且只包含一对 <${tag}> 标签，实际找到 ${matches.length} 处。`);
+  }
+}
+
+/**
+ * 替换背景设定条目内某个带标签区块的内部内容.
+ * 该条目必须包含且仅包含一对 `<tag>...</tag>` 标签；标签本身予以保留
+ * 从而确保该区块仍可被识别，且条目能够被还原.
+ */
+export function replaceStoryLoreTaggedBlock(content: string, tag: string, replacement: string): string {
+  assertStoryLoreTaggedBlock(content, tag);
+  const pattern = new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`, 'gu');
+  return content.replace(pattern, `<${tag}>${replacement}</${tag}>`);
+}
+
 function worldbookKeyToText(key: string | RegExp): string {
   return typeof key === 'string' ? key : key.source;
 }
@@ -148,7 +171,7 @@ function createRawWorldInfoEntry(lore: LoadedStoryLore): RawWorldInfoEntry {
     key: entry.strategy.keys.map(worldbookKeyToText),
     keysecondary: entry.strategy.keys_secondary.keys.map(worldbookKeyToText),
     comment: entry.name,
-    content: entry.content,
+    content: lore.content,
     constant: entry.strategy.type === 'constant',
     selective: entry.strategy.type === 'selective',
     vectorized: entry.strategy.type === 'vectorized',
@@ -192,7 +215,10 @@ export function armStoryLoresForNextWorldInfoScan(lores: readonly LoadedStoryLor
     for (const collection of collections) {
       for (const entry of collection) {
         const key = getLoreKey(entry.world, entry.uid);
-        if (!selectedLores.has(key)) continue;
+        const lore = selectedLores.get(key);
+        if (!lore) continue;
+        // Carry the in-memory (possibly re-bound) content, not the saved original.
+        entry.content = lore.content;
         entry.disable = false;
         entry.constant = true;
         entry.probability = 100;
