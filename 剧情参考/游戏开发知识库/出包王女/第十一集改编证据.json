@@ -1,0 +1,793 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 11,
+    "sourceTitle": "金色の闇",
+    "targetTitle": "金色暗影（小暗初登场；未注册研究稿）"
+  },
+  "sources": [
+    {
+      "id": "tbs-episode-11",
+      "kind": "official-metadata",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "supports": "第十一集标题、美柑让原作梨斗外出购物、与春菜同行、金发少女是宇宙杀手金色暗影，以及菈菈为保护目标与她战斗的官方主轴；页面日期字符串含笔误，播出日不单独依赖此页。"
+    },
+    {
+      "id": "xebec-episode-11",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode11.html",
+      "supports": "第十一集标题、金色暗影受托消灭梨斗、萨斯丁出手相救、2008-06-12 25:59 至 26:29 的播出信息，以及脚本、分镜、演出和作画监督。"
+    },
+    {
+      "id": "telasa-episode-11",
+      "kind": "official-metadata",
+      "location": "https://www.telasa.jp/videos/252293",
+      "supports": "持牌流媒体页面旁证金色暗影以杀手身份袭击目标、菈菈保护目标并与她交战的主轴，并给出约 24 分钟时长。"
+    },
+    {
+      "id": "xebec-yami-design",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru2/design03.html",
+      "supports": "后续官方角色设计页稳定旁证金色暗影是接受任务的危险杀手，并能以 Trans 能力使身体组织武器化；仅用于机制与职业身份，不倒灌后期关系状态。"
+    },
+    {
+      "id": "fandom-episode-11",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Golden_Darkness_%28Episode%29",
+      "supports": "小暗降临、鲷鱼烧初遇、确认目标与追杀、御门说明、菈菈交战、假委托曝光、巨蛙、互相保护、第一次被称可爱、昵称由来得到说明并被允许，以及留在地球的社区剧情顺序。"
+    },
+    {
+      "id": "fandom-es-episode-11",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/es/wiki/Episodio_11",
+      "supports": "第二社区语言旁证虚假目标资料、小暗质问拉可斯波、衣物破坏型巨蛙、菈菈保护小暗和小暗留在地球继续监视目标的顺序。"
+    },
+    {
+      "id": "community-subtitle-ep11",
+      "kind": "direct-frame",
+      "location": "第十一集字幕时间锚点.md",
+      "supports": "本轮直接核读社区英文 ASS 后保存的意译时间码：05:45 至 10:47 支持鲷鱼烧、身份确认、不还手造成资料裂缝、萨斯丁与御门；14:21 至 22:02 支持假情报、孤独、拉可斯波自白、小暗独立质问、保护链、可爱、昵称、继续任务与接受朋友邀请。按证据包类型，直接字幕／转录时间码归入 direct-frame，但它不是官方译文，画面构图仍待直接看片。"
+    },
+    {
+      "id": "manga-chapter-35",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Golden_Darkness_%28Chapter%29",
+      "supports": "用于比较漫画 Trouble 35 的小暗初遇、鲷鱼烧和委托展开；只标记 TV 改编差异，不把漫画顺序覆盖到第十一集。"
+    },
+    {
+      "id": "manga-chapter-36",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Force_of_the_Darkness",
+      "supports": "用于比较漫画 Trouble 36 的追杀、Trans 与拉可斯波较早介入等素材；TV 版延后委托人揭露。"
+    },
+    {
+      "id": "manga-chapter-37",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Princess_.vs._Assassin",
+      "supports": "用于比较漫画 Trouble 37 的公主对杀手冲突与被删改支线，不作为 TV 原创购物、澡堂或保护链顺序的替代证据。"
+    },
+    {
+      "id": "manga-chapter-38",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/The_Darkness_Lightens_Up%3F",
+      "supports": "用于比较漫画 Trouble 38 的冲突收束；TV 版明确增加并强化互相保护及朋友邀请结尾。"
+    },
+    {
+      "id": "project-role-authority",
+      "kind": "project-authority",
+      "location": "../../../MODULES.md",
+      "supports": "User 是唯一主角并承接原作男性梨斗的故事职能；男性梨斗不作为另一人物存在；夕崎梨子是 User 的青梅兼美柑姐姐，不继承主角职能；项目最新称呼使用小暗。"
+    },
+    {
+      "id": "project-yami-card",
+      "kind": "project-authority",
+      "location": "../../../data/default-cards/yami.json",
+      "supports": "项目已有 id 为 yami 的默认角色卡与部分能力、兴趣素材，但显示名伊芙、男性梨斗目标和入学等后期内容与第十一集初登场冲突，只能作为待清理的本地反证，不能主导本集。"
+    },
+    {
+      "id": "project-yami-availability",
+      "kind": "project-authority",
+      "location": "../../../data/characterAvailability.ts",
+      "supports": "当前小暗角色可用性仍为 locked；完成研究资料不等于允许解锁、显示或注册角色。"
+    },
+    {
+      "id": "runtime-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "supports": "当前主线只注册第一至第四集；第十一集没有运行时剧集模板、游戏日期、世界书幕、场景或状态接线。"
+    },
+    {
+      "id": "character-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/characters/index.ts",
+      "supports": "当前 GAL 分层角色注册表没有小暗，仅有菈菈、春菜、美柑和梨子；静态图片存在不等于小暗角色模块可用。"
+    },
+    {
+      "id": "user-debut-priority",
+      "kind": "project-authority",
+      "location": "用户本轮明确要求（2026-08-05）",
+      "supports": "用户明确要求继续整理第十一集，并以小暗登场为本轮主题。"
+    },
+    {
+      "id": "debut-editorial-focus",
+      "kind": "inference",
+      "location": "本轮对官方主轴、社区顺序与字幕时间锚点的编辑归纳（2026-08-05）",
+      "supports": "为回应小暗登场主题，本稿把日常购物、战斗笑点和委托人危机组织成她从职业杀手到第一次动摇的连续人物弧；这是编辑归纳，不是用户逐字要求或官方元数据。"
+    },
+    {
+      "id": "research-date-placeholder",
+      "kind": "inference",
+      "location": "本证据包研究期结构占位（2026-08-05）",
+      "supports": "为满足证据包 v2 结构，暂以官方播出日 2008-06-12 作为未注册研究单元的日期占位；它不是游戏内日期，正式适配前必须在第五至第十集连续性冻结后重新分配。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "tbs-date-typo",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "staleClaim": "TBS 页面显示的 2008/06/012 可以原样当作有效播出日期。",
+      "resolution": "该字符串不是有效日期；采用 XEBEC 节目页明确给出的 2008-06-12 25:59 至 26:29，并把 TBS 页只用于剧情主轴。"
+    },
+    {
+      "id": "codename-not-eve",
+      "location": "../../../data/default-cards/yami.json",
+      "staleClaim": "伊芙是少女在《To LOVE-Ru》第十一集中自报并被官方确认的真实姓名。",
+      "resolution": "本集只确认杀手代号金色暗影，以及菈菈使用并在终场解释由闇缩成的小暗／ヤミちゃん昵称；伊芙来自项目旧卡的跨作品设计来源，本稿不能把它写成正片真名。"
+    },
+    {
+      "id": "later-state-backfill",
+      "location": "../../../data/default-cards/yami.json",
+      "staleClaim": "小暗初登场时已经在彩南高中入学、长期读书、明确最爱鲷鱼烧，并且暗杀任务名存实亡。",
+      "resolution": "第十一集只冻结第一次吃鲷鱼烧、孤独生活、职业原则、继续任务和接受朋友邀请；入学、长期习惯与任务关系属于后续状态，不得倒灌。"
+    },
+    {
+      "id": "male-rito-card-drift",
+      "location": "../../../data/default-cards/yami.json",
+      "staleClaim": "项目改编中仍有一名男性结城梨斗作为小暗的暗杀目标，User 只是旁观者。",
+      "resolution": "按 MODULES.md，正式改编由 User 独占原作梨斗的购物、鲷鱼烧、目标、不还手、受保护与保护菈菈等职能；不得生成另一名男性梨斗。"
+    },
+    {
+      "id": "official-synopsis-is-not-finale",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode11.html",
+      "staleClaim": "官方短梗概没有写拉可斯波、可爱、昵称和朋友邀请，因此这些事件不存在或可以删除。",
+      "resolution": "官方梗概只负责身份与主轴；详细顺序由社区剧情页和带时间码字幕交叉支持。终场锚点可作为社区级必须保留项，但不能伪称官方逐字台词。"
+    },
+    {
+      "id": "manga-order-not-tv-order",
+      "location": "https://toloveru.fandom.com/wiki/Golden_Darkness_%28Chapter%29",
+      "staleClaim": "TV 第十一集应按漫画 Trouble 35 至 38 的原顺序，让拉可斯波在前段通讯中暴露，并保留沙姬别墅票等支线。",
+      "resolution": "TV 版新增美柑跑腿与春菜购物段，延后拉可斯波揭露，删除或重写漫画支线，并强化互相保护和朋友邀请；整理 TV 集数时以 TV 顺序为准。"
+    },
+    {
+      "id": "gama-species-spelling",
+      "location": "第十一集字幕时间锚点.md",
+      "staleClaim": "社区资料中的 Irogaama、Erogama 或其他罗马字拼法已经构成巨蛙的唯一官方种族名。",
+      "resolution": "当前只稳定写宠物名 Gama-Tan／ガマたん及黏液破坏衣物的效果，不固定相互冲突的种族罗马字。"
+    },
+    {
+      "id": "community-subtitle-not-official",
+      "location": "第十一集字幕时间锚点.md",
+      "staleClaim": "社区英文 ASS 的英文措辞可以作为日文官方逐字台词或正式译名。",
+      "resolution": "字幕只作为带时间码的语义证据并与剧情页交叉核对；小暗昵称、假情报精确项目、Trans 招式、巨蛙名称和逐字语气仍须日文正片或台本复核。"
+    },
+    {
+      "id": "static-assets-not-unlock",
+      "location": "../../../data/characterAvailability.ts",
+      "staleClaim": "仓库中已有 darkness.jpg、Q 版图和单张立绘，所以小暗已经可在 GAL 主线中解锁并显示。",
+      "resolution": "当前可用性仍锁定，分层角色注册表也没有小暗模块、姓名牌或确认可用的坐标纹理；静态素材只证明候选资产存在，不授予运行时接入。"
+    },
+    {
+      "id": "airdate-not-game-date",
+      "location": "本证据包研究期结构占位（2026-08-05）",
+      "staleClaim": "2008-06-12 是第十一集已经获准注册的游戏内日期，并应立刻扣除行动点和结算角色状态。",
+      "resolution": "该日期仅为结构校验所需的官方播出日占位；第五至第十集连续性、角色权威、分层资源与状态合同冻结前不得注册或结算。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "替美柑购物、与春菜短暂同行、向陌生少女分享鲷鱼烧、成为暗杀目标且不还手、受到保护、保护菈菈并建议小暗回宇宙的主角位置",
+      "target": "User",
+      "inherit": [
+        "承接结城家跑腿、春菜购物同行和回家路上的鲷鱼烧初遇",
+        "被小暗确认成目标并遭追杀，以躲避和不主动反击制造资料裂缝",
+        "接受萨斯丁与菈菈的保护，在拉可斯波攻击菈菈时主动保护她并反击委托人",
+        "危机结束后建议小暗停止追杀并回宇宙"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名现实人物并存",
+        "替 User 固定对春菜的约会期待、对小暗的恐惧、愤怒、原谅、信任或恋爱",
+        "让 User 用证据或命令替小暗判断委托资料、宣布合同失效或决定留在地球",
+        "把同一主角职能分给夕崎梨子"
+      ]
+    },
+    {
+      "original": "金色暗影／金色の闇",
+      "storyFunction": "接受暗杀委托的宇宙杀手、Trans 能力使用者、亲眼核对目标与委托资料、独立质问委托人，并在职业原则和第一次善意之间保留矛盾的小暗",
+      "target": "金色暗影（后称小暗，项目 id：yami）",
+      "inherit": [
+        "以冷静杀手身份降临，第一次接受 User 分享的鲷鱼烧后才确认他就是目标",
+        "发动追杀并因 User 不还手、鲷鱼烧和菈菈证词逐步怀疑极恶之徒资料",
+        "保留 Trans、职业原则、独自在宇宙生活的孤独和对好色越界行为的厌恶",
+        "由她本人质问拉可斯波提供假情报，亲眼见证菈菈与 User 的保护链",
+        "第一次被称作可爱、接受小暗昵称，最后同时保留继续任务与答应交朋友"
+      ],
+      "exclude": [
+        "把伊芙写成她在本集确认的官方真名",
+        "提前写入入学、长期读书习惯、鲷鱼烧已是最爱、恋爱或暗杀任务名存实亡",
+        "被 User 或菈菈说教后立刻洗白、倒戈或正式取消任务",
+        "因研究完成而自动解锁角色、创建世界书或接入 GAL 分层模块"
+      ]
+    },
+    {
+      "original": "菈菈",
+      "storyFunction": "保护暗杀目标、挑战小暗、否定假资料、拒绝拉可斯波、保护小暗、击退威胁，并用可爱、昵称和朋友邀请打开关系缺口",
+      "target": "菈菈",
+      "inherit": [
+        "主动保护 User 并接过与小暗交战的位置",
+        "明确否认 User 威胁或囚禁自己，并与小暗谈及离开宫殿理解外界",
+        "拒绝拉可斯波为求婚而雇凶的做法，并替受到不义攻击的小暗挡下攻击",
+        "在 User 保护自己之后最终击退巨蛙和拉可斯波",
+        "称小暗可爱、说明并延续小暗昵称、主动邀请她成为朋友"
+      ],
+      "exclude": [
+        "由 User 指挥她保护、战斗、拒婚或交朋友",
+        "替小暗宣布委托无效、替她决定留在地球或抹消职业原则",
+        "把保护宣言自动结算成 User 接受婚约、固定恋爱或好感变化",
+        "把最终危机改成 User 单独击败所有敌人"
+      ]
+    },
+    {
+      "original": "拉可斯波",
+      "storyFunction": "为了排除婚约竞争者而雇凶、提供虚假目标资料、在受托者质疑后转而攻击她并召出巨蛙的委托与危机所有者",
+      "target": "拉可斯波",
+      "inherit": [
+        "在 TV 后半段才现身并承认自己是委托人",
+        "以除掉菈菈婚约对象后向她求婚为真实动机",
+        "无法解释目标资料与现实不符，转而用雇主身份强迫小暗服从",
+        "召出 Gama-Tan 攻击或羞辱小暗，最后与宠物一起被菈菈击退"
+      ],
+      "exclude": [
+        "提前到前半段主动揭晓，照搬漫画通讯顺序",
+        "写成不知情的传话人、被第三方骗了的无辜雇主或小暗的朋友",
+        "让 User 策划他的自白或用万能证据迫使他承认",
+        "在本集结束后继续保留为已注册长期反派状态"
+      ]
+    },
+    {
+      "original": "萨斯丁",
+      "storyFunction": "第一次拦截小暗攻击、说明自己保护准驸马并与她短暂交手，随后因地球环境笑点退场的王室卫队长",
+      "target": "萨斯丁",
+      "inherit": [
+        "在小暗准备完成暗杀时挡下攻击",
+        "以戴比路克王室卫队长身份与她交手",
+        "因井口或地面机关意外掉落，把主战位置交给菈菈"
+      ],
+      "exclude": [
+        "独自击败小暗或完成后半危机",
+        "替御门说明 Trans、替小暗核对情报或揭露拉可斯波",
+        "把地球环境笑点写成永久重伤或战力定论"
+      ]
+    },
+    {
+      "original": "御门凉子",
+      "storyFunction": "认出金色暗影、说明她的危险程度与 Trans 身体武器化能力，并向现场人物提供辨识信息",
+      "target": "御门凉子",
+      "inherit": [
+        "辨认金色暗影这一杀手代号",
+        "说明 Trans 能使身体组织武器化并提示其危险性",
+        "保持观察与提醒的校医位置"
+      ],
+      "exclude": [
+        "替小暗判断委托资料真假或命令她倒戈",
+        "参与拉可斯波揭露、巨蛙决战或朋友邀请",
+        "用后期身世知识在初登场时公开伊芙真名"
+      ]
+    },
+    {
+      "original": "西连寺春菜",
+      "storyFunction": "前段与主角共同购物并制造短暂约会感，使平静地球日常与随后的宇宙暗杀形成反差",
+      "target": "西连寺春菜",
+      "inherit": [
+        "在购物街偶遇 User 并短暂同行",
+        "朋友出现后自然分开，让 User 独自完成跑腿",
+        "只承担前段平静日常和未说出口交流的关系张力"
+      ],
+      "exclude": [
+        "目击小暗、被误认成暗杀目标或参与后半战斗",
+        "替 User 固定约会、告白、失望或恋爱结论",
+        "让本集购物同行生成好感、路线或约会完成状态"
+      ]
+    },
+    {
+      "original": "结城美柑",
+      "storyFunction": "在结城家零用钱日常中让主角外出购物，从而启动前段街头路线",
+      "target": "结城美柑",
+      "inherit": [
+        "参与萨斯丁给菈菈零用钱的家庭日常",
+        "指出 User 要负责购物或遗漏物品，使他独自外出",
+        "保持结城家务实吐槽与跑腿委托位置"
+      ],
+      "exclude": [
+        "参与街头暗杀、巨蛙战斗或后半朋友邀请",
+        "提前建立她与小暗的后续亲密关系",
+        "让夕崎梨子替代她的家庭委托职能"
+      ]
+    },
+    {
+      "original": "沛凯",
+      "storyFunction": "在巨蛙危机中识别其黏液只破坏衣物的效果，并辅助菈菈恢复战斗条件",
+      "target": "沛凯",
+      "inherit": [
+        "识别 Gama-Tan 及黏液的特殊效果",
+        "在危机中保持菈菈服装机器人与战斗辅助职能"
+      ],
+      "exclude": [
+        "虚构尚未核实的巨蛙种族罗马字为官方专名",
+        "把衣物破坏扩写成露骨身体展示",
+        "由沛凯而不是菈菈完成最终击退"
+      ]
+    },
+    {
+      "original": "校长与公共浴场路人",
+      "storyFunction": "承担战斗误入、窥视越界与小暗反击好色行为的短喜剧职能",
+      "target": "校长与未具名路人",
+      "inherit": [
+        "保留战斗误入公共空间造成的误会",
+        "保留校长越界行为触发小暗厌恶和反击的因果"
+      ],
+      "exclude": [
+        "细写未成年角色身体、裸露、衣物状态或性化反应",
+        "把越界者行为合理化、浪漫化或让小暗被迫容忍",
+        "让短笑点压过假委托与人物转折主线"
+      ]
+    },
+    {
+      "original": "夕崎梨子（企划独立角色）",
+      "storyFunction": "User 的青梅兼美柑姐姐；原动画第十一集没有对应的暗杀目标、鲷鱼烧赠予者、春菜同行者或小暗判断职能",
+      "target": "夕崎梨子",
+      "inherit": [
+        "符合最新项目权威的青梅与美柑姐姐身份",
+        "若正式适配需要，只能获得有限家庭反应或事后提醒位置",
+        "保持独立角色和独立攻略可能"
+      ],
+      "exclude": [
+        "原作梨斗的跑腿、春菜同行、鲷鱼烧、暗杀目标、不还手、受保护与保护菈菈职能",
+        "美柑的跑腿委托位置或菈菈的保护与朋友邀请位置",
+        "全知小暗身份、拉可斯波委托、Trans 或巨蛙机制",
+        "沿用旧资料中与美柑非姐妹的过时口径"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是正式改编时唯一承接原作梨斗第十一集剧情职能的主角；本研究稿仍用原作姓名描述动画事实，小暗在适配语境中的暗杀目标必须映射为 User。",
+    "fixed": [
+      "正式改编中不存在另一名男性结城梨斗",
+      "User 负责美柑的购物跑腿、与春菜短暂同行、把鲷鱼烧分享给陌生少女并成为暗杀目标",
+      "小暗主动追杀，User 以躲避和不主动反击造成委托资料裂缝；不能改成 User 先设局感化她",
+      "菈菈主动保护 User、否认假资料、保护小暗并最终击退拉可斯波；这些决定属于菈菈",
+      "小暗亲自把观察、鲷鱼烧和菈菈证词与委托资料比较，并独立质问拉可斯波",
+      "保护链顺序是菈菈护小暗、User 护菈菈、菈菈终结威胁",
+      "结尾同时保留小暗继续把 User 当目标、留在地球完成任务，以及答应菈菈成为朋友",
+      "夕崎梨子不继承本集原作主角、春菜、美柑、菈菈或小暗的职能"
+    ],
+    "reserved": [
+      "User 与春菜同行时是否把它理解为约会、是否主动表达感情以及分别后的情绪",
+      "User 分享鲷鱼烧的具体动机、措辞和对陌生少女的第一印象",
+      "User 面对暗杀时的恐惧与愤怒、在不主动反击这一固定结果内的躲避、防御与沟通细节，以及是否愿意原谅小暗",
+      "User 对萨斯丁与菈菈保护自己的反应，以及保护菈菈时的具体对白和身体行动细节",
+      "User 是否接受菈菈所说的婚约关系、如何回应拉可斯波和如何理解小暗留下",
+      "User 对春菜、菈菈、小暗、美柑、梨子和其他角色的好感、信任、亲密与路线选择",
+      "正式游戏触发日期、行动点、好感、关系、角色解锁、入学、任务状态和事件完成状态"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep11.yami-peaceful-arrival",
+      "summary": "金发少女降临并观察这颗看似和平的星球；观众先看到她冷静、孤立的外来者姿态，暂不揭露委托人。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "causalOwners": [
+        "金色暗影：作为独自抵达地球的任务执行者开启事件"
+      ]
+    },
+    {
+      "id": "ep11.allowance-shopping-errand",
+      "summary": "萨斯丁给菈菈零用钱，结城家围绕地球金钱形成日常笑点；美柑提醒原作梨斗负责购物或补买遗漏物品，使他独自上街。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "正式改编由 User 承接跑腿；美柑保留发起日常委托的位置，不让梨子替换。",
+      "causalOwners": [
+        "萨斯丁：给菈菈零用钱并触发家庭金钱笑点",
+        "美柑：提出购物任务",
+        "User：承接外出跑腿"
+      ]
+    },
+    {
+      "id": "ep11.haruna-shopping-interlude",
+      "summary": "原作梨斗在购物街偶遇春菜，两人短暂同行并出现约会般的轻松气氛；春菜朋友到来后双方分开，她不目击后续暗杀。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "由 User 承接同行位置，只冻结外部事件和春菜未进入后半危机，不替玩家固定约会感、恋爱表达或失落情绪。",
+      "causalOwners": [
+        "User 与春菜：共同完成短暂购物同行",
+        "春菜的朋友：自然结束同行，使 User 独自继续跑腿"
+      ]
+    },
+    {
+      "id": "ep11.taiyaki-first-contact",
+      "summary": "原作梨斗完成购物后买了鲷鱼烧，注意到陌生金发少女便主动分给她一个；她第一次吃下这种地球食物，在确认目标之前先获得一份无戒备的善意。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "正式改编由 User 分享鲷鱼烧；不能提前把它写成小暗已知的最爱，也不能让分享成为玩家预先设计的感化陷阱。",
+      "causalOwners": [
+        "User：主动分享食物",
+        "金色暗影：以陌生人身份接受并记住这次接触"
+      ]
+    },
+    {
+      "id": "ep11.assassination-declaration",
+      "summary": "少女确认面前的人就是委托目标，表明受雇前来消灭他且没有私人恩怨，随即用身体武器化能力发动追杀。",
+      "status": "adapted",
+      "sourceRefs": [
+        "xebec-episode-11",
+        "fandom-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "正式改编把暗杀目标从原作梨斗映射为 User；少女的主动追杀是外部事实，但不替 User 固定恐惧、愤怒或原谅。",
+      "causalOwners": [
+        "金色暗影：确认目标、说明受托关系并主动攻击",
+        "User：成为唯一目标并选择当下应对"
+      ]
+    },
+    {
+      "id": "ep11.nonretaliation-data-crack",
+      "summary": "User 只躲避而不主动还手，使小暗把眼前行为与委托书中极恶之徒的描述比较，并第一次明确产生资料不符的疑问。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "保留不主动反击这一剧情结果与小暗的观察权；具体躲避、沟通和情绪由玩家权威决定，不能改成 User 宣读证据说服她。",
+      "causalOwners": [
+        "User：以不主动还手提供现场反证",
+        "金色暗影：自行观察并产生第一道怀疑"
+      ]
+    },
+    {
+      "id": "ep11.zastin-and-mikado",
+      "summary": "萨斯丁挡下致命攻击并与小暗短暂交手；御门凉子认出金色暗影，说明其杀手身份与 Trans 身体武器化能力，萨斯丁随后因地球环境意外退场。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "xebec-episode-11",
+        "xebec-yami-design",
+        "fandom-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "causalOwners": [
+        "萨斯丁：第一次拦截并交战",
+        "御门凉子：辨认身份和说明能力",
+        "地球环境笑点：使萨斯丁退场而不判定战力胜负"
+      ]
+    },
+    {
+      "id": "ep11.lala-versus-yami",
+      "summary": "萨斯丁退场后，菈菈主动保护 User 并挑战小暗；两人的高速战斗与菈菈发明失误把严肃暗杀不断转成地球式混乱。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-11",
+        "telasa-episode-11",
+        "fandom-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "adaptation": "菈菈必须自行发起保护和战斗，User 不能命令她接战；正式场景资源和发明造型需直接看片后再冻结。",
+      "causalOwners": [
+        "菈菈：主动保护 User 并成为主战者",
+        "金色暗影：坚持执行委托并与菈菈交战"
+      ]
+    },
+    {
+      "id": "ep11.pervert-aversion",
+      "summary": "战斗误入公共浴场造成短时误会，校长随后作出窥视或骚扰式越界行为；小暗明确厌恶好色行为并迅速反击。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "causalOwners": [
+        "战斗与路人：制造公共空间误会",
+        "校长：发起越界行为",
+        "金色暗影：表达厌恶并主动反击"
+      ]
+    },
+    {
+      "id": "ep11.false-brief-and-loneliness",
+      "summary": "小暗质问菈菈为何保护目标，并复述目标威胁或囚禁公主、企图控制戴比路克的委托资料；菈菈否认。小暗虽倾向相信资料有误，仍坚持完成接受的工作，并说出独自在宇宙生活的孤独。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "把资料中的目标映射为 User，同时保留小暗怀疑、职业原则和孤独三者并存；菈菈自行否认假资料，不能写成 User 让她作证。",
+      "causalOwners": [
+        "金色暗影：复述任务资料、综合观察并保留职业原则",
+        "菈菈：以本人经历否认被威胁或囚禁",
+        "拉可斯波：作为尚未现身的假资料提供者拥有欺骗因果"
+      ]
+    },
+    {
+      "id": "ep11.lacospo-client-reveal",
+      "summary": "拉可斯波直到后半段才现身，承认自己雇佣小暗，是为了除掉菈菈的婚约对象后向她求婚；菈菈因其雇凶行为明确拒绝。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "正式改编把被排除的婚约竞争者映射为 User，但不因菈菈或拉可斯波的称呼自动确认玩家接受婚约。保留 TV 延后揭露，不套用漫画前段通讯。",
+      "causalOwners": [
+        "拉可斯波：承认雇凶并暴露私欲",
+        "菈菈：自行拒绝求婚和雇凶逻辑"
+      ]
+    },
+    {
+      "id": "ep11.yami-challenges-false-data",
+      "summary": "面对委托人，小暗根据自己观察到的目标行为主动质问拉可斯波为何提供不准确资料；拉可斯波无法解释，只试图用雇主身份要求服从。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "adaptation": "怀疑、核对和问责必须由小暗本人完成；User 与菈菈只提供她可观察的反证，不能替她宣布合同无效或命令倒戈。",
+      "causalOwners": [
+        "金色暗影：独立核对事实并追问委托诚信",
+        "拉可斯波：无法解释并试图强制服从"
+      ]
+    },
+    {
+      "id": "ep11.gamatan-clothing-slime",
+      "summary": "拉可斯波因小暗质疑而召出巨型宠物蛙 Gama-Tan 攻击她；沛凯说明其黏液的特殊效果是破坏衣物，委托关系由争执升级为对受托者的羞辱与惩罚。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "causalOwners": [
+        "拉可斯波：因谎言受质疑而召出宠物攻击小暗",
+        "Gama-Tan：执行攻击并产生衣物破坏型黏液威胁",
+        "沛凯：识别效果和危险"
+      ]
+    },
+    {
+      "id": "ep11.protection-chain-and-defeat",
+      "summary": "菈菈替刚才仍是敌人的小暗挡下恶意攻击，User 随后保护菈菈并反击拉可斯波；巨蛙继续威胁时，菈菈最终击退巨蛙与委托人。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11",
+        "project-role-authority"
+      ],
+      "adaptation": "严格保留菈菈护小暗、User 护菈菈、菈菈终结威胁的三段所有权；User 的具体措辞和动作可互动化，但不能改成单人打败全部敌人。",
+      "causalOwners": [
+        "菈菈：先保护小暗，并最终解除巨蛙与拉可斯波的威胁",
+        "User：看到菈菈受攻击后主动保护她并反击拉可斯波",
+        "金色暗影：亲眼见证与假资料冲突的互相保护"
+      ]
+    },
+    {
+      "id": "ep11.cute-and-nickname-acceptance",
+      "summary": "危机后，小暗追问菈菈为何保护敌人；菈菈说无法容忍拉可斯波欺负像她这样可爱的女孩。小暗第一次听到自己被称可爱；随后 User 追问既有叫法，菈菈说明小暗／ヤミちゃん昵称来自闇，小暗没有拒绝。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "community-subtitle-ep11"
+      ],
+      "causalOwners": [
+        "菈菈：把小暗作为普通而可爱的女孩看待，并说明一直使用的亲昵称呼由来",
+        "金色暗影：承认第一次被如此评价且允许昵称继续使用"
+      ]
+    },
+    {
+      "id": "ep11.stay-target-friend-ending",
+      "summary": "User 建议委托人已败的小暗回宇宙；她因不愿放弃接受的工作，决定留在地球直到消灭目标。菈菈随即邀请她成为朋友，小暗答应，任务未取消与友情成立同时成为结尾。",
+      "status": "adapted",
+      "sourceRefs": [
+        "fandom-episode-11",
+        "fandom-es-episode-11",
+        "community-subtitle-ep11",
+        "project-yami-availability"
+      ],
+      "adaptation": "目标映射为 User；保留 User 建议回宇宙但不替玩家固定原谅或信任。小暗自行决定留下并继续任务，菈菈自行邀请，小暗答应；不得结算任务取消、入学、角色解锁或恋爱。",
+      "causalOwners": [
+        "User：提出停止追杀并回宇宙的建议",
+        "金色暗影：以职业原则决定留下，同时接受朋友邀请",
+        "菈菈：把留下转化为继续来往的朋友邀请"
+      ]
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep11.yami-peaceful-arrival",
+    "ep11.allowance-shopping-errand",
+    "ep11.haruna-shopping-interlude",
+    "ep11.taiyaki-first-contact",
+    "ep11.assassination-declaration",
+    "ep11.nonretaliation-data-crack",
+    "ep11.zastin-and-mikado",
+    "ep11.lala-versus-yami",
+    "ep11.pervert-aversion",
+    "ep11.false-brief-and-loneliness",
+    "ep11.lacospo-client-reveal",
+    "ep11.yami-challenges-false-data",
+    "ep11.gamatan-clothing-slime",
+    "ep11.protection-chain-and-defeat",
+    "ep11.cute-and-nickname-acceptance",
+    "ep11.stay-target-friend-ending"
+  ],
+  "forbidden": [
+    "把伊芙写成小暗在第十一集中自报或被官方确认的真实姓名",
+    "把金色暗影从杀手代号写成众人一开始就知道的本名，或把小暗／ヤミちゃん写成她登场前已有的正式称呼",
+    "把第一次接受鲷鱼烧写成她已经公开确认最爱这种食物，或让 User 预先知道爱好并设计感化陷阱",
+    "让男性结城梨斗作为另一名现实人物登场或继续作为小暗的目标",
+    "让夕崎梨子继承 User 的跑腿、春菜同行、鲷鱼烧、暗杀目标、不还手、受保护、保护菈菈或劝小暗回宇宙职能",
+    "让春菜目击小暗、参与追杀、被误认成目标或进入拉可斯波危机",
+    "替 User 固定与春菜的约会定义、面对暗杀的恐惧或愤怒、对小暗的原谅、信任、恋爱或对白",
+    "让 User 或菈菈拿出万能证据、命令小暗倒戈、替她质问委托人或宣布合同失效",
+    "删掉鲷鱼烧初遇、不还手导致资料裂缝、假情报、小暗独立质问、互相保护、第一次被称可爱、昵称或双重结尾中的任一核心锚点",
+    "把小暗写成因战败立即洗白、正式取消任务、承诺不再伤害 User 或公开加入主角阵营",
+    "把保护链合并成 User 一个人击败所有敌人，或删去菈菈护小暗、User 护菈菈、菈菈终结威胁的所有权",
+    "把拉可斯波写成无辜传话人，或把提供假情报、雇凶和攻击受托者的责任转嫁给小暗、菈菈、User 或第三方",
+    "按漫画顺序提前揭露拉可斯波、加入沙姬别墅票等漫画支线，覆盖 TV 版购物、延后揭露与朋友邀请",
+    "固定社区资料中相互冲突的巨蛙种族罗马字，或把字幕英文措辞宣称为官方日文逐字台词",
+    "扩写澡堂、黏液、衣物破坏或校长骚扰为对未成年角色身体的露骨、性化或持续展示",
+    "把研究日期占位 2008-06-12 当作获准的游戏内触发日期",
+    "让研究稿结算日期、AP、好感、婚约、角色解锁、入学、任务取消、世界书、场景或事件完成状态",
+    "仅因已有单张 darkness 静态图或 yami 默认卡就宣称分层立绘、姓名牌、角色模块和运行时接入已经完成",
+    "在第五至第十集连续性、小暗名称权威、人物世界书、分层资源与场景合同未冻结时提前注册第十一集",
+    "越过小暗答应成为朋友的结尾继续生成第十二集体育祭事件"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep11.research-unit",
+      "targetDate": "2008-06-12",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "研究结构从金色暗影降临和平地球、结城家零用钱与美柑购物委托开始；日期暂借官方播出日占位，不是游戏内授权日期。",
+      "end": "危机解除后，小暗以职业原则宣布留在地球继续把 User 当目标，随后接受菈菈的朋友邀请；在任务未取消与友情成立同时保留处结束，不得进入第十二集。",
+      "mustKeepBeatIds": [
+        "ep11.yami-peaceful-arrival",
+        "ep11.allowance-shopping-errand",
+        "ep11.haruna-shopping-interlude",
+        "ep11.taiyaki-first-contact",
+        "ep11.assassination-declaration",
+        "ep11.nonretaliation-data-crack",
+        "ep11.zastin-and-mikado",
+        "ep11.lala-versus-yami",
+        "ep11.pervert-aversion",
+        "ep11.false-brief-and-loneliness",
+        "ep11.lacospo-client-reveal",
+        "ep11.yami-challenges-false-data",
+        "ep11.gamatan-clothing-slime",
+        "ep11.protection-chain-and-defeat",
+        "ep11.cute-and-nickname-acceptance",
+        "ep11.stay-target-friend-ending"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "integrationStatus": "unregistered-research-placeholder",
+    "dateBasis": "2008-06-12 是官方播出日占位，不是游戏内日期；第五至第十集连续性、小暗名称与初登场权威、人物世界书、分层立绘、姓名牌、场景和状态合同冻结前不得注册。",
+    "acts": [
+      {
+        "boundaryId": "ep11.research-unit",
+        "targetDate": "2008-06-12",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ]
+  },
+  "semanticCases": [
+    {
+      "id": "ep11.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选先让金色暗影降临和平地球，再以萨斯丁给菈菈零用钱、美柑让 User 购物和 User 与春菜短暂同行铺垫日常。User 把鲷鱼烧分给陌生少女后，她才确认他是受托消灭的目标；User 只躲避不还手，使她怀疑极恶之徒资料。萨斯丁拦截、御门说明 Trans，随后菈菈主动保护 User 并与小暗交战；澡堂误会和校长越界只中性带过，以小暗厌恶好色行为收束。小暗复述 User 威胁菈菈、图谋戴比路克的假资料，听见菈菈否认并谈及自己的孤独，却仍坚持职业原则。拉可斯波后半现身，承认为了娶菈菈而雇凶；小暗亲自质问资料不实，他便召出衣物破坏型巨蛙攻击她。菈菈保护小暗，User 再保护菈菈，最终由菈菈击退巨蛙与委托人。菈菈称小暗可爱，说明一直使用的“小暗”昵称由来，小暗允许该称呼继续使用；她最后仍说会留在地球继续完成暗杀，却也答应菈菈成为朋友。",
+      "reviewCriteria": [
+        "十六个 must-keep 节拍均能按语义辨认，角色发起者与保护链所有权没有漂移",
+        "鲷鱼烧、不还手、假资料、独立质问、可爱、昵称以及继续任务与接受友情的双重结尾完整连续",
+        "没有把伊芙写成本集真名，没有提前取消任务、入学、恋爱、解锁或结算运行时状态"
+      ]
+    },
+    {
+      "id": "ep11.reject-missing-taiyaki-anchor",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选保留金色暗影降临和平地球、萨斯丁给零用钱、美柑让 User 购物、User 与春菜同行后分开；也保留少女确认目标并追杀、User 不主动还手造成资料裂缝、萨斯丁拦截、御门说明 Trans、菈菈接战、澡堂误会与小暗反击校长越界。后半仍写小暗复述假情报并谈孤独和职业原则、拉可斯波延后现身自白、小暗独立质问、衣物破坏型巨蛙、菈菈护小暗—User 护菈菈—菈菈终结威胁、第一次被称可爱、昵称由来与允许，以及继续任务同时接受友情的结尾；唯一删掉的是 User 在知道少女身份前分享鲷鱼烧，小暗第一次见面就直接确认目标并动手。",
+      "reviewCriteria": [
+        "只缺少鲷鱼烧这一项也必须拒绝，因为它是小暗在确认目标前获得的第一份亲眼反证",
+        "不能用普通寒暄、事后送食物或预知爱好投喂替代先善意后确认目标的顺序",
+        "其余节拍齐全不构成删除人物标志性锚点的理由"
+      ]
+    },
+    {
+      "id": "ep11.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选让夕崎梨子替美柑去购物、与春菜同行、把鲷鱼烧送给小暗，又成为暗杀目标并以不还手让她动摇；危机中梨子还替 User 保护菈菈，User 只在家里听说事件。",
+      "reviewCriteria": [
+        "原作梨斗的第十一集主角职能只能由 User 承接",
+        "美柑的跑腿委托和春菜的同行位置也不能被梨子一并夺走",
+        "梨子若出现只能保留青梅兼美柑姐姐的有限独立位置"
+      ]
+    },
+    {
+      "id": "ep11.reject-yami-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选写成 User 早已知道拉可斯波雇凶，于是故意用鲷鱼烧设局并拿出伪造委托书的完整证据，命令小暗当场解除合同；小暗没有自己核对观察或质问雇主，只因 User 的说教立即倒戈，随后由 User 单独打败巨蛙和拉可斯波。",
+      "reviewCriteria": [
+        "小暗必须根据亲眼观察、鲷鱼烧、不还手和菈菈证词独立质问拉可斯波",
+        "User 不能预知爱好设局、替她宣布合同失效或获得单人救场因果",
+        "菈菈护小暗、User 护菈菈、菈菈终结威胁的所有权必须保留"
+      ]
+    },
+    {
+      "id": "ep11.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选把购物、鲷鱼烧初遇、第一次追杀、菈菈对战、拉可斯波揭露和朋友邀请分别登记为六次自由行动，自行扣除 AP，并把 2008-06-12 直接注册成游戏日期。",
+      "reviewCriteria": [
+        "当前只能视作一个未注册的 whole-day 研究单元",
+        "不得自行拆分行动、结算 AP 或把动画播出日冒充游戏日期",
+        "第五至第十集连续性未冻结时不能注册第十一集"
+      ]
+    },
+    {
+      "id": "ep11.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选在小暗宣布继续追杀又答应菈菈成为朋友后，继续写学校举行体育祭，让小暗正式作为学生报名并展开第十二集比赛。",
+      "reviewCriteria": [
+        "第十一集必须在任务与友情并存的答应处结束",
+        "体育祭属于第十二集，不能作为本集尾声",
+        "小暗的入学与可用状态也不能在研究稿中顺便结算"
+      ]
+    },
+    {
+      "id": "ep11.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选把拉可斯波败退等同于暗杀合同正式取消，让小暗立即转学彩南高中、改名伊芙并与 User 确立恋爱；同时解锁 yami 角色卡、创建人物世界书和分层模块，结算日期、AP、好感、婚约、任务完成与第十一集完成状态。",
+      "reviewCriteria": [
+        "研究稿没有取消任务、确认真名、入学、恋爱、角色解锁、世界书或分层模块写权限",
+        "答应朋友不等于不再追杀，更不等于 User 原谅、信任或建立亲密路线",
+        "日期、AP、好感、婚约、任务和完成状态必须由正式权威系统处理"
+      ]
+    }
+  ]
+}

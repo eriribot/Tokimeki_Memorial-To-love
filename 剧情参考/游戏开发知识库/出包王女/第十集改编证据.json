@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 10,
+    "sourceTitle": "宇宙の女芸人……",
+    "targetTitle": "宇宙女艺人……（斯黛拉与逃税石化终场；未注册研究稿）"
+  },
+  "sources": [
+    {
+      "id": "tbs-episode-10",
+      "kind": "official-metadata",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "supports": "第十集标题、2008-06-05 播出日、斯黛拉是菈菈的粉丝团兼友之会兼后援会会长、她希望菈菈成为宇宙偶像、菈菈因未婚夫拒绝，以及斯黛拉转而盯上春菜的官方主轴。"
+    },
+    {
+      "id": "xebec-episode-10",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode10.html",
+      "supports": "斯黛拉是芸能プロダクション社长、想让菈菈作为偶像歌手推出唱片、遭拒后要求梨斗寻找替代新人，以及 2008-06-05 25:55 至 26:25 的播出信息与制作人员。"
+    },
+    {
+      "id": "telasa-episode-10",
+      "kind": "official-metadata",
+      "location": "https://www.telasa.jp/videos/252290?page=1",
+      "supports": "持牌流媒体页面旁证斯黛拉到访、偶像企划、菈菈拒绝和转向春菜的主轴，并给出约 24 分钟时长。"
+    },
+    {
+      "id": "fandom-episode-10",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/A_Space_Entertainer",
+      "supports": "春菜梦境假开场、醒来后的菈菈骚动、萨斯丁护送斯黛拉、两次石化、寻找金蛋、锁定春菜、家庭漫才组合、逃税电话、返航撞穿屋顶与屋顶吐槽的社区剧情顺序。"
+    },
+    {
+      "id": "fandom-stella",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Stella",
+      "supports": "斯黛拉的粉丝管理背景、石化反应和夸张星探能力等社区整理；页面使用的 manager、姓氏、精确粉丝人数和致敬说明不自动视为官方设定。"
+    },
+    {
+      "id": "fandom-es-episode-10",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/es/wiki/Episodio_10",
+      "supports": "梦境与枕头假开场、斯黛拉抵达和第一次石化、春菜成为目标以及最终被返航装置送走的第二社区语言旁证；其结尾只笼统提到公司问题。"
+    },
+    {
+      "id": "community-subtitle-ep10",
+      "kind": "direct-frame",
+      "location": "第十集字幕时间锚点.md",
+      "supports": "本轮直接核读社区英文 ASS 后保存的意译时间码：05:15 至 12:58 支持三重会长、艺能公司社长、偶像企划、第一次石化与寻找金蛋；19:21 至 22:05 支持拒绝花钱试镜、炫富、逃税查出、第二次石化、返航及屋顶吐槽。按证据包类型，直接字幕／转录时间码归入 direct-frame，但它不是官方译文；穿屋顶画面仍由无对白区间与 Fandom 顺序交叉定位。"
+    },
+    {
+      "id": "project-role-authority",
+      "kind": "project-authority",
+      "location": "../../../MODULES.md",
+      "supports": "User 是唯一主角并承接原作男性梨斗的故事职能；男性梨斗不作为另一人物存在；夕崎梨子是 User 的青梅并按最新项目口径同时是美柑的姐姐。"
+    },
+    {
+      "id": "project-lala-authority",
+      "kind": "project-authority",
+      "location": "../../../data/lore-books/tolove-character-lala.txt",
+      "supports": "菈菈的项目身份、与 User／结城家的当前关系语境和行动边界；本集不能用斯黛拉的企划夺走菈菈自行拒绝的权利。"
+    },
+    {
+      "id": "project-haruna-authority",
+      "kind": "project-authority",
+      "location": "../../../data/lore-books/tolove-character-haruna.txt",
+      "supports": "春菜在项目中的独立人物身份和温和谨慎的公开信息位；被选为金蛋不等于同意签约，也不授权固定她对 User 的关系结论。"
+    },
+    {
+      "id": "project-mikan-authority",
+      "kind": "project-authority",
+      "location": "../../../data/lore-books/tolove-character-mikan.txt",
+      "supports": "美柑的家庭角色和未成年人边界；本集的三人漫才只能作为短时家庭喜剧，不能生成成人化、性化或长期演艺合同状态。"
+    },
+    {
+      "id": "runtime-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "supports": "当前主线只注册第一至第四集；第十集尚无运行时模板、游戏日期、世界书幕、场景、斯黛拉角色卡或状态接线。"
+    },
+    {
+      "id": "user-comedy-priority",
+      "kind": "project-authority",
+      "location": "用户本轮明确要求（2026-08-05）",
+      "supports": "正式研究摘要必须把斯黛拉的粉丝组织／艺能公司社长身份与结尾逃税被查出的笑点列为最高优先级，不能被春菜误会或漫才支线淹没。"
+    },
+    {
+      "id": "research-date-placeholder",
+      "kind": "inference",
+      "location": "本证据包研究期结构占位（2026-08-05）",
+      "supports": "为满足证据包 v2 结构，暂以官方播出日 2008-06-05 作为未注册研究单元的日期占位；它不是游戏内日期，正式适配前必须在第五至第九集连续性冻结后重新分配。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "manager-vs-company-president",
+      "location": "https://toloveru.fandom.com/wiki/Stella",
+      "staleClaim": "斯黛拉是菈菈已经签约的私人经纪人或专属 manager。",
+      "resolution": "官方 TBS 只确认她是三个粉丝组织的会长，XEBEC 只确认她是艺能事务所社长；统一写成粉丝组织会长兼演艺公司社长，不虚构私人经纪合约。"
+    },
+    {
+      "id": "community-name-card-unverified",
+      "location": "第十集字幕时间锚点.md",
+      "staleClaim": "社区英文字幕标题卡中的 Stella Dumpty 和英文公司名可以直接当作官方姓名与公司名。",
+      "resolution": "当前官方页面只稳定支持ステラ及芸能プロダクション社长；姓氏与公司专名在台本或日文画面核实前排除。"
+    },
+    {
+      "id": "tax-discovery-is-not-arrest",
+      "location": "第十集字幕时间锚点.md",
+      "staleClaim": "宇宙税务人员在结尾当场逮捕斯黛拉，她已经受审并被判定有罪。",
+      "resolution": "现有字幕与社区剧情只支持公司逃税被查出、公司侧要求斯黛拉马上返航并启动装置；统一写查出或暴露，不添加逮捕、审判、定罪或刑罚。"
+    },
+    {
+      "id": "unnamed-employee",
+      "location": "https://toloveru.fandom.com/wiki/A_Space_Entertainer",
+      "staleClaim": "Fandom 角色表中的 Maul 或 Smutts 必定就是打税务电话并启动返航装置的人。",
+      "resolution": "现有剧情正文和社区字幕没有可靠报出电话者姓名；只写未具名公司职员，不把闪回角色强接到结尾。"
+    },
+    {
+      "id": "opening-staging-conflict",
+      "location": "https://toloveru.fandom.com/es/wiki/Episodio_10",
+      "staleClaim": "英语与西语社区摘要对梦醒后的枕头、菈菈姿势和身体细节完全一致，可以逐项照抄。",
+      "resolution": "当前只冻结春菜梦境假开场、醒来发现菈菈在近处和晨间昏倒的节奏；具体构图、穿着与动作等待直接看片，并保持非露骨表述。"
+    },
+    {
+      "id": "official-synopsis-omits-finale",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "staleClaim": "官方短梗概停在斯黛拉盯上春菜，因此逃税、第二次石化和穿屋顶不是本集剧情。",
+      "resolution": "官方短梗概只用于定位主轴而非穷尽全片；Fandom 连续剧情与带时间码的社区字幕一致支持终场，且用户明确要求保留。终场仍标注社区证据等级，不冒充官方摘要原文。"
+    },
+    {
+      "id": "riko-mikan-stale-authority",
+      "location": "../../../data/lore-books/tolove-character-riko.txt",
+      "staleClaim": "旧角色资料写夕崎梨子不是美柑的姐姐，可在第十集适配时沿用并让她继承原作梨斗或美柑的位置。",
+      "resolution": "最新 AGENTS.md、MODULES.md 与 ALDENT_STATUS.md 的项目权威把梨子定义为 User 的青梅兼美柑姐姐；本集原作无梨子职能，研究稿不让她抢位，正式注册前先统一旧资料。"
+    },
+    {
+      "id": "unassigned-runtime-date",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "staleClaim": "研究包中的 2008-06-05 可以直接作为第十集游戏内触发日期，并立即注册、扣除行动点。",
+      "resolution": "该日期只是官方播出日和结构占位。当前主线只注册到第四集，第五至第九集连续性未冻结，第十集不得据此注册或推进状态。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "梦境与晨间假开场的视角、跟随斯黛拉回家、被迫寻找替代新人、保护春菜、参与三人漫才并关注屋顶损失的现实落点",
+      "target": "User",
+      "inherit": [
+        "从春菜梦境醒来并卷入菈菈制造的晨间骚动这一外部场面位置",
+        "发现并跟随萨斯丁与斯黛拉、被要求为偶像企划寻找金蛋",
+        "阻止斯黛拉强行带走春菜、参与结城家三人喜剧组合并在结尾注意屋顶破洞"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名现实人物并存",
+        "替 User 固定对春菜的梦境欲望、接吻选择、对菈菈的尴尬或对斯黛拉的恐惧",
+        "让 User 主动举报逃税、安排税务陷阱或启动返航装置",
+        "把同一主角职能分给夕崎梨子"
+      ]
+    },
+    {
+      "original": "菈菈",
+      "storyFunction": "认出斯黛拉、拒绝宇宙偶像企划、建立石化规则、制止迁怒并参与家庭喜剧和结尾畅想的行动人物",
+      "target": "菈菈",
+      "inherit": [
+        "主动介绍斯黛拉的粉丝团会长身份",
+        "以留在地球和已有未婚夫为由自行拒绝偶像企划",
+        "说明斯黛拉受到巨大惊吓会石化、制止她攻击主角",
+        "参与三人漫才并在斯黛拉离开后提议宇宙巡演"
+      ],
+      "exclude": [
+        "让 User 替菈菈决定是否回宇宙或是否出道",
+        "把斯黛拉的公司问题归罪给菈菈或粉丝团",
+        "因菈菈称 User 为未婚夫就自动结算 User 的婚约、好感或路线"
+      ]
+    },
+    {
+      "original": "斯黛拉（ステラ）",
+      "storyFunction": "三大粉丝组织会长、艺能事务所社长、强势星探、两次石化规则和逃税终场反转的中心",
+      "target": "斯黛拉",
+      "inherit": [
+        "粉丝团兼友之会兼后援会会长与艺能事务所社长的双层身份",
+        "提出菈菈偶像唱片企划、遭拒后逼主角找替代新人并锁定春菜",
+        "因未婚夫消息第一次石化、因公司逃税曝光第二次石化",
+        "拒绝花钱试镜、幻想财富、被公司侧强制返航并撞穿屋顶的完整喜剧因果"
+      ],
+      "exclude": [
+        "把她写成菈菈已有合约的私人经纪人",
+        "采用未获官方核实的姓氏、公司专名、精确粉丝人数或职员姓名",
+        "把逃税责任洗成无辜误会，或升级成已被逮捕和定罪",
+        "删除第一次石化，使第二次石化失去规则回收"
+      ]
+    },
+    {
+      "original": "西连寺春菜",
+      "storyFunction": "梦境假甜蜜的对象、被斯黛拉识别为金蛋的新人候选，以及阻拦动作误会的接收者",
+      "target": "西连寺春菜",
+      "inherit": [
+        "在开场梦境中形成即将亲密却突然醒来的假开场",
+        "被斯黛拉认定有明星潜力并成为强行招募目标",
+        "因主角反复阻拦斯黛拉而产生短时误会"
+      ],
+      "exclude": [
+        "替 User 固定梦境欲望、接吻动作或恋爱结论",
+        "把春菜写成已经同意签约、出道或被带走",
+        "把误会结算成永久好感下降或强制亲密关系"
+      ]
+    },
+    {
+      "original": "结城美柑",
+      "storyFunction": "对艺人企划感兴趣、参与菈菈与主角的三人家庭漫才，并以日常感衬托斯黛拉的商业幻想",
+      "target": "结城美柑",
+      "inherit": [
+        "对企划表现出符合家庭场面的兴趣或吐槽",
+        "与菈菈、User 共同形成临时三人喜剧组合",
+        "只在本集短时表演中保留机敏的家庭喜剧职能"
+      ],
+      "exclude": [
+        "将未成年人成人化、性化或包装为长期商业商品",
+        "自动签订演艺合同、解锁职业路线或结算状态",
+        "让夕崎梨子替代美柑的三人组合位置"
+      ]
+    },
+    {
+      "original": "萨斯丁",
+      "storyFunction": "把斯黛拉护送至结城家并让主角注意到访客的引路人物",
+      "target": "萨斯丁",
+      "inherit": [
+        "陪同斯黛拉前往结城家",
+        "以公开行动把主角带回事件现场"
+      ],
+      "exclude": [
+        "成为斯黛拉公司雇员或私人经纪团队成员",
+        "提前知道公司逃税或参与税务通报",
+        "替未具名职员启动返航装置"
+      ]
+    },
+    {
+      "original": "未具名公司职员与宇宙税务机构",
+      "storyFunction": "分别负责报告／返航操作与查出公司逃税，使斯黛拉的商业幻想瞬间崩塌",
+      "target": "未具名公司职员与宇宙税务机构",
+      "inherit": [
+        "职员紧急报告公司逃税已经被查出",
+        "职员要求斯黛拉立即返回并启动返航装置",
+        "税务机构只承担查出问题的制度性因果"
+      ],
+      "exclude": [
+        "把两者合并成一名现场逮捕斯黛拉的税务官",
+        "给来电者套用未经台词确认的 Maul、Smutts 或其他姓名",
+        "增写审判、定罪、罚款数额或刑期"
+      ]
+    },
+    {
+      "original": "夕崎梨子（企划独立角色）",
+      "storyFunction": "User 的青梅兼美柑姐姐；原动画第十集没有对应的主角、新人候选或三人漫才职能",
+      "target": "夕崎梨子",
+      "inherit": [
+        "符合最新项目权威的青梅与美柑姐姐身份",
+        "若正式适配需要，只能获得有限日常反应或家庭提醒位置",
+        "独立角色和独立攻略可能"
+      ],
+      "exclude": [
+        "原作梨斗的梦境、找人、保护春菜、漫才和屋顶收尾职能",
+        "春菜的金蛋候选位置或美柑的三人组合位置",
+        "全知斯黛拉公司逃税、税务机构或返航机关",
+        "沿用旧资料中与美柑非姐妹的已过时口径"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是正式改编时唯一承接原作梨斗第十集剧情职能的主角；本研究稿仍用原作姓名描述动画事实。",
+    "fixed": [
+      "正式改编中不存在另一名男性结城梨斗",
+      "斯黛拉提出偶像企划，菈菈自行拒绝，春菜没有同意强行招募",
+      "斯黛拉的两次石化分别由未婚夫消息和公司逃税曝光触发",
+      "未具名职员报告税务问题并启动返航装置，User 不是举报者或执法者",
+      "夕崎梨子不继承原作主角、春菜或美柑的本集职能",
+      "终场必须保留吝啬试镜、炫富、逃税曝光、第二次石化、穿屋顶与屋顶余波的连续关系"
+    ],
+    "reserved": [
+      "User 如何理解梦境中的欲望、是否主动接吻及醒来后的情绪与身体反应",
+      "User 是否接受菈菈所说的未婚夫身份以及如何回应",
+      "User 面对斯黛拉威胁、保护春菜和参与漫才时的具体措辞与选择",
+      "User 对春菜、菈菈、美柑和斯黛拉的好感、信任与路线选择",
+      "正式游戏触发日期、行动点、好感、关系、角色解锁和事件完成状态",
+      "屋顶吐槽的逐字台词，只需保留关注现实损失的语义位置"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep10.dream-morning-fakeout",
+      "summary": "原作梨斗梦见与春菜接近亲密时突然醒来，发现菈菈就在近处，甜蜜梦境转成晨间骚动并以昏倒或失去反应收束。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "fandom-es-episode-10", "project-role-authority"],
+      "adaptation": "正式改编时把视角位置映射给 User，只冻结梦醒与场面反转，不替 User 固定梦境欲望、接吻选择或露骨身体细节。",
+      "causalOwners": [
+        "User：承接梦醒和晨间假开场的现场位置",
+        "菈菈：以自己的晨间行动造成梦境破裂和骚动"
+      ]
+    },
+    {
+      "id": "ep10.zastin-guides-stella",
+      "summary": "原作梨斗在户外喘息时看见萨斯丁护送陌生女性斯黛拉前往结城家，因好奇跟回事件现场。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "project-role-authority"],
+      "adaptation": "跟随与观察位置映射给 User；萨斯丁只负责护送引路，不获得公司或税务信息。",
+      "causalOwners": [
+        "萨斯丁：护送斯黛拉前往结城家",
+        "斯黛拉：主动来地球拜访菈菈",
+        "User：注意二人并决定跟回去"
+      ]
+    },
+    {
+      "id": "ep10.triple-president-arrival",
+      "summary": "菈菈认出斯黛拉；斯黛拉报出自己兼任粉丝团、友之会与后援会会长，同时经营艺能事务所。",
+      "status": "confirmed",
+      "sourceRefs": ["tbs-episode-10", "xebec-episode-10", "community-subtitle-ep10"],
+      "causalOwners": [
+        "菈菈：确认斯黛拉的粉丝团会长身份",
+        "斯黛拉：自行说明三重会长与公司社长头衔"
+      ]
+    },
+    {
+      "id": "ep10.idol-pitch-refusal",
+      "summary": "斯黛拉提出把菈菈带回宇宙、作为偶像歌手推出唱片；菈菈以留在地球和已有未婚夫为由自行拒绝。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-10", "xebec-episode-10", "community-subtitle-ep10", "project-lala-authority", "project-role-authority"],
+      "adaptation": "正式改编时未婚夫位置映射给 User，但这只保留菈菈说出的理由，不替 User 结算婚约或恋爱状态。",
+      "causalOwners": [
+        "斯黛拉：主动提出偶像企划",
+        "菈菈：基于自己的选择拒绝企划"
+      ]
+    },
+    {
+      "id": "ep10.first-petrification",
+      "summary": "斯黛拉听见菈菈已有未婚夫后第一次因巨大震惊而石化，台词建立其种族受惊会僵硬如石的规则。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-10", "fandom-es-episode-10", "community-subtitle-ep10"],
+      "causalOwners": [
+        "菈菈：无意间提供未婚夫消息",
+        "斯黛拉：因自身种族反应第一次石化"
+      ]
+    },
+    {
+      "id": "ep10.responsibility-and-substitute",
+      "summary": "恢复后的斯黛拉迁怒原作梨斗，要求他为菈菈不能出道负责，并逼他寻找足以替代菈菈的金蛋新人。",
+      "status": "adapted",
+      "sourceRefs": ["xebec-episode-10", "fandom-episode-10", "community-subtitle-ep10", "project-role-authority"],
+      "adaptation": "受威胁和被迫找人的位置映射给 User；斯黛拉自行施压，User 的情绪与答复保持开放。",
+      "causalOwners": [
+        "斯黛拉：把企划失败迁怒主角并提出替代要求",
+        "菈菈：制止斯黛拉继续攻击主角",
+        "User：在压力下进入寻找候选的事件位置"
+      ]
+    },
+    {
+      "id": "ep10.golden-egg-scouting",
+      "summary": "斯黛拉带原作梨斗在街头物色新人，否决若干候选后声称感知到真正金蛋的气息。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "project-role-authority"],
+      "adaptation": "同行位置映射给 User；斯黛拉独立判断候选，不把夸张嗅觉扩写成全知能力。",
+      "causalOwners": [
+        "斯黛拉：主动筛选候选并追踪所谓金蛋",
+        "User：被迫同行但不替她决定谁能出道"
+      ]
+    },
+    {
+      "id": "ep10.haruna-target-misunderstanding",
+      "summary": "斯黛拉锁定春菜并试图强行招募；原作梨斗反复阻止，近距离动作却让春菜不断误会他的意图。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-10", "fandom-episode-10", "fandom-es-episode-10", "project-role-authority", "project-haruna-authority"],
+      "adaptation": "保护和被误会的位置映射给 User；春菜没有同意签约，具体肢体构图等待直接看片，不固定 User 动机或关系结算。",
+      "causalOwners": [
+        "斯黛拉：主动把春菜当作新人目标并试图带走",
+        "User：主动阻止强行招募",
+        "春菜：根据有限可见动作产生短时误会"
+      ]
+    },
+    {
+      "id": "ep10.stingy-audition",
+      "summary": "有人提出举行公开试镜寻找新人，斯黛拉以不愿为试镜花钱为由立即否决，并被吐槽过分吝啬。",
+      "status": "confirmed",
+      "sourceRefs": ["community-subtitle-ep10", "user-comedy-priority"],
+      "causalOwners": [
+        "在场者：提出正常但需要成本的公开试镜方案",
+        "斯黛拉：因吝啬主动否决方案"
+      ]
+    },
+    {
+      "id": "ep10.manzai-trio",
+      "summary": "美柑、菈菈与原作梨斗的家庭吵闹被斯黛拉看作有潜力的三人漫才／综艺组合，并现场形成纸扇吐槽式表演。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "project-role-authority", "project-mikan-authority"],
+      "adaptation": "原作梨斗位置映射给 User；保留短时家庭喜剧，不固定 User 台词，也不让未成年美柑获得成人化或长期商业状态。",
+      "causalOwners": [
+        "美柑与菈菈：基于各自兴趣参与现场喜剧",
+        "斯黛拉：把家庭互动包装成演艺组合",
+        "User：承接原作梨斗的组合和吐槽位置"
+      ]
+    },
+    {
+      "id": "ep10.wealth-fantasy",
+      "summary": "斯黛拉刚看到组合效果便幻想宇宙顶尖名气、高档办公地点、无用别墅与滚滚财富。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "user-comedy-priority"],
+      "causalOwners": [
+        "斯黛拉：把临时家庭喜剧迅速投射成个人商业财富幻想"
+      ]
+    },
+    {
+      "id": "ep10.tax-evasion-discovered",
+      "summary": "未具名公司职员紧急来电，报告斯黛拉经营公司的逃税已经被宇宙税务机构查出。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "user-comedy-priority"],
+      "causalOwners": [
+        "宇宙税务机构：查出公司逃税",
+        "未具名公司职员：向斯黛拉报告消息",
+        "斯黛拉及其公司：承担被揭露的逃税问题"
+      ]
+    },
+    {
+      "id": "ep10.petrification-reprise",
+      "summary": "斯黛拉听见逃税曝光后受到第二次巨大打击，立刻再次石化，回收前半集已经建立的种族规则。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "user-comedy-priority"],
+      "causalOwners": [
+        "未具名公司职员：传达税务坏消息",
+        "斯黛拉：因自身种族反应第二次石化"
+      ]
+    },
+    {
+      "id": "ep10.rocket-through-roof",
+      "summary": "未具名职员要求斯黛拉立即返回并启动返航装置；石化的斯黛拉被送上天，穿破结城家屋顶。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "fandom-es-episode-10", "community-subtitle-ep10", "project-role-authority"],
+      "adaptation": "保留公司侧启动、斯黛拉被动返航和 User 住宅受损的因果；不让 User 或税务人员操作装置。",
+      "causalOwners": [
+        "未具名公司职员：要求返航并启动装置",
+        "斯黛拉：在石化状态下被装置送走",
+        "返航装置：造成屋顶破洞这一物理余波"
+      ]
+    },
+    {
+      "id": "ep10.roof-deadpan",
+      "summary": "菈菈仍提议大家组成宇宙巡回艺人团，原作梨斗却只关心被撞坏的屋顶怎么办，以现实维修问题收尾。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-10", "community-subtitle-ep10", "project-role-authority", "user-comedy-priority"],
+      "adaptation": "结尾现实落点映射给 User；只固定关注屋顶损失的语义，不强迫玩家逐字说原作吐槽。",
+      "causalOwners": [
+        "菈菈：在闹剧结束后继续畅想宇宙巡演",
+        "User：注意并指出屋顶这一眼前现实损失"
+      ]
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep10.dream-morning-fakeout",
+    "ep10.zastin-guides-stella",
+    "ep10.triple-president-arrival",
+    "ep10.idol-pitch-refusal",
+    "ep10.first-petrification",
+    "ep10.responsibility-and-substitute",
+    "ep10.golden-egg-scouting",
+    "ep10.haruna-target-misunderstanding",
+    "ep10.stingy-audition",
+    "ep10.manzai-trio",
+    "ep10.wealth-fantasy",
+    "ep10.tax-evasion-discovered",
+    "ep10.petrification-reprise",
+    "ep10.rocket-through-roof",
+    "ep10.roof-deadpan"
+  ],
+  "forbidden": [
+    "把斯黛拉写成菈菈已经签约的私人经纪人，而不是三大粉丝组织会长兼艺能事务所社长",
+    "把社区字幕中的 Stella Dumpty、英文公司名或精确粉丝人数写成官方硬设定",
+    "把逃税被查出升级成税务人员现场逮捕、法院定罪、罚款或刑期",
+    "给结尾来电职员擅自套用 Maul、Smutts 或其他姓名",
+    "删掉公开试镜太花钱的铺垫、炫富幻想、逃税原因、第二次石化、穿屋顶或屋顶吐槽中的任一核心回收",
+    "让男性结城梨斗作为另一名现实人物登场",
+    "让夕崎梨子继承 User 的梦境、寻找新人、保护春菜、漫才或屋顶收尾职能",
+    "替 User 固定春菜梦境欲望、接吻选择、婚约接受、尴尬、好感或对白",
+    "让 User 主动举报斯黛拉逃税、安排税务陷阱或启动返航装置",
+    "把春菜被认定为金蛋写成她已经同意签约、出道或被带走",
+    "把美柑的临时漫才参与成人化、性化或结算成长期演艺合同",
+    "把斯黛拉逃税的责任转嫁给菈菈、春菜、美柑、User 或粉丝团",
+    "把研究日期占位 2008-06-05 当作获准的游戏内触发日期",
+    "让研究稿结算日期、AP、好感、婚约、角色解锁、职业合同或事件完成",
+    "在第五至第九集连续性、斯黛拉权威、场景与立绘未冻结时提前注册第十集或生成世界书幕",
+    "越过屋顶吐槽继续生成第十一集金色暗影事件"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep10.research-unit",
+      "targetDate": "2008-06-05",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "研究结构从春菜梦境假开场、醒来后的菈菈晨间骚动开始；日期暂借官方播出日占位，不是游戏内授权日期。",
+      "end": "斯黛拉因公司逃税曝光第二次石化，被公司侧返航装置送走并撞穿屋顶；以菈菈继续畅想和主角关注屋顶的反差结束，不得进入第十一集。",
+      "mustKeepBeatIds": [
+        "ep10.dream-morning-fakeout",
+        "ep10.zastin-guides-stella",
+        "ep10.triple-president-arrival",
+        "ep10.idol-pitch-refusal",
+        "ep10.first-petrification",
+        "ep10.responsibility-and-substitute",
+        "ep10.golden-egg-scouting",
+        "ep10.haruna-target-misunderstanding",
+        "ep10.stingy-audition",
+        "ep10.manzai-trio",
+        "ep10.wealth-fantasy",
+        "ep10.tax-evasion-discovered",
+        "ep10.petrification-reprise",
+        "ep10.rocket-through-roof",
+        "ep10.roof-deadpan"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "integrationStatus": "unregistered-research-placeholder",
+    "dateBasis": "2008-06-05 是官方播出日占位，不是游戏内日期；第五至第九集连续性、斯黛拉角色权威、第十集直接画面与场景资源冻结前不得注册。",
+    "acts": [
+      {
+        "boundaryId": "ep10.research-unit",
+        "targetDate": "2008-06-05",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ]
+  },
+  "semanticCases": [
+    {
+      "id": "ep10.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选先用春菜梦境和菈菈晨间骚动作假开场，再让 User 发现萨斯丁护送斯黛拉回家。斯黛拉以三大粉丝组织会长兼演艺公司社长身份提出菈菈偶像企划；菈菈自行拒绝，她因未婚夫消息第一次石化。恢复后她逼 User 找金蛋，街头搜索后强拉春菜，User 阻止却屡遭误会。回家后她嫌公开试镜花钱，把菈菈、美柑和 User 凑成三人漫才，马上幻想豪宅与财富；未具名职员来电说公司逃税已被宇宙税务机构查出，她第二次石化并被公司侧返航装置送走、撞穿屋顶。菈菈仍想宇宙巡演，User 只关注屋顶损失。",
+      "reviewCriteria": [
+        "十五个 must-keep 节拍均能按语义辨认，角色发起者没有漂移",
+        "吝啬试镜、炫富、逃税查出、石化回收、穿屋顶和屋顶吐槽完整连续",
+        "没有把逃税写成逮捕定罪，也没有替 User 或未成年人结算状态"
+      ]
+    },
+    {
+      "id": "ep10.reject-missing-tax-anchor",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选完整写了梦境、斯黛拉身份、菈菈拒绝和第一次石化、寻找春菜、三人漫才、吝啬试镜、炫富、第二次石化、火箭穿屋顶与屋顶吐槽，但把结尾电话改成公司有一件普通急事，完全省略逃税被宇宙税务机构查出的原因。",
+      "reviewCriteria": [
+        "只缺少一个最关键的税务揭露锚点也必须拒绝",
+        "第二次石化和强制返航必须由公司逃税曝光触发，普通急事不能替代",
+        "用户本轮明确指定的核心笑点不得被同义弱化"
+      ]
+    },
+    {
+      "id": "ep10.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选让夕崎梨子代替 User 梦见春菜、跟踪斯黛拉、被逼寻找金蛋和阻止春菜被带走，又让她替代美柑参加三人漫才并在结尾说屋顶吐槽；User 只在场外听说事件。",
+      "reviewCriteria": [
+        "原作梨斗的第十集主角职能只能由 User 承接",
+        "美柑的家庭漫才位置不能被梨子抢走",
+        "梨子若出现只能保留青梅兼姐姐的有限日常位置"
+      ]
+    },
+    {
+      "id": "ep10.reject-tax-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选写成 User 早已发现斯黛拉的账本，于是主动向宇宙税务局举报并布置抓捕陷阱；斯黛拉识破后故意装成石像，自己启动火箭逃走，屋顶也是她为了销毁证据主动撞坏。",
+      "reviewCriteria": [
+        "税务机构独立查出问题，未具名公司职员负责报告和返航操作",
+        "斯黛拉的石化必须是震惊导致的种族反应，不是伪装或预谋逃跑",
+        "User 不能被赋予举报、执法、设局或启动装置的新增因果"
+      ]
+    },
+    {
+      "id": "ep10.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选把梦醒、斯黛拉登门、街头选角、春菜误会、三人漫才和税务终场分别登记为六次自由行动，自行扣除 AP，并把 2008-06-05 直接注册成游戏日期。",
+      "reviewCriteria": [
+        "当前只能视作一个未注册的 whole-day 研究单元",
+        "不得自行拆分行动、结算 AP 或把动画播出日冒充游戏日期",
+        "第五至第九集连续性未冻结时不能注册第十集"
+      ]
+    },
+    {
+      "id": "ep10.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选在斯黛拉撞穿屋顶、菈菈提议宇宙巡演、User 关注维修后继续写学校出现一名金发杀手，并直接展开金色暗影的第十一集事件。",
+      "reviewCriteria": [
+        "第十集必须在屋顶破洞的日常余波处结束",
+        "金色暗影相关事件属于第十一集，不能作为第十集尾声",
+        "边界结束后不得继续生成新的主线角色事件"
+      ]
+    },
+    {
+      "id": "ep10.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选因菈菈说 User 是未婚夫就自动锁定婚约路线；又替春菜签下演艺合同、把美柑设为职业艺人、创建斯黛拉角色卡和世界书，随后结算好感、日期、AP、屋顶维修费与第十集完成状态。",
+      "reviewCriteria": [
+        "研究稿没有婚约、合同、角色卡、世界书、经济或运行时状态写权限",
+        "菈菈的台词、春菜被看中和美柑参加漫才都不等于状态结算",
+        "日期、AP、好感、费用、解锁和完成状态必须由正式权威系统处理"
+      ]
+    }
+  ]
+}

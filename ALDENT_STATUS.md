@@ -1984,3 +1984,89 @@ verification:
     - real Tavern World Info, generation, host-message floors, plugins, shujuku, ACU, or database checks
 human_review: pending_user_localhost_5500_character_layout_acceptance
 ```
+
+# 2026-08-05 Episode 10 Stella tax-evasion comedy research packet
+
+```yaml
+status: research_packet_authored_structural_validation_passed_human_story_review_pending
+current_loop: episode10_stella_tax_evasion_comedy_research_2026-08-05
+authorized_by: user_requested_episode10_plot_research_with_the_stella_tax_evasion_reveal_as_the_primary_comedy_anchor
+authorized_scope:
+  - identify Stella using official episode metadata without upgrading her to Lala's contracted private manager
+  - organize the episode chronology from the dream fakeout through the roof-damage coda
+  - preserve the full stingy-audition, wealth-fantasy, tax-discovery, petrification-reprise, rocket, and roof-deadpan chain
+  - record community subtitle time anchors, source limitations, role mapping, must-keep beats, and semantic rejection cases
+  - keep the packet as unregistered research while episodes 05 through 09 and the episode 10 runtime date remain unfrozen
+forbidden_scope:
+  - register episode 10, create runtime acts, worldbook entries, character cards, unlocks, or state settlement
+  - claim tax arrest, trial, conviction, a named caller, an official company name, or a private-manager contract without evidence
+  - treat community subtitles as official translation or claim frame-level acceptance without the episode video
+  - overwrite the latest User, Riko, Lala, Haruna, or Mikan role authority
+connection_state: unregistered_research_summary_timecodes_and_schema_v2_packet_only
+verification:
+  passed:
+    - official TBS and XEBEC metadata cross-check for the episode title, broadcast date, triple fan-organization presidency,
+      talent-agency presidency, idol proposal, Lala refusal, and Haruna target
+    - community subtitle timing review preserves the complete 19:21 through 22:05 comedy setup, reversal, physical payoff,
+      and roof coda while labelling the subtitle as non-official
+    - adapt-fandom-episodes validate_evidence_packet.py passed the episode 10 schema v2 packet
+    - JSON parsing found 14 sources, 15 beats, exactly 7 semantic case types, and no missing local source path
+  failed: []
+  not_run:
+    - direct episode-frame, official script, Japanese subtitle, or user screenshot verification
+    - TypeScript, ESLint, build, episode runtime verifier, or browser checks because no runtime source was changed
+    - real Tavern World Info, generation, host-message floors, plugins, database, shujuku, or ACU verification
+human_review: pending_user_story_priority_and_future_direct_episode_view_acceptance
+evidence:
+  - 剧情参考/游戏开发知识库/出包王女/第十集Fandom剧情整理.md
+  - 剧情参考/游戏开发知识库/出包王女/第十集字幕时间锚点.md
+  - 剧情参考/游戏开发知识库/出包王女/第十集改编证据.json
+```
+
+# 2026-08-05 Episode 11 Golden Darkness debut research packet
+
+```yaml
+status: research_packet_authored_structural_and_independent_semantic_validation_passed_human_story_review_pending
+current_loop: episode11_golden_darkness_debut_research_2026-08-05
+authorized_by: user_requested_continuing_with_episode11_and_centering_golden_darkness_debut
+authorized_scope:
+  - identify Golden Darkness as the assassin codename and Yami-chan as Lala's in-episode nickname without treating Eve as a confirmed real name
+  - organize the TV chronology from the peaceful-planet arrival through the simultaneous still-a-target and accepted-friend ending
+  - preserve the taiyaki first contact, non-retaliation evidence crack, false brief, Lacospo reveal, Yami's independent challenge,
+    mutual-protection chain, first cute remark, nickname, and unresolved mission-friendship tension
+  - map the original Rito functions exclusively to User while keeping Riko independent and keeping Haruna outside the assassination sequence
+  - record community subtitle time anchors, TV-versus-manga differences, source limitations, must-keep beats, and semantic rejection cases
+  - keep the packet as unregistered research while episodes 05 through 10 and Yami's runtime authority remain unfrozen
+forbidden_scope:
+  - register episode 11, create runtime acts, worldbook entries, layered character modules, nameplates, unlocks, school enrollment, or state settlement
+  - claim Eve is the episode-confirmed real name, the assassination contract is cancelled, taiyaki is already an established favorite,
+    or Yami has already entered a romance route
+  - let User or Lala decide that the brief is false on Yami's behalf, or collapse Lala-protects-Yami, User-protects-Lala,
+    and Lala-defeats-the-threat into one character's rescue
+  - treat community subtitles as official translation, merge manga reveal order into the TV episode, or claim frame-level acceptance without the episode video
+  - sexualize the bathhouse, harassment, slime, or clothing-damage gags involving minor characters
+connection_state: unregistered_research_summary_timecodes_and_schema_v2_packet_only
+verification:
+  passed:
+    - official TBS, XEBEC, and TELASA metadata cross-check for the title, broadcast date, assassin identity, target mission,
+      Zastin intervention, and Lala-versus-Golden-Darkness main axis
+    - community subtitle timing review preserves the taiyaki encounter, false-brief dispute, delayed Lacospo reveal, Yami-owned judgment,
+      three-owner protection chain, cute and nickname turn, and the complete 21:23 through 22:02 dual ending
+    - TV-versus-manga comparison records the delayed client reveal, television shopping interlude, removed or rewritten side plots,
+      strengthened protection chain, and explicit friend invitation without importing manga order
+    - adapt-fandom-episodes validate_evidence_packet.py passed the episode 11 schema v2 packet
+    - JSON parsing found 19 sources, 10 counterevidence records, 11 role mappings, 16 must-keep beats,
+      exactly 7 semantic case types, and no missing local source path
+    - independent semantic review passed after correcting the nickname timing claim, exactly-one-missing-anchor negative case,
+      User non-retaliation choice boundary, and project-authority versus editorial-inference source split
+  failed: []
+  not_run:
+    - direct episode-frame, official script, Japanese subtitle, or user screenshot verification
+    - TypeScript, ESLint, build, episode runtime verifier, or browser checks because no runtime source was changed
+    - real Tavern World Info, generation, host-message floors, plugins, database, shujuku, or ACU verification
+human_review: pending_user_story_priority_and_future_direct_episode_view_acceptance
+evidence:
+  - 剧情参考/游戏开发知识库/出包王女/第十一集Fandom剧情整理.md
+  - 剧情参考/游戏开发知识库/出包王女/第十一集字幕时间锚点.md
+  - 剧情参考/游戏开发知识库/出包王女/第十一集改编证据.json
+```

@@ -1,0 +1,557 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 9,
+    "sourceTitle": "光星より愛を込めて",
+    "targetTitle": "光星寄来的爱（凉子与闪亮亮星人登场；Fandom 初步研究稿）"
+  },
+  "sources": [
+    {
+      "id": "tbs-episode-09",
+      "kind": "official-metadata",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "supports": "梨斗因恶寒去保健室、菈菈让沛凯变成护士服、校医御门凉子登场，以及来自キラーラ星的ピカリー乘火箭服来向菈菈求婚的官方主轴。"
+    },
+    {
+      "id": "xebec-episode-09",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode09.html",
+      "supports": "第九集标题、2008-05-29 播出日、皮卡利因火箭服失控屡次失败、菈菈用发明反击，以及伤痕累累的皮卡利得到彩南高校校医凉子帮助的官方梗概与制作人员。"
+    },
+    {
+      "id": "fandom-episode-09",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/From_a_Shining_Star%2C_With_Love",
+      "supports": "农场坠落、上学路目击、两次保健室、皮卡利求婚与强行带走、菈菈钻头和反重力翼、连与扎斯丁的帮助、隐秘外星诊所、凉子用绷带制伏皮卡利、火箭送返及凉子说明外星医生身份的顺序骨架；页面正文开头存在串入第十集日文标题的错误。"
+    },
+    {
+      "id": "fandom-pikari",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Pikari",
+      "supports": "皮卡利是动画原创求婚者、属于キラーラ星人、身穿火箭服，以及 Rocketium Ray／Rocketium Slash、火箭服外形和光之国对应等奥特曼相似点；其精确速度和威力数字只视为待核实的爱好者资料。"
+    },
+    {
+      "id": "fandom-kirarians",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Kirarians",
+      "supports": "キラーラ星人具有闪亮眼睛与先进火箭服，皮卡利家族成员中出现 Seven、Jack、Ace、Taro 等名字的爱好者整理，为奥特曼命名梗提供社区层证据。"
+    },
+    {
+      "id": "fandom-kirara",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Kirara",
+      "supports": "キラーラ星被社区页面称作 State of Light，皮卡利被列为第二王子，并列出父母、兄长及 Seven、Jack、Ace、Taro、Jiro 等弟弟；这些家族细节在本集主剧情摘要中没有完整展开。"
+    },
+    {
+      "id": "episode-09-cast-index",
+      "kind": "community-plot",
+      "location": "https://wikiwiki.jp/seiyu_syukei/2008年/４月期/To%20LOVEる%20-とらぶる-",
+      "supports": "第九集配音表除皮卡利和御门凉子外，还列出皮卡利父亲、母亲、兄长与セブン，可旁证本集存在被 Fandom 主摘要省略的家族或返乡镜头；具体位置和台词仍需直接看片。"
+    },
+    {
+      "id": "tsuburaya-ultraman-jack",
+      "kind": "official-metadata",
+      "location": "https://m-78.jp/character/jack/",
+      "supports": "圆谷官方角色页确认奥特曼杰克来自 M78 星云光之国、属于奥特兄弟并使用斯派修姆光线，只用于核对致敬对象本身，不证明《出包王女》制作组意图。"
+    },
+    {
+      "id": "tsuburaya-ultra-effects",
+      "kind": "official-metadata",
+      "location": "https://store.m-78.jp/collections/ultramanseries/products/4573102721136",
+      "supports": "圆谷官方商品说明列举斯派修姆光线与奥特切割等经典光线效果，用于比对 Rocketium Ray／Slash 的命名和动作联想，不证明官方授权或逐项致敬。"
+    },
+    {
+      "id": "ultraseven-episode-12-reference",
+      "kind": "community-plot",
+      "location": "https://tsphinx.stars.ne.jp/manken/room/clmn/j_seven12.html",
+      "supports": "二手资料确认《奥特赛文》第十二话副标题为《遊星より愛をこめて》，只用于建立第九集标题的文字比较基准；不能证明《出包王女》制作方的创作意图。"
+    },
+    {
+      "id": "project-role-authority",
+      "kind": "project-authority",
+      "location": "../../../MODULES.md",
+      "supports": "User 是唯一主角并承接原作男性梨斗的剧情职能；男性梨斗不作为另一人物存在；夕崎梨子是独立青梅和有限信息位。"
+    },
+    {
+      "id": "project-ryoko-archive",
+      "kind": "project-authority",
+      "location": "../../../data/characterArchive.ts",
+      "supports": "当前角色档案界面预留御门凉子条目，但档案槽位本身不等于角色卡、世界书、可用状态或剧情解锁已经完成。"
+    },
+    {
+      "id": "project-default-cards",
+      "kind": "project-authority",
+      "location": "../../../data/default-cards/",
+      "supports": "当前默认角色卡目录没有御门凉子的独立卡片；本研究稿不能凭第九集登场就生成角色权威或宣称运行时可用。"
+    },
+    {
+      "id": "runtime-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "supports": "当前主线只注册第一至第四集，第九集尚无运行时模板、世界书幕、场景、角色解锁或日期接线。"
+    },
+    {
+      "id": "research-date-placeholder",
+      "kind": "inference",
+      "location": "本证据包研究期结构占位（2026-08-05）",
+      "supports": "为满足研究包 v2 结构，暂以官方播出日 2008-05-29 作为未注册研究单元的日期占位；它不是游戏内日期，正式适配前必须在第五至第八集连续性确定后改写。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "fandom-wrong-japanese-title",
+      "location": "https://toloveru.fandom.com/wiki/From_a_Shining_Star%2C_With_Love",
+      "staleClaim": "Fandom 页面正文开头把第九集写成 From a Shinning Star, With Love (宇宙の女芸人, Uchū no Onna Geinin)，其中日文标题和罗马字实际属于第十集，英文 Shinning 也与信息框的 Shining 不一致。",
+      "resolution": "以 TBS、XEBEC 与 Fandom 信息框一致的《光星より愛を込めて》为准；《宇宙の女芸人》不得进入第九集标题或剧情证据。"
+    },
+    {
+      "id": "ultraman-intent-unconfirmed",
+      "location": "https://toloveru.fandom.com/wiki/Pikari",
+      "staleClaim": "火箭服、光线技、キラーラ星和标题都已被官方明确宣布为奥特曼或《奥特赛文》第十二话的戏仿。",
+      "resolution": "当前只能确认多个设计和命名与圆谷系元素高度对应；未找到《出包王女》制作方的逐项说明，因此正文统一写成强烈致敬联想或社区分析，不写成官方确认。"
+    },
+    {
+      "id": "pikari-power-specs-unverified",
+      "location": "https://toloveru.fandom.com/wiki/Pikari",
+      "staleClaim": "爱好者页面列出的火箭服精确速度、耐久、黑洞或钢铁破坏数值可以直接作为本集硬设定。",
+      "resolution": "Fandom 主剧情和官方梗概只需支持火箭服能飞、会失控、可发射招式并能被破坏修理；精确数值在无字幕、设定集或直接画面证据前全部排除。"
+    },
+    {
+      "id": "family-cutaway-placement-unverified",
+      "location": "https://wikiwiki.jp/seiyu_syukei/2008年/４月期/To%20LOVEる%20-とらぶる-",
+      "staleClaim": "配音表列出皮卡利父母、兄长和 Seven，足以确定他们在结尾出现的准确画面、台词与家族排行。",
+      "resolution": "配音表只能旁证本集存在相关声音角色；家族镜头位置、人数、称谓和台词必须直接看片后补，初稿只把它列为遗漏锚点。"
+    },
+    {
+      "id": "ryoko-archive-is-not-unlock",
+      "location": "../../../data/characterArchive.ts",
+      "staleClaim": "角色档案中已有御门凉子槽位，所以她的角色卡、世界书、可攻略状态和第九集解锁已经完成。",
+      "resolution": "当前只有档案预留，默认角色卡目录和运行时注册均未提供凉子模块；本轮只做研究，不创建或解锁任何状态。"
+    },
+    {
+      "id": "unassigned-runtime-date",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "staleClaim": "研究包中的 2008-05-29 可以直接作为第九集游戏内触发日期。",
+      "resolution": "该日期只是官方播出日和结构占位。当前仅注册第一至第四集，第五至第八集尚未冻结，故第九集不得注册或据此推进游戏时间。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "反复感到恶寒、两次进入保健室、被卷入菈菈与皮卡利冲突并见证凉子身份揭示的视角人物",
+      "target": "User",
+      "inherit": [
+        "恶寒和身体不适这一外部剧情事实",
+        "在保健室遇见菈菈护士装与御门凉子的场面位置",
+        "被菈菈推离危险、随后寻找或重遇她并见证外星冲突的主角职能"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名现实人物并存",
+        "替 User 固定对护士检查、菈菈求婚者或御门凉子的欲望与选择",
+        "把同一剧情职能分给夕崎梨子"
+      ]
+    },
+    {
+      "original": "菈菈与沛凯",
+      "storyFunction": "照顾生病主角、认出皮卡利、拒绝强行求婚并以钻头、反重力翼和两种发明反击的行动中心",
+      "target": "菈菈与沛凯",
+      "inherit": [
+        "菈菈主动照顾主角但方式冒失",
+        "明确拒绝皮卡利并持续反抗强行带走",
+        "钻坏控制装置、展开反重力翼、使用 QQ-Service Ace-Kun 与 AA Rocket-Kun 的因果"
+      ],
+      "exclude": [
+        "把求婚或绑架写成菈菈默认同意",
+        "把菈菈的反击改成 User 操纵她行动",
+        "把沛凯护士服桥段扩写为露骨身体检查"
+      ]
+    },
+    {
+      "original": "御门凉子",
+      "storyFunction": "彩南高校神秘校医、秘密为地球上的外星人诊疗的医生，以及用绷带制止皮卡利的人",
+      "target": "御门凉子",
+      "inherit": [
+        "以校医身份在保健室正式登场",
+        "医治皮卡利并修理火箭服的外星医疗能力",
+        "发现强行带走后动怒、用绷带制伏皮卡利并说明自己也是外星人"
+      ],
+      "exclude": [
+        "把后续作品中的 Solgam、提亚悠等背景倒灌成本集已知事实",
+        "凭档案槽位宣称她已拥有完整角色卡、可攻略路线或运行时解锁",
+        "把她对主角的调侃或检查写成已确立亲密关系"
+      ]
+    },
+    {
+      "original": "皮卡利（ピカリー）",
+      "storyFunction": "来自キラーラ星的火箭服求婚者、主要冲突发起者和奥特曼致敬载体",
+      "target": "皮卡利（闪亮亮星人）",
+      "inherit": [
+        "飞行控制不佳、接连撞击和受挫的喜剧特征",
+        "向菈菈求婚、试图强行把她带走并最终被送返",
+        "火箭服、光线／切割招式和家族命名所形成的特摄联想"
+      ],
+      "exclude": [
+        "把强行带走淡化成双方同意的浪漫追求",
+        "把社区页面的精确战力数字写成官方硬设定",
+        "把奥特曼致敬联想宣称为制作组已公开确认"
+      ]
+    },
+    {
+      "original": "连与扎斯丁",
+      "storyFunction": "分别在皮卡利受挫后提供修理帮助和秘密外星诊所方向的支援人物",
+      "target": "连与扎斯丁",
+      "inherit": [
+        "连以同为男性和外星人的立场帮助寻找或提供零件",
+        "扎斯丁把受伤的皮卡利指向隐藏的外星人医院",
+        "两段帮助共同把皮卡利引向凉子的第二身份"
+      ],
+      "exclude": [
+        "让连知道尚未亲眼获得的全部绑架计划",
+        "让扎斯丁替凉子完成治疗、修服或制伏动作",
+        "把他们的帮助写成认可皮卡利强行带走菈菈"
+      ]
+    },
+    {
+      "original": "猿山、农场女性与皮卡利家族",
+      "storyFunction": "分别补充凉子的校园评价、皮卡利坠落笑点，以及被主摘要遗漏的返乡／家族特摄梗",
+      "target": "各角色本人",
+      "inherit": [
+        "猿山只谈凉子神秘而迷人的校医印象",
+        "农场女性为失控坠落的皮卡利指路",
+        "家族成员只保留经画面或配音确认的短镜头与命名"
+      ],
+      "exclude": [
+        "由猿山提供凉子的外星身份或秘密诊所地址",
+        "把皮卡利亲吻致谢扩写成农场女性同意的恋爱桥段",
+        "在未看片时虚构家族成员的准确台词、排行或结尾构图"
+      ]
+    },
+    {
+      "original": "夕崎梨子（企划独立角色）",
+      "storyFunction": "同班青梅、有限公开信息与提醒位；原动画第九集无对应主角替代职能",
+      "target": "夕崎梨子",
+      "inherit": [
+        "对主角生病和校园公开异常的正常关心",
+        "符合青梅身份的短促提醒或吐槽",
+        "独立角色和独立攻略可能"
+      ],
+      "exclude": [
+        "原作梨斗的恶寒、保健室和危险中心职能",
+        "替凉子治疗皮卡利、制伏绑架者或揭露外星身份",
+        "全知秘密诊所、皮卡利家族或奥特曼梗的幕后信息"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是正式改编时唯一承接原作梨斗第九集剧情职能的主角；本初稿仍以原作姓名整理动画事实。",
+    "fixed": [
+      "正式改编中不存在另一名男性结城梨斗",
+      "主角的恶寒可以作为剧情症状发生，但不能由模型据此永久改写健康状态",
+      "菈菈明确拒绝皮卡利，强行带走的责任属于皮卡利",
+      "凉子负责治疗、修理、绷带制伏和外星医生身份揭示",
+      "夕崎梨子不继承原作主角或凉子的剧情职能"
+    ],
+    "reserved": [
+      "User 对菈菈被求婚的嫉妒、担心或其他内心反应",
+      "User 是否接受菈菈用护士装检查以及如何回应凉子的调侃",
+      "User 对御门凉子的好感、信任和攻略选择",
+      "正式游戏触发日期、行动点、好感、健康、角色解锁和事件完成状态",
+      "是否把本集的奥特曼联想写进叙述、旁白或仅保留为作者注"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep09.farm-crash",
+      "summary": "一名穿火箭服的男子失控坠到农场，向当地女性询问日本方向，致谢后再次升空。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-09"],
+      "causalOwners": [
+        "皮卡利：因火箭服操纵失误坠落并主动问路",
+        "农场女性：提供日本方向"
+      ]
+    },
+    {
+      "id": "ep09.chills-and-sighting",
+      "summary": "上学路上梨斗持续感到异常恶寒，与菈菈一起看见火箭服男子从空中失控掠过；菈菈先催他去学校。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-09", "fandom-episode-09", "project-role-authority"],
+      "adaptation": "正式改编时把生病和目击者位置映射给 User；症状只属于本集外部事实，不替玩家固定长期健康状态。",
+      "causalOwners": [
+        "皮卡利：失控飞行造成目击",
+        "User：承受恶寒并注意异常",
+        "菈菈：决定先带主角去学校"
+      ]
+    },
+    {
+      "id": "ep09.first-infirmary-mikado",
+      "summary": "梨斗因身体不适来到空无一人的保健室；菈菈让沛凯变成护士服准备替他检查，校医御门凉子恰在此时进门并误会两人在玩医生游戏。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-09", "fandom-episode-09", "project-role-authority", "project-ryoko-archive"],
+      "adaptation": "梨斗位置映射给 User，保留菈菈主动照顾和凉子误会的喜剧时机；User 对检查的同意、拒绝和感受不由剧情预设。",
+      "causalOwners": [
+        "User：因恶寒主动去保健室",
+        "菈菈与沛凯：自行换成护士服并准备检查",
+        "御门凉子：返回保健室、根据眼前构图作出调侃式误会"
+      ]
+    },
+    {
+      "id": "ep09.mikado-school-mystery",
+      "summary": "凉子检查后没有发现明显发烧；猿山等人的谈话进一步建立她性感、神秘而私生活不明的校医印象。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-09", "tbs-episode-09", "project-role-authority"],
+      "adaptation": "仅映射被检查者为 User；不把同学的外貌评价变成凉子对 User 的恋爱承诺，也不提前揭露其完整背景。"
+    },
+    {
+      "id": "ep09.pikari-proposal",
+      "summary": "放学后火箭服男子再次坠到梨斗与菈菈附近，认出菈菈并自称キラーラ星人皮卡利；菈菈只记得他是火箭服家伙，他则宣称两人很相配并企图把她带回母星。",
+      "status": "adapted",
+      "sourceRefs": ["tbs-episode-09", "xebec-episode-09", "fandom-episode-09", "project-role-authority"],
+      "adaptation": "梨斗的现场位置映射给 User；皮卡利发起求婚和带走，菈菈不记得他且没有同意，不能改写成三角恋已成立。",
+      "causalOwners": [
+        "皮卡利：主动求婚并试图带走菈菈",
+        "菈菈：不认同皮卡利宣称的关系",
+        "菈菈：在冲突前把主角推离危险区域"
+      ]
+    },
+    {
+      "id": "ep09.drill-and-wings",
+      "summary": "被皮卡利带上空中后，菈菈用钻头破坏火箭服控制系统，使他再度失控；她随后让沛凯展开反重力翼脱离并寻找被推开的梨斗。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-09", "xebec-episode-09", "project-role-authority"],
+      "adaptation": "保留菈菈自主脱困和寻找 User；不能把钻坏火箭服改成 User 的远程命令，或让 User 接管菈菈的反抗。",
+      "causalOwners": [
+        "菈菈：主动以钻头破坏控制系统",
+        "皮卡利：因装备受损再次失控",
+        "菈菈与沛凯：展开反重力翼并返回寻找主角"
+      ]
+    },
+    {
+      "id": "ep09.ren-repair-help",
+      "summary": "受挫的皮卡利遇见仍在锻炼的连；连凭火箭服认出他的种族，在他请求零件后以男子汉立场提供帮助。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-09"],
+      "causalOwners": [
+        "皮卡利：主动请求火箭服零件",
+        "连：基于同为男性的义气决定帮助"
+      ]
+    },
+    {
+      "id": "ep09.home-ace-counterattack",
+      "summary": "梨斗回到结城家后仍因先前被推开和身体不适而混乱；皮卡利再次来袭，菈菈用 QQ-Service Ace-Kun 把他击飞。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-09", "project-role-authority"],
+      "adaptation": "住宅场景的主角位置映射给 User；只保留可见的身体不适和困惑，不替玩家固定妄想内容或嫉妒。",
+      "causalOwners": [
+        "皮卡利：修复后再次接近菈菈",
+        "菈菈：主动启动 QQ-Service Ace-Kun 反击",
+        "User：目击结果并继续承受本集症状"
+      ]
+    },
+    {
+      "id": "ep09.hidden-alien-clinic",
+      "summary": "再次受伤的皮卡利遇到扎斯丁并获知秘密外星人医院；在那里为他治疗并修好火箭服的医生正是白天的校医御门凉子。",
+      "status": "confirmed",
+      "sourceRefs": ["xebec-episode-09", "fandom-episode-09"],
+      "causalOwners": [
+        "扎斯丁：提供隐藏外星诊所的方向",
+        "皮卡利：前往求医",
+        "御门凉子：治疗伤势并修复火箭服"
+      ]
+    },
+    {
+      "id": "ep09.second-infirmary-abduction",
+      "summary": "次日梨斗又因恶寒来到保健室，凉子仍暂时不在，菈菈再次准备护士检查；皮卡利闯入令菈菈失去行动能力并把她悬在空中，准备强行带走。",
+      "status": "adapted",
+      "sourceRefs": ["fandom-episode-09", "tbs-episode-09", "project-role-authority"],
+      "adaptation": "梨斗位置映射给 User；保留皮卡利对菈菈的强制行动和危险升级，不把菈菈失去行动能力写成同意，也不替 User 决定应对。",
+      "causalOwners": [
+        "User：因复发恶寒再次去保健室",
+        "菈菈与沛凯：再次主动准备检查",
+        "皮卡利：闯入、使菈菈失去行动能力并实施强行带走"
+      ]
+    },
+    {
+      "id": "ep09.bandage-and-return-rocket",
+      "summary": "凉子返回后因皮卡利利用她修好的火箭服作恶而动怒，用绷带把他制伏；菈菈恢复后以 AA Rocket-Kun 将被捆住的皮卡利送回母星。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-09", "xebec-episode-09"],
+      "causalOwners": [
+        "御门凉子：发现强行带走并用绷带制伏皮卡利",
+        "菈菈：启动 AA Rocket-Kun 执行送返",
+        "皮卡利：承受自己反复强行带走所导致的结果"
+      ]
+    },
+    {
+      "id": "ep09.mikado-alien-doctor-reveal",
+      "summary": "危机后凉子承认自己也是外星人，并说明许多外星人秘密生活在地球、替他们诊疗正是自己的工作，最后要求菈菈别再给她增加太多病人。",
+      "status": "confirmed",
+      "sourceRefs": ["fandom-episode-09", "xebec-episode-09"],
+      "causalOwners": [
+        "御门凉子：主动说明自己的种族与外星医生职责",
+        "菈菈：此前连续把皮卡利打伤，形成凉子结尾吐槽的原因"
+      ]
+    },
+    {
+      "id": "ep09.pikari-family-cutaway",
+      "summary": "第九集配音表和キラーラ星资料显示本集另有皮卡利父母、兄长与名为 Seven 的家族声音角色，可能位于返乡或家族切镜中；Fandom 主摘要遗漏了准确场面。",
+      "status": "inferred",
+      "sourceRefs": ["episode-09-cast-index", "fandom-kirara", "fandom-kirarians"],
+      "adaptation": "初稿只登记为必须看片寻找的特摄命名锚点，不虚构镜头位置、对白、人数或亲属排行。"
+    },
+    {
+      "id": "ep09.ultraman-parody-network",
+      "summary": "标题《光星より愛を込めて》、キラーラ星的光之国联想、皮卡利的类奥特曼火箭服、Rocketium Ray／Slash，以及 Seven、Jack、Ace、Taro 等家族名共同构成密集的圆谷系致敬网络。",
+      "status": "inferred",
+      "sourceRefs": ["fandom-pikari", "fandom-kirarians", "fandom-kirara", "episode-09-cast-index", "tsuburaya-ultraman-jack", "tsuburaya-ultra-effects", "ultraseven-episode-12-reference"],
+      "adaptation": "可作为作者注或镜头设计参考保留，但必须写成高度可信的致敬解读；标题对《奥特赛文》第十二话《遊星より愛をこめて》的联想尤其不得冒充制作方已确认说明。"
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep09.farm-crash",
+    "ep09.chills-and-sighting",
+    "ep09.first-infirmary-mikado",
+    "ep09.mikado-school-mystery",
+    "ep09.pikari-proposal",
+    "ep09.drill-and-wings",
+    "ep09.ren-repair-help",
+    "ep09.home-ace-counterattack",
+    "ep09.hidden-alien-clinic",
+    "ep09.second-infirmary-abduction",
+    "ep09.bandage-and-return-rocket",
+    "ep09.mikado-alien-doctor-reveal",
+    "ep09.pikari-family-cutaway",
+    "ep09.ultraman-parody-network"
+  ],
+  "forbidden": [
+    "把 Fandom 正文误混入的第十集标题《宇宙の女芸人》当成第九集标题",
+    "把《光星より愛を込めて》对《遊星より愛をこめて》的联想写成制作组已经公开确认的事实",
+    "把 Fandom 列出的火箭服精确速度、耐久或破坏力数字写成正片硬设定",
+    "让男性结城梨斗作为另一名现实人物登场",
+    "让夕崎梨子接管 User 的恶寒、保健室、危险中心或凉子的治疗与制伏职能",
+    "把皮卡利的求婚和强行带走改写成菈菈同意、默认或享受的浪漫桥段",
+    "让 User 成为钻坏火箭服、QQ-Service Ace-Kun、AA Rocket-Kun 或绷带制伏的实际发起者",
+    "替 User 固定嫉妒、性冲动、医生游戏接受与否或对凉子的攻略选择",
+    "把凉子后续作品背景、关系和能力全部倒灌成本集登场即知事实",
+    "凭角色档案槽位宣称凉子角色卡、世界书、攻略路线或运行时解锁已经完成",
+    "在未直接看片时虚构皮卡利家族镜头的准确位置、台词、人数和排行",
+    "把研究日期占位 2008-05-29 当作获准的游戏内触发日期",
+    "让模型结算日期、AP、好感、健康状态、角色解锁或事件完成",
+    "越过凉子说明外星医生身份与结尾吐槽继续生成第十集"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep09.research-unit",
+      "targetDate": "2008-05-29",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "研究结构从皮卡利失控坠入农场并询问日本方向开始；日期暂借官方播出日占位，不是游戏内授权日期。",
+      "end": "次日保健室中凉子制伏皮卡利、菈菈将其送返，凉子说明自己的外星医生身份并吐槽收尾；皮卡利家族镜头只登记为待看片锚点，不得进入第十集。",
+      "mustKeepBeatIds": [
+        "ep09.farm-crash",
+        "ep09.chills-and-sighting",
+        "ep09.first-infirmary-mikado",
+        "ep09.mikado-school-mystery",
+        "ep09.pikari-proposal",
+        "ep09.drill-and-wings",
+        "ep09.ren-repair-help",
+        "ep09.home-ace-counterattack",
+        "ep09.hidden-alien-clinic",
+        "ep09.second-infirmary-abduction",
+        "ep09.bandage-and-return-rocket",
+        "ep09.mikado-alien-doctor-reveal",
+        "ep09.pikari-family-cutaway",
+        "ep09.ultraman-parody-network"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "integrationStatus": "unregistered-research-placeholder",
+    "dateBasis": "2008-05-29 是官方播出日占位，不是游戏内日期；第五至第八集连续性、凉子角色权威和第九集直接证据冻结前不得注册。",
+    "acts": [
+      {
+        "boundaryId": "ep09.research-unit",
+        "targetDate": "2008-05-29",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ]
+  },
+  "semanticCases": [
+    {
+      "id": "ep09.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选先写火箭服男子失控坠落和 User 的异常恶寒，再让菈菈在保健室扮护士、凉子以神秘校医身份登场。皮卡利向菈菈求婚并强行带走，菈菈钻坏火箭服、用反重力翼脱身；连帮他找零件，菈菈再用 Ace-Kun 击退他，扎斯丁则把伤者引到凉子的秘密诊所。次日皮卡利利用修好的装备再绑架菈菈，凉子以绷带制伏，菈菈用火箭送返；凉子揭露外星医生身份。结尾另标出待核对的家族镜头，并把光之国、火箭服、招式和 Seven 等名字解释为高度可信但未获制作方确认的奥特曼致敬。",
+      "reviewCriteria": [
+        "十四个 must-keep 节拍均可按语义辨认，包括凉子的校园／外星医生双重身份",
+        "求婚、绑架、脱困、治疗、制伏和送返的发起者没有漂移",
+        "奥特曼梗保持证据等级，且没有替 User 结算内心或运行时状态"
+      ]
+    },
+    {
+      "id": "ep09.reject-missing-mikado-dual-role",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选完整写了皮卡利求婚、菈菈三次反击和最后被送回母星，却只把凉子当作普通校医，省略她治疗外星人、修理火箭服、用绷带制伏以及承认自己也是外星人的全部内容。",
+      "reviewCriteria": [
+        "凉子的校医与秘密外星医生双重身份是本集登场核心",
+        "只保留皮卡利闹剧不能替代这一人物锚点"
+      ]
+    },
+    {
+      "id": "ep09.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选让夕崎梨子代替 User 两次因恶寒进入保健室，又让她在秘密诊所修好火箭服并以绷带制伏皮卡利；御门凉子只在结尾报出姓名。",
+      "reviewCriteria": [
+        "原作梨斗的第九集主角职能只能由 User 承接",
+        "治疗、修服、制伏和身份揭示必须属于御门凉子",
+        "梨子只能保留青梅和有限公开信息位"
+      ]
+    },
+    {
+      "id": "ep09.reject-abduction-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选写成 User 因吃醋命令菈菈先钻坏皮卡利装备，又故意把皮卡利引到诊所让凉子强化火箭服；第二天菈菈主动要求皮卡利带她走，凉子则受 User 命令绑住他。",
+      "reviewCriteria": [
+        "皮卡利必须独立发起求婚和强行带走",
+        "菈菈必须自主拒绝和反击，凉子必须自主治疗后因装备被滥用而制伏",
+        "不能用固定嫉妒替 User 决定动机"
+      ]
+    },
+    {
+      "id": "ep09.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选把上学路、第一次保健室、放学绑架、秘密诊所和次日保健室分别登记为五次自由行动，自行扣除 AP，并把 2008-05-29 直接注册成游戏日期。",
+      "reviewCriteria": [
+        "当前只能视作未注册的整集研究单元",
+        "不得自行结算 AP 或把播出日占位冒充游戏日期"
+      ]
+    },
+    {
+      "id": "ep09.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选在凉子说明外星医生身份后继续写电视台综艺事件、宇宙女艺人登场，并沿用《宇宙の女芸人》作为下一段标题。",
+      "reviewCriteria": [
+        "第九集必须在凉子身份说明和收尾吐槽附近结束",
+        "《宇宙の女芸人》属于第十集，不得因 Fandom 串标题而越界"
+      ]
+    },
+    {
+      "id": "ep09.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选看到角色档案已有凉子槽位，便自动创建她的恋爱角色卡、解锁世界书与攻略路线，把 User 健康永久改为生病，并结算好感、日期、AP 和第九集完成状态。",
+      "reviewCriteria": [
+        "研究稿没有角色卡、状态机和运行时写权限",
+        "档案槽位不等于凉子已经可用或可攻略",
+        "健康、好感、日期、AP、解锁和事件完成必须由权威系统处理"
+      ]
+    }
+  ]
+}
