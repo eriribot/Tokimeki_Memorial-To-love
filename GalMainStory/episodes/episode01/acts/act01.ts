@@ -20,6 +20,7 @@ export const EPISODE_01_ACT_01 = {
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+      { characterId: 'kenichi', portraitIds: ['school-uniform'] },
     ],
   },
   generation: {
@@ -65,9 +66,9 @@ export const EPISODE_01_ACT_01 = {
       text: '又只敢看？你对女孩子也太没免疫力了吧。',
       presentation: {
         sceneId: 'school',
-        focusCharacterId: 'haruna',
+        focusCharacterId: 'kenichi',
         portraitId: 'school-uniform',
-        expressionId: 'neutral',
+        expressionId: 'happy',
         effect: 'none',
       },
     },

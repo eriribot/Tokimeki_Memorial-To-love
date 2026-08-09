@@ -228,7 +228,8 @@
 .gal-main-story:not(.player-registration__opening)[data-focus-character='lala'] > .layered-portrait-stage,
 .gal-main-story:not(.player-registration__opening)[data-focus-character='mikan'] > .layered-portrait-stage,
 .gal-main-story:not(.player-registration__opening)[data-focus-character='haruna'] > .layered-portrait-stage,
-.gal-main-story:not(.player-registration__opening)[data-focus-character='riko'] > .layered-portrait-stage {
+.gal-main-story:not(.player-registration__opening)[data-focus-character='riko'] > .layered-portrait-stage,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='kenichi'] > .layered-portrait-stage {
   right: auto;
   bottom: auto;
   left: 48.888889%;
@@ -251,6 +252,10 @@
   top: 13.72549%;
 }
 
+.gal-main-story:not(.player-registration__opening)[data-focus-character='kenichi'] > .layered-portrait-stage {
+  top: 13.72549%;
+}
+
 /* The extracted source portraits read slightly squat beside the separately
    authored Riko composite. Keep the whole layered composite together and use
    one restrained stage correction rather than altering any source PNG. */
@@ -261,6 +266,9 @@
   > .layered-portrait-stage
   > .layered-portrait,
 .gal-main-story:not(.player-registration__opening)[data-focus-character='haruna']
+  > .layered-portrait-stage
+  > .layered-portrait,
+.gal-main-story:not(.player-registration__opening)[data-focus-character='kenichi']
   > .layered-portrait-stage
   > .layered-portrait {
   --portrait-scale-x: 0.96;

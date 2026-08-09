@@ -1,10 +1,12 @@
 import { HARUNA_STORY_CHARACTER } from './haruna';
+import { KENICHI_STORY_CHARACTER } from './kenichi';
 import { LALA_STORY_CHARACTER } from './lala';
 import { MIKAN_STORY_CHARACTER } from './mikan';
 import { RIKO_STORY_CHARACTER } from './riko';
 import type { LayeredPortraitRig, StoryCharacterDefinition } from './types';
 
 export { HARUNA_STORY_CHARACTER } from './haruna';
+export { KENICHI_STORY_CHARACTER } from './kenichi';
 export { LALA_STORY_CHARACTER } from './lala';
 export { MIKAN_STORY_CHARACTER } from './mikan';
 export { RIKO_STORY_CHARACTER } from './riko';
@@ -22,6 +24,7 @@ export const STORY_CHARACTERS = {
   haruna: HARUNA_STORY_CHARACTER,
   mikan: MIKAN_STORY_CHARACTER,
   riko: RIKO_STORY_CHARACTER,
+  kenichi: KENICHI_STORY_CHARACTER,
 } as const satisfies Record<string, StoryCharacterDefinition>;
 
 export type StoryCharacterId = keyof typeof STORY_CHARACTERS;
