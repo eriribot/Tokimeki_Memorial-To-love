@@ -8,6 +8,9 @@ import {
   normalizePlayerNamePart,
   PLAYER_BLOOD_TYPES,
   PLAYER_NAME_PART_MAX_LENGTH,
+  PLAYER_PROFILE_TEXT_MAX_LENGTH,
+  validatePlayerNamePart,
+  validatePlayerProfileText,
 } from '../stores/playerStore';
 import type { PlayerBloodType, PlayerRegistrationInput } from '../types';
 import { resolveAssetPath } from '../utils/assetPath';
@@ -17,7 +20,8 @@ interface PlayerRegistrationProps {
   onCancel: () => void;
 }
 
-type RegistrationStep = 'intro' | 'event-cg' | 'name' | 'birthday' | 'blood-type' | 'review';
+type RegistrationStep =
+  'intro' | 'event-cg' | 'name' | 'birthday' | 'blood-type' | 'appearance' | 'personality' | 'review';
 type RegistrationFormStep = Exclude<RegistrationStep, 'intro' | 'event-cg'>;
 
 const INTRO_LINES = [
@@ -40,12 +44,16 @@ const STEP_LABELS: Record<RegistrationFormStep, string> = {
   name: '姓名',
   birthday: '生日',
   'blood-type': '血型',
+  appearance: '外貌',
+  personality: '性格',
   review: '确认',
 };
 const STEP_HINTS: Record<RegistrationFormStep, string> = {
   name: '填写姓与名后选择“下一项”',
   birthday: '选择出生月份和日期',
   'blood-type': '选择血型；不知道时可以选择“不明”',
+  appearance: '用简短文字登记主角外貌',
+  personality: '登记性格倾向；它不会替玩家作出选择',
   review: '核对资料后完成新生登记',
 };
 const REGISTRATION_STEPS = Object.keys(STEP_LABELS) as RegistrationFormStep[];
@@ -61,6 +69,8 @@ function getBirthdayDayMaximum(month: number): number {
 export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps) {
   const advanceButtonRef = useRef<HTMLButtonElement>(null);
   const familyNameRef = useRef<HTMLInputElement>(null);
+  const appearanceRef = useRef<HTMLTextAreaElement>(null);
+  const personalityRef = useRef<HTMLTextAreaElement>(null);
   const [step, setStep] = useState<RegistrationStep>('intro');
   const [introIndex, setIntroIndex] = useState(0);
   const [familyName, setFamilyName] = useState('');
@@ -68,6 +78,8 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const [birthdayMonth, setBirthdayMonth] = useState(4);
   const [birthdayDay, setBirthdayDay] = useState(7);
   const [bloodType, setBloodType] = useState<PlayerBloodType>('unknown');
+  const [appearance, setAppearance] = useState('');
+  const [personality, setPersonality] = useState('');
   const [error, setError] = useState<string | null>(null);
   const birthdayDayMaximum = getBirthdayDayMaximum(birthdayMonth);
   const dayOptions = useMemo(
@@ -86,6 +98,8 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   useEffect(() => {
     if (step === 'intro' || step === 'event-cg') advanceButtonRef.current?.focus();
     if (step === 'name') familyNameRef.current?.focus();
+    if (step === 'appearance') appearanceRef.current?.focus();
+    if (step === 'personality') personalityRef.current?.focus();
   }, [step]);
 
   const advanceIntro = () => {
@@ -104,11 +118,15 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
     birthdayMonth,
     birthdayDay,
     bloodType,
+    appearance,
+    personality,
   });
 
   const goBack = () => {
     setError(null);
-    if (step === 'review') setStep('blood-type');
+    if (step === 'review') setStep('personality');
+    else if (step === 'personality') setStep('appearance');
+    else if (step === 'appearance') setStep('blood-type');
     else if (step === 'blood-type') setStep('birthday');
     else if (step === 'birthday') setStep('name');
     else if (step === 'name') onCancel();
@@ -119,13 +137,11 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
     setError(null);
 
     if (step === 'name') {
-      if (
-        normalizedFamilyName.length === 0 ||
-        normalizedGivenName.length === 0 ||
-        Array.from(normalizedFamilyName).length > PLAYER_NAME_PART_MAX_LENGTH ||
-        Array.from(normalizedGivenName).length > PLAYER_NAME_PART_MAX_LENGTH
-      ) {
-        setError(`姓和名都必须填写，且各不超过 ${PLAYER_NAME_PART_MAX_LENGTH} 个字符。`);
+      try {
+        setFamilyName(validatePlayerNamePart(familyName));
+        setGivenName(validatePlayerNamePart(givenName));
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
         return;
       }
       setStep('birthday');
@@ -138,8 +154,26 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
     }
 
     if (step === 'blood-type') {
+      setStep('appearance');
+      return;
+    }
+
+    if (step === 'appearance') {
       try {
-        createPlayerProfile(registrationInput());
+        const normalizedAppearance = validatePlayerProfileText(appearance, '外貌');
+        setAppearance(normalizedAppearance);
+        setStep('personality');
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
+      }
+      return;
+    }
+
+    if (step === 'personality') {
+      try {
+        const normalizedPersonality = validatePlayerProfileText(personality, '性格');
+        setPersonality(normalizedPersonality);
+        createPlayerProfile({ ...registrationInput(), personality: normalizedPersonality });
         setStep('review');
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : String(cause));
@@ -327,6 +361,11 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                   <p id="registration-name-rule" className="player-registration__field-note">
                     姓和名各不超过 {PLAYER_NAME_PART_MAX_LENGTH} 个字符；登记完成后不可修改。
                   </p>
+                  <div className="player-registration__fixed-field" aria-label="性别固定为男性">
+                    <span>性别</span>
+                    <strong>男性</strong>
+                    <small>本作主角设定固定，不能更改</small>
+                  </div>
                 </fieldset>
               )}
 
@@ -386,6 +425,52 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                 </fieldset>
               )}
 
+              {step === 'appearance' && (
+                <fieldset>
+                  <legend>登记你的外貌。</legend>
+                  <p className="player-registration__riko-line">
+                    “写清楚就好。没有登记的细节，之后也不会擅自替你补上。”
+                  </p>
+                  <label className="player-registration__text-field">
+                    <span>外貌</span>
+                    <textarea
+                      ref={appearanceRef}
+                      value={appearance}
+                      onChange={event => setAppearance(event.target.value)}
+                      rows={4}
+                      aria-describedby="registration-appearance-rule"
+                    />
+                  </label>
+                  <p id="registration-appearance-rule" className="player-registration__field-note">
+                    必填，NFKC 规范化后不超过 {PLAYER_PROFILE_TEXT_MAX_LENGTH} 个 Unicode 字符；当前{' '}
+                    {Array.from(appearance.normalize('NFKC')).length} 个。
+                  </p>
+                </fieldset>
+              )}
+
+              {step === 'personality' && (
+                <fieldset>
+                  <legend>最后登记性格倾向。</legend>
+                  <p className="player-registration__riko-line">
+                    “这只描述平时的倾向。关键行动、对白和路线，当然还是由你自己决定。”
+                  </p>
+                  <label className="player-registration__text-field">
+                    <span>性格</span>
+                    <textarea
+                      ref={personalityRef}
+                      value={personality}
+                      onChange={event => setPersonality(event.target.value)}
+                      rows={4}
+                      aria-describedby="registration-personality-rule"
+                    />
+                  </label>
+                  <p id="registration-personality-rule" className="player-registration__field-note">
+                    必填，NFKC 规范化后不超过 {PLAYER_PROFILE_TEXT_MAX_LENGTH} 个 Unicode 字符；当前{' '}
+                    {Array.from(personality.normalize('NFKC')).length} 个。
+                  </p>
+                </fieldset>
+              )}
+
               {step === 'review' && (
                 <fieldset>
                   <legend>登记资料确认</legend>
@@ -398,6 +483,10 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                       <dd>{displayName}</dd>
                     </div>
                     <div>
+                      <dt>性别</dt>
+                      <dd>男性</dd>
+                    </div>
+                    <div>
                       <dt>生日</dt>
                       <dd>
                         {birthdayMonth} 月 {birthdayDay} 日
@@ -406,6 +495,14 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                     <div>
                       <dt>血型</dt>
                       <dd>{BLOOD_TYPE_LABELS[bloodType]}</dd>
+                    </div>
+                    <div className="is-long">
+                      <dt>外貌</dt>
+                      <dd>{appearance}</dd>
+                    </div>
+                    <div className="is-long">
+                      <dt>性格</dt>
+                      <dd>{personality}</dd>
                     </div>
                   </dl>
                 </fieldset>

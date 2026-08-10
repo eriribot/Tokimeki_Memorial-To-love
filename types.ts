@@ -4,13 +4,18 @@ export type GameScreen = 'start' | 'registration' | 'game';
 
 export type PlayerBloodType = 'A' | 'B' | 'AB' | 'O' | 'unknown';
 
+export type PlayerGender = 'male';
+
 export interface PlayerProfile {
   familyName: string;
   givenName: string;
   displayName: string;
+  gender: PlayerGender;
   birthdayMonth: number;
   birthdayDay: number;
   bloodType: PlayerBloodType;
+  appearance: string;
+  personality: string;
   registrationCompleted: true;
 }
 
@@ -20,6 +25,8 @@ export interface PlayerRegistrationInput {
   birthdayMonth: number;
   birthdayDay: number;
   bloodType: PlayerBloodType;
+  appearance: string;
+  personality: string;
 }
 
 export interface CalendarDateValue {

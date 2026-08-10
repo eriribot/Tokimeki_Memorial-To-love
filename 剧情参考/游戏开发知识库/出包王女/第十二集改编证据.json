@@ -1,0 +1,974 @@
+{
+  "schemaVersion": 2,
+  "episode": {
+    "series": "To LOVE-Ru 2008 TV",
+    "number": 12,
+    "sourceTitle": "戦慄！ 体育祭",
+    "targetTitle": "战栗！体育祭（沙姬攻略资格起点；未注册研究稿）"
+  },
+  "sources": [
+    {
+      "id": "tbs-episode-12",
+      "kind": "official-metadata",
+      "location": "https://www.tbs.co.jp/anime/to-love-ru/03story/story.html",
+      "supports": "第十二集体育祭主轴、准备体操、借物赛跑、障碍赛、男女混合接力因地裂取消、最终改成泳装水上骑马战，以及沙姬预先准备让菈菈出丑的计划。"
+    },
+    {
+      "id": "xebec-episode-12",
+      "kind": "official-metadata",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode12.html",
+      "supports": "标题《戦慄！ 体育祭》、2008-06-19 25:55 至 26:25 的播出信息、制作人员，并确认原作梨斗想向春菜表现、沙姬想击败菈菈并证明自己才是校园第一。"
+    },
+    {
+      "id": "telasa-episode-12",
+      "kind": "official-metadata",
+      "location": "https://www.telasa.jp/videos/252284",
+      "supports": "持牌流媒体页面旁证本集为约 24 分钟的体育祭事件，以及各项比赛失控后进入水上骑马战的官方主轴。"
+    },
+    {
+      "id": "jcom-episode-12",
+      "kind": "official-metadata",
+      "location": "https://linkvod.myjcom.jp/video/1704766",
+      "supports": "另一持牌页面旁证第十二集标题、体育祭背景和沙姬对菈菈的竞争主轴；只作平台级交叉核对。"
+    },
+    {
+      "id": "fandom-episode-12",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/A_Frightening_Field_Day%21",
+      "supports": "英文单集社区页提供第十二集标题、播出日期和出场人物导航；其剧情摘要很短，也不承担动画原创分类或完整顺序。"
+    },
+    {
+      "id": "fandom-es-episode-12",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/es/wiki/Episodio_12",
+      "supports": "西语社区页旁证开场身体事故、沙姬宣战、荒唐准备体操、爱情障碍赛、传说之剑地裂、泳池骑马战、切割器反噬和菈菈获胜的总体顺序；借物卡精确文字与保健室终场仍以字幕及其他社区复盘交叉核对。"
+    },
+    {
+      "id": "community-subtitle-ep12",
+      "kind": "direct-frame",
+      "location": "第十二集字幕时间锚点.md",
+      "supports": "本轮直接核读社区英文 ASS 后保存的中文意译时间码：02:33 至 20:39 锁定猿山的连续赛事解说，03:16 至 20:32 锁定沙姬与菈菈的多轮竞争，13:47 至 15:22 锁定传说之剑地裂与换项目，16:26 至 20:32 锁定泳池骑马战和菈菈获胜，20:53 至 22:04 锁定保健室对话与大玉打断。按证据包类型，带时间码字幕归入 direct-frame，但它不是官方译文，也不能代替画面验收。"
+    },
+    {
+      "id": "ameblo-episode-12-review",
+      "kind": "community-plot",
+      "location": "https://ameblo.jp/kada0823/entry-10115064281.html",
+      "supports": "当年日文截图复盘旁证推推装置与春菜的衣物事故、地裂后的身体误会、沛凯即时修复、连切换为伦、切割器波及范围、春菜昏倒、原作梨斗救援、沙姬自食其果，以及大玉撞破保健室墙后的终场事故；精确构图仍待正片复核。"
+    },
+    {
+      "id": "hatenablog-episode-12-review",
+      "kind": "community-plot",
+      "location": "https://riyot.hatenablog.com/entry/20080620/1213956591",
+      "supports": "当年日文观后记录旁证水上骑马战与天条院大玉闯入收尾的总体结构，并可与字幕顺序互证。"
+    },
+    {
+      "id": "fandom-anime-original",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/To_LOVE-Ru_%28anime%29",
+      "supports": "社区集数表把 TV 第十二集标记为动画原创回，用于阻止把漫画 Trouble 83 至 84 的另一场体育祭篇直接并入本集。"
+    },
+    {
+      "id": "manga-chapter-83",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/Love_%2B_Sports%3D_%3F%21",
+      "supports": "用于比较漫画 Trouble 83 的另一场体育祭篇；人物阵容、比赛与关系节点均不同，不能覆盖 TV 第十二集。"
+    },
+    {
+      "id": "manga-chapter-84",
+      "kind": "community-plot",
+      "location": "https://toloveru.fandom.com/wiki/The_Hidden_Face_Of_The_Tournament",
+      "supports": "用于比较漫画 Trouble 84 的体育祭后续；只作版本边界反证，不向 TV 原创回倒灌小暗、美柑、萨斯丁或漫画专属结局。"
+    },
+    {
+      "id": "project-role-authority",
+      "kind": "project-authority",
+      "location": "../../../MODULES.md",
+      "supports": "User 是唯一主角并承接原作男性梨斗的故事职能；男性梨斗不作为另一人物存在；夕崎梨子是独立青梅兼美柑姐姐，不继承主角位置；未注册配角可以使用通用文字姓名牌。"
+    },
+    {
+      "id": "project-saki-lore",
+      "kind": "project-authority",
+      "location": "../../../data/lore-books/tolove-character-saki.txt",
+      "supports": "沙姬是 16 岁学生，保留高傲、竞争心、对菈菈的执着以及与凛、绫的朋友关系；第五集把 User 当竞争筹码并不证明爱情或玩家同意，衣物事故只能以遮挡、制止、慌乱和后果呈现。"
+    },
+    {
+      "id": "project-saki-archive",
+      "kind": "project-authority",
+      "location": "../../../data/characterArchive.ts",
+      "supports": "项目把天条院沙姬绑定为人物档案第 16 槽，但当前档案解析仍依赖匹配角色卡；已有槽位素材不等于角色可用或路线已接入。"
+    },
+    {
+      "id": "project-character-availability",
+      "kind": "project-authority",
+      "location": "../../../data/characterAvailability.ts",
+      "supports": "当前没有 saki 的显式可用性规则，未知 id 又默认可见；未来若只添加角色卡会意外开局解锁，因此正式接入必须同时增加完成第十二集后的显式规则。"
+    },
+    {
+      "id": "runtime-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/episodes/index.ts",
+      "supports": "当前生产主线只注册第一至第四集；第十二集没有 acts、日期、场景、世界书或状态接线。"
+    },
+    {
+      "id": "character-registry",
+      "kind": "project-authority",
+      "location": "../../../GalMainStory/characters/index.ts",
+      "supports": "当前 GAL 分层角色注册表没有沙姬角色模块；她也没有普通立绘、分层表情或专用 PNG 姓名牌，研究稿不能声称运行时已可攻略。"
+    },
+    {
+      "id": "episode05-saki-continuity",
+      "kind": "project-authority",
+      "location": "第五集Fandom剧情整理.md",
+      "supports": "第五集已建立沙姬因菈菈的婚约说法而把 User 当作竞争策略的一部分；本集可以向前发展为独立攻略候选，但不能倒叙成她从第五集起就已暗恋 User。"
+    },
+    {
+      "id": "episode08-saki-continuity",
+      "kind": "project-authority",
+      "location": "第八集Fandom剧情整理.md",
+      "supports": "第八集再次让沙姬用抢走原作梨斗刺激菈菈，旁证这一做法此前仍是竞争策略；第十二集新增的变化应是她开始询问并尊重 User 本人的答复。"
+    },
+    {
+      "id": "user-saki-route-priority",
+      "kind": "project-authority",
+      "location": "用户本轮明确要求（2026-08-08）",
+      "supports": "用户要求从第十二集起把沙姬作为独立可攻略候选，并允许她与菈菈把 User 列为体育祭胜负的赌注之一。"
+    },
+    {
+      "id": "user-fanservice-priority",
+      "kind": "project-authority",
+      "location": "用户本轮补充要求（2026-08-08）",
+      "supports": "用户明确要求不能把《出包王女》的身体喜剧完全删光：可给 User 少量、非露骨福利，但不把女学生身体作为路人、观众、猿山或校长的公共福利。"
+    },
+    {
+      "id": "consent-stake-bridge",
+      "kind": "inference",
+      "location": "本轮对原版连单方面拿菈菈作赌注、User 玩家权威与用户路线要求的适配归纳（2026-08-08）",
+      "supports": "将新增赌注收窄为胜者获得一次优先正式邀请 User 的机会；沙姬只能提出、菈菈只能替自己同意，User 必须自行接受、拒绝或限定，并在赛制改成泳池后再次确认。"
+    },
+    {
+      "id": "fanservice-redirection-bridge",
+      "kind": "inference",
+      "location": "本轮对原版公共衣物破坏与用户定向福利要求的适配归纳（2026-08-08）",
+      "supports": "保留切割器、沛凯修复、失控加码和自食其果的喜剧结构，把目标改为头巾、号码布或外层队服；其中一次故障只让 User 湿身或损坏外层装备，安全内层与遮挡完整。"
+    },
+    {
+      "id": "research-date-placeholder",
+      "kind": "inference",
+      "location": "本证据包研究期结构占位（2026-08-08）",
+      "supports": "为满足证据包 v2 结构，暂以官方播出日 2008-06-19 作为未注册研究单元的日期占位；它不是获准的游戏内日期，正式适配前必须在前序连续性冻结后重新分配。"
+    }
+  ],
+  "counterevidence": [
+    {
+      "id": "xebec-modified-date-typo",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode12.html",
+      "staleClaim": "页面底部的 2006-06-19 修改日期就是第十二集播出日。",
+      "resolution": "该值与节目栏和系列年份冲突；采用同页正文明确列出的 2008-06-19 25:55 至 26:25，并由持牌页面交叉核对。"
+    },
+    {
+      "id": "tv-original-not-manga-sports-day",
+      "location": "https://toloveru.fandom.com/wiki/To_LOVE-Ru_%28anime%29",
+      "staleClaim": "TV 第十二集就是漫画 Trouble 83 至 84，因此可以加入小暗、美柑、萨斯丁和漫画版赛制。",
+      "resolution": "第十二集是独立的 TV 原创体育祭；本稿保留其借物赛跑、爱情障碍、传说之剑、泳池骑马战和大玉收尾，不合并漫画 Trouble 83 至 84 的另一场体育祭篇。"
+    },
+    {
+      "id": "saki-originally-targets-lala-only",
+      "location": "https://www.production-ig.co.jp/xebec/anime/toloveru/episode12.html",
+      "staleClaim": "原版第十二集已经演过沙姬与菈菈拿梨斗作正式赌注。",
+      "resolution": "官方主轴只确认沙姬要击败菈菈、证明自己是校园第一；User 赌注与攻略资格来自本轮用户授权和第五集连续性，必须明确标作适配。"
+    },
+    {
+      "id": "episode05-is-not-retroactive-love",
+      "location": "../../../data/lore-books/tolove-character-saki.txt",
+      "staleClaim": "沙姬第五集曾把 User 当作竞争筹码，所以当时就已经暗恋并拥有他的同意。",
+      "resolution": "旧事件只证明竞争策略；本集可以成为她开始尊重 User 选择、获得路线资格的新节点，不能倒写过去的爱情或同意。"
+    },
+    {
+      "id": "romanceable-is-not-settlement",
+      "location": "../../../data/characterAvailability.ts",
+      "staleClaim": "写下沙姬可攻略，就等于本集自动创建角色卡、解锁地图、增加好感并完成约会。",
+      "resolution": "本稿只冻结独立攻略候选和未来路线入口；运行时仍缺角色卡、显式 after-event 规则、角色模块、立绘、世界书与事件注册，初始关系值也不得自动改变。"
+    },
+    {
+      "id": "user-is-not-owned-prize",
+      "location": "用户本轮明确要求（2026-08-08）",
+      "staleClaim": "沙姬或菈菈赢得比赛后便拥有 User，可以强制约会、亲吻或确认感情。",
+      "resolution": "胜者最多获得一次优先提出赛后邀请的机会；User 是否接受、邀约内容和任何亲密程度仍由玩家决定，比赛胜负不直接结算关系。"
+    },
+    {
+      "id": "proposal-is-not-user-consent",
+      "location": "第十二集字幕时间锚点.md",
+      "staleClaim": "沙姬提出赌注、菈菈答应挑战，就足以代表 User 同意；后来把陆上项目改成泳池也不需重新确认。",
+      "resolution": "原版 04:55 至 05:22 已用男形连的单方面赌约和立即反驳说明他人不能替当事人决定；新增赌注必须取得 User 明示回应，且赛制发生实质变化后再次确认，否则赌注条款失效但比赛继续。"
+    },
+    {
+      "id": "public-cutter-is-not-retained-fanservice",
+      "location": "第十二集字幕时间锚点.md",
+      "staleClaim": "要保留《出包王女》味道，就必须照搬切割器破坏女学生泳装、让校长和全校观众获得公共福利。",
+      "resolution": "保留荒唐武器、修复、失控、自食其果和 User 定向轻度身体喜剧即可维持类型感；女性参赛者的安全内层与遮挡始终完整，路人、猿山和校长不获得身体展示。"
+    },
+    {
+      "id": "exclusive-user-does-not-mean-no-fanservice",
+      "location": "用户本轮补充要求（2026-08-08）",
+      "staleClaim": "为了避免公共卖肉，应把湿身、外层衣物事故、近距离骑马战和毛巾救场全部删掉。",
+      "resolution": "用户明确要求保留少量 User 定向福利；可写湿透运动上衣、外层队服或号码布受损、短暂肩背或身形喜剧、遮挡和毛巾处理，但不描写敏感部位或延长凝视。"
+    },
+    {
+      "id": "adaptation-safety-does-not-erase-original-accidents",
+      "location": "第十二集字幕时间锚点.md",
+      "staleClaim": "目标版不保留公共卖肉，所以研究层也可以略去推推装置扯下春菜运动短裤、地裂坠落误触春菜胸部，以及大玉撞破保健室墙后最后一次暧昧身体事故。",
+      "resolution": "证据层仍如实记录三段原动画标志性事故，并标明哪些动作来自社区剧情或截图复盘、尚待正片核图；目标适配层才把它们重定向为只面向 User、遮挡完整、非露骨且不供路人观看的身体喜剧。"
+    },
+    {
+      "id": "saruyama-is-not-principal",
+      "location": "第十二集字幕时间锚点.md",
+      "staleClaim": "猿山和校长都只是好色男生，可以合并成一个猥琐解说或用普通旁白取代。",
+      "resolution": "猿山承担贯穿全集的专业播音腔和灾难吐槽；校长只在被邀请评论时越界并应立刻被静音、打断或撤下，两者功能不可合并。"
+    },
+    {
+      "id": "community-subtitle-not-official",
+      "location": "第十二集字幕时间锚点.md",
+      "staleClaim": "社区英文 ASS 的英文措辞、服装名和说话人归属都是官方逐字台词。",
+      "resolution": "字幕只作带时间码的语义证据；无说话人标注的解说归属、日文借物卡原词、开场和切割器的精确构图仍需正片或官方台本复核。"
+    },
+    {
+      "id": "archive-slot-is-not-runtime-unlock",
+      "location": "../../../data/characterArchive.ts",
+      "staleClaim": "第 16 槽已有沙姬 Q 版图，因此她已经有正式角色卡、立绘、姓名牌并可从开局攻略。",
+      "resolution": "现有素材只覆盖人物档案槽，且曾被明确标为参考生成素材；运行时缺口仍存在，未来还必须避免未知 id 默认可见造成的意外开局解锁。"
+    },
+    {
+      "id": "airdate-not-game-date",
+      "location": "本证据包研究期结构占位（2026-08-08）",
+      "staleClaim": "2008-06-19 是第十二集已经获准注册的游戏内日期，应立即扣除行动点并结算路线。",
+      "resolution": "该日期只是结构校验用的官方播出日占位；前序连续性、场景、角色资产、状态合同和正式触发日冻结前不得注册或结算。"
+    }
+  ],
+  "roleMap": [
+    {
+      "original": "结城梨斗",
+      "storyFunction": "想在体育祭表现、连续卷入身体事故、参加借物赛跑与接力、受猿山邀请顶替田中进入春菜骑马队、救下春菜并在保健室与她互相道歉的主角位置",
+      "target": "User",
+      "inherit": [
+        "承接开场运动事故、荒唐借物卡、推推装置和传说之剑地裂引发的主角混乱",
+        "由猿山邀请而顶替田中参加春菜的骑马队，并在春菜昏倒后自行放弃比赛救人",
+        "承接保健室中的互相道歉和被天条院巨型大玉（滚球）打断的私下谈话位置",
+        "作为新增有限赌注的当事人，独占接受、拒绝、限定和二次确认权"
+      ],
+      "exclude": [
+        "男性结城梨斗作为另一名现实人物并存",
+        "替 User 固定想向谁表现、对春菜的恋爱期待、身体反应、尴尬程度或赛后邀约选择",
+        "把胜负写成 User 被任何角色拥有、强制约会或亲密",
+        "把同一主角职能拆给夕崎梨子"
+      ]
+    },
+    {
+      "original": "天条院沙姬",
+      "storyFunction": "以运动员宣誓挑战菈菈、在多项比赛失利后强改泳池骑马战、滥用财团武器并因失控自食其果的校园竞争者",
+      "target": "天条院沙姬（项目 id：saki；本集建立独立攻略候选资格）",
+      "inherit": [
+        "保留华丽自夸、对菈菈的竞争心、失败后不断加码和天条院集团式夸张排场",
+        "由她提出把一次优先邀请 User 的机会列为附加赌注，但必须听取 User 回应",
+        "改成泳池后再次询问 User 是否维持条款，第一次把 User 当作有选择的人而非菈菈的附属竞争物",
+        "输掉骑马战后仍可保留下一次正式竞争与邀请的路线种子，但不自动恋爱或解锁"
+      ],
+      "exclude": [
+        "把 User 当作所有权奖品、无视拒绝或擅自决定亲密关系",
+        "把第五集竞争策略倒写成长期暗恋",
+        "为赢菈菈而让凛、绫沦为无意见工具，或删除她们的安全警告",
+        "因研究稿完成便创建角色卡、结算好感、开放地图或注册路线"
+      ]
+    },
+    {
+      "original": "菈菈·萨塔琳·戴比路克",
+      "storyFunction": "轻松接受沙姬挑战、赢得爱情障碍与水上骑马战、使用推推装置帮助主角、由沛凯修复装备并在结尾宣布胜利",
+      "target": "菈菈",
+      "inherit": [
+        "保留把沙姬严肃挑战当成有趣比赛的自然态度",
+        "可以替自己接受胜负挑战，却不能替 User 接受有限赌注",
+        "保留推推装置造成全员失格、冲破爱情障碍、沛凯修复和最终摘下沙姬头巾获胜",
+        "结尾以宣布胜利打断保健室谈话"
+      ],
+      "exclude": [
+        "用婚约说法代替 User 的同意或把胜利结算成 User 归属",
+        "因赢得比赛自动获得约会、亲吻、恋爱值或未来婚姻",
+        "把菈菈衣物破坏当作公共身体展示",
+        "夺走沙姬提出挑战或 User 回应赌注的因果权"
+      ]
+    },
+    {
+      "original": "西连寺春菜",
+      "storyFunction": "参加障碍赛、与主角接力和骑马战、在失控中昏倒并于保健室与主角互相道歉的关系推进者",
+      "target": "西连寺春菜",
+      "inherit": [
+        "保留爱情障碍中的慌乱退出、接力交棒、骑马队合作和认真鼓励",
+        "因赛场失控而昏倒，由 User 主动退出比赛送往保健室",
+        "醒来后确认救援并和 User 互相道歉，谈话被大玉与菈菈打断"
+      ],
+      "exclude": [
+        "把近距离合作写成她已确认 User 的欲望、恋爱或关系",
+        "让昏倒成为公开衣物福利或让猿山、校长和观众凝视",
+        "代替 User 接受沙姬与菈菈的赌注",
+        "把未说完的保健室对话结算成告白成功"
+      ]
+    },
+    {
+      "original": "猿山ケンイチ",
+      "storyFunction": "从运动员入场到红队获胜，以过度专业的播音腔持续报告荒唐规则、选手退场、解说更换、地裂和泳池武器失控的喜剧主轴",
+      "target": "猿山",
+      "inherit": [
+        "保留自我介绍、热血宣战包装、借物卡逐张播报、全员失格和临时换解说",
+        "保留红队领先与垫底、连扛剑归来、热情白费、地裂取消接力和立刻转入下一项目",
+        "保留泳池升起、规则被临时批准、投射物失控、菈菈队与红队获胜的连续实况",
+        "笑点只瞄准规则、装备、比分、场地损坏和所有人强装正常的荒谬"
+      ],
+      "exclude": [
+        "把整条解说链改成普通旁白或交给梨子",
+        "与校长合并成同一好色解说者",
+        "对未成年女生身体或衣物事故作兴奋描述",
+        "替 User 宣布赌注同意、欲望或感情"
+      ]
+    },
+    {
+      "original": "校长",
+      "storyFunction": "提出越界准备体操、临时担任副解说并因泳装批准改规则，随后不断发表越界感想且成为立即受罚的失败笑点",
+      "target": "校长（越界行为仅保留失败与受罚功能）",
+      "inherit": [
+        "准备体操刚暴露不当意图便遭学生拒绝和现场制止",
+        "被猿山询问赛事意见时答非所问并立刻被静音、切断话筒、投掷物打断或撤下评论席",
+        "对泳池改规则的草率批准可以保留为制度失灵笑点，但正式比赛还需安全人员确认"
+      ],
+      "exclude": [
+        "让越界动作真正完成或让镜头配合身体展示",
+        "以校长视角观看女学生衣物事故并获得福利回报",
+        "抢走猿山的赛事播报主轴",
+        "把他的批准当成 User 赌注或参赛安全的有效同意"
+      ]
+    },
+    {
+      "original": "连／伦",
+      "storyFunction": "在借物赛跑中单方面拿菈菈作赌并跑出校园找传说之剑，接力时缺席，最终带剑回归并引发地裂",
+      "target": "连／伦（同一人的男女两种形态，不拆成同时存在的两名角色）",
+      "inherit": [
+        "保留单方面宣称菈菈归属并立即被反驳的错误示范",
+        "保留抽中传说之剑、离开校园、错过接力棒、真把剑带回和造成地裂的长线回收",
+        "保留水池切割器混乱蒙太奇中男形连切换为女形伦的事实，但不擅自断言切割器直接触发，也不承接公共衣物福利"
+      ],
+      "exclude": [
+        "把单方面赌约写成菈菈有效同意或浪漫壮举",
+        "把连和伦当作能同时上场的两个人",
+        "让其传说之剑因果被沙姬装置、User 或普通地震取代",
+        "让变身后成为路人围观的身体展示"
+      ]
+    },
+    {
+      "original": "弄光先辈",
+      "storyFunction": "抽到那一天萌生的爱后借题向菈菈搭讪，并在她明确拒绝后彻底失败的借物赛跑笑点",
+      "target": "弄光先辈",
+      "inherit": [
+        "保留夸张自信、把借物任务偷换成搭讪和菈菈直接拒绝",
+        "由猿山吐槽他不是借感情而是在搭讪，并报告失败到底"
+      ],
+      "exclude": [
+        "让菈菈借出真实感情或产生好感",
+        "将搭讪改写成骚扰成功或公共福利",
+        "让他成为 User 赌注的决定者"
+      ]
+    },
+    {
+      "original": "古手川唯",
+      "storyFunction": "参加爱情障碍和混合接力、认真领跑红队，并在沙姬擅改泳池规则时提出常识性质疑",
+      "target": "古手川唯",
+      "inherit": [
+        "保留认真参赛、红队领先和对失序规则的质疑",
+        "作为常识锚点指出不能擅自更改比赛条件"
+      ],
+      "exclude": [
+        "改成公共衣物事故对象",
+        "替 User 接受赌注或替赛事方完成安全同意",
+        "因认真性格而被写成阻碍喜剧的反派"
+      ]
+    },
+    {
+      "original": "九条凛与藤崎绫",
+      "storyFunction": "协助沙姬启动天条院集团设备，又在切割器失控时多次警告她停止的朋友和制动者",
+      "target": "凛与绫",
+      "inherit": [
+        "保留对沙姬的配合、熟悉设备和危险升级后的明确警告",
+        "她们的反对必须成为沙姬无视风险并自食其果的因果证据"
+      ],
+      "exclude": [
+        "写成无条件服从、没有判断力的随从",
+        "成为切割器公共福利对象",
+        "为沙姬承担擅自加码的责任"
+      ]
+    },
+    {
+      "original": "沛凯",
+      "storyFunction": "在菈菈装备被切割器命中后立刻修复，从而逼沙姬继续加码并导致武器系统失控",
+      "target": "沛凯",
+      "inherit": [
+        "即时修复菈菈的头巾系带或外层队服，保持比赛能力",
+        "修复行为成为沙姬追加投射物的直接刺激"
+      ],
+      "exclude": [
+        "把修复描写成对暴露身体的持续展示",
+        "替 User 修复并取消其唯一轻度福利事故",
+        "自行决定比赛胜负或 User 赌注"
+      ]
+    },
+    {
+      "original": "骨川老师与御门凉子",
+      "storyFunction": "先后担任副解说：骨川把借物赛跑扯向古典文学后因荒唐卡片倒下，御门冷静评论爱情障碍后受不了而离席",
+      "target": "骨川老师与御门凉子（副解说轮换）",
+      "inherit": [
+        "保留骨川冗长讲古、兴奋倒下和担架退场",
+        "保留御门的成人式冷静评论、受够后突然离席",
+        "每次退出都由猿山一本正经宣布换人并继续比赛"
+      ],
+      "exclude": [
+        "取代猿山成为整集主解说",
+        "把骨川兴奋对象扩写成女学生身体",
+        "让御门替 User 确认恋爱或赌注"
+      ]
+    },
+    {
+      "original": "夕崎梨子",
+      "storyFunction": "原版第十二集没有承接梨斗、春菜、沙姬、猿山或赛事核心职能的独立角色",
+      "target": "夕崎梨子（如出现，仅限独立观众或秩序提醒）",
+      "inherit": [
+        "可作为青梅兼美柑姐姐在看台短暂提醒安全或对 User 的狼狈作熟人反应",
+        "保持与菈菈、春菜、沙姬相互独立的路线身份"
+      ],
+      "exclude": [
+        "代替 User 参赛、成为赌注、救春菜或进入保健室私下谈话",
+        "代替沙姬挑战菈菈或开放沙姬路线",
+        "代替猿山解说整场比赛",
+        "继承任何男性梨斗职能"
+      ]
+    }
+  ],
+  "playerAuthority": {
+    "userRole": "User 是正式改编时唯一承接原作梨斗第十二集参赛、事故、救援和保健室位置的主角，也是新增有限赌注唯一能表示同意的人；本研究稿仍用原作姓名描述动画事实。",
+    "fixed": [
+      "正式改编中不存在另一名男性结城梨斗，夕崎梨子不继承其体育祭职能",
+      "沙姬提出挑战和有限赌注，菈菈只能替自己接受，User 必须单独回应；没有明示同意时赌注条款不成立",
+      "胜者最多获得一次优先正式邀请 User 的机会，不获得 User 的所有权、强制约会、亲吻、恋爱或好感",
+      "沙姬把赛制从陆上骑马战改为泳池后必须重新确认 User；未确认则只取消赌注条款，不取消比赛",
+      "沙姬从本集取得独立攻略候选与未来路线入口，但本研究稿不创建角色卡、不解锁地图、不增加关系值",
+      "轻度身体喜剧只以 User 为接收视角，User 本人也可短时湿身、外层运动服或号码布受损、近距离合作与毛巾遮挡；安全内层完整且不描写敏感部位",
+      "女性学生不作为路人、观众、猿山或校长的公共卖肉对象；若女主角有外层装备滑移、遮挡或贴近反应，只能让近在身边的 User 看见并立即协助遮断，切割器仍改为破坏头巾、系带、号码布或外层队服",
+      "猿山必须贯穿整场，以专业播音腔报告荒唐规则、比分、失格、换解说、地裂、泳池与武器失控；他与校长严格分离",
+      "校长越界发言只能以被拒绝、静音、投掷物打断或撤下评论席收束，不能得到镜头奖励",
+      "传说之剑的离场、缺席、归来、地裂和接力取消，以及沙姬切割器加码、自食其果和菈菈获胜两条因果链必须完整"
+    ],
+    "reserved": [
+      "User 开场想向谁或为何表现，以及面对事故、比赛和春菜的具体情绪与对白",
+      "User 是否接受沙姬提出的有限赌注、附加哪些边界，以及泳池改赛后是否继续同意",
+      "若菈菈获胜，她是否提出赛后邀请、邀请内容是什么，以及 User 是否接受",
+      "User 对沙姬从竞争对象转为攻略候选的兴趣、好感、信任、吸引力和后续路线选择",
+      "User 对湿身、外层衣物事故、近距离接触和被照顾的主观感受与身体反应",
+      "User 在春菜昏倒后的具体救援方式、保健室道歉内容和未说完的话",
+      "正式游戏触发日期、行动点、角色卡、档案解锁、地图可见性、好感、关系和事件完成状态",
+      "猿山逐字笑话可自然重写，但其连续出现位置和针对规则、设备、比分及场地灾难的功能不可删"
+    ]
+  },
+  "beats": [
+    {
+      "id": "ep12.field-day-opening-user-mishap",
+      "summary": "彩南高中体育祭开场，原作梨斗因想在春菜面前表现而兴奋，却在胜利动作中制造衣物事故并被反击，立刻建立越想耍帅越出包的身体喜剧。",
+      "status": "adapted",
+      "sourceRefs": [
+        "xebec-episode-12",
+        "fandom-es-episode-12",
+        "community-subtitle-ep12",
+        "project-role-authority",
+        "user-fanservice-priority"
+      ],
+      "adaptation": "主角位置映射为 User；不固定他想向春菜还是其他人表现。事故改成 User 自己的外层运动服、号码布或动作姿势先出糗，女性角色衣物不被公开掀起，以短促遮挡和反击保留《出包王女》式节奏。",
+      "causalOwners": [
+        "User：选择表现方式并因动作过大卷入事故",
+        "春菜或现场同伴：立即制止、遮挡或反击，不成为公共福利对象"
+      ]
+    },
+    {
+      "id": "ep12.saruyama-comic-spine",
+      "summary": "猿山从运动员入场一直解说到红队获胜，以专业而过热的体育播音腔，把私人宣战、荒唐借物卡、全员失格、解说轮换、传说之剑地裂、泳池升起和投射物失控串成同一条喜剧主轴。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "user-fanservice-priority",
+        "project-role-authority"
+      ],
+      "adaptation": "保留各阶段的猿山实况位置和越灾难越镇定的节奏；笑点对象改为规则、任务、设备、比分、失格、场地损坏和临时换人，不对未成年女生身体评论。普通旁白只能补场景，不能替代猿山。",
+      "causalOwners": [
+        "猿山：持续播报、切换副解说并用赛事语言包装灾难",
+        "校长：仅在被问及时越界并立刻遭制止，不能继承猿山功能"
+      ]
+    },
+    {
+      "id": "ep12.saki-oath-and-lala-challenge",
+      "summary": "沙姬在运动员宣誓中长篇赞美自己，随后公开点名菈菈并发誓绝不输给她；猿山把这场私人较劲包装成赌上青春的热血决战，菈菈只觉得比赛很好玩。",
+      "status": "confirmed",
+      "sourceRefs": [
+        "xebec-episode-12",
+        "community-subtitle-ep12",
+        "fandom-es-episode-12"
+      ],
+      "causalOwners": [
+        "沙姬：发起校园第一之争并维持华丽自我形象",
+        "菈菈：自行决定以轻松态度接受竞技挑战",
+        "猿山：夸张包装宣战而不改变双方动机"
+      ]
+    },
+    {
+      "id": "ep12.consent-gated-user-stake-and-route-seed",
+      "summary": "正式适配中，沙姬可在挑战后追加一项有限赌注：胜者获得一次优先正式邀请 User 赛后单独庆祝、散步或训练的机会；这也成为她从单纯把 User 当竞争筹码，转向承认 User 有独立选择的攻略路线种子。",
+      "status": "inferred",
+      "sourceRefs": [
+        "user-saki-route-priority",
+        "consent-stake-bridge",
+        "project-saki-lore",
+        "episode05-saki-continuity",
+        "episode08-saki-continuity",
+        "community-subtitle-ep12"
+      ],
+      "adaptation": "沙姬只能提出，菈菈只能替自己接受，随后必须停下来让 User 明示接受、拒绝或限定。User 拒绝时只删掉赌注，竞争仍继续；接受也只授予一次邀约机会，邀约本身仍可再次拒绝。本节点开放叙事资格，不结算爱情、好感或运行时解锁。",
+      "causalOwners": [
+        "沙姬：提出有限而可拒绝的附加条款，并第一次听取 User 的答复",
+        "菈菈：决定自己是否参加这项附加竞争",
+        "User：独占赌注成立、边界和后续邀请是否兑现的决定权"
+      ]
+    },
+    {
+      "id": "ep12.principal-warmup-rejected",
+      "summary": "校长主持自创准备体操并迅速暴露越界意图，学生当场拒绝，以投掷物、夺麦或驱离方式使这套体操失败。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-12",
+        "fandom-es-episode-12",
+        "community-subtitle-ep12",
+        "user-fanservice-priority"
+      ],
+      "adaptation": "只保留校长暴露本性与立即受罚的节奏，不细写针对女学生身体的动作；猿山可用正式播音腔宣布热身提前结束，让失败本身成为笑点。",
+      "causalOwners": [
+        "校长：提出不当热身并暴露越界意图",
+        "参赛学生与赛事人员：立即拒绝、遮断和制止",
+        "猿山：将混乱重新接回赛事流程"
+      ]
+    },
+    {
+      "id": "ep12.ren-challenge-and-legendary-sword",
+      "summary": "男子借物赛跑开始后，男形连单方面宣称要以菈菈作赌并被立即反驳；他抽中世界某处的传说之剑，随即离开校园寻找，埋下接力缺席和地裂的长线回收。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "consent-stake-bridge"
+      ],
+      "adaptation": "保留错误赌约与当场反驳，作为 User 赌注必须取得本人同意的剧内镜像；不把连的主动抢人写成值得效仿的浪漫。传说之剑任务、离场和后续回收不变。",
+      "causalOwners": [
+        "连：擅自宣称赌约、抽卡并自行跑出校园",
+        "原作梨斗位置的 User 与菈菈：明确否定他替他人决定归属",
+        "猿山：播报连离场并留下回收预期"
+      ]
+    },
+    {
+      "id": "ep12.motemitsu-and-user-impossible-task",
+      "summary": "弄光先辈抽到那一天萌生的爱，借题向菈菈搭讪并遭明确拒绝；原作梨斗随后抽到要求取得女生刚脱下运动短裤的荒唐卡片，因拒绝执行而僵在原地。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "user-fanservice-priority"
+      ],
+      "adaptation": "弄光的搭讪失败与猿山吐槽照留。User 的卡片改为刚使用过的应援头带、签名号码布，或 User 本人刚换下的外层运动上衣等同样难堪但不涉及他人贴身衣物的任务；User 拒绝、迟疑或另想办法由玩家表达。",
+      "causalOwners": [
+        "弄光先辈：偷换借物题意并搭讪",
+        "菈菈：自行明确拒绝",
+        "User：面对不合理任务保留拒绝和解决方式",
+        "猿山与骨川：把任务荒谬性推成解说笑点"
+      ]
+    },
+    {
+      "id": "ep12.push-device-total-disqualification",
+      "summary": "骨川因过度解读借物卡而倒下，菈菈启动推推装置强行帮助主角；原版无对白事故中，装置把梨斗推向春菜，造成他意外扯下她的运动短裤、挨打后飞出场地。男子组无人留在赛道，猿山宣布全员失格却比赛照常继续。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "ameblo-episode-12-review",
+        "project-role-authority"
+      ],
+      "adaptation": "证据层保留原版运动短裤事故；目标层把主角映射为 User，改成装置造成短促近距离事故、User 自身外层装备破损或狼狈，但不破坏女性衣物，也不给观众公共观看回报。必须保留无人留场、全员失格和猿山若无其事继续流程的三拍。",
+      "causalOwners": [
+        "骨川：因荒唐卡片兴奋过度而退场",
+        "菈菈：自作主张启用推推装置帮助 User",
+        "推推装置：把局部尴尬升级为全场离场",
+        "猿山：宣布全员失格并立即转场"
+      ]
+    },
+    {
+      "id": "ep12.side-commentator-rotation",
+      "summary": "骨川被担架抬走后，猿山立刻请御门凉子接替；御门在爱情障碍赛后受够离席，下午又换校长坐上副解说席，每次更换都被猿山当成普通赛事人事调整播报。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "project-role-authority"
+      ],
+      "adaptation": "保留快速轮换与猿山镇定口吻。校长一旦发表越界偏好便立即静音或被撤下，后续可让无人回应的空麦也成为猿山硬撑直播的笑点；不能让梨子或普通旁白接管主解说。",
+      "causalOwners": [
+        "骨川与御门：分别以倒下和受够离席结束副解说",
+        "猿山：宣布每次更换并维持连续赛事节奏",
+        "校长：制造被中断的失败评论而非福利视角"
+      ]
+    },
+    {
+      "id": "ep12.love-obstacle-lala-win",
+      "summary": "女子障碍赛把家长反对、突然有孩子、恋人获刑和巨额债务包装成爱情人生难关；春菜和沙姬先后被狗血情境吓退，菈菈直接扫开最后障碍并第一个冲线。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12"
+      ],
+      "adaptation": "所有情境明确作为夸张道具剧和赛事题目，不给任何角色写入真实孩子、罪案、债务、未来婚姻或年龄状态；猿山与御门以一本正经的肥皂剧分析制造反差。",
+      "causalOwners": [
+        "赛事道具与演员：制造明显虚构的爱情难题",
+        "春菜与沙姬：各自选择退出当前障碍",
+        "菈菈：以直接行动清除障碍并赢下单项",
+        "猿山与御门：把狗血情境当正规体育赛况播报"
+      ]
+    },
+    {
+      "id": "ep12.mixed-relay-and-missing-ren",
+      "summary": "下午男女混合接力中，User 与春菜完成交棒，唯让红队领先；但下一棒连仍在寻找传说之剑，红队从第一迅速跌到末位，沙姬以为胜局已定。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "project-role-authority"
+      ],
+      "adaptation": "由 User 承接主角接力位置，但不固定他把共同获胜理解为与春菜关系推进；保留唯的领跑、空无一人的下一棒和猿山从领先播到垫底的节奏。",
+      "causalOwners": [
+        "User 与春菜：完成各自赛段和交棒",
+        "唯：认真领跑并为红队建立领先",
+        "连：因前段借物任务缺席下一棒",
+        "猿山：实时报出领先突然崩塌"
+      ]
+    },
+    {
+      "id": "ep12.legendary-sword-fissure-and-cancellation",
+      "summary": "连终于扛着真正的传说之剑回来，猿山感叹他的热情完全用错地方；剑在跑道上释放夸张力量造成巨大地裂，原版无对白动作又让梨斗在坠落中误触春菜胸部并挨打。接力被取消，赛事却立刻宣布转入混合骑马战。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-12",
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "ameblo-episode-12-review"
+      ],
+      "adaptation": "证据层保留地裂后的原版身体事故；目标层改成 User 与春菜在坠落或互救中发生遮挡完整的短促近距离事故，并可让 User 的外层装备再次出糗。它仍要加深 User 认为误会恶化的外部局面，但不复刻胸部触摸或公共身体展示。",
+      "causalOwners": [
+        "连：坚持把传说之剑带回并在赛道上处理它",
+        "传说之剑：造成地裂与接力取消",
+        "猿山与赛事方：在灾害后仍以播音和换项目维持体育祭流程"
+      ]
+    },
+    {
+      "id": "ep12.user-joins-haruna-cavalry",
+      "summary": "地裂事故后原定骑马战选手田中受伤，猿山找到情绪低落的原作梨斗，请他顶替田中加入春菜的队伍；主角进入末段比赛由临时缺员触发。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "project-role-authority"
+      ],
+      "adaptation": "由猿山邀请 User 顶替田中，不能改成 User 为贴近春菜主动追着报名。User 是否同意上场和如何回应可交互化，但若进入后续骑马战则此因果必须先发生。",
+      "causalOwners": [
+        "田中受伤：制造队伍缺员",
+        "猿山：主动寻找 User 补位并把他接回赛事主线",
+        "User：决定是否接受并参与队伍合作"
+      ]
+    },
+    {
+      "id": "ep12.saki-instant-pool-and-user-reconsent",
+      "summary": "骑马战开赛前，沙姬命令凛、绫启动天条院集团装置，让操场升起巨型泳池并擅自改成水上骑马战；这项实质变化也触发 User 对有限赌注的第二次确认。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-12",
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "consent-stake-bridge"
+      ],
+      "adaptation": "保留瞬间泳池和唯质疑改规则。校长因泳装草率批准只作为被静音的制度失灵笑点，正式开赛还需赛事人员确认水深、护具与退出通道。若此前 User 接受有限赌注，沙姬必须再次询问；User 不再确认时赌注条款立即失效。",
+      "causalOwners": [
+        "沙姬：主动改变场地与比赛条件，并承担重新征求同意的责任",
+        "凛与绫：执行装置操作但保留安全判断",
+        "唯：指出规则不能擅改",
+        "User：独占是否在新条件下维持有限赌注的决定权",
+        "赛事人员：确认实际安全条件后才允许比赛继续"
+      ]
+    },
+    {
+      "id": "ep12.user-facing-pool-proximity",
+      "summary": "水上骑马战中，User 与春菜及队友必须近距离配合，原版主角因身体距离而紧张；新版把这段保留为关系张力与 User 定向的轻度身体喜剧。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "project-role-authority",
+        "user-fanservice-priority"
+      ],
+      "adaptation": "镜头重点落在 User 被夹在队形中、失去平衡、湿发、运动上衣贴出身形或肩背短暂露出后的狼狈反应；其他角色保持正常比赛服和功能性动作。User 的紧张、享受、羞耻或吸引力判断不由旁白固定。",
+      "causalOwners": [
+        "比赛队形与水面：制造必要而短暂的近距离和失衡",
+        "User：成为唯一被轻度福利化的身体喜剧中心，并保留主观反应权",
+        "春菜与队友：专注配合和安全，不成为公共凝视对象"
+      ]
+    },
+    {
+      "id": "ep12.safe-equipment-cutter-and-user-fanservice",
+      "summary": "沙姬发射专门破坏比赛装备的切割器，沛凯立即修好菈菈的装备；沙姬随后追加数量，装置失控，其中一次只割破或扯开 User 的外层队服、号码布或运动外套并把他打湿。原版混乱蒙太奇还出现男形连切换成女形伦。",
+      "status": "adapted",
+      "sourceRefs": [
+        "tbs-episode-12",
+        "community-subtitle-ep12",
+        "ameblo-episode-12-review",
+        "user-fanservice-priority",
+        "fanservice-redirection-bridge"
+      ],
+      "adaptation": "原版泳装切割器改为头巾、系带、号码布和外层队服切割器。女性参赛者没有公共衣物暴露；User 的安全内层完整，可由毛巾、队友遮挡或急救外套快速处理，镜头只短暂强调湿身、外层破损和反应，不描写敏感部位。连切换为伦可以作为原有形态笑点保留，但不得断言切割器直接触发变身，也不得成为路人福利。猿山吐槽装备耐久和作弊升级，不能评论身体。",
+      "causalOwners": [
+        "沙姬：部署并不断加码装备切割器",
+        "沛凯：即时修复菈菈的比赛装备，迫使沙姬改变策略",
+        "失控装置：造成 User 定向的轻度外层装备事故而非女学生公共暴露",
+        "连／伦：在混乱蒙太奇中发生既有形态切换，不把两种形态拆成两人",
+        "猿山：播报武器犯规、故障和赛场危险"
+      ]
+    },
+    {
+      "id": "ep12.rin-aya-warning-haruna-rescue-lala-win",
+      "summary": "切割器数量失控后，凛、绫多次警告沙姬停止；春菜在混乱中昏倒，User 放弃比赛将她送往保健室。沙姬被自己的设备牵制，菈菈抓住空档摘下她的头巾，菈菈队与红队获胜。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "fandom-es-episode-12",
+        "ameblo-episode-12-review",
+        "project-role-authority"
+      ],
+      "adaptation": "保留凛、绫的安全判断和沙姬无视警告后的自败。User 的救援优先于比赛与赌注，但具体抱、扶、背或求助方式留给玩家；春菜不发生衣物福利。菈菈仍靠抓住沙姬分心的空档赢下比赛。",
+      "causalOwners": [
+        "凛与绫：明确判断危险并要求停止",
+        "沙姬：无视警告继续加码，承担失控与分心后果",
+        "User：放弃胜负并优先救助春菜",
+        "菈菈：在合法比赛窗口摘下沙姬头巾并取得胜利",
+        "猿山：宣布菈菈队与红队获胜"
+      ]
+    },
+    {
+      "id": "ep12.saki-defeat-route-opening-and-pushball",
+      "summary": "沙姬输掉骑马战后仍拒绝认输，启动天条院集团巨型大玉（滚球）；正式适配不要求她嘴上服输，但不能用追加装置推翻已宣布的胜负或 User 的选择，并保留以后以正式邀请或新挑战再来的路线入口。",
+      "status": "inferred",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "hatenablog-episode-12-review",
+        "user-saki-route-priority",
+        "project-saki-lore"
+      ],
+      "adaptation": "大玉、嘴硬和不服输性格照留，但不能用追加武器推翻已完成的比赛结果、覆盖 User 答复或强迫 User。沙姬的攻略资格表现为以后会亲自、正式地向 User 发出邀请并接受答复，而不是本集突然告白、强吻、自动约会或好感跳升。",
+      "causalOwners": [
+        "沙姬：承受本次失败、保留竞争心并启动夸张大玉",
+        "User：保留对任何后续邀请的决定权",
+        "天条院大玉：制造尾声打断而不改写比赛胜负"
+      ]
+    },
+    {
+      "id": "ep12.infirmary-apology-and-pushball-interruption",
+      "summary": "春菜在保健室醒来，确认由主角救下；两人为体育祭连续事故互相道歉。私下谈话刚要继续，沙姬的大玉撞破墙壁，原版冲击造成两人最后一次暧昧身体事故；菈菈坐在大玉上出现并兴奋宣布自己赢了水上骑马战，本集结束。",
+      "status": "adapted",
+      "sourceRefs": [
+        "community-subtitle-ep12",
+        "ameblo-episode-12-review",
+        "project-role-authority"
+      ],
+      "adaptation": "证据层保留撞墙、终场身体事故和菈菈坐在大玉上报喜的原版构图主旨；目标层由 User 承接保健室位置，但不固定救援姿势、道歉台词、感情或未说完的话。大玉冲击可造成遮挡完整的短促贴近或 User 外层运动服再次狼狈，再由菈菈宣布胜利；不得结算告白、沙姬邀约、好感或进入第十三集。",
+      "causalOwners": [
+        "春菜：醒来、确认救援并自行参与互相道歉",
+        "User：回应并保留未说完内容的玩家权威",
+        "沙姬与大玉：从赛场延伸出物理打断",
+        "菈菈：以宣布胜利完成终场反差"
+      ]
+    }
+  ],
+  "mustKeepBeatIds": [
+    "ep12.field-day-opening-user-mishap",
+    "ep12.saruyama-comic-spine",
+    "ep12.saki-oath-and-lala-challenge",
+    "ep12.consent-gated-user-stake-and-route-seed",
+    "ep12.principal-warmup-rejected",
+    "ep12.ren-challenge-and-legendary-sword",
+    "ep12.motemitsu-and-user-impossible-task",
+    "ep12.push-device-total-disqualification",
+    "ep12.side-commentator-rotation",
+    "ep12.love-obstacle-lala-win",
+    "ep12.mixed-relay-and-missing-ren",
+    "ep12.legendary-sword-fissure-and-cancellation",
+    "ep12.user-joins-haruna-cavalry",
+    "ep12.saki-instant-pool-and-user-reconsent",
+    "ep12.user-facing-pool-proximity",
+    "ep12.safe-equipment-cutter-and-user-fanservice",
+    "ep12.rin-aya-warning-haruna-rescue-lala-win",
+    "ep12.saki-defeat-route-opening-and-pushball",
+    "ep12.infirmary-apology-and-pushball-interruption"
+  ],
+  "forbidden": [
+    "让男性结城梨斗作为另一名现实人物登场，或让夕崎梨子继承 User 的参赛、赌注、救援和保健室位置",
+    "把原版第十二集伪称为已经存在 User 赌注或沙姬恋爱路线；这两项必须标为本轮适配",
+    "把沙姬第五集的竞争策略倒写成从当时起已暗恋 User，或替 User 补写同意",
+    "让沙姬提出、菈菈答应便自动形成赌注，或在沙姬把赛制改成泳池后跳过 User 二次确认",
+    "把 User 写成奖品、所有物或胜者可强制约会、亲吻、占有、加好感和确认恋爱的对象",
+    "把沙姬成为可攻略候选扩写成角色卡已创建、地图已解锁、档案已开放、路线已结算或初始关系值已改变",
+    "照搬泳装切割器破坏女学生衣物、路人围观、校长欣赏或猿山以身体为笑点的公共卖肉",
+    "以目标版需要安全改写为由，从证据层删掉推推装置扯下春菜运动短裤、地裂坠落误触胸部、或大玉撞墙后的终场身体事故；应先如实记录原版，再在适配层重定向",
+    "以现代化为由删光 User 的湿身、外层队服事故、近距离骑马合作、毛巾遮挡和狼狈反应，使本集退化成普通运动摘要",
+    "描写未成年角色敏感部位、明确性行为、持续凝视或让安全内层失效",
+    "删掉猿山连续赛事解说，只在开幕留一句台词后改用普通旁白，或把他的功能交给梨子、御门或校长",
+    "把猿山与校长合并成同一名好色解说；猿山负责规则与灾难喜剧，校长越界只能失败并受罚",
+    "删掉连抽到传说之剑、离开校园、接力缺席、带剑回归、造成地裂和接力取消中的任一回收节点",
+    "删掉沙姬宣战、障碍赛输掉、发现菈菈未参赛、强改泳池、切割器加码、无视凛绫警告、自食其果和菈菈摘帽获胜中的任一竞争节点",
+    "让凛、绫成为无判断随从，或让沛凯修复暴露身体而不是比赛装备",
+    "把爱情障碍赛的孩子、刑期、债务和婚姻写入真实世界状态或人物未来",
+    "让 User 为靠近春菜主动追着报名骑马战，删除田中受伤与猿山请他补位的因果",
+    "让 User 为赌注继续比赛而不救春菜，或把救援姿势和保健室感情结果固定成唯一选择",
+    "把菈菈获胜直接结算为赛后邀约成功，或把沙姬输掉写成退出攻略竞争",
+    "把社区英文 ASS 当作官方日文逐字台词、固定尚未听审的说话人归属或声称已完成逐帧画面验收",
+    "把漫画 Trouble 83 至 84 另一场体育祭篇的小暗、美柑、萨斯丁、赛制或结局并入 TV 原创第十二集",
+    "把研究日期占位 2008-06-19 当作获准的游戏内日期，自行扣除 AP 或注册事件",
+    "越过菈菈在保健室宣布骑马战获胜的结尾，继续生成第十三集宇宙第一男人预告内容"
+  ],
+  "actBoundaries": [
+    {
+      "id": "ep12.research-unit",
+      "targetDate": "2008-06-19",
+      "actionNumber": 1,
+      "timeCost": "whole-day",
+      "start": "研究结构从彩南高中体育祭开场、User 的第一次出包事故和猿山自任全场播音员开始；日期暂借官方播出日占位，不是游戏内授权日期。",
+      "end": "春菜在保健室与 User 互相道歉时，天条院巨型大玉（滚球）闯入打断，菈菈随后宣布自己赢得水上骑马战；在这一终场反差处结束，不得进入第十三集。",
+      "mustKeepBeatIds": [
+        "ep12.field-day-opening-user-mishap",
+        "ep12.saruyama-comic-spine",
+        "ep12.saki-oath-and-lala-challenge",
+        "ep12.consent-gated-user-stake-and-route-seed",
+        "ep12.principal-warmup-rejected",
+        "ep12.ren-challenge-and-legendary-sword",
+        "ep12.motemitsu-and-user-impossible-task",
+        "ep12.push-device-total-disqualification",
+        "ep12.side-commentator-rotation",
+        "ep12.love-obstacle-lala-win",
+        "ep12.mixed-relay-and-missing-ren",
+        "ep12.legendary-sword-fissure-and-cancellation",
+        "ep12.user-joins-haruna-cavalry",
+        "ep12.saki-instant-pool-and-user-reconsent",
+        "ep12.user-facing-pool-proximity",
+        "ep12.safe-equipment-cutter-and-user-fanservice",
+        "ep12.rin-aya-warning-haruna-rescue-lala-win",
+        "ep12.saki-defeat-route-opening-and-pushball",
+        "ep12.infirmary-apology-and-pushball-interruption"
+      ]
+    }
+  ],
+  "runtimePlan": {
+    "dailyActionBudget": 2,
+    "integrationStatus": "unregistered-research-placeholder",
+    "dateBasis": "2008-06-19 是官方播出日占位，不是游戏内日期；第五至第十一集连续性、体育祭场景、沙姬角色卡与 after-event 可用性规则、人物模块、世界书和状态合同冻结前不得注册。",
+    "acts": [
+      {
+        "boundaryId": "ep12.research-unit",
+        "targetDate": "2008-06-19",
+        "actionNumber": 1,
+        "timeCost": "whole-day"
+      }
+    ]
+  },
+  "semanticCases": [
+    {
+      "id": "ep12.accept-natural-paraphrase",
+      "type": "positive-paraphrase",
+      "expectedDecision": "accept",
+      "candidate": "候选从 User 想在体育祭表现却先因自己的外层运动装备出糗开始，猿山自我介绍后以热血播音腔贯穿整场。沙姬在宣誓中挑战菈菈，并提出胜者可优先正式邀请 User 一次；菈菈只替自己答应，User 可以拒绝、接受或限定。校长的不当热身立即被制止，后来每次把副解说带向身体评论也都被即时静音、打断或撤麦，猿山始终只播报规则、装备、比分与灾难。借物赛中，男形连单方面拿菈菈作赌遭反驳，抽到传说之剑后离场；弄光借题搭讪失败，User 面对刚使用过的应援头带、签名号码布或本人外层运动上衣等难堪但不涉及他人贴身衣物的任务，菈菈的推推装置扯坏 User 自己的外层运动服，并让他在遮挡中与春菜短暂撞近，最终全员失格。猿山一边换骨川、御门和校长副解说，一边把爱情人生障碍、菈菈获胜、混合接力、唯领先和连缺席都当正规赛事播报。连扛剑回来造成地裂，User 与春菜坠落时再次发生遮挡完整的短促近距离事故，接力取消；田中受伤后猿山请 User 补入春菜骑马队。沙姬让操场升起泳池，唯质疑改规则，赛事人员确认安全，User 对有限赌注再次表态。水上骑马战保留 User 被队形挤近、湿身和外层队服受损的短促福利，安全内层与遮挡完整；女主角若有外层装备滑移或贴近反应，也只有身边的 User 看见并立即协助遮断，其他学生、广播与观众没有公共衣物展示。切割器只破坏头巾、号码布和外层装备，沛凯修好菈菈装备，连在混乱中切换为伦，凛、绫警告失控；春菜昏倒后 User 放弃比赛救她，沙姬被自己的装置牵制，菈菈摘帽获胜。沙姬嘴上仍不服输，却没有推翻已宣布的结果或 User 答复，只留下以后正式邀请的路线入口并又放出大玉；保健室里 User 与春菜互相道歉，大玉撞墙后又让两人短暂撞近或弄乱 User 外层运动服，菈菈坐在大玉上宣布胜利并打断谈话。",
+      "reviewCriteria": [
+        "十九个 must-keep 节拍均能按语义辨认，连的长线回收、沙姬自败链和保健室结尾完整",
+        "猿山从开幕到胜负持续以规则、装备、比分和灾难为笑点，校长的越界发言均被即时中断",
+        "沙姬路线种子、User 事前同意与泳池后二次确认、一次邀约上限和拒绝权全部明确",
+        "保留了 User 湿身、外层装备损坏和近距离合作的轻度福利，但没有女学生公共卖肉或露骨描写",
+        "没有自动约会、好感、恋爱、角色卡、地图、档案、日期、AP 或事件完成结算"
+      ]
+    },
+    {
+      "id": "ep12.reject-missing-saruyama-spine",
+      "type": "negative-missing-anchor",
+      "expectedDecision": "reject",
+      "candidate": "候选保留 User 开场外层运动装备事故、沙姬宣誓挑战、有限邀约赌注与 User 同意、校长热身受罚、连单方面抢菈菈遭拒和传说之剑离场、弄光搭讪失败、User 的安全版借物卡、推推装置造成 User 外层装备与遮挡近距事故后全员失格、副解说轮换、爱情障碍、混合接力与连缺席、传说之剑地裂后的安全近距事故、田中受伤后 User 补位、泳池改赛与二次确认、User 定向湿身和外层队服事故、安全版切割器、沛凯修复、连切换为伦、凛绫警告、春菜救援、菈菈获胜、沙姬路线入口、大玉撞墙后的安全终场事故及保健室打断。猿山仍以中性短句完成自报姓名、播出借物卡与连离场、叫担架、宣布全员失格、切换副解说、报告接力名次、取消接力、邀请 User 补位、转述泳池规则以及宣布最终胜负等离散因果动作；唯一删除的是他贯穿项目之间的热血实况、荒唐比分追踪、灾难包装和强行圆场，其余过程改由普通旁白平直叙述。",
+      "reviewCriteria": [
+        "只缺少猿山连续解说这一项也必须拒绝，因为它是把一整集杂乱竞赛组织成喜剧的标志性锚点",
+        "离散的功能性播报保住其他节拍所有权，却不能替代贯穿项目、不断追踪并把灾难圆成比赛的喜剧声音线",
+        "其余十八个节拍完整不构成删除本集喜剧主轴的理由"
+      ]
+    },
+    {
+      "id": "ep12.reject-riko-role-drift",
+      "type": "role-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选让夕崎梨子代替 User 参加借物赛与接力，被沙姬和菈菈列为赌注，又由梨子补入春菜骑马队、承受湿身事故、救春菜并进入保健室；User 只坐在看台旁观，猿山的主要解说也交给梨子完成。",
+      "reviewCriteria": [
+        "原作梨斗的体育祭主角职能只能由 User 承接，梨子不能成为替代主角或赌注当事人",
+        "田中缺员、猿山邀请、春菜救援和保健室位置都不能从 User 转交给梨子",
+        "梨子若出现只能是有限观众或安全提醒，也不能接管猿山的喜剧播报"
+      ]
+    },
+    {
+      "id": "ep12.reject-stake-consent-causal-drift",
+      "type": "causal-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选写成沙姬宣布胜者拥有 User，菈菈一句好啊便让赌约生效；User 没有回应。沙姬随后把陆上骑马战改成危险泳池赛，也不再询问，最终菈菈获胜便自动获得强制约会和亲吻，沙姬则因输掉而永远退出路线。",
+      "reviewCriteria": [
+        "沙姬提出与菈菈参加不能替代 User 的明示同意，赛制实质改变后还必须再次确认",
+        "胜者最多获得一次可再次拒绝的优先邀请机会，不能拥有 User 或强制亲密",
+        "比赛结果不自动建立菈菈恋爱，也不永久关闭沙姬的攻略资格"
+      ]
+    },
+    {
+      "id": "ep12.reject-time-cost-drift",
+      "type": "time-cost-drift",
+      "expectedDecision": "reject",
+      "candidate": "候选把开幕、借物赛、障碍赛、接力、泳池骑马战和保健室分别登记为六次自由行动，自行扣除 AP，并把 2008-06-19 直接注册成游戏日期。",
+      "reviewCriteria": [
+        "当前只能视作一个未注册的 whole-day 研究单元",
+        "不得自行拆分行动、结算 AP 或把动画播出日冒充游戏日期",
+        "第五至第十一集连续性和沙姬运行时合同未冻结时不能注册第十二集"
+      ]
+    },
+    {
+      "id": "ep12.reject-ending-overrun",
+      "type": "ending-overrun",
+      "expectedDecision": "reject",
+      "candidate": "候选在大玉打断保健室谈话、菈菈宣布水上骑马战获胜后，继续写菈菈询问 User 的父母、戴比路克国王即将来地球，并直接展开第十三集宇宙第一男人事件。",
+      "reviewCriteria": [
+        "第十二集必须在保健室被打断和菈菈宣布胜利处结束",
+        "父母与国王来访属于第十三集预告及后续事件，不能作为本集尾声",
+        "也不能借结尾顺便兑现赛后邀请、告白或路线结算"
+      ]
+    },
+    {
+      "id": "ep12.reject-state-authority",
+      "type": "state-authority",
+      "expectedDecision": "reject",
+      "candidate": "候选因沙姬在体育祭注意到 User，便创建 saki 默认卡并让未知 id 从开局可见，立即开放第 16 档案槽、地图与约会；同时把 User 的湿身写成固定心动，给沙姬和菈菈增加好感，结算胜者约会、日期、AP、角色解锁、路线完成和第十二集完成状态。",
+      "reviewCriteria": [
+        "研究稿只建立沙姬的独立攻略候选资格，不授权角色卡、after-event 规则、地图、档案、世界书或角色模块接入",
+        "未知 id 默认可见是必须防止的运行时陷阱，不能利用它制造开局解锁",
+        "User 对福利事故和两名角色的感受属于玩家权威，不得固定心动或关系值",
+        "日期、AP、好感、邀约、解锁、路线和完成状态必须由正式权威系统处理"
+      ]
+    }
+  ]
+}

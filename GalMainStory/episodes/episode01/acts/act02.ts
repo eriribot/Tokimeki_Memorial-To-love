@@ -29,6 +29,30 @@ export const EPISODE_01_ACT_02 = {
         outsideScenePortraitId: 'arrival-default',
       },
     ],
+    cgShots: [
+      {
+        id: 'lala-bathroom-reaction',
+        frames: [
+          {
+            id: 'face-tight',
+            asset: '/artsource/cg/001.png',
+            alt: '浴室蒸汽间贴近菈菈放心的笑脸',
+            framing: 'safe-face-closeup',
+            camera: { focusXPercent: 50, focusYPercent: 0, zoom: 1.2 },
+          },
+          {
+            id: 'face-wide',
+            asset: '/artsource/cg/002.jpg',
+            alt: '镜头稍微拉远，菈菈仍在蒸汽间笑着抬起双臂',
+            framing: 'safe-face-closeup',
+            camera: { focusXPercent: 0, focusYPercent: 0, zoom: 1.1 },
+          },
+        ],
+        sceneId: 'washroom',
+        afterSceneBeat: 1,
+        transition: 'steam-zoom-out',
+      },
+    ],
   },
   generation: {
     minimumLineCount: 30,

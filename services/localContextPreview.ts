@@ -9,12 +9,22 @@ import {
   type StoryGenerationContextProjection,
 } from './storyGenerationContext';
 import { getCanonicalStoryTimeline, selectRecentStoryMessages } from '../memory/storyTimeline';
+import { createCurrentPlayerPersonaPromptPlan, type StoredPlayerPersonaCarrier } from './playerPersona';
 
 export interface LocalContextPreviewGeneration {
   projection: StoryGenerationContextProjection;
   loreReferences: DisabledWorldbookLoreReference[];
   activeFloorId: string | null;
   source: 'active-run' | 'latest-floor';
+  persona: {
+    signature: string;
+    version: number;
+    carrier: Exclude<StoredPlayerPersonaCarrier, 'not-generated'>;
+    storedCarrier: StoredPlayerPersonaCarrier | null;
+    description: string;
+    authorityGuard: string;
+    maskedSources: string[];
+  };
 }
 
 export interface LocalContextPreview {
@@ -64,7 +74,7 @@ export function createLocalContextPreview(): LocalContextPreview {
         }
       : null;
 
-  if (!target) {
+  if (!target || !snapshot.player.profile) {
     return {
       capturedAt: new Date().toISOString(),
       snapshot,
@@ -76,6 +86,7 @@ export function createLocalContextPreview(): LocalContextPreview {
   const projection = createStoryGenerationContextProjection({
     eventId: target.eventId,
     actId: target.actId,
+    playerProfile: snapshot.player.profile,
     contextFloorIds: target.contextFloorIds,
     historyFloorIds: getCanonicalStoryTimeline(snapshot.game.mainStory.archives, {
       eventId: target.eventId,
@@ -83,6 +94,10 @@ export function createLocalContextPreview(): LocalContextPreview {
     }).map(floor => floor.floorId),
     chatHistory: messages,
   });
+  const personaPlan = createCurrentPlayerPersonaPromptPlan(snapshot.player.profile);
+  const storedCarrier = snapshot.game.mainStory.archives
+    .flatMap(archive => archive.floors)
+    .find(floor => floor.floorId === target.activeFloorId)?.context.playerPersonaCarrier;
 
   return {
     capturedAt: new Date().toISOString(),
@@ -93,6 +108,15 @@ export function createLocalContextPreview(): LocalContextPreview {
       loreReferences: getMainStoryLoreSelections(target.eventId, target.actId).map(selection => selection.reference),
       activeFloorId: target.activeFloorId,
       source: target.source,
+      persona: {
+        signature: personaPlan.signature,
+        version: personaPlan.version,
+        carrier: personaPlan.carrier,
+        storedCarrier: storedCarrier ?? null,
+        description: personaPlan.personaDescription,
+        authorityGuard: personaPlan.authorityGuard,
+        maskedSources: [...personaPlan.maskedSources],
+      },
     },
   };
 }

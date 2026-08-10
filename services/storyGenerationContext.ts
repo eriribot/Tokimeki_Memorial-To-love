@@ -2,6 +2,12 @@ import { getStoryCharacter, getStoryPortraitRig, isStoryCharacterId } from '../G
 import { getMainStoryActOrThrow, getMainStoryEpisodeOrThrow } from '../GalMainStory/storyRegistry';
 import type { GalStoryMessageSave, StoryChoiceDecision } from '../GalMainStory/storyTypes';
 import { RECENT_CONTEXT_MESSAGE_LIMIT } from '../memory/summaryPolicy';
+import type { PlayerProfile } from '../types';
+import {
+  createPlayerProfileSignature,
+  PLAYER_PERSONA_INJECTION_VERSION,
+  serializePlayerPersona,
+} from './playerPersona';
 import { buildStoryGenerationPrompt, type StoryPromptPortraitOption } from './storyGenerationPrompt';
 
 export const STORY_CHAT_HISTORY_LIMIT = RECENT_CONTEXT_MESSAGE_LIMIT;
@@ -9,6 +15,7 @@ export const STORY_CHAT_HISTORY_LIMIT = RECENT_CONTEXT_MESSAGE_LIMIT;
 export interface StoryGenerationContextRequest {
   eventId: string;
   actId: string;
+  playerProfile: PlayerProfile;
   contextFloorIds: readonly string[];
   historyFloorIds?: readonly string[];
   chatHistory: readonly GalStoryMessageSave[];
@@ -23,6 +30,9 @@ export interface StoryGenerationContextProjection {
   contextFloorIds: string[];
   historyFloorIds: string[];
   continuityMode: 'fresh' | 'continue';
+  playerProfileSignature: string;
+  playerPersonaInjectionVersion: typeof PLAYER_PERSONA_INJECTION_VERSION;
+  playerPersonaDescription: string;
   userInput: string;
   maxChatHistory: typeof STORY_CHAT_HISTORY_LIMIT;
   messageIds: string[];
@@ -126,6 +136,9 @@ export function createStoryGenerationContextProjection(
     contextFloorIds: [...request.contextFloorIds],
     historyFloorIds: [...historyFloorIds],
     continuityMode: historyFloorIds.length > 0 ? 'continue' : 'fresh',
+    playerProfileSignature: createPlayerProfileSignature(request.playerProfile),
+    playerPersonaInjectionVersion: PLAYER_PERSONA_INJECTION_VERSION,
+    playerPersonaDescription: serializePlayerPersona(request.playerProfile),
     userInput: buildGenerationPrompt(request),
     maxChatHistory: STORY_CHAT_HISTORY_LIMIT,
     messageIds: selectedMessages.map(message => message.id),

@@ -73,7 +73,7 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
   the daily AP; shared runtime code must implement this from template `timeCost`, never from an episode-ID branch.
 - Main-story runtime state is one `run` cursor plus generation state, completed event IDs, archives, and messages. Do
   not reintroduce parallel `active/progress/actIndex/acts` fields or episode-specific store actions.
-- Development snapshots before schema v3 are intentionally incompatible; do not add migration branches unless the
+- Development snapshots before schema v4, including v3, are intentionally incompatible; do not add migration branches unless the
   product requirement changes explicitly.
 - AI output is a story candidate. It must pass local extraction/normalization before GAL rendering.
 - AI responses do not need a model-emitted completion sentinel. AP, date, and the current act in Zustand select the

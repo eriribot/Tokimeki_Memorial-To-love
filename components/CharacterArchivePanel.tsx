@@ -36,7 +36,7 @@ const GRID_ROW_CENTERS = [160, 395, 630, 865];
 
 const DETAIL_BIO_ROWS = [275, 330, 385, 440, 495];
 const UNREGISTERED = '未登记';
-const PLAYER_PROFILE_FIELDS = ['生日', '身高', '体重', '血型'] as const;
+const PLAYER_PROFILE_FIELDS = ['性别', '生日', '身高', '体重', '血型'] as const;
 const PLAYER_BLOOD_TYPE_LABELS = { A: 'A 型', B: 'B 型', AB: 'AB 型', O: 'O 型', unknown: '不明' } as const;
 
 const clampPercent = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
@@ -178,6 +178,7 @@ function PlayerStatusSide() {
     radar.perseverance,
   ];
   const profileValues = {
+    性别: profile?.gender === 'male' ? '男性' : UNREGISTERED,
     生日: profile ? `${profile.birthdayMonth} 月 ${profile.birthdayDay} 日` : UNREGISTERED,
     身高: UNREGISTERED,
     体重: UNREGISTERED,
@@ -224,6 +225,17 @@ function PlayerStatusSide() {
               <strong>{money} 円</strong>
             </div>
           </div>
+        </div>
+
+        <div className="character-archive-player-narratives" aria-label="主角外貌与性格档案">
+          <section>
+            <h3>外貌</h3>
+            <p>{profile?.appearance ?? UNREGISTERED}</p>
+          </section>
+          <section>
+            <h3>性格</h3>
+            <p>{profile?.personality ?? UNREGISTERED}</p>
+          </section>
         </div>
 
         <PlayerRadar values={radarValues} />

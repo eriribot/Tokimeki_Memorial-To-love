@@ -1,4 +1,10 @@
 import { normalizeStoryMessages } from '../message/protocol';
+import {
+  createPlayerProfileSignature,
+  PLAYER_PERSONA_INJECTION_VERSION,
+  type StoredPlayerPersonaCarrier,
+} from '../services/playerPersona';
+import type { PlayerProfile } from '../types';
 import { getActiveStoryAct } from './storyArchive';
 import { getMainStoryActIndex, getMainStoryActOrThrow, getMainStoryEpisode } from './storyRegistry';
 import {
@@ -26,6 +32,10 @@ function cloneJson<T>(value: T): T {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isStoredPlayerPersonaCarrier(value: unknown): value is StoredPlayerPersonaCarrier {
+  return value === 'preset-persona-description' || value === 'depth-zero-fallback' || value === 'not-generated';
 }
 
 function normalizeStoredChoiceInline(value: unknown, maximumLength: number): string {
@@ -73,6 +83,10 @@ function normalizeStoryFloor(value: unknown, eventId: string, actId: string): Ga
     typeof value.createdAt !== 'string' ||
     (value.outcome !== 'accepted' && value.outcome !== 'parse_error' && value.outcome !== 'request_error') ||
     typeof context.playerName !== 'string' ||
+    typeof context.playerProfileSignature !== 'string' ||
+    !/^tolove-persona-v1-[0-9a-f]{16}$/u.test(context.playerProfileSignature) ||
+    context.playerPersonaInjectionVersion !== PLAYER_PERSONA_INJECTION_VERSION ||
+    !isStoredPlayerPersonaCarrier(context.playerPersonaCarrier) ||
     typeof context.day !== 'number' ||
     !Number.isFinite(context.day) ||
     typeof context.period !== 'string' ||
@@ -109,6 +123,9 @@ function normalizeStoryFloor(value: unknown, eventId: string, actId: string): Ga
     act,
     context: {
       playerName: context.playerName,
+      playerProfileSignature: context.playerProfileSignature,
+      playerPersonaInjectionVersion: context.playerPersonaInjectionVersion,
+      playerPersonaCarrier: context.playerPersonaCarrier,
       day: Math.max(1, Math.trunc(context.day)),
       period: context.period,
       location: context.location,
@@ -257,6 +274,7 @@ function assertMessagesMatchFloors(
           message.extra.actId !== floor.actId ||
           message.extra.source !== floor.source ||
           message.extra.outcome !== floor.outcome ||
+          message.extra.playerName !== floor.context.playerName ||
           JSON.stringify(message.extra.contextFloorIds) !== JSON.stringify(floor.contextFloorIds)
         ) {
           throw new Error('剧情消息与楼层不匹配');
@@ -281,6 +299,7 @@ export function createMainStorySaveState(state: MainStoryState): MainStorySaveSt
 export function restoreMainStoryState(
   value: unknown,
   archivedMessages: readonly GalStoryMessageSave[],
+  playerProfile: PlayerProfile | null,
 ): MainStoryState {
   if (!isRecord(value) || !Array.isArray(value.completedEventIds)) throw new Error('主线存档格式无效');
   const completedEventIds = [...new Set(value.completedEventIds)];
@@ -304,6 +323,17 @@ export function restoreMainStoryState(
     throw new Error('主线运行状态缺少前置事件');
   }
   const archives = normalizeStoryArchives(value.archives);
+  const expectedPlayerProfileSignature = playerProfile ? createPlayerProfileSignature(playerProfile) : null;
+  for (const floor of archives.flatMap(archive => archive.floors)) {
+    if (
+      expectedPlayerProfileSignature === null ||
+      floor.context.playerProfileSignature !== expectedPlayerProfileSignature ||
+      floor.context.playerPersonaInjectionVersion !== PLAYER_PERSONA_INJECTION_VERSION ||
+      floor.context.playerName !== playerProfile?.displayName
+    ) {
+      throw new Error('剧情楼层玩家资料签名与当前存档不一致');
+    }
+  }
   const messages = normalizeStoryMessages(archivedMessages);
   assertMessagesMatchFloors(archives, messages);
   const activeAct = run?.phase === 'playing' ? getActiveStoryAct(archives, run.eventId, run.actId) : null;

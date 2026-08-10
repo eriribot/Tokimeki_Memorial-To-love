@@ -249,6 +249,51 @@
   overflow-wrap: anywhere;
 }
 
+.context-preview__persona-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.context-preview__persona-meta div {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #eadfe0;
+  background: #fff8fa;
+}
+
+.context-preview__persona-meta dt,
+.context-preview__persona-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+
+.context-preview__persona-meta dt {
+  color: #8d7c80;
+}
+
+.context-preview__persona-meta dd {
+  margin-top: 3px;
+  color: #6f3150;
+  font-weight: 700;
+}
+
+.context-preview__persona-guard {
+  margin-top: 9px;
+  color: #7d3154;
+  font-size: 11px;
+}
+
+.context-preview__persona-guard summary {
+  cursor: pointer;
+}
+
+.context-preview__persona-guard .context-preview__prompt {
+  margin-top: 7px;
+}
+
 .context-preview__summary-note {
   margin: 10px 0 0;
   color: #75676b;
@@ -698,7 +743,8 @@
   }
 
   .context-preview__facts,
-  .context-preview__relation {
+  .context-preview__relation,
+  .context-preview__persona-meta {
     grid-template-columns: 1fr 1fr;
   }
 

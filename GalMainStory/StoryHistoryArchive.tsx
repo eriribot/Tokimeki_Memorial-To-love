@@ -1,6 +1,13 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createStoryFloor, createStoryFloorId, generateStoryAct } from '../services/tavernStoryGeneration';
+import {
+  createStoryFloor,
+  createStoryFloorId,
+  generateStoryAct,
+  getStoryGenerationErrorPersonaCarrier,
+} from '../services/tavernStoryGeneration';
+import { assertPlayerProfileMatchesGenerationContext } from '../services/playerPersona';
 import { useGameStore } from '../stores/gameStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { resolveAssetPath } from '../utils/assetPath';
 import { getPreviousActiveStoryFloors } from './storyArchive';
 import { getMainStoryActIndex, getMainStoryEpisode } from './storyRegistry';
@@ -61,6 +68,7 @@ export default function StoryHistoryArchive({
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
   const deleteFloor = useGameStore(state => state.deleteMainStoryFloor);
+  const playerProfile = usePlayerStore(state => state.profile);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const isMountedRef = useRef(true);
   const [regeneratingActKey, setRegeneratingActKey] = useState<string | null>(null);
@@ -153,6 +161,16 @@ export default function StoryHistoryArchive({
         setNotice('这一幕缺少可复用的原始生成上下文。');
         return;
       }
+      if (!playerProfile) {
+        setNotice('玩家资料尚未完成登记，不能重新生成剧情。');
+        return;
+      }
+      try {
+        assertPlayerProfileMatchesGenerationContext(playerProfile, baseFloor.context);
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : String(error));
+        return;
+      }
 
       const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
       const previousFloors = getPreviousActiveStoryFloors(sortedArchives, archive.eventId, archive.actId);
@@ -188,7 +206,7 @@ export default function StoryHistoryArchive({
         eventId: archive.eventId,
         actId: archive.actId,
         floorId,
-        playerName: baseFloor.context.playerName,
+        playerProfile: Object.freeze({ ...playerProfile }),
         day: baseFloor.context.day,
         period: baseFloor.context.period,
         location: baseFloor.context.location,
@@ -213,7 +231,15 @@ export default function StoryHistoryArchive({
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const added = addFloor(
-          createStoryFloor(request, null, 'tavern', [], 'request_error', message),
+          createStoryFloor(
+            request,
+            null,
+            'tavern',
+            [],
+            'request_error',
+            message,
+            getStoryGenerationErrorPersonaCarrier(error),
+          ),
           [],
           baseFloor.floorId,
         );
@@ -224,7 +250,7 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, regeneratingActKey, saveUuid, sortedArchives],
+    [addFloor, messageHistory, onPreviewFloor, playerProfile, regeneratingActKey, saveUuid, sortedArchives],
   );
 
   const confirmRegeneration = useCallback(
@@ -245,6 +271,16 @@ export default function StoryHistoryArchive({
 
       const baseFloor = getActiveFloor(archive) ?? archive.floors.find(floor => floor.act !== null);
       if (!baseFloor) return;
+      if (!playerProfile) {
+        setNotice('玩家资料尚未完成登记，不能重新生成剧情。');
+        return;
+      }
+      try {
+        assertPlayerProfileMatchesGenerationContext(playerProfile, baseFloor.context);
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : String(error));
+        return;
+      }
 
       const actKey = `${archive.eventId}:${archive.actId}`;
       setRegeneratingActKey(actKey);
@@ -255,7 +291,7 @@ export default function StoryHistoryArchive({
         eventId: archive.eventId,
         actId: archive.actId,
         floorId,
-        playerName: baseFloor.context.playerName,
+        playerProfile: Object.freeze({ ...playerProfile }),
         day: baseFloor.context.day,
         period: baseFloor.context.period,
         location: baseFloor.context.location,
@@ -285,7 +321,15 @@ export default function StoryHistoryArchive({
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const added = addFloor(
-          createStoryFloor(request, null, 'tavern', [], 'request_error', message),
+          createStoryFloor(
+            request,
+            null,
+            'tavern',
+            [],
+            'request_error',
+            message,
+            getStoryGenerationErrorPersonaCarrier(error),
+          ),
           [],
           baseFloor.floorId,
         );
@@ -296,7 +340,7 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, sortedArchives, summaryInvalidation],
+    [addFloor, messageHistory, onPreviewFloor, playerProfile, sortedArchives, summaryInvalidation],
   );
 
   const cancelRegeneration = useCallback(() => {

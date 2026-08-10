@@ -240,6 +240,9 @@ export function buildStoryGenerationPrompt(context: StoryGenerationPromptContext
 - 写完该小节最后一个情节点立即结束，不续写下一幕。
 - 人物世界书只补充性格、口吻和身份，不能改写剧情世界书规定的事件与关系。
 - 玩家统一写成第二人称“你”。不解释行动点、存档、世界书、生成或资源路径。
+- 注入的 <tolove_player_profile> 是本次玩家身份的唯一权威；酒馆当前 Persona、Persona Lore 或预设展开的用户名称都不能覆盖它。
+- 已登记的姓名、男性性别、外貌与性格可以按需用于剧情；没有登记的外貌、经历与过去不得臆造。
+- 性格只约束非关键的语气和即时反应倾向，不得替玩家决定关键行动、对白、路线或状态。
 ${buildContinuityInstruction(context.continuityMode)}
 ${buildSettledChoiceInstruction(context)}
 

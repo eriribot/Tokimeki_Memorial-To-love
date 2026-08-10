@@ -45,10 +45,39 @@ export interface StoryScenePortraitRule {
   outsideScenePortraitId?: string;
 }
 
+export type StoryCgFraming = 'cover-center' | 'safe-face-closeup';
+export type StoryCgTransition = 'fade' | 'steam-zoom-out';
+
+/** Camera composition for one frame. Percentages use the source image coordinate space. */
+export interface StoryCgCameraDefinition {
+  focusXPercent: number;
+  focusYPercent: number;
+  zoom: number;
+}
+
+/** One click-visible frame inside a CG group; it does not own story progress. */
+export interface StoryCgFrameDefinition {
+  id: string;
+  asset: string;
+  alt: string;
+  framing: StoryCgFraming;
+  camera?: StoryCgCameraDefinition;
+}
+
+/** One act-local trigger group. Its frames are consumed in declaration order. */
+export interface StoryActCgDefinition {
+  id: string;
+  frames: readonly StoryCgFrameDefinition[];
+  sceneId: StorySceneId;
+  afterSceneBeat: number;
+  transition: StoryCgTransition;
+}
+
 export interface StoryActPresentation {
   sceneIds: readonly StorySceneId[];
   cast: readonly StoryActCastMember[];
   portraitRules?: readonly StoryScenePortraitRule[];
+  cgShots?: readonly StoryActCgDefinition[];
 }
 
 export interface StoryActGenerationContract {
@@ -114,6 +143,9 @@ export interface GalStoryAct {
 
 export interface GalStoryGenerationContext {
   playerName: string;
+  playerProfileSignature: string;
+  playerPersonaInjectionVersion: 1;
+  playerPersonaCarrier: 'preset-persona-description' | 'depth-zero-fallback' | 'not-generated';
   day: number;
   period: string;
   location: string;

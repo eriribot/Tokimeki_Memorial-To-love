@@ -91,14 +91,6 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
   const totalSummaryCount = useMemorySummaryArchiveStore(
     state => state.summaries.filter(summary => summary.saveUuid === state.activeSaveUuid).length,
   );
-  const pendingSummaryCount = useMemorySummaryArchiveStore(
-    state =>
-      state.summaries.filter(summary => summary.saveUuid === state.activeSaveUuid && summary.status === 'pending').length,
-  );
-  const failedJobCount = useMemorySummaryArchiveStore(
-    state => state.jobs.filter(job => job.saveUuid === state.activeSaveUuid && job.status === 'failed').length,
-  );
-
   useEffect(() => {
     closeButtonRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -157,11 +149,7 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
           <button type="button" className={tab === 'snapshot' ? 'is-active' : ''} onClick={() => setTab('snapshot')}>
             本地快照
           </button>
-          <button
-            type="button"
-            className={tab === 'summaries' ? 'is-active' : ''}
-            onClick={() => setTab('summaries')}
-          >
+          <button type="button" className={tab === 'summaries' ? 'is-active' : ''} onClick={() => setTab('summaries')}>
             总结与重试 <span>{totalSummaryCount}</span>
           </button>
           <button type="button" className={tab === 'archive' ? 'is-active' : ''} onClick={() => setTab('archive')}>
@@ -285,9 +273,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
   const jobs = useMemo(
     () =>
       storedJobs
-        .filter(
-          job => job.saveUuid === activeSaveUuid && (job.status === 'failed' || job.status === 'running'),
-        )
+        .filter(job => job.saveUuid === activeSaveUuid && (job.status === 'failed' || job.status === 'running'))
         .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
     [activeSaveUuid, storedJobs],
   );
@@ -418,12 +404,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
           <button
             type="button"
             title={!config.enabled ? '请先在系统设定中启用副 API' : undefined}
-            disabled={
-              busyJobId !== null ||
-              !config.enabled ||
-              hasBlockingJob ||
-              !nextSmallBatch?.ready
-            }
+            disabled={busyJobId !== null || !config.enabled || hasBlockingJob || !nextSmallBatch?.ready}
             onClick={() => void generateSmallSummary()}
           >
             {busyJobId === 'manual-small' ? '生成中…' : `总结 ${smallBatchRange}`}
@@ -431,13 +412,11 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
         </div>
         <p className="context-preview__summary-note">
           最近 {RECENT_CONTEXT_MESSAGE_LIMIT} 条原文固定保留作校准；每累计 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT}{' '}
-          个尚未归档的完整楼层触发一批小总结，每 {LARGE_SUMMARY_SOURCE_COUNT}{' '}
-          条已接受小总结组成一批大总结。小总结{' '}
+          个尚未归档的完整楼层触发一批小总结，每 {LARGE_SUMMARY_SOURCE_COUNT} 条已接受小总结组成一批大总结。小总结{' '}
           {SMALL_SUMMARY_MIN_LENGTH}–{SMALL_SUMMARY_MAX_LENGTH} 字，大总结 {LARGE_SUMMARY_MIN_LENGTH}–
-          {LARGE_SUMMARY_MAX_LENGTH}{' '}
-          字；手动生成可提前封存当前已有的 1–{SMALL_SUMMARY_SOURCE_FLOOR_COUNT}{' '}
-          个楼层，自动队列仍在凑满 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT}{' '}
-          楼后触发。副 API 只返回摘要正文，本地程序封装候选并保存到当前浏览器，本轮尚未注入剧情生成。
+          {LARGE_SUMMARY_MAX_LENGTH} 字；手动生成可提前封存当前已有的 1–{SMALL_SUMMARY_SOURCE_FLOOR_COUNT}{' '}
+          个楼层，自动队列仍在凑满 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT} 楼后触发。副 API
+          只返回摘要正文，本地程序封装候选并保存到当前浏览器，本轮尚未注入剧情生成。
         </p>
       </section>
 
@@ -499,15 +478,13 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
         </div>
         {summaries.length === 0 ? (
           <p className="context-preview__empty">
-            尚无总结。有尚未归档的完整楼层即可手动生成；累计 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT}{' '}
-            楼时自动队列也会生成。
+            尚无总结。有尚未归档的完整楼层即可手动生成；累计 {SMALL_SUMMARY_SOURCE_FLOOR_COUNT} 楼时自动队列也会生成。
           </p>
         ) : (
           <div className="context-preview__summary-list">
             {summaries.map(summary => {
               const isEditing = editingId === summary.summaryId;
-              const canRegenerate =
-                summary.status === 'rejected' && canRetryRejectedMemorySummary(summary.summaryId);
+              const canRegenerate = summary.status === 'rejected' && canRetryRejectedMemorySummary(summary.summaryId);
               return (
                 <article className={`context-preview__summary-item is-${summary.status}`} key={summary.summaryId}>
                   <header>
@@ -528,9 +505,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                         <span>正文</span>
                         <textarea
                           value={editText}
-                          minLength={
-                            summary.mode === 'small' ? SMALL_SUMMARY_MIN_LENGTH : LARGE_SUMMARY_MIN_LENGTH
-                          }
+                          minLength={summary.mode === 'small' ? SMALL_SUMMARY_MIN_LENGTH : LARGE_SUMMARY_MIN_LENGTH}
                           maxLength={summary.mode === 'small' ? SMALL_SUMMARY_MAX_LENGTH : LARGE_SUMMARY_MAX_LENGTH}
                           onChange={event => setEditText(event.target.value)}
                         />
@@ -674,6 +649,36 @@ function ContextTab({
           <section className="context-preview__section">
             <div className="context-preview__section-heading">
               <div>
+                <span>PLAYER PERSONA</span>
+                <h3>本存档有效玩家资料</h3>
+              </div>
+              <small>
+                v{generation.persona.version} · {generation.persona.signature}
+              </small>
+            </div>
+            <dl className="context-preview__persona-meta">
+              <div>
+                <dt>本次承载</dt>
+                <dd>{generation.persona.carrier}</dd>
+              </div>
+              <div>
+                <dt>楼层记录</dt>
+                <dd>{generation.persona.storedCarrier ?? '尚未生成'}</dd>
+              </div>
+              <div>
+                <dt>本次屏蔽</dt>
+                <dd>{generation.persona.maskedSources.join(' / ')}</dd>
+              </div>
+            </dl>
+            <pre className="context-preview__prompt">{generation.persona.description}</pre>
+            <details className="context-preview__persona-guard">
+              <summary>查看身份别名护栏</summary>
+              <pre className="context-preview__prompt">{generation.persona.authorityGuard}</pre>
+            </details>
+          </section>
+          <section className="context-preview__section">
+            <div className="context-preview__section-heading">
+              <div>
                 <span>USER INPUT</span>
                 <h3>{isActiveProjection ? '当前幕生成提示' : '最近楼层保存的提示'}</h3>
               </div>
@@ -691,7 +696,7 @@ function ContextTab({
                 <span>WORLD INFO ROUTING</span>
                 <h3>本幕选择的引用</h3>
               </div>
-              <small>仅为本地引用，不代表真实扫描结果</small>
+              <small>剧情生成会屏蔽 Persona Lore；其余来源与本幕引用保留</small>
             </div>
             <ul className="context-preview__reference-list">
               {generation.loreReferences.map(reference => (

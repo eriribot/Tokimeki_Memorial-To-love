@@ -18,7 +18,7 @@ export interface LoadedStoryLore {
   entry: WorldbookEntry;
 }
 
-interface RawWorldInfoEntry extends Record<string, unknown> {
+export interface RawWorldInfoEntry extends Record<string, unknown> {
   uid: number;
   world: string;
   disable?: boolean;
@@ -28,11 +28,15 @@ interface RawWorldInfoEntry extends Record<string, unknown> {
   ignoreBudget?: boolean;
 }
 
-interface WorldInfoEntriesLoadedPayload {
+export interface WorldInfoEntriesLoadedPayload {
   globalLore: RawWorldInfoEntry[];
   characterLore: RawWorldInfoEntry[];
   chatLore: RawWorldInfoEntry[];
   personaLore: RawWorldInfoEntry[];
+}
+
+export interface StoryLoreScanOptions {
+  excludePersonaLore?: boolean;
 }
 
 const WORLD_INFO_POSITION = {
@@ -198,48 +202,83 @@ function getLoreKey(worldbookName: string, entryUid: number): string {
 }
 
 /**
+ * Applies the selected project lore to one native World Info scan payload.
+ * Persona lore can be removed for this payload without changing the saved
+ * Persona binding or any worldbook configuration.
+ */
+export function applyStoryLoresToWorldInfoScan(
+  lores: readonly LoadedStoryLore[],
+  loaded: WorldInfoEntriesLoadedPayload,
+  options: StoryLoreScanOptions = {},
+): void {
+  if (options.excludePersonaLore) loaded.personaLore.splice(0, loaded.personaLore.length);
+
+  const selectedLores = new Map(lores.map(lore => [getLoreKey(lore.worldbookName, lore.entryUid), lore]));
+  const collections = [
+    loaded.chatLore,
+    ...(options.excludePersonaLore ? [] : [loaded.personaLore]),
+    loaded.characterLore,
+    loaded.globalLore,
+  ];
+  const matched = new Set<string>();
+
+  for (const collection of collections) {
+    for (const entry of collection) {
+      const key = getLoreKey(entry.world, entry.uid);
+      const lore = selectedLores.get(key);
+      if (!lore) continue;
+      // Carry the in-memory (possibly re-bound) content, not the saved original.
+      entry.content = lore.content;
+      entry.disable = false;
+      entry.constant = true;
+      entry.probability = 100;
+      entry.useProbability = false;
+      entry.ignoreBudget = true;
+      matched.add(key);
+    }
+  }
+
+  for (const [key, lore] of selectedLores) {
+    if (matched.has(key)) continue;
+    loaded.globalLore.push({
+      ...createRawWorldInfoEntry(lore),
+      disable: false,
+      constant: true,
+      probability: 100,
+      useProbability: false,
+      ignoreBudget: true,
+    });
+  }
+}
+
+/**
  * Adds selected disabled entries to SillyTavern's next native World Info scan.
  * Only the per-scan copies are changed; the saved worldbook stays disabled.
  */
-export function armStoryLoresForNextWorldInfoScan(lores: readonly LoadedStoryLore[]): () => void {
+export function armStoryLoresForNextWorldInfoScan(
+  lores: readonly LoadedStoryLore[],
+  options: StoryLoreScanOptions = {},
+): () => void {
   if (typeof eventOnce !== 'function' || typeof tavern_events === 'undefined') {
     throw new Error('当前环境没有可用的 SillyTavern 世界书扫描事件。');
   }
 
-  const selectedLores = new Map(lores.map(lore => [getLoreKey(lore.worldbookName, lore.entryUid), lore]));
   const subscription = eventOnce(tavern_events.WORLDINFO_ENTRIES_LOADED, payload => {
-    const loaded = payload as WorldInfoEntriesLoadedPayload;
-    const collections = [loaded.chatLore, loaded.personaLore, loaded.characterLore, loaded.globalLore];
-    const matched = new Set<string>();
-
-    for (const collection of collections) {
-      for (const entry of collection) {
-        const key = getLoreKey(entry.world, entry.uid);
-        const lore = selectedLores.get(key);
-        if (!lore) continue;
-        // Carry the in-memory (possibly re-bound) content, not the saved original.
-        entry.content = lore.content;
-        entry.disable = false;
-        entry.constant = true;
-        entry.probability = 100;
-        entry.useProbability = false;
-        entry.ignoreBudget = true;
-        matched.add(key);
-      }
-    }
-
-    for (const [key, lore] of selectedLores) {
-      if (matched.has(key)) continue;
-      loaded.globalLore.push({
-        ...createRawWorldInfoEntry(lore),
-        disable: false,
-        constant: true,
-        probability: 100,
-        useProbability: false,
-        ignoreBudget: true,
-      });
-    }
+    applyStoryLoresToWorldInfoScan(lores, payload as WorldInfoEntriesLoadedPayload, options);
   });
 
   return subscription.stop;
+}
+
+export async function withStoryLoresForNextWorldInfoScan<T>(
+  lores: readonly LoadedStoryLore[],
+  options: StoryLoreScanOptions,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const stopWorldInfoScanHook = armStoryLoresForNextWorldInfoScan(lores, options);
+  try {
+    return await operation();
+  } finally {
+    stopWorldInfoScanHook();
+  }
 }

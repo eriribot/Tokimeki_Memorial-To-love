@@ -1,5 +1,143 @@
 # 艾尔登特当前状态
 
+# 2026-08-10 generic CG groups and multi-frame sequences
+
+```yaml
+status: implementation_verified_local_contract_and_build_browser_review_waived_by_user
+current_loop: generic_cg_groups_frames_and_click_sequence_2026-08-10
+authorized_by:
+  - user_changed_the_single_asset_field_to_an_array_and_reported_the_resulting_errors
+  - user_requested_a_template_shape_that_supports_more_than_one_cg_group_for_future_scenes
+  - user_requested_a_practical_safe_camera_move_and_explicit_template_comments
+authorized_scope:
+  - preserve cgShots as the array of independently triggered CG groups
+  - replace the incomplete asset string array with frames carrying per-frame id asset alt framing and optional camera
+  - allow each group to contain multiple frames and each act to contain multiple non-conflicting trigger groups
+  - allow one safe source image to be reused with validated focus percentages and zoom for distinct camera compositions
+  - make forward input advance one CG frame at a time and fade/advance story only after the final frame
+  - make backward input move to the previous CG frame before returning to the source dialogue page
+forbidden_scope:
+  - add episode-specific runtime branches or infer CG groups from dialogue text and speaker names
+  - persist CG frame cursors or let CG rendering settle AP date affinity choices completion host or database state
+  - put the body-focused 001.png asset into the runtime CG configuration
+  - modify prompts worldbook Tavern messages plugins databases shujuku ACU or unrelated existing TypeScript failures
+connection_state: local_types_validator_renderer_click_state_machine_and_development_bundle_connected_browser_flow_stopped_at_user_request
+overall_connection_label: 多组/多帧 CG 模板合同、镜头参数、点击状态机与开发包已接线；用户要求不再继续浏览器验收，本轮不声明最终人工观感
+verification:
+  passed:
+    - the two user-introduced diagnostics for string-array startsWith and resolveAssetPath are absent after the repair
+    - scoped ESLint passed for the changed CG source and test set
+    - mainStoryCg multi-group multi-frame validator resolver and renderer contract passed 4 of 4 cases
+    - formatting and the Episode 01 Act 02 evidence packet schema check passed
+    - story text extraction passed 21 of 21 cases and main story time settlement passed 5 of 5 cases
+    - development webpack build completed and emitted the current ToLove index.html bundle
+  failed:
+    - full project TypeScript check remains red only on existing CalendarModule storyContextValidation storyTimeline and
+      memory summary diagnostics
+  not_run:
+    - final CG click sequence and crossfade visual acceptance because the user explicitly requested stopping tests
+    - real Tavern save load generation host plugin database shujuku or ACU paths
+human_review: waived_by_user_for_this_turn_future_visual_acceptance_remains_optional
+```
+
+# 2026-08-10 per-save Player Persona isolation and preset injection
+
+```yaml
+status: implementation_verified_local_contract_real_tavern_human_review_pending
+current_loop: player_profile_snapshot_v4_persona_override_lore_masking_2026-08-10
+authorized_by:
+  - user_requested_implementation_of_the_per_save_player_persona_isolation_plan
+authorized_scope:
+  - add immutable fixed-male appearance and personality fields to registration and the player archive
+  - assign the new-game save UUID before registration and save immediately after final confirmation
+  - raise GameSnapshot to strict schema v4 and explicitly reject v3 and earlier without migration
+  - freeze PlayerProfile into each story request and persist its signature injection version and carrier on every floor
+  - override the active Persona description or use one depth-zero non-scanned fallback injection
+  - treat the host user name as a transport alias and the save displayName as authoritative
+  - remove Persona Lore only from the current story World Info payload while preserving every other lore source
+  - serialize escaped player facts and reject regeneration when the current save signature differs
+forbidden_scope:
+  - create switch edit unlink or delete the user's real SillyTavern Persona or Persona Lore binding
+  - modify the active preset global user name or saved worldbook configuration
+  - add avatar upload height weight editing old-save migration or real Persona synchronization
+  - claim local tests or Prompt Preview prove the final request in a real SillyTavern runtime
+connection_state: local_registration_snapshot_generation_configuration_floor_validation_and_scan_payload_paths_connected_real_tavern_prompt_itemization_not_run
+overall_connection_label:
+  每存档 PlayerProfile、v4 快照、请求级 Persona 覆盖、Persona Lore
+  屏蔽和重生成签名门已在源码及本地合同测试接通；真实酒馆最终提示待人工验收
+verification:
+  passed:
+    - player Persona isolation contract passed 11 of 11 local cases
+    - v4 PlayerProfile normalization length control-character and strict snapshot shape cases passed
+    - A and B save descriptions generation plans and signatures remained isolated
+    - dangerous closing tags angle brackets ampersands and quotes remained data inside the versioned JSON block
+    - enabled Persona Description and disabled-placeholder fallback each carried the full profile exactly once
+    - Persona Lore removal preserved Chat Character Global and selected project lore in the scan payload
+    - one-shot scan hook cleanup passed success exception and cancellation-style rejection cases
+    - generation mutex rejected overlap and recovered after success and exception
+    - story text extraction passed 21 of 21 cases main story time settlement passed 5 of 5 cases and main story CG
+      passed 2 of 2 cases
+    - development webpack build completed and emitted the current ToLove index.html bundle
+    - local browser at 915x412 completed all six registration steps and the review page displayed fixed male appearance
+      and personality
+    - local render_game_to_text exposed the complete schema-v4 PlayerProfile after registration
+    - local player archive displayed fixed male appearance and personality and compact layout bounds left a measured gap
+      between narratives and radar
+    - scoped TypeScript check reported only 17 existing diagnostics and no diagnostic in this implementation set
+  failed:
+    - full project TypeScript check remains red on existing CalendarModule storyContextValidation storyTimeline and
+      memory summary diagnostics
+  not_run:
+    - real SillyTavern Prompt Itemization or Prompt Inspector with conflicting Persona name description and Persona Lore
+    - real Persona None Prompt Manager Author's Note and At Depth position matrix
+    - real Tavern save switching generation cancellation or host configuration before-and-after comparison
+human_review: pending_real_tavern_final_prompt_persona_source_exclusion_and_registration_archive_visual_acceptance
+```
+
+# 2026-08-10 Episode 01 Act 02 derived CG interstitial
+
+```yaml
+status: implementation_verified_local_browser_mock_human_visual_review_pending
+current_loop: episode01_act02_dialogue_then_cg_only_click_fade_2026-08-10
+authorized_by:
+  - user_requested_episode01_act02_original_animation_cg_configuration_and_smooth_camera_transition
+  - user_clarified_dialogue_first_then_fullscreen_image_without_input_box_then_click_to_fade
+authorized_scope:
+  - add a generic data-driven act CG configuration without episode-specific runtime branching
+  - trigger a derived CG-only page after the configured zero-based scene beat
+  - omit dialogue nameplate and page controls while the CG-only page is visible
+  - fade the CG for 420ms on player click and then advance through the existing page intent exactly once
+forbidden_scope:
+  - infer CG triggers from dialogue text speaker names or episode-ID runtime branches
+  - persist a separate CG page or let the CG layer settle AP date affinity choices completion or host state
+  - modify prompts worldbook Tavern messages plugins databases shujuku or ACU
+connection_state: local_source_and_development_bundle_updated_complete_previous_act_mock_save_loaded_and_browser_flow_verified_real_tavern_not_run
+overall_connection_label: CG 配置、通用本地演出链、开发包与完整前文模拟存档浏览器链已接通；真实 Tavern 与用户观感待验收
+verification:
+  passed:
+    - scoped Prettier completed for source tests active documentation evidence packet and browser mock
+    - scoped ESLint passed for the changed CG source set
+    - mainStoryCg unit contract passed 2 of 2 cases
+    - story text extraction contract passed 21 of 21 cases
+    - main story time settlement contract passed 5 of 5 cases
+    - adapt-fandom-episodes evidence packet schema and seven semantic cases passed the package validator
+    - development webpack build completed and emitted the current ToLove index.html bundle
+    - browser mock restored accepted Episode 01 Act 01 and Act 02 floors with exact contextFloorIds and message pairs
+    - browser at 915x412 confirmed escape dialogue page one dialogue and one control bar then CG-only page zero dialogue
+      and zero controls while pageIndex stayed 1
+    - browser confirmed CG click entered story-cg-fade-out for 0.42s retained pageIndex 1 during fade and advanced
+      exactly once to pageIndex 2 afterward
+    - browser screenshots at 915x412 and 1280x800 confirmed the safe top crop shows only Lala's face hair and raised
+      arms under steam masking
+    - browser console reported zero errors and zero warnings
+  failed:
+    - full project TypeScript check remains red on existing CalendarModule ContextPreviewModal storyContextValidation
+      memory summary snapshot and unused historyFloorIndex diagnostics; no new CG type diagnostic was reported
+  not_run:
+    - real Tavern save load worldbook generation host message plugin database shujuku or ACU paths
+human_review: pending_safe_crop_camera_timing_dialogue_to_cg_and_cg_to_next_dialogue_visual_acceptance
+```
+
 ```yaml
 status: implementation_updated_user_manual_and_test_role_review_pending
 current_loop: start_riko_intro_player_registration_snapshot_v3_2026-08-01
@@ -49,9 +187,11 @@ authorized_by:
   - user_reported_lala_and_riko_scale_shake_offset_registration_position_calendar_total_and_wrong_riko_cast
 authorized_scope:
   - use bg029_a for the registered aquarium scene
-  - keep episode04 convergent while moving the explicit war explanation to the second day and keeping the accident continuation on that day
+  - keep episode04 convergent while moving the explicit war explanation to the second day and keeping the accident
+    continuation on that day
   - normalize Lala and Riko portrait framing without changing the accepted Mikan framing
-  - preserve centered portraits during shake, reposition opening Riko, hide the visual month-total suffix, and remove Riko from episode04 act01
+  - preserve centered portraits during shake, reposition opening Riko, hide the visual month-total suffix, and remove
+    Riko from episode04 act01
 forbidden_scope:
   - modify real Tavern World Info or claim the recovery text files are already imported
   - trigger host-message floors, MESSAGE_SENT, shujuku, ACU, plugin, or database paths
@@ -64,12 +204,15 @@ verification:
     - development and production webpack builds passed for the earlier story correction set
     - user explicitly confirmed that the aquarium background change is successful
   passed_after_latest_visual_patch:
-    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing bundle-size warnings
+    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing
+      bundle-size warnings
   not_run_after_latest_visual_patch:
     - episode verifiers, formatting, lint, and development build, at the user's explicit request
     - Playwright or other browser verification, because the user chose to perform the visual check personally
-    - exact inline-artifact verification; the AGENTS.md command target verify-inline-bundle.mjs is absent in this checkout
-    - real Tavern World Info import, one-shot scan, AI generation, host-message floors, shujuku, ACU, plugin, or database verification
+    - exact inline-artifact verification; the AGENTS.md command target verify-inline-bundle.mjs is absent in this
+      checkout
+    - real Tavern World Info import, one-shot scan, AI generation, host-message floors, shujuku, ACU, plugin, or
+      database verification
 human_review: pending_user_verification_of_the_latest_portrait_calendar_and_episode04_cast_patch
 ```
 
@@ -96,19 +239,28 @@ forbidden_scope:
   - use browser or automated screenshots as final visual acceptance
 connection_state: local_css_and_production_bundle_updated_pending_user_visual_review
 evidence:
-  - live Vita3K gameplay window observed at 960x544; character hair occupies roughly one quarter to one third of frame width and extends vertically behind the dialogue window
-  - D:/素材/出包女王素材库/TextAsset/ToLove contains Chara_Pos with 2161 placement rows plus Chara_Eye_Pos and Chara_Mouth_Pos
-  - the original one-character entries are 0041a_b=160,56 for Lala, 0051a_b=160,51 for Haruna, and 0101a_b=160,66 for Mikan
-  - the exported masks are 512x512 while their color textures are 1024x1024, confirming a 512x512 logical portrait canvas rather than a viewport-wide portrait
-  - the earlier shared scaleX 0.88 and scaleY 1.04 treatment was rejected by the user's visual counterexample and has been removed
-  - live comparison confirmed that the web story frame was 1400x840 (5:3) while Vita rendered 960x544 (30:17), making the same portrait remain too wide relative to the web frame
-  - the main story now uses a centered 1400x793.33 equivalent 30:17 viewport with the 512x512 portrait canvas occupying its original 53.33 percent width
+  - live Vita3K gameplay window observed at 960x544; character hair occupies roughly one quarter to one third of frame
+    width and extends vertically behind the dialogue window
+  - D:/素材/出包女王素材库/TextAsset/ToLove contains Chara_Pos with 2161 placement rows plus Chara_Eye_Pos and
+    Chara_Mouth_Pos
+  - the original one-character entries are 0041a_b=160,56 for Lala, 0051a_b=160,51 for Haruna, and 0101a_b=160,66 for
+    Mikan
+  - the exported masks are 512x512 while their color textures are 1024x1024, confirming a 512x512 logical portrait
+    canvas rather than a viewport-wide portrait
+  - the earlier shared scaleX 0.88 and scaleY 1.04 treatment was rejected by the user's visual counterexample and has
+    been removed
+  - live comparison confirmed that the web story frame was 1400x840 (5:3) while Vita rendered 960x544 (30:17), making
+    the same portrait remain too wide relative to the web frame
+  - the main story now uses a centered 1400x793.33 equivalent 30:17 viewport with the 512x512 portrait canvas occupying
+    its original 53.33 percent width
   - Riko is excluded from the shared aspect-ratio selector
 verification:
   passed:
-    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing bundle-size warnings
+    - pnpm build completed successfully and refreshed dist/webgame-ui/index.html; webpack reported only the existing
+      bundle-size warnings
   not_run:
-    - Playwright, browser screenshots, episode verifier, lint, formatting, and automated visual comparison at the user's request
+    - Playwright, browser screenshots, episode verifier, lint, formatting, and automated visual comparison at the user's
+      request
     - real Tavern World Info, AI generation, host-message floors, shujuku, ACU, plugin, or database verification
 human_review: pending_user_manual_review_across_the_three_supported_canvas_sizes
 ```
@@ -1889,12 +2041,13 @@ verification:
       next-act prompt, asset, and no-glass CSS contract
     - webpack development build passed and emitted dist/Tokimeki_Memorial-To-love/index.html
     - Playwright loaded episode 04 act 01 through the actual save UI using an evidence-only mocked Tavern bridge
-    - the final choice page exposes three AI candidates and a fourth custom-action entry with the prompt on the top ribbon
+    - the final choice page exposes three AI candidates and a fourth custom-action entry with the prompt on the top
+      ribbon
     - the separate custom page enforces maxLength 80, enables submission after text entry, records the custom decision,
       enables return navigation, and appends the selected custom action to the event log
     - browser console contained zero errors and zero warnings during the verified final flow
-    - runtime geometry measured the portrait stage and body at 772.78125 by 772.78125 pixels; the 1024 by 1024 body
-      uses object-fit contain and transform matrix(1, 0, 0, 1, -386.391, 0), proving no horizontal flattening
+    - runtime geometry measured the portrait stage and body at 772.78125 by 772.78125 pixels; the 1024 by 1024 body uses
+      object-fit contain and transform matrix(1, 0, 0, 1, -386.391, 0), proving no horizontal flattening
   failed:
     - pnpm typecheck:tolove and pnpm build:dev remain red on 13 pre-existing errors outside this change; the one new
       nullable liveAct issue was fixed and no modified choice file remains in that error list
@@ -1935,10 +2088,12 @@ verification:
     - scoped ESLint passed for GalStoryPage.tsx and GalMainStory.tsx
     - verify-episode04.cjs passed including Mikan whole-composite scaling and narrator nameplate assertions
     - webpack development build passed and emitted a fresh dist/Tokimeki_Memorial-To-love/index.html
-    - desktop Playwright screenshot shows the full ahoge, a visibly narrower and taller Mikan, and the restored 旁白 nameplate
-    - 915 by 412 landscape Playwright screenshots keep the portrait, four choice rows, and narrator nameplate inside the game frame
-    - computed focus is mikan; CSS variables are 0.94 and 1.04; the animated matrix measured x 0.94 and y 1.04172
-      while body, mask, eyes, and mouth remain under the same transformed parent
+    - desktop Playwright screenshot shows the full ahoge, a visibly narrower and taller Mikan, and the restored 旁白
+      nameplate
+    - 915 by 412 landscape Playwright screenshots keep the portrait, four choice rows, and narrator nameplate inside the
+      game frame
+    - computed focus is mikan; CSS variables are 0.94 and 1.04; the animated matrix measured x 0.94 and y 1.04172 while
+      body, mask, eyes, and mouth remain under the same transformed parent
     - browser console contained zero errors and zero warnings
   failed:
     - pnpm typecheck:tolove remains red on the same 13 pre-existing errors; neither the new narrator rendering nor the
@@ -1985,6 +2140,68 @@ verification:
 human_review: pending_user_localhost_5500_character_layout_acceptance
 ```
 
+# 2026-08-08 Episode 12 Saki-route sports-festival research packet
+
+```yaml
+status: research_packet_authored_structural_and_independent_semantic_validation_passed_human_story_review_pending
+current_loop: episode12_saki_route_sports_festival_and_saruyama_comedy_research_2026-08-08
+authorized_by:
+  - user_requested_episode12_sports_festival_research_with_saki_becoming_an_independent_romance_candidate
+  - user_allowed_a_consent_gated_user_stake_and_required_fanservice_to_be_user_exclusive_instead_of_public
+  - user_corrected_the_scope_to_preserve_light_user_body_comedy_and_saruyamas_continuous_humorous_commentary
+authorized_scope:
+  - organize the TV-original sports-festival chronology from the opening mishap through the infirmary interruption
+  - preserve Saruyama as the continuous comedy voice for rules, scoring, commentator swaps, disqualifications, fissure,
+    instant pool, projectile failure, and final victory while keeping the Principal's boundary violations separate
+  - establish Saki's independent romance-route eligibility as a narrative seed without runtime unlock or affection
+    settlement
+  - limit the stake to one priority invitation opportunity, require User consent before it applies, and require renewed
+    consent after Saki materially changes the event into a technology-assisted pool contest
+  - retain the original anime's three iconic body-comedy accident functions in the evidence layer, then redirect the
+    target adaptation toward covered, non-explicit, User-facing proximity and light User wet-clothing or outer-gear
+    damage
+  - record official and licensed metadata, community chronology, subtitle timecodes, version differences, local
+    authority, asset gaps, availability-rule risk, must-keep beats, counterevidence, and semantic rejection cases
+forbidden_scope:
+  - register episode 12, create runtime acts, character cards, worldbook entries, maps, layered modules, unlocks, or
+    state settlement
+  - treat User as owned property, force an invitation or intimate act, let Lala accept for User, or skip renewed consent
+  - turn romance eligibility into automatic love, affection, date success, route completion, archive visibility, or map
+    availability
+  - reproduce public clothing destruction or give minor-character body fanservice to bystanders, spectators, Saruyama,
+    or the Principal
+  - sanitize the episode into a dry sports recap by deleting User-facing light body comedy or Saruyama's continuous
+    comic voice
+  - treat community subtitles as official translation, overstate uncertain speaker attribution, or merge the separate
+    manga sports festival
+connection_state: unregistered_research_summary_timecodes_and_schema_v2_packet_only
+verification:
+  passed:
+    - official TBS and XEBEC metadata plus TELASA and JCOM licensed listings cross-checked the title, broadcast date,
+      Saki-versus-Lala axis, sports-festival sequence, fissure, instant pool, and water-cavalry finale
+    - direct review of the community English ASS produced 28 ordered timecode rows while labeling translation, speaker,
+      and silent-action limitations; 20:37 speaker attribution remains explicitly pending audio review
+    - the evidence layer records the Push-Push gym-shorts accident, fissure body accident, Ren-to-Run form switch, and
+      pushball infirmary-wall finale before applying the User-facing safety redirection
+    - adapt-fandom-episodes validate_evidence_packet.py passed the schema v2 packet
+    - JSON parsing found 25 sources, 14 counterevidence records, 13 role mappings, 19 must-keep beats, exactly 7
+      semantic case types, and exactly one negative-missing-anchor case
+    - every referenced local source path exists and git diff --check passed without whitespace errors
+    - independent Aldent review passed after correcting the exactly-one Saruyama case, consent boundaries, safe
+      borrowed-item wording, original-versus-adapted accident separation, source support width, and established Ren/Run,
+      Peke, Tenjoin Group, and infirmary naming
+  failed: []
+  not_run:
+    - direct episode-frame, Japanese audio, official script, Japanese subtitle, or user screenshot verification
+    - TypeScript, ESLint, build, episode runtime verifier, or browser checks because no runtime source was changed
+    - real Tavern World Info, generation, host-message floors, plugins, database, shujuku, or ACU verification
+human_review: pending_user_story_priority_fanservice_tone_and_future_direct_episode_view_acceptance
+evidence:
+  - 剧情参考/游戏开发知识库/出包王女/第十二集Fandom剧情整理.md
+  - 剧情参考/游戏开发知识库/出包王女/第十二集字幕时间锚点.md
+  - 剧情参考/游戏开发知识库/出包王女/第十二集改编证据.json
+```
+
 # 2026-08-05 Episode 10 Stella tax-evasion comedy research packet
 
 ```yaml
@@ -1994,21 +2211,25 @@ authorized_by: user_requested_episode10_plot_research_with_the_stella_tax_evasio
 authorized_scope:
   - identify Stella using official episode metadata without upgrading her to Lala's contracted private manager
   - organize the episode chronology from the dream fakeout through the roof-damage coda
-  - preserve the full stingy-audition, wealth-fantasy, tax-discovery, petrification-reprise, rocket, and roof-deadpan chain
-  - record community subtitle time anchors, source limitations, role mapping, must-keep beats, and semantic rejection cases
-  - keep the packet as unregistered research while episodes 05 through 09 and the episode 10 runtime date remain unfrozen
+  - preserve the full stingy-audition, wealth-fantasy, tax-discovery, petrification-reprise, rocket, and roof-deadpan
+    chain
+  - record community subtitle time anchors, source limitations, role mapping, must-keep beats, and semantic rejection
+    cases
+  - keep the packet as unregistered research while episodes 05 through 09 and the episode 10 runtime date remain
+    unfrozen
 forbidden_scope:
   - register episode 10, create runtime acts, worldbook entries, character cards, unlocks, or state settlement
-  - claim tax arrest, trial, conviction, a named caller, an official company name, or a private-manager contract without evidence
+  - claim tax arrest, trial, conviction, a named caller, an official company name, or a private-manager contract without
+    evidence
   - treat community subtitles as official translation or claim frame-level acceptance without the episode video
   - overwrite the latest User, Riko, Lala, Haruna, or Mikan role authority
 connection_state: unregistered_research_summary_timecodes_and_schema_v2_packet_only
 verification:
   passed:
-    - official TBS and XEBEC metadata cross-check for the episode title, broadcast date, triple fan-organization presidency,
-      talent-agency presidency, idol proposal, Lala refusal, and Haruna target
-    - community subtitle timing review preserves the complete 19:21 through 22:05 comedy setup, reversal, physical payoff,
-      and roof coda while labelling the subtitle as non-official
+    - official TBS and XEBEC metadata cross-check for the episode title, broadcast date, triple fan-organization
+      presidency, talent-agency presidency, idol proposal, Lala refusal, and Haruna target
+    - community subtitle timing review preserves the complete 19:21 through 22:05 comedy setup, reversal, physical
+      payoff, and roof coda while labelling the subtitle as non-official
     - adapt-fandom-episodes validate_evidence_packet.py passed the episode 10 schema v2 packet
     - JSON parsing found 14 sources, 15 beats, exactly 7 semantic case types, and no missing local source path
   failed: []
@@ -2030,35 +2251,42 @@ status: research_packet_authored_structural_and_independent_semantic_validation_
 current_loop: episode11_golden_darkness_debut_research_2026-08-05
 authorized_by: user_requested_continuing_with_episode11_and_centering_golden_darkness_debut
 authorized_scope:
-  - identify Golden Darkness as the assassin codename and Yami-chan as Lala's in-episode nickname without treating Eve as a confirmed real name
-  - organize the TV chronology from the peaceful-planet arrival through the simultaneous still-a-target and accepted-friend ending
-  - preserve the taiyaki first contact, non-retaliation evidence crack, false brief, Lacospo reveal, Yami's independent challenge,
-    mutual-protection chain, first cute remark, nickname, and unresolved mission-friendship tension
-  - map the original Rito functions exclusively to User while keeping Riko independent and keeping Haruna outside the assassination sequence
-  - record community subtitle time anchors, TV-versus-manga differences, source limitations, must-keep beats, and semantic rejection cases
+  - identify Golden Darkness as the assassin codename and Yami-chan as Lala's in-episode nickname without treating Eve
+    as a confirmed real name
+  - organize the TV chronology from the peaceful-planet arrival through the simultaneous still-a-target and
+    accepted-friend ending
+  - preserve the taiyaki first contact, non-retaliation evidence crack, false brief, Lacospo reveal, Yami's independent
+    challenge, mutual-protection chain, first cute remark, nickname, and unresolved mission-friendship tension
+  - map the original Rito functions exclusively to User while keeping Riko independent and keeping Haruna outside the
+    assassination sequence
+  - record community subtitle time anchors, TV-versus-manga differences, source limitations, must-keep beats, and
+    semantic rejection cases
   - keep the packet as unregistered research while episodes 05 through 10 and Yami's runtime authority remain unfrozen
 forbidden_scope:
-  - register episode 11, create runtime acts, worldbook entries, layered character modules, nameplates, unlocks, school enrollment, or state settlement
-  - claim Eve is the episode-confirmed real name, the assassination contract is cancelled, taiyaki is already an established favorite,
-    or Yami has already entered a romance route
-  - let User or Lala decide that the brief is false on Yami's behalf, or collapse Lala-protects-Yami, User-protects-Lala,
-    and Lala-defeats-the-threat into one character's rescue
-  - treat community subtitles as official translation, merge manga reveal order into the TV episode, or claim frame-level acceptance without the episode video
+  - register episode 11, create runtime acts, worldbook entries, layered character modules, nameplates, unlocks, school
+    enrollment, or state settlement
+  - claim Eve is the episode-confirmed real name, the assassination contract is cancelled, taiyaki is already an
+    established favorite, or Yami has already entered a romance route
+  - let User or Lala decide that the brief is false on Yami's behalf, or collapse Lala-protects-Yami,
+    User-protects-Lala, and Lala-defeats-the-threat into one character's rescue
+  - treat community subtitles as official translation, merge manga reveal order into the TV episode, or claim
+    frame-level acceptance without the episode video
   - sexualize the bathhouse, harassment, slime, or clothing-damage gags involving minor characters
 connection_state: unregistered_research_summary_timecodes_and_schema_v2_packet_only
 verification:
   passed:
-    - official TBS, XEBEC, and TELASA metadata cross-check for the title, broadcast date, assassin identity, target mission,
-      Zastin intervention, and Lala-versus-Golden-Darkness main axis
-    - community subtitle timing review preserves the taiyaki encounter, false-brief dispute, delayed Lacospo reveal, Yami-owned judgment,
-      three-owner protection chain, cute and nickname turn, and the complete 21:23 through 22:02 dual ending
-    - TV-versus-manga comparison records the delayed client reveal, television shopping interlude, removed or rewritten side plots,
-      strengthened protection chain, and explicit friend invitation without importing manga order
+    - official TBS, XEBEC, and TELASA metadata cross-check for the title, broadcast date, assassin identity, target
+      mission, Zastin intervention, and Lala-versus-Golden-Darkness main axis
+    - community subtitle timing review preserves the taiyaki encounter, false-brief dispute, delayed Lacospo reveal,
+      Yami-owned judgment, three-owner protection chain, cute and nickname turn, and the complete 21:23 through 22:02
+      dual ending
+    - TV-versus-manga comparison records the delayed client reveal, television shopping interlude, removed or rewritten
+      side plots, strengthened protection chain, and explicit friend invitation without importing manga order
     - adapt-fandom-episodes validate_evidence_packet.py passed the episode 11 schema v2 packet
-    - JSON parsing found 19 sources, 10 counterevidence records, 11 role mappings, 16 must-keep beats,
-      exactly 7 semantic case types, and no missing local source path
-    - independent semantic review passed after correcting the nickname timing claim, exactly-one-missing-anchor negative case,
-      User non-retaliation choice boundary, and project-authority versus editorial-inference source split
+    - JSON parsing found 19 sources, 10 counterevidence records, 11 role mappings, 16 must-keep beats, exactly 7
+      semantic case types, and no missing local source path
+    - independent semantic review passed after correcting the nickname timing claim, exactly-one-missing-anchor negative
+      case, User non-retaliation choice boundary, and project-authority versus editorial-inference source split
   failed: []
   not_run:
     - direct episode-frame, official script, Japanese subtitle, or user screenshot verification

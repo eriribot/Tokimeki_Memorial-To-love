@@ -1,12 +1,11 @@
 import { useGameStore } from '../stores/gameStore';
-import { usePlayerStore } from '../stores/playerStore';
+import { createPlayerProfile, usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
 import { beginNewTavernAutosaveIdentity, gameSaveApi } from '../save';
 import { syncCharacterPresence } from './characterPresence';
 import { useSkillStore } from '../skilllogic';
 import { beginMemorySummaryContextTransition, invalidateMemorySummaryContext } from '../memory/summaryRuntime';
 import { captureGameMessages } from '../message';
-import { createPlayerProfile } from '../stores/playerStore';
 import type { PlayerProfile, PlayerRegistrationInput } from '../types';
 
 export function startNewSession() {
@@ -36,6 +35,9 @@ export function completeNewSessionRegistration(input: PlayerRegistrationInput): 
   }
   useGameStore.getState().completeRegistration();
   syncCharacterPresence();
+  void gameSaveApi.save().catch(error => {
+    console.error('[ToLove Save] 新生登记完成后的首次存档失败。', error);
+  });
   return profile;
 }
 

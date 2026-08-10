@@ -17,32 +17,42 @@ import {
   type GalStoryFloorOutcome,
   type GalStoryMessageSave,
   type GalStoryMessageSource,
+  type StoryChoiceDecision,
   type StoryPresentationCue,
   type StoryChoiceOptionDefinition,
 } from '../GalMainStory/storyTypes';
 import {
-  armStoryLoresForNextWorldInfoScan,
   assertStoryLoreTaggedBlock,
   readDisabledWorldbookStoryLores,
   replaceStoryLoreTaggedBlock,
+  withStoryLoresForNextWorldInfoScan,
   type LoadedStoryLore,
 } from '../data/storyLore';
 import { useCardStore } from '../stores/cardStore';
-import { usePlayerStore } from '../stores/playerStore';
+import { createPlayerProfile } from '../stores/playerStore';
 import { createSaveUuid } from '../save/uuid';
+import type { PlayerProfile } from '../types';
+import {
+  createCurrentPlayerPersonaPromptPlan,
+  createPlayerProfileSignature,
+  PLAYER_PERSONA_INJECTION_VERSION,
+  type StoredPlayerPersonaCarrier,
+} from './playerPersona';
 import { createStoryGenerationContextProjection } from './storyGenerationContext';
+import { runExclusiveStoryGeneration } from './storyGenerationMutex';
 
 export interface GenerateStoryActRequest {
   eventId: string;
   actId: string;
   floorId: string;
-  playerName: string;
+  playerProfile: Readonly<PlayerProfile>;
   day: number;
   period: string;
   location: string;
   contextFloorIds: string[];
   historyFloorIds?: string[];
   chatHistory: readonly GalStoryMessageSave[];
+  previousChoiceDecisions?: readonly { actId: string; decision: StoryChoiceDecision }[];
 }
 
 interface BuildMessagePairRequest extends GenerateStoryActRequest {
@@ -68,6 +78,20 @@ interface RejectedStoryAct {
 }
 
 export type GeneratedStoryAct = AcceptedStoryAct | RejectedStoryAct;
+
+export class StoryGenerationRequestError extends Error {
+  readonly playerPersonaCarrier: StoredPlayerPersonaCarrier;
+
+  constructor(message: string, playerPersonaCarrier: StoredPlayerPersonaCarrier, options?: ErrorOptions) {
+    super(message, options);
+    this.name = 'StoryGenerationRequestError';
+    this.playerPersonaCarrier = playerPersonaCarrier;
+  }
+}
+
+export function getStoryGenerationErrorPersonaCarrier(error: unknown): StoredPlayerPersonaCarrier {
+  return error instanceof StoryGenerationRequestError ? error.playerPersonaCarrier : 'not-generated';
+}
 
 function getTavernGenerateApi(): Pick<Window['TavernHelper'], 'generate'> {
   const api = window.TavernHelper;
@@ -105,7 +129,7 @@ export function createStoryMessagePair(request: BuildMessagePairRequest): GalSto
     period: request.period,
     location: request.location,
     day: request.day,
-    playerName: request.playerName,
+    playerName: request.playerProfile.displayName,
     contextFloorIds: [...request.contextFloorIds],
     outcome,
     ...(request.error ? { error: request.error } : {}),
@@ -153,6 +177,7 @@ export function createStoryFloor(
   messages: readonly GalStoryMessageSave[],
   outcome: GalStoryFloorOutcome,
   error?: string,
+  playerPersonaCarrier: StoredPlayerPersonaCarrier = 'not-generated',
 ): GalStoryFloor {
   const actMeta = getMainStoryActOrThrow(request.eventId, request.actId);
   if (
@@ -173,7 +198,10 @@ export function createStoryFloor(
     outcome,
     act,
     context: {
-      playerName: request.playerName,
+      playerName: request.playerProfile.displayName,
+      playerProfileSignature: createPlayerProfileSignature(request.playerProfile),
+      playerPersonaInjectionVersion: PLAYER_PERSONA_INJECTION_VERSION,
+      playerPersonaCarrier,
       day: request.day,
       period: request.period,
       location: request.location,
@@ -329,27 +357,21 @@ export function actToPlainText(act: GalStoryAct): string {
 
 /**
  * Rewrites each character lore's `<称呼绑定>` block with the concrete addressing
- * line for the registered player. The tag pair is validated even without a
- * registered profile; in that case the entry's static block content remains as
- * its own fallback.
+ * line for the frozen player profile carried by this generation request.
  */
 function applyUserAddressBindings(
   lores: readonly LoadedStoryLore[],
   selections: readonly MainStoryLoreSelection[],
+  profile: Readonly<PlayerProfile>,
+  affectionByCharacterId: ReadonlyMap<string, number>,
 ): void {
-  const profile = usePlayerStore.getState().profile;
-  const targets = useCardStore.getState().targets;
   lores.forEach((lore, index) => {
     const characterId = selections[index]?.characterId;
     if (!characterId) return;
     const buildBinding = getStoryCharacter(characterId).buildUserAddressBinding;
     if (!buildBinding) return;
     assertStoryLoreTaggedBlock(lore.content, STORY_USER_ADDRESS_TAG);
-    if (!profile) {
-      console.warn(`[ToLove Story] 玩家未注册，人物条目「${lore.entryName}」的称呼绑定保留静态兜底文本。`);
-      return;
-    }
-    const affection = targets.find(target => target.id === characterId)?.affection ?? 0;
+    const affection = affectionByCharacterId.get(characterId) ?? 0;
     lore.content = replaceStoryLoreTaggedBlock(
       lore.content,
       STORY_USER_ADDRESS_TAG,
@@ -359,66 +381,118 @@ function applyUserAddressBindings(
 }
 
 export async function generateStoryAct(request: GenerateStoryActRequest): Promise<GeneratedStoryAct> {
-  getMainStoryActOrThrow(request.eventId, request.actId);
-  const api = getTavernGenerateApi();
-  const generationContext = createStoryGenerationContextProjection(request);
-  const userInput = generationContext.userInput;
-  const loreSelections = getMainStoryLoreSelections(request.eventId, request.actId);
-  const selectedLores = await readDisabledWorldbookStoryLores(loreSelections.map(selection => selection.reference));
-  applyUserAddressBindings(selectedLores, loreSelections);
-  const stopWorldInfoScanHook = armStoryLoresForNextWorldInfoScan(selectedLores);
-  let result: Awaited<ReturnType<typeof api.generate>>;
-  try {
-    result = await api.generate({
-      preset_name: 'in_use',
-      generation_id: request.floorId,
-      user_input: userInput,
-      max_chat_history: generationContext.maxChatHistory,
-      should_stream: false,
-      should_silence: false,
-      overrides: {
-        chat_history: {
-          with_depth_entries: true,
-          prompts: generationContext.chatHistory,
-        },
-      },
+  return runExclusiveStoryGeneration(request.floorId, async () => {
+    getMainStoryActOrThrow(request.eventId, request.actId);
+    const normalizedProfile = createPlayerProfile({
+      familyName: request.playerProfile.familyName,
+      givenName: request.playerProfile.givenName,
+      birthdayMonth: request.playerProfile.birthdayMonth,
+      birthdayDay: request.playerProfile.birthdayDay,
+      bloodType: request.playerProfile.bloodType,
+      appearance: request.playerProfile.appearance,
+      personality: request.playerProfile.personality,
     });
-  } finally {
-    stopWorldInfoScanHook();
-  }
+    if (createPlayerProfileSignature(normalizedProfile) !== createPlayerProfileSignature(request.playerProfile)) {
+      throw new Error('剧情生成请求携带的玩家资料不是已登记的规范版本。');
+    }
+    const playerProfile = Object.freeze({ ...normalizedProfile });
+    const frozenRequest: GenerateStoryActRequest = {
+      ...request,
+      playerProfile,
+      contextFloorIds: [...request.contextFloorIds],
+      ...(request.historyFloorIds ? { historyFloorIds: [...request.historyFloorIds] } : {}),
+      chatHistory: [...request.chatHistory],
+      ...(request.previousChoiceDecisions
+        ? {
+            previousChoiceDecisions: request.previousChoiceDecisions.map(saved => ({
+              actId: saved.actId,
+              decision: { ...saved.decision },
+            })),
+          }
+        : {}),
+    };
+    const api = getTavernGenerateApi();
+    const personaPlan = createCurrentPlayerPersonaPromptPlan(playerProfile);
+    const affectionByCharacterId = new Map(
+      useCardStore.getState().targets.map(target => [target.id, target.affection] as const),
+    );
+    const generationContext = createStoryGenerationContextProjection(frozenRequest);
+    const userInput = generationContext.userInput;
+    const loreSelections = getMainStoryLoreSelections(frozenRequest.eventId, frozenRequest.actId);
+    const selectedLores = await readDisabledWorldbookStoryLores(loreSelections.map(selection => selection.reference));
+    applyUserAddressBindings(selectedLores, loreSelections, playerProfile, affectionByCharacterId);
+    let result: Awaited<ReturnType<typeof api.generate>>;
+    try {
+      result = await withStoryLoresForNextWorldInfoScan(selectedLores, { excludePersonaLore: true }, () =>
+        api.generate({
+          preset_name: 'in_use',
+          generation_id: frozenRequest.floorId,
+          user_input: userInput,
+          max_chat_history: generationContext.maxChatHistory,
+          should_stream: false,
+          should_silence: false,
+          overrides: {
+            persona_description: personaPlan.personaDescriptionOverride,
+            chat_history: {
+              with_depth_entries: true,
+              prompts: generationContext.chatHistory,
+            },
+          },
+          injects: personaPlan.injections,
+        }),
+      );
+    } catch (error) {
+      throw new StoryGenerationRequestError(getErrorMessage(error), personaPlan.carrier, { cause: error });
+    }
 
-  if (typeof result !== 'string') throw new Error('酒馆返回了工具调用，当前剧情生成只接受正文文本。');
-  try {
-    const playableText = extractPlayableText(result, { requirePlayableWrapper: true });
-    const parsedAct = parsePlainTextAct(playableText, request.eventId, request.actId, request.playerName);
-    const messages = createStoryMessagePair({
-      ...request,
-      userInput,
-      assistantText: result,
-      source: 'tavern',
-      outcome: 'accepted',
-    });
-    return {
-      ok: true,
-      act: parsedAct,
-      floor: createStoryFloor(request, parsedAct, 'tavern', messages, 'accepted'),
-      messages,
-    };
-  } catch (error) {
-    const message = getErrorMessage(error);
-    const messages = createStoryMessagePair({
-      ...request,
-      userInput,
-      assistantText: result,
-      source: 'tavern',
-      outcome: 'parse_error',
-      error: message,
-    });
-    return {
-      ok: false,
-      error: message,
-      floor: createStoryFloor(request, null, 'tavern', messages, 'parse_error', message),
-      messages,
-    };
-  }
+    if (typeof result !== 'string') {
+      throw new StoryGenerationRequestError('酒馆返回了工具调用，当前剧情生成只接受正文文本。', personaPlan.carrier);
+    }
+    try {
+      const playableText = extractPlayableText(result, { requirePlayableWrapper: true });
+      const parsedAct = parsePlainTextAct(
+        playableText,
+        frozenRequest.eventId,
+        frozenRequest.actId,
+        playerProfile.displayName,
+      );
+      const messages = createStoryMessagePair({
+        ...frozenRequest,
+        userInput,
+        assistantText: result,
+        source: 'tavern',
+        outcome: 'accepted',
+      });
+      return {
+        ok: true,
+        act: parsedAct,
+        floor: createStoryFloor(
+          frozenRequest,
+          parsedAct,
+          'tavern',
+          messages,
+          'accepted',
+          undefined,
+          personaPlan.carrier,
+        ),
+        messages,
+      };
+    } catch (error) {
+      const message = getErrorMessage(error);
+      const messages = createStoryMessagePair({
+        ...frozenRequest,
+        userInput,
+        assistantText: result,
+        source: 'tavern',
+        outcome: 'parse_error',
+        error: message,
+      });
+      return {
+        ok: false,
+        error: message,
+        floor: createStoryFloor(frozenRequest, null, 'tavern', messages, 'parse_error', message, personaPlan.carrier),
+        messages,
+      };
+    }
+  });
 }

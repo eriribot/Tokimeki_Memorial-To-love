@@ -7,6 +7,7 @@ export const TOKIMEKI_UNIVERSITY_STAGE_THRESHOLDS = [160, 200, 240, 260] as cons
 export const TOKIMEKI_ATTRIBUTE_STAGE_MAX = TOKIMEKI_UNIVERSITY_STAGE_THRESHOLDS.length + 1;
 export const PLAYER_RESOURCE_MAX = 100;
 export const PLAYER_NAME_PART_MAX_LENGTH = 8;
+export const PLAYER_PROFILE_TEXT_MAX_LENGTH = 160;
 export const PLAYER_BLOOD_TYPES = ['A', 'B', 'AB', 'O', 'unknown'] as const satisfies readonly PlayerBloodType[];
 
 export interface TokimekiRadarAttributes {
@@ -69,6 +70,30 @@ export function normalizePlayerNamePart(value: string): string {
   return value.normalize('NFKC').replace(/\s+/gu, '').trim();
 }
 
+function hasUnsupportedControlCharacter(value: string): boolean {
+  return Array.from(value).some(character => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return (codePoint >= 0 && codePoint <= 31) || (codePoint >= 127 && codePoint <= 159);
+  });
+}
+
+export function normalizePlayerProfileText(value: string): string {
+  const normalized = value.normalize('NFKC');
+  if (hasUnsupportedControlCharacter(normalized)) {
+    throw new Error('资料中不能包含控制字符。');
+  }
+  return normalized.replace(/\s+/gu, ' ').trim();
+}
+
+export function validatePlayerProfileText(value: string, fieldName: '外貌' | '性格'): string {
+  const normalized = normalizePlayerProfileText(value);
+  const characterCount = Array.from(normalized).length;
+  if (characterCount === 0 || characterCount > PLAYER_PROFILE_TEXT_MAX_LENGTH) {
+    throw new Error(`${fieldName}必须填写，且不超过 ${PLAYER_PROFILE_TEXT_MAX_LENGTH} 个字符。`);
+  }
+  return normalized;
+}
+
 function isValidNamePart(value: string): boolean {
   const characters = Array.from(value);
   return (
@@ -81,17 +106,26 @@ function isValidNamePart(value: string): boolean {
   );
 }
 
+export function validatePlayerNamePart(value: string): string {
+  const normalizedSource = value.normalize('NFKC');
+  if (hasUnsupportedControlCharacter(normalizedSource)) {
+    throw new Error('姓名中不能包含控制字符。');
+  }
+  const normalized = normalizePlayerNamePart(value);
+  if (!isValidNamePart(normalized)) {
+    throw new Error(`姓和名都必须填写，且各不超过 ${PLAYER_NAME_PART_MAX_LENGTH} 个字符。`);
+  }
+  return normalized;
+}
+
 function getBirthdayDayMaximum(month: number): number {
   if (!Number.isInteger(month) || month < 1 || month > 12) return 0;
   return new Date(2000, month, 0).getDate();
 }
 
 export function createPlayerProfile(input: PlayerRegistrationInput): PlayerProfile {
-  const familyName = normalizePlayerNamePart(input.familyName);
-  const givenName = normalizePlayerNamePart(input.givenName);
-  if (!isValidNamePart(familyName) || !isValidNamePart(givenName)) {
-    throw new Error(`姓和名都必须填写，且各不超过 ${PLAYER_NAME_PART_MAX_LENGTH} 个字符。`);
-  }
+  const familyName = validatePlayerNamePart(input.familyName);
+  const givenName = validatePlayerNamePart(input.givenName);
 
   const birthdayMonth = Math.trunc(input.birthdayMonth);
   const birthdayDay = Math.trunc(input.birthdayDay);
@@ -102,14 +136,19 @@ export function createPlayerProfile(input: PlayerRegistrationInput): PlayerProfi
   if (!PLAYER_BLOOD_TYPES.includes(input.bloodType)) {
     throw new Error('血型选项无效。');
   }
+  const appearance = validatePlayerProfileText(input.appearance, '外貌');
+  const personality = validatePlayerProfileText(input.personality, '性格');
 
   return {
     familyName,
     givenName,
     displayName: `${familyName}${givenName}`,
+    gender: 'male',
     birthdayMonth,
     birthdayDay,
     bloodType: input.bloodType,
+    appearance,
+    personality,
     registrationCompleted: true,
   };
 }

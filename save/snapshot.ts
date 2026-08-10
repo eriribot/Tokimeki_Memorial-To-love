@@ -34,8 +34,9 @@ import type {
   PlayerState,
 } from '../types';
 import type { SavePreview } from './protocol';
+import { assertGameSnapshotSchemaVersion, GAME_SNAPSHOT_SCHEMA_VERSION } from './snapshotSchema';
 
-export const GAME_SNAPSHOT_SCHEMA_VERSION = 3 as const;
+export { GAME_SNAPSHOT_SCHEMA_VERSION } from './snapshotSchema';
 
 export interface GameSnapshot {
   schemaVersion: typeof GAME_SNAPSHOT_SCHEMA_VERSION;
@@ -77,6 +78,19 @@ function isFiniteNumberInRange(value: unknown, minimum: number, maximum: number)
 
 function isPlayerProfile(value: unknown): value is PlayerProfile {
   if (!isRecord(value)) return false;
+  const allowedKeys = new Set([
+    'familyName',
+    'givenName',
+    'displayName',
+    'gender',
+    'birthdayMonth',
+    'birthdayDay',
+    'bloodType',
+    'appearance',
+    'personality',
+    'registrationCompleted',
+  ]);
+  if (Object.keys(value).some(key => !allowedKeys.has(key))) return false;
   try {
     const normalized = createPlayerProfile({
       familyName: typeof value.familyName === 'string' ? value.familyName : '',
@@ -91,15 +105,20 @@ function isPlayerProfile(value: unknown): value is PlayerProfile {
         value.bloodType === 'unknown'
           ? value.bloodType
           : 'unknown',
+      appearance: typeof value.appearance === 'string' ? value.appearance : '',
+      personality: typeof value.personality === 'string' ? value.personality : '',
     });
     return (
       value.registrationCompleted === true &&
       value.familyName === normalized.familyName &&
       value.givenName === normalized.givenName &&
       value.displayName === normalized.displayName &&
+      value.gender === normalized.gender &&
       value.birthdayMonth === normalized.birthdayMonth &&
       value.birthdayDay === normalized.birthdayDay &&
-      value.bloodType === normalized.bloodType
+      value.bloodType === normalized.bloodType &&
+      value.appearance === normalized.appearance &&
+      value.personality === normalized.personality
     );
   } catch {
     return false;
@@ -107,9 +126,8 @@ function isPlayerProfile(value: unknown): value is PlayerProfile {
 }
 
 function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
-  if (!isRecord(value) || value.schemaVersion !== GAME_SNAPSHOT_SCHEMA_VERSION) {
-    throw new Error('存档版本无效；开发阶段旧存档不再兼容，请新开档。');
-  }
+  if (!isRecord(value)) throw new Error('存档内容不完整');
+  assertGameSnapshotSchemaVersion(value.schemaVersion);
   if (!isRecord(value.game) || !isRecord(value.player) || !isRecord(value.cards)) {
     throw new Error('存档内容不完整');
   }
@@ -138,10 +156,12 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   ) {
     throw new Error('存档字段格式无效');
   }
-  const profileIsValid = player.profile === null || isPlayerProfile(player.profile);
+  let profile: PlayerProfile | null;
+  if (player.profile === null) profile = null;
+  else if (isPlayerProfile(player.profile)) profile = player.profile;
+  else throw new Error('玩家资料格式无效');
   if (
     typeof player.name !== 'string' ||
-    !profileIsValid ||
     typeof player.color !== 'string' ||
     typeof player.avatar !== 'string' ||
     !isFiniteNumberInRange(player.intelligence, 0, TOKIMEKI_ATTRIBUTE_MAX) ||
@@ -157,8 +177,8 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
     throw new Error('玩家存档字段格式或范围无效');
   }
   if (
-    (player.profile !== null && player.name !== player.profile.displayName) ||
-    game.hasSession !== (player.profile !== null) ||
+    (profile !== null && player.name !== profile.displayName) ||
+    game.hasSession !== (profile !== null) ||
     (game.screen === 'game' && !game.hasSession) ||
     (game.screen === 'registration' && game.hasSession)
   ) {
@@ -234,7 +254,7 @@ export function restoreGameSnapshot(
   );
   if (!normalizedSkillsResult.ok) throw new Error(normalizedSkillsResult.error.message);
   const normalizedSkills = normalizedSkillsResult.value;
-  const mainStory = restoreMainStoryState(snapshot.game.mainStory, archivedMessages);
+  const mainStory = restoreMainStoryState(snapshot.game.mainStory, archivedMessages, snapshot.player.profile);
   const game = {
     ...snapshot.game,
     day: Math.max(1, Math.trunc(snapshot.game.day)),

@@ -211,6 +211,51 @@
   padding-top: 0.15cqh;
 }
 
+.character-archive-player-narratives {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2cqh;
+  margin-top: 1.35cqh;
+}
+
+.character-archive-player-narratives section {
+  display: grid;
+  min-width: 0;
+  height: 10.5cqh;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 0.2cqh solid #9dd7e8;
+  border-radius: 0.8cqh;
+  background: rgb(255 255 255 / 68%);
+}
+
+.character-archive-player-narratives h3,
+.character-archive-player-narratives p {
+  margin: 0;
+}
+
+.character-archive-player-narratives h3 {
+  padding: 0.45cqh 0.8cqh;
+  background: #7acbe2;
+  color: #fff;
+  font-size: clamp(10px, 1.9cqh, 19px);
+  line-height: 1.1;
+  text-shadow: 0 0.12cqh #397d93;
+}
+
+.character-archive-player-narratives p {
+  min-height: 0;
+  padding: 0.55cqh 0.8cqh;
+  overflow-y: auto;
+  color: #594a53;
+  font-size: clamp(9px, 1.7cqh, 17px);
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  scrollbar-color: #72c6e4 transparent;
+  scrollbar-width: thin;
+}
+
 .character-archive-player-vitals {
   display: grid;
   gap: 1.25cqh;
@@ -676,6 +721,83 @@
 }
 
 @container game-frame (max-height: 480px) {
+  .character-archive-player-summary {
+    gap: 1.5cqh;
+    margin-top: 1.2cqh;
+  }
+
+  .character-archive-player-profile {
+    gap: 0.2cqh;
+  }
+
+  .character-archive-player-profile div {
+    grid-template-columns: 7.2cqh minmax(0, 1fr);
+    gap: 0.35cqh;
+    min-height: 3.1cqh;
+    border-bottom-width: 0.2cqh;
+  }
+
+  .character-archive-player-profile dt,
+  .character-archive-player-profile dd {
+    font-size: clamp(8px, 2cqh, 14px);
+  }
+
+  .character-archive-player-profile dt {
+    gap: 0.3cqh;
+  }
+
+  .character-archive-player-profile dt img {
+    width: 1.4cqh;
+    height: 1.35cqh;
+  }
+
+  .character-archive-player-vitals {
+    gap: 0.55cqh;
+  }
+
+  .character-archive-player-gauge {
+    grid-template-columns: 4.1cqh max-content minmax(0, 1fr) 2.8ch;
+    gap: 0.4cqh;
+    min-height: 3.8cqh;
+  }
+
+  .character-archive-player-gauge-icon {
+    width: 3.7cqh;
+    height: 3.7cqh;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .character-archive-player-gauge-label,
+  .character-archive-player-gauge-value,
+  .character-archive-player-money {
+    font-size: clamp(8px, 2cqh, 14px);
+  }
+
+  .character-archive-player-gauge-track {
+    height: 2.7cqh;
+  }
+
+  .character-archive-player-money {
+    grid-template-columns: 7.2cqh minmax(0, 1fr);
+    gap: 0.5cqh;
+    margin-top: 0.65cqh;
+  }
+
+  .character-archive-player-money strong {
+    font-size: clamp(9px, 2.15cqh, 15px);
+  }
+
+  .character-archive-player-narratives {
+    gap: 0.6cqh;
+    margin-top: 0.65cqh;
+  }
+
+  .character-archive-player-radar {
+    bottom: 0;
+    width: min(30cqw, 32cqh);
+  }
+
   .character-archive-close,
   .character-archive-back-button {
     gap: 0.7cqh;

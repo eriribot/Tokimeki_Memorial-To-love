@@ -194,7 +194,7 @@
 
 .player-registration__header ol {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: clamp(7px, 1.4cqw, 18px);
   margin: 0;
   padding: 0;
@@ -368,7 +368,8 @@
 }
 
 .player-registration input,
-.player-registration select {
+.player-registration select,
+.player-registration textarea {
   width: 100%;
   min-width: 0;
   min-height: clamp(39px, 6.7cqh, 58px);
@@ -388,12 +389,62 @@
 }
 
 .player-registration input:focus,
-.player-registration select:focus {
+.player-registration select:focus,
+.player-registration textarea:focus {
   border-color: #e65aa8;
   outline-color: rgb(255 255 255 / 94%);
   box-shadow:
     0 0 0 3px rgb(255 224 113 / 78%),
     inset 0 2px 4px rgb(27 90 111 / 11%);
+}
+
+.player-registration textarea {
+  min-height: clamp(86px, 14cqh, 122px);
+  resize: vertical;
+  font-size: clamp(11px, 1.38cqw, 18px);
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.player-registration__text-field {
+  display: grid;
+  gap: clamp(5px, 0.9cqh, 9px);
+}
+
+.player-registration__text-field > span {
+  color: #17203b;
+  font-size: clamp(11px, 1.4cqw, 18px);
+  font-weight: 900;
+}
+
+.player-registration__fixed-field {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 1.2cqw, 16px);
+  margin-top: clamp(10px, 1.7cqh, 18px);
+  padding: clamp(7px, 1.05cqh, 11px) clamp(11px, 1.45cqw, 19px);
+  border: clamp(1px, 0.18cqw, 2px) solid #72c6db;
+  border-radius: clamp(6px, 0.75cqw, 10px);
+  background: rgb(255 255 255 / 68%);
+}
+
+.player-registration__fixed-field span,
+.player-registration__fixed-field strong {
+  color: #17203b;
+  font-size: clamp(10px, 1.3cqw, 17px);
+  font-weight: 900;
+}
+
+.player-registration__fixed-field strong {
+  color: #b42f75;
+}
+
+.player-registration__fixed-field small {
+  min-width: 0;
+  color: #5a5860;
+  font-size: clamp(8px, 1.02cqw, 13px);
+  font-weight: 700;
 }
 
 .player-registration__field-note {
@@ -459,9 +510,13 @@
 
 .player-registration__review {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(8px, 1.3cqw, 17px);
   margin: 0;
+}
+
+.player-registration__review div.is-long {
+  grid-column: span 2;
 }
 
 .player-registration__review div {
@@ -491,6 +546,14 @@
   color: #1a2242;
   font-size: clamp(13px, 1.65cqw, 22px);
   font-weight: 900;
+}
+
+.player-registration__review div.is-long dd {
+  max-height: 10cqh;
+  overflow-y: auto;
+  font-size: clamp(9px, 1.1cqw, 14px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .player-registration__error {
@@ -667,8 +730,8 @@
 
   .player-registration__header li {
     min-height: 23px;
-    padding-inline: 4px;
-    font-size: 9px;
+    padding-inline: 2px;
+    font-size: 8px;
   }
 
   .player-registration__header li::after {
@@ -711,10 +774,22 @@
   }
 
   .player-registration input,
-  .player-registration select {
+  .player-registration select,
+  .player-registration textarea {
     min-height: 29px;
     border-width: 2px;
     font-size: 12px;
+  }
+
+  .player-registration textarea {
+    min-height: 56px;
+    font-size: 9px;
+  }
+
+  .player-registration__fixed-field {
+    margin-top: 5px;
+    padding: 4px 7px;
+    gap: 6px;
   }
 
   .player-registration__field-note {
@@ -733,7 +808,12 @@
   }
 
   .player-registration__review {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
+  }
+
+  .player-registration__review div.is-long {
+    grid-column: span 3;
   }
 
   .player-registration__review dt,

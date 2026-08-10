@@ -5,6 +5,7 @@ import {
   createStoryFloor,
   createStoryFloorId,
   generateStoryAct,
+  getStoryGenerationErrorPersonaCarrier,
 } from '../services/tavernStoryGeneration';
 import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -18,6 +19,7 @@ import {
   isStoryCharacterId,
   isStoryCharacterSpeaking,
 } from './characters';
+import GalCgPage from './GalCgPage';
 import GalStoryPage from './GalStoryPage';
 import {
   getEpisodeStoryActs,
@@ -32,10 +34,11 @@ import {
   resolveMainStoryPortraitId,
 } from './storyRegistry';
 import RawStoryHistoryDialog from './RawStoryHistoryDialog';
+import { getNextStoryCgFrameIndex, resolveStoryCgAfterPage, resolveStoryCgFrame } from './storyCg';
 import { getStoryScene } from './scenes';
 import StoryHistoryArchive from './StoryHistoryArchive';
 import { buildRawStoryArchive } from './storyRawArchive';
-import type { GalStoryFloor } from './storyTypes';
+import type { GalStoryFloor, StoryActCgDefinition } from './storyTypes';
 import './GalMainStory.css';
 
 interface StoryCursor {
@@ -71,12 +74,17 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const selectStoryChoice = useGameStore(state => state.selectMainStoryChoice);
   const selectStoryFloor = useGameStore(state => state.selectMainStoryFloor);
   const finishMainStoryAct = useGameStore(state => state.finishMainStoryAct);
-  const playerName = usePlayerStore(state => state.name);
+  const playerProfile = usePlayerStore(state => state.profile);
   const storyRef = useRef<HTMLElement | null>(null);
+  const cgExitTimerRef = useRef<number | null>(null);
+  const playedCgKeyRef = useRef<string | null>(null);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [historyPlaybackTarget, setHistoryPlaybackTarget] = useState<HistoryPlaybackTarget>(null);
   const [rawHistoryTarget, setRawHistoryTarget] = useState<RawHistoryTarget>(null);
   const [isChoiceMenuOpen, setIsChoiceMenuOpen] = useState(false);
+  const [activeCg, setActiveCg] = useState<StoryActCgDefinition | null>(null);
+  const [activeCgFrameIndex, setActiveCgFrameIndex] = useState(0);
+  const [isCgLeaving, setIsCgLeaving] = useState(false);
   const isRawHistoryOpen = rawHistoryTarget !== null;
   const activeEventId = storyRun?.phase === 'playing' ? storyRun.eventId : null;
   const activeActId = storyRun?.phase === 'playing' ? storyRun.actId : null;
@@ -180,6 +188,13 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const portraitCharacter = focusCharacterId ? getStoryCharacter(focusCharacterId) : null;
   const visibleEventId = historyPlaybackTarget?.eventId ?? activeEventId;
   const visibleEpisode = getMainStoryEpisode(visibleEventId);
+  const visibleActMeta = visibleEpisode?.acts[visibleActIndex];
+  const pendingCg = resolveStoryCgAfterPage(visibleActMeta?.presentation, visibleAct?.beats ?? [], visiblePageIndex);
+  const pendingCgKey =
+    pendingCg && visibleEventId && visibleAct
+      ? `${visibleEventId}\u0000${visibleAct.id}\u0000${visiblePageIndex}\u0000${pendingCg.id}`
+      : null;
+  const activeCgFrame = resolveStoryCgFrame(activeCg, activeCgFrameIndex);
   const resolvedPortraitId = visibleEventId
     ? resolveMainStoryPortraitId(visibleEventId, visibleAct?.id, presentation)
     : (presentation?.portraitId ?? null);
@@ -233,7 +248,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const exitHistory = useCallback(() => onExitHistory?.(), [onExitHistory]);
 
   const requestGeneration = useCallback(async () => {
-    if (!activeEventId || !activeActId) return;
+    if (!activeEventId || !activeActId || !playerProfile) return;
     const floorId = createStoryFloorId(activeEventId, activeActId);
     if (!beginGeneration(floorId)) return;
     setRawHistoryTarget(null);
@@ -242,7 +257,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       eventId: activeEventId,
       actId: activeActId,
       floorId,
-      playerName,
+      playerProfile: Object.freeze({ ...playerProfile }),
       day,
       period: period.key,
       location: currentLocationId,
@@ -263,7 +278,15 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     } catch (error) {
       console.error('[ToLove Story] 主线生成失败。', error);
       const message = getErrorMessage(error);
-      const floor = createStoryFloor(request, null, 'tavern', [], 'request_error', message);
+      const floor = createStoryFloor(
+        request,
+        null,
+        'tavern',
+        [],
+        'request_error',
+        message,
+        getStoryGenerationErrorPersonaCarrier(error),
+      );
       failGeneration(message, [], floor);
     }
   }, [
@@ -277,7 +300,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     historyFloorIds,
     messageHistory,
     periodIndex,
-    playerName,
+    playerProfile,
     previousChoiceDecisions,
     setStoryActContent,
   ]);
@@ -298,12 +321,24 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     setIsChoiceMenuOpen(false);
   }, [activeActId, activeEventId, pageIndex]);
 
+  useEffect(() => {
+    if (cgExitTimerRef.current !== null) window.clearTimeout(cgExitTimerRef.current);
+    cgExitTimerRef.current = null;
+    playedCgKeyRef.current = null;
+    setActiveCg(null);
+    setActiveCgFrameIndex(0);
+    setIsCgLeaving(false);
+    return () => {
+      if (cgExitTimerRef.current !== null) window.clearTimeout(cgExitTimerRef.current);
+    };
+  }, [visibleAct?.id, visibleEventId, visiblePageIndex]);
+
   const finishCurrentAct = useCallback(() => {
     if (finishMainStoryAct()) syncCharacterPresence();
   }, [finishMainStoryAct]);
 
   const useFallbackAct = useCallback(() => {
-    if (!activeEventId || !activeActId) return;
+    if (!activeEventId || !activeActId || !playerProfile) return;
     const period = PERIODS[periodIndex] ?? PERIODS[0];
     const floorId = createStoryFloorId(activeEventId, activeActId);
     if (!beginGeneration(floorId)) return;
@@ -312,7 +347,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       eventId: activeEventId,
       actId: activeActId,
       floorId,
-      playerName,
+      playerProfile: Object.freeze({ ...playerProfile }),
       day,
       period: period.key,
       location: currentLocationId,
@@ -334,7 +369,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     historyFloorIds,
     messageHistory,
     periodIndex,
-    playerName,
+    playerProfile,
     previousChoiceDecisions,
     setStoryActContent,
   ]);
@@ -359,7 +394,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     setReplayIndex(0);
   }, []);
 
-  const goNext = useCallback(() => {
+  const advanceFromCurrentPage = useCallback(() => {
     if (historyMode) {
       const currentIndex = replayCursorIndex ?? 0;
       if (currentIndex >= readCursors.length - 1) returnToHistoryArchive();
@@ -398,7 +433,61 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     setStoryPosition,
   ]);
 
+  const dismissActiveCg = useCallback(() => {
+    if (!activeCg || isCgLeaving) return;
+    setIsCgLeaving(true);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    cgExitTimerRef.current = window.setTimeout(
+      () => {
+        cgExitTimerRef.current = null;
+        setActiveCg(null);
+        setActiveCgFrameIndex(0);
+        setIsCgLeaving(false);
+        advanceFromCurrentPage();
+      },
+      reducedMotion ? 0 : 420,
+    );
+  }, [activeCg, advanceFromCurrentPage, isCgLeaving]);
+
+  const goNext = useCallback(() => {
+    if (activeCg) {
+      if (isCgLeaving) return;
+      // Frames are local camera beats inside one trigger group. Consuming an
+      // intermediate frame must never advance the authoritative story cursor.
+      const nextFrameIndex = getNextStoryCgFrameIndex(activeCg, activeCgFrameIndex);
+      if (nextFrameIndex !== null) {
+        setActiveCgFrameIndex(nextFrameIndex);
+        return;
+      }
+      dismissActiveCg();
+      return;
+    }
+    if (pendingCg && pendingCgKey) {
+      if (playedCgKeyRef.current === pendingCgKey) return;
+      playedCgKeyRef.current = pendingCgKey;
+      setIsCgLeaving(false);
+      setActiveCgFrameIndex(0);
+      setActiveCg(pendingCg);
+      return;
+    }
+    advanceFromCurrentPage();
+  }, [activeCg, activeCgFrameIndex, advanceFromCurrentPage, dismissActiveCg, isCgLeaving, pendingCg, pendingCgKey]);
+
   const goPrevious = useCallback(() => {
+    if (activeCg) {
+      if (cgExitTimerRef.current !== null) window.clearTimeout(cgExitTimerRef.current);
+      cgExitTimerRef.current = null;
+      if (activeCgFrameIndex > 0) {
+        setActiveCgFrameIndex(activeCgFrameIndex - 1);
+        setIsCgLeaving(false);
+        return;
+      }
+      playedCgKeyRef.current = null;
+      setActiveCg(null);
+      setActiveCgFrameIndex(0);
+      setIsCgLeaving(false);
+      return;
+    }
     if (!historyMode && replayIndex === null && isChoiceMenuOpen) {
       setIsChoiceMenuOpen(false);
       return;
@@ -414,7 +503,7 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     }
     if (readCursors.length <= 1) return;
     setReplayIndex(readCursors.length - 2);
-  }, [historyMode, isChoiceMenuOpen, readCursors.length, replayCursorIndex, replayIndex]);
+  }, [activeCg, activeCgFrameIndex, historyMode, isChoiceMenuOpen, readCursors.length, replayCursorIndex, replayIndex]);
 
   useEffect(() => {
     const isReady = historyMode
@@ -547,7 +636,6 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
 
   if (!visibleAct || !visibleBeat) return null;
 
-  const actMeta = visibleEpisode?.acts[visibleActIndex];
   const scene = getStoryScene(visibleBeat.presentation.sceneId);
   const isChoiceVisible =
     !historyMode &&
@@ -564,8 +652,6 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
   const historyFloorArchive = historyFloor
     ? storyArchives.find(archive => archive.floors.some(floor => floor.floorId === historyFloor.floorId))
     : undefined;
-  const historyFloorIndex =
-    historyFloorArchive?.floors.findIndex(floor => floor.floorId === historyFloor?.floorId) ?? -1;
   const isHistoryFloorActive = Boolean(historyFloor && historyFloorArchive?.activeFloorId === historyFloor.floorId);
   const nextActionLabel = historyMode
     ? isLastHistoryPage
@@ -590,9 +676,11 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       role="dialog"
       aria-modal="true"
       aria-label={
-        historyMode
-          ? `已读主线回放：${visibleEpisode?.title ?? '未知主线'}`
-          : `主线事件：${activeEpisode?.title ?? '未知主线'}`
+        activeCg
+          ? `剧情 CG：${activeCgFrame?.alt ?? activeCg.id}`
+          : historyMode
+            ? `已读主线回放：${visibleEpisode?.title ?? '未知主线'}`
+            : `主线事件：${activeEpisode?.title ?? '未知主线'}`
       }
       tabIndex={-1}
       data-event-id={historyMode ? 'history-replay' : activeEventId}
@@ -600,13 +688,23 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       data-page-index={visiblePageIndex}
       data-speaker={visibleBeat.speaker ?? 'narration'}
       data-speaker-ui={
-        speakerNameplate ? 'galbox-nameplate' : visibleBeat.speaker ? 'generic-nameplate' : 'narration-nameplate'
+        activeCg
+          ? 'cg-only'
+          : speakerNameplate
+            ? 'galbox-nameplate'
+            : visibleBeat.speaker
+              ? 'generic-nameplate'
+              : 'narration-nameplate'
       }
-      data-focus-character={focusCharacterId ?? 'hidden'}
-      data-portrait-id={portraitRig?.id ?? 'hidden'}
-      data-expression-id={portraitExpressionId ?? 'hidden'}
+      data-focus-character={activeCg ? 'hidden' : (focusCharacterId ?? 'hidden')}
+      data-portrait-id={activeCg ? 'hidden' : (portraitRig?.id ?? 'hidden')}
+      data-expression-id={activeCg ? 'hidden' : (portraitExpressionId ?? 'hidden')}
       data-background={visibleBeat.presentation.sceneId}
-      data-effect={visibleBeat.presentation.effect}
+      data-cg-id={activeCg?.id ?? 'none'}
+      data-cg-frame-index={activeCg ? activeCgFrameIndex : 'none'}
+      data-cg-frame-count={activeCg?.frames.length ?? 0}
+      data-cg-state={activeCg ? (isCgLeaving ? 'leaving' : 'visible') : 'none'}
+      data-effect={activeCg ? 'none' : visibleBeat.presentation.effect}
       data-replay={isReplaying ? 'true' : 'false'}
       data-generation-source={historyFloor?.source ?? generationSource ?? 'unknown'}
       data-choice-state={
@@ -614,114 +712,118 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
       }
       onClick={goNext}
     >
-      <GalStoryPage
-        backgroundKey={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.presentation.sceneId}`}
-        backgroundAsset={scene.asset}
-        backgroundAlt={scene.alt}
-        speaker={visibleBeat.speaker}
-        text={visibleBeat.text}
-        portrait={
-          portraitRig && portraitExpressionId
-            ? {
-                rig: portraitRig,
-                expressionId: portraitExpressionId,
-                isSpeaking: isPortraitSpeaking,
-                beatKey: visibleActIndex * 100 + visiblePageIndex,
-              }
-            : null
-        }
-        actLabel={
-          <>
-            {isReplaying && '回放 · '}
-            {isChoiceVisible && liveChoice
-              ? liveChoice.prompt
-              : (actMeta?.title ?? visibleEpisode?.title ?? visibleAct.id)}
-          </>
-        }
-        controls={
-          <nav className="gal-main-story__controls" aria-label="剧情翻页" onClick={event => event.stopPropagation()}>
-            <button
-              type="button"
-              className="gal-main-story__icon-button"
-              disabled={previousDisabled}
-              onClick={goPrevious}
-              aria-label="上一页"
-              title="上一页"
-            >
-              ←
-            </button>
-            <span className="gal-main-story__progress">
-              {isReplaying && '回放 '}
-              {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
-              {visibleAct.beats.length}
-            </span>
-            <button
-              type="button"
-              className="gal-main-story__skip"
-              disabled={hasPendingLiveChoice}
-              onClick={
-                historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct
-              }
-              aria-label={historyMode ? '返回剧情目录' : isReplaying ? '返回当前剧情' : '跳过当前幕'}
-            >
-              {historyMode ? '返回目录' : isReplaying ? '返回当前' : '跳过'}
-            </button>
-            {historyMode ? (
-              historyFloor ? (
+      {activeCg ? (
+        <GalCgPage cg={activeCg} frameIndex={activeCgFrameIndex} isLeaving={isCgLeaving} />
+      ) : (
+        <GalStoryPage
+          backgroundKey={`${visibleAct.id}-${visiblePageIndex}-${visibleBeat.presentation.sceneId}`}
+          backgroundAsset={scene.asset}
+          backgroundAlt={scene.alt}
+          speaker={visibleBeat.speaker}
+          text={visibleBeat.text}
+          portrait={
+            portraitRig && portraitExpressionId
+              ? {
+                  rig: portraitRig,
+                  expressionId: portraitExpressionId,
+                  isSpeaking: isPortraitSpeaking,
+                  beatKey: visibleActIndex * 100 + visiblePageIndex,
+                }
+              : null
+          }
+          actLabel={
+            <>
+              {isReplaying && '回放 · '}
+              {isChoiceVisible && liveChoice
+                ? liveChoice.prompt
+                : (visibleActMeta?.title ?? visibleEpisode?.title ?? visibleAct.id)}
+            </>
+          }
+          controls={
+            <nav className="gal-main-story__controls" aria-label="剧情翻页" onClick={event => event.stopPropagation()}>
+              <button
+                type="button"
+                className="gal-main-story__icon-button"
+                disabled={previousDisabled}
+                onClick={goPrevious}
+                aria-label="上一页"
+                title="上一页"
+              >
+                ←
+              </button>
+              <span className="gal-main-story__progress">
+                {isReplaying && '回放 '}
+                {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
+                {visibleAct.beats.length}
+              </span>
+              <button
+                type="button"
+                className="gal-main-story__skip"
+                disabled={hasPendingLiveChoice}
+                onClick={
+                  historyMode ? returnToHistoryArchive : isReplaying ? () => setReplayIndex(null) : finishCurrentAct
+                }
+                aria-label={historyMode ? '返回剧情目录' : isReplaying ? '返回当前剧情' : '跳过当前幕'}
+              >
+                {historyMode ? '返回目录' : isReplaying ? '返回当前' : '跳过'}
+              </button>
+              {historyMode ? (
+                historyFloor ? (
+                  <button
+                    type="button"
+                    className="gal-main-story__raw-button"
+                    disabled={isHistoryFloorActive || historyFloor.act === null}
+                    onClick={() => selectStoryFloor(historyFloor.floorId)}
+                  >
+                    {isHistoryFloorActive ? '当前采用' : '采用此楼层'}
+                  </button>
+                ) : (
+                  <button type="button" className="gal-main-story__raw-button" disabled>
+                    全部当前版
+                  </button>
+                )
+              ) : (
                 <button
                   type="button"
                   className="gal-main-story__raw-button"
-                  disabled={isHistoryFloorActive || historyFloor.act === null}
-                  onClick={() => selectStoryFloor(historyFloor.floorId)}
+                  disabled={!hasRawStoryHistory}
+                  aria-haspopup="dialog"
+                  aria-controls="gal-main-story-raw-dialog"
+                  aria-expanded={isRawHistoryOpen}
+                  onClick={() => openRawHistory(currentRawFloorId)}
                 >
-                  {isHistoryFloorActive ? '当前采用' : '采用此楼层'}
+                  AI 原文
                 </button>
-              ) : (
-                <button type="button" className="gal-main-story__raw-button" disabled>
-                  全部当前版
-                </button>
-              )
-            ) : (
+              )}
               <button
                 type="button"
-                className="gal-main-story__raw-button"
-                disabled={!hasRawStoryHistory}
-                aria-haspopup="dialog"
-                aria-controls="gal-main-story-raw-dialog"
-                aria-expanded={isRawHistoryOpen}
-                onClick={() => openRawHistory(currentRawFloorId)}
+                className="gal-main-story__icon-button is-primary"
+                disabled={isVisibleChoicePending}
+                onClick={goNext}
+                aria-label={nextActionLabel}
+                title={nextActionLabel}
               >
-                AI 原文
+                {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
               </button>
-            )}
-            <button
-              type="button"
-              className="gal-main-story__icon-button is-primary"
-              disabled={isVisibleChoicePending}
-              onClick={goNext}
-              aria-label={nextActionLabel}
-              title={nextActionLabel}
-            >
-              {isLastHistoryPage || isLastReplayPage ? '↩' : isLastLiveAct && isLastLivePage ? '✓' : '→'}
-            </button>
-          </nav>
-        }
-        theme={(visibleEpisode?.episodeNumber ?? 1) % 2 === 0 ? 'pink' : 'blue'}
-        choice={
-          isChoiceVisible && liveChoice
-            ? {
-                prompt: liveChoice.prompt,
-                options: liveAct?.choiceOptions ?? liveChoice.options,
-                optionSource: generationSource === 'tavern' ? 'ai' : 'fallback',
-                selectedOptionId: liveChoiceDecision?.optionId ?? null,
-                selectedLabel: liveChoiceDecision?.selectedLabel ?? null,
-                onSelect: (optionId, customText) => {
-                  if (selectStoryChoice(liveChoice.id, optionId, customText)) finishCurrentAct();
-                },
-              }
-            : null
-        }
-      />
+            </nav>
+          }
+          theme={(visibleEpisode?.episodeNumber ?? 1) % 2 === 0 ? 'pink' : 'blue'}
+          choice={
+            isChoiceVisible && liveChoice
+              ? {
+                  prompt: liveChoice.prompt,
+                  options: liveAct?.choiceOptions ?? liveChoice.options,
+                  optionSource: generationSource === 'tavern' ? 'ai' : 'fallback',
+                  selectedOptionId: liveChoiceDecision?.optionId ?? null,
+                  selectedLabel: liveChoiceDecision?.selectedLabel ?? null,
+                  onSelect: (optionId, customText) => {
+                    if (selectStoryChoice(liveChoice.id, optionId, customText)) finishCurrentAct();
+                  },
+                }
+              : null
+          }
+        />
+      )}
       {rawHistoryTarget && (
         <RawStoryHistoryDialog
           acts={rawStoryArchive}

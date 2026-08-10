@@ -2,6 +2,7 @@ import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import type { CalendarDateValue } from '../types';
 import { getNextCalendarDate, isCalendarDateValue } from '../CalendarModule/date';
 import { STORY_AI_CHOICE_OPTION_COUNT, type StoryActDefinition } from './storyTypes';
+import { validateStoryCgDefinitions } from './storyCg';
 
 export interface StoryActTrigger {
   date: CalendarDateValue;
@@ -71,6 +72,7 @@ function assertEpisodeTemplate(template: StoryEpisodeTemplate): void {
     if (act.timeCost === 'whole-day' && act.trigger.actionNumber !== 1) {
       throw new Error(`整天主线幕“${act.id}”必须由当天第一次行动触发。`);
     }
+    validateStoryCgDefinitions(act.presentation);
     if (previousTrigger) {
       if (compareTriggers(act.trigger, previousTrigger) <= 0) {
         throw new Error(`主线幕“${act.id}”的触发时间没有排在上一幕之后。`);
