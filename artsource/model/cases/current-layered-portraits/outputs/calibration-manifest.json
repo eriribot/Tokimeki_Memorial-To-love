@@ -1,0 +1,1712 @@
+{
+  "schemaVersion": 1,
+  "caseId": "current-layered-portraits-2026-08-10",
+  "generatedFor": "2026-08-10",
+  "classification": "layered-sprite-atlas",
+  "status": "calibration-generated-human-review-pending",
+  "promotionAllowed": false,
+  "runtimeRegistration": "not-connected",
+  "sourceAssetMutation": false,
+  "coordinateAuthority": {
+    "path": "../../official-face-coordinate-map.csv",
+    "sha256": "44c14c09300032251adf2f626a59dd23d524d1258145d0ae0e158a8ff96b021d",
+    "selection": "record_type=atlas_pair AND exact family_id"
+  },
+  "sampling": {
+    "mask": "full-stage alpha; bilinear 512x512 -> 1024x1024",
+    "eyes": "bilinear full atlas 256x512 -> 230x393, then explicit 131px frame crops",
+    "mouth": "bilinear full atlas 256x256 -> 230x171, then explicit 57px frame crops",
+    "layerOrder": [
+      "body",
+      "eyes",
+      "mouth",
+      "full-composite-alpha-mask"
+    ]
+  },
+  "demonstrationSequence": {
+    "purpose": "static-row-major-viewing-sequence",
+    "officialTimingEvidence": false,
+    "expressionSemanticsEvidence": false,
+    "frames": [
+      {
+        "eyes": 0,
+        "mouth": 0
+      },
+      {
+        "eyes": 1,
+        "mouth": 0
+      },
+      {
+        "eyes": 2,
+        "mouth": 0
+      },
+      {
+        "eyes": 1,
+        "mouth": 0
+      },
+      {
+        "eyes": 0,
+        "mouth": 0
+      },
+      {
+        "eyes": 0,
+        "mouth": 1
+      },
+      {
+        "eyes": 0,
+        "mouth": 2
+      },
+      {
+        "eyes": 0,
+        "mouth": 1
+      },
+      {
+        "eyes": 0,
+        "mouth": 0
+      }
+    ]
+  },
+  "characters": {
+    "eve": {
+      "manifest": "outputs/manifests/eve-002_01_02.portrait.json",
+      "expressionManifests": {
+        "a": "outputs/manifests/eve/002_01_02-a.portrait.json",
+        "c": "outputs/manifests/eve/002_01_02-c.portrait.json",
+        "f": "outputs/manifests/eve/002_01_02-f.portrait.json"
+      },
+      "modelManifest": {
+        "schemaVersion": 1,
+        "id": "002_01_02",
+        "characterId": "eve",
+        "displayName": "小暗",
+        "status": "calibration-only-awaiting-human-review",
+        "promotionAllowed": false,
+        "runtimeRegistration": "not-connected",
+        "formatProfile": "legacy-compatible",
+        "canvas": {
+          "width": 1024,
+          "height": 1024
+        },
+        "files": {
+          "body": "/artsource/eve/002_01_02_a.png",
+          "mask": "/artsource/eve/002_01_02_a%20%235407.png",
+          "eyes": "/artsource/eve/002_01_02_a_eye.png",
+          "mouth": "/artsource/eve/002_01_02_a_mouth.png"
+        },
+        "expectedDimensions": {
+          "body": {
+            "width": 1024,
+            "height": 1024
+          },
+          "mask": {
+            "width": 512,
+            "height": 512
+          },
+          "eyes": {
+            "width": 256,
+            "height": 512
+          },
+          "mouth": {
+            "width": 256,
+            "height": 256
+          }
+        },
+        "regions": {
+          "eyes": {
+            "x": 394,
+            "y": 255,
+            "width": 230,
+            "height": 131,
+            "feather": 0
+          },
+          "mouth": {
+            "x": 394,
+            "y": 384,
+            "width": 230,
+            "height": 57,
+            "feather": 0
+          }
+        },
+        "frameCount": {
+          "eyes": 3,
+          "mouth": 3
+        },
+        "defaultExpressionId": "a",
+        "expression": {
+          "id": "a",
+          "eyes": "/artsource/eve/002_01_02_a_eye.png",
+          "mouth": "/artsource/eve/002_01_02_a_mouth.png",
+          "blinking": true,
+          "blinkingReview": "pending-human-semantic-review"
+        },
+        "expressions": {
+          "a": {
+            "id": "a",
+            "status": "complete",
+            "eyes": "/artsource/eve/002_01_02_a_eye.png",
+            "mouth": "/artsource/eve/002_01_02_a_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "b": {
+            "id": "b",
+            "status": "incomplete",
+            "eyes": "/artsource/eve/002_01_02_b_eye.png",
+            "mouth": null,
+            "missing": [
+              "mouth"
+            ],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "c": {
+            "id": "c",
+            "status": "complete",
+            "eyes": "/artsource/eve/002_01_02_c_eye.png",
+            "mouth": "/artsource/eve/002_01_02_c_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "d": {
+            "id": "d",
+            "status": "incomplete",
+            "eyes": null,
+            "mouth": "/artsource/eve/002_01_02_d_mouth.png",
+            "missing": [
+              "eyes"
+            ],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "e": {
+            "id": "e",
+            "status": "incomplete",
+            "eyes": null,
+            "mouth": "/artsource/eve/002_01_02_e_mouth.png",
+            "missing": [
+              "eyes"
+            ],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "f": {
+            "id": "f",
+            "status": "complete",
+            "eyes": "/artsource/eve/002_01_02_f_eye.png",
+            "mouth": "/artsource/eve/002_01_02_f_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          }
+        },
+        "calibrationNotes": {
+          "layerOrder": [
+            "body",
+            "eyes",
+            "mouth",
+            "full-composite-alpha-mask"
+          ],
+          "galStage": "not-authoritative-and-not-part-of-rig",
+          "incompleteExpressions": "diagnostic-only"
+        }
+      },
+      "sourceEvidence": {
+        "familyId": "002_01_02",
+        "coordinateMap": {
+          "path": "../../official-face-coordinate-map.csv",
+          "sha256": "44c14c09300032251adf2f626a59dd23d524d1258145d0ae0e158a8ff96b021d",
+          "recordCount": 6,
+          "coordinateStatus": "resolved",
+          "officialFaceEnabled": true,
+          "coordinateSource": "TextAsset/ToLove:Chara_Eye_Pos|Chara_Mouth_Pos",
+          "eyeCoordinateMethod": "default_frame_pixel_alignment",
+          "mouthCoordinateMethod": "default_frame_pixel_alignment",
+          "eyeEdgeMse": 80.865963,
+          "mouthEdgeMse": 88.037109
+        },
+        "body": {
+          "width": 1024,
+          "height": 1024,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            255,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "sha256": "a801dedf8f780fb43e8e551f858de0c2b24c60161d84c68ee5f2aab243b8c57c"
+        },
+        "mask": {
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            56,
+            82,
+            457,
+            512
+          ],
+          "sha256": "87cd307406464765d98caa2fbab945f1edf23d3858a6549cfb4ee7b12e8af30d"
+        },
+        "expressions": {
+          "a": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "0b829eabb302f1ed8f0adf8129b6581db56478d2a5305b9925c443f4bfd3e640"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "8dd318ee0b7836a86525b01e826d6d028633e4221a3e65e3e49caada21f93b01"
+              }
+            }
+          },
+          "b": {
+            "status": "incomplete",
+            "missing": [
+              "mouth"
+            ],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "428de91dd69996be90c6d85aba8c0671216183568645c927c9a057368e511a1d"
+              },
+              "mouth": null
+            }
+          },
+          "c": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "df4def2e017f98145e01f1ef10d5c6eea297f63a6e6cbeb3fce31eab9470a608"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "28bb78873f437a0affcf1bf6c9a91c2330b496bfd02f281c836b22ccfb646e6b"
+              }
+            }
+          },
+          "d": {
+            "status": "incomplete",
+            "missing": [
+              "eyes"
+            ],
+            "files": {
+              "eyes": null,
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "c647ad0de680285d843f1ea381c921c6c34e2f797c31d7045fcc44028eaa4f52"
+              }
+            }
+          },
+          "e": {
+            "status": "incomplete",
+            "missing": [
+              "eyes"
+            ],
+            "files": {
+              "eyes": null,
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "174fa86f35fad8bd7c871264cd585b67f929fd6c08c4f4f39403858fd34c5947"
+              }
+            }
+          },
+          "f": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "4ec6a058219dd2e24cc6d50c5449f9eff28791cbeb094eba6dd4684411423063"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "e0e0d189c3a4ad85dd662dd55ab3c0d1469868bf0933e0ee3a033f35b98f9b7e"
+              }
+            }
+          }
+        }
+      }
+    },
+    "lala-school": {
+      "manifest": "outputs/manifests/lala-school-004_01_01.portrait.json",
+      "expressionManifests": {
+        "a": "outputs/manifests/lala-school/004_01_01-a.portrait.json",
+        "b": "outputs/manifests/lala-school/004_01_01-b.portrait.json",
+        "c": "outputs/manifests/lala-school/004_01_01-c.portrait.json",
+        "d": "outputs/manifests/lala-school/004_01_01-d.portrait.json",
+        "e": "outputs/manifests/lala-school/004_01_01-e.portrait.json"
+      },
+      "modelManifest": {
+        "schemaVersion": 1,
+        "id": "004_01_01",
+        "characterId": "lala-school",
+        "displayName": "菈菈（校服）",
+        "status": "calibration-only-awaiting-human-review",
+        "promotionAllowed": false,
+        "runtimeRegistration": "not-connected",
+        "formatProfile": "legacy-compatible",
+        "canvas": {
+          "width": 1024,
+          "height": 1024
+        },
+        "files": {
+          "body": "/artsource/lala/lala_school/004_01_01_a%20%2327472.png",
+          "mask": "/artsource/lala/lala_school/004_01_01_a.png",
+          "eyes": "/artsource/lala/lala_school/004_01_01_a_eye.png",
+          "mouth": "/artsource/lala/lala_school/004_01_01_a_mouth.png"
+        },
+        "expectedDimensions": {
+          "body": {
+            "width": 1024,
+            "height": 1024
+          },
+          "mask": {
+            "width": 512,
+            "height": 512
+          },
+          "eyes": {
+            "width": 256,
+            "height": 512
+          },
+          "mouth": {
+            "width": 256,
+            "height": 256
+          }
+        },
+        "regions": {
+          "eyes": {
+            "x": 394,
+            "y": 217,
+            "width": 230,
+            "height": 131,
+            "feather": 0
+          },
+          "mouth": {
+            "x": 394,
+            "y": 345,
+            "width": 230,
+            "height": 57,
+            "feather": 0
+          }
+        },
+        "frameCount": {
+          "eyes": 3,
+          "mouth": 3
+        },
+        "defaultExpressionId": "a",
+        "expression": {
+          "id": "a",
+          "eyes": "/artsource/lala/lala_school/004_01_01_a_eye.png",
+          "mouth": "/artsource/lala/lala_school/004_01_01_a_mouth.png",
+          "blinking": true,
+          "blinkingReview": "pending-human-semantic-review"
+        },
+        "expressions": {
+          "a": {
+            "id": "a",
+            "status": "complete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_a_eye.png",
+            "mouth": "/artsource/lala/lala_school/004_01_01_a_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "b": {
+            "id": "b",
+            "status": "complete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_b_eye.png",
+            "mouth": "/artsource/lala/lala_school/004_01_01_b_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "c": {
+            "id": "c",
+            "status": "complete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_c_eye.png",
+            "mouth": "/artsource/lala/lala_school/004_01_01_c_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "d": {
+            "id": "d",
+            "status": "complete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_d_eye.png",
+            "mouth": "/artsource/lala/lala_school/004_01_01_d_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "e": {
+            "id": "e",
+            "status": "complete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_e_eye.png",
+            "mouth": "/artsource/lala/lala_school/004_01_01_e_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "f": {
+            "id": "f",
+            "status": "incomplete",
+            "eyes": "/artsource/lala/lala_school/004_01_01_f_eye.png",
+            "mouth": null,
+            "missing": [
+              "mouth"
+            ],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          }
+        },
+        "calibrationNotes": {
+          "layerOrder": [
+            "body",
+            "eyes",
+            "mouth",
+            "full-composite-alpha-mask"
+          ],
+          "galStage": "not-authoritative-and-not-part-of-rig",
+          "incompleteExpressions": "diagnostic-only"
+        }
+      },
+      "sourceEvidence": {
+        "familyId": "004_01_01",
+        "coordinateMap": {
+          "path": "../../official-face-coordinate-map.csv",
+          "sha256": "44c14c09300032251adf2f626a59dd23d524d1258145d0ae0e158a8ff96b021d",
+          "recordCount": 6,
+          "coordinateStatus": "resolved",
+          "officialFaceEnabled": true,
+          "coordinateSource": "TextAsset/ToLove:Chara_Eye_Pos|Chara_Mouth_Pos",
+          "eyeCoordinateMethod": "default_frame_pixel_alignment",
+          "mouthCoordinateMethod": "default_frame_pixel_alignment",
+          "eyeEdgeMse": 152.747758,
+          "mouthEdgeMse": 89.333292
+        },
+        "body": {
+          "width": 1024,
+          "height": 1024,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            255,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "sha256": "dbc82de240c7bc439ff9e25ead98035210cb0f81066dfede46cbafd068e1c950"
+        },
+        "mask": {
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            73,
+            35,
+            438,
+            512
+          ],
+          "sha256": "a4835094c016714b3bbc74e4c60c2f4c7205e508eecc12fed358ce3e4a690f2e"
+        },
+        "expressions": {
+          "a": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "f3199447be027d6f7e7b918b4b90194f5b604ccc0883a01be5354f8957ce3b5a"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "d0242d678eebc1f3e2018bf3d29ccf0eaf2dea086eac1743bf7ac4aae06d8fec"
+              }
+            }
+          },
+          "b": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "8619977cf8c5c7c9a47f3088bad32490316ddf2692e5c8ee67031116ca33b53c"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "2bac03b76e9525e78e0626eeea580861a9107cdfd209df8374efb8ff470846ae"
+              }
+            }
+          },
+          "c": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "d667a8144c74d5eae202e49a4d94767ffbc5cd54eb0df19000456335d5205e8a"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "c98af959153999ac4d9f6ae77f1767d80d87c465c43417f1b027467b19f4b19e"
+              }
+            }
+          },
+          "d": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "4c8635ae6f332d462aff627e3929ce16cc3181535c4dbed2c24bf200e213e9b5"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "3e85c0a17a380236b3284c48cc28772942c1ac1f15fa66ec6b0b46069ae74e77"
+              }
+            }
+          },
+          "e": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "aa37db9aee5cb7e5d8ef155e6cddfb6026371b83498d5f4d5c6e02424e2a9b00"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  255
+                ],
+                "sha256": "f7373abd20c4903db5291c34d591571ab982c89e71da49c7a90b8d107d162dd0"
+              }
+            }
+          },
+          "f": {
+            "status": "incomplete",
+            "missing": [
+              "mouth"
+            ],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "4fd6201cae499cf85d2731377802ca70faafc83a6c6806d4830fe33e68e7f1f4"
+              },
+              "mouth": null
+            }
+          }
+        }
+      }
+    },
+    "risa": {
+      "manifest": "outputs/manifests/risa-016_01_01.portrait.json",
+      "expressionManifests": {
+        "b": "outputs/manifests/risa/016_01_01-b.portrait.json",
+        "c": "outputs/manifests/risa/016_01_01-c.portrait.json",
+        "d": "outputs/manifests/risa/016_01_01-d.portrait.json",
+        "e": "outputs/manifests/risa/016_01_01-e.portrait.json",
+        "f": "outputs/manifests/risa/016_01_01-f.portrait.json"
+      },
+      "modelManifest": {
+        "schemaVersion": 1,
+        "id": "016_01_01",
+        "characterId": "risa",
+        "displayName": "里纱",
+        "status": "calibration-only-awaiting-human-review",
+        "promotionAllowed": false,
+        "runtimeRegistration": "not-connected",
+        "formatProfile": "legacy-compatible",
+        "canvas": {
+          "width": 1024,
+          "height": 1024
+        },
+        "files": {
+          "body": "/artsource/risa/016_01_01_a.png",
+          "mask": "/artsource/risa/016_01_01_a%20%234646.png",
+          "eyes": "/artsource/risa/016_01_01_b_eye.png",
+          "mouth": "/artsource/risa/016_01_01_b_mouth.png"
+        },
+        "expectedDimensions": {
+          "body": {
+            "width": 1024,
+            "height": 1024
+          },
+          "mask": {
+            "width": 512,
+            "height": 512
+          },
+          "eyes": {
+            "width": 256,
+            "height": 512
+          },
+          "mouth": {
+            "width": 256,
+            "height": 256
+          }
+        },
+        "regions": {
+          "eyes": {
+            "x": 394,
+            "y": 210,
+            "width": 230,
+            "height": 131,
+            "feather": 0
+          },
+          "mouth": {
+            "x": 394,
+            "y": 338,
+            "width": 230,
+            "height": 57,
+            "feather": 0
+          }
+        },
+        "frameCount": {
+          "eyes": 3,
+          "mouth": 3
+        },
+        "defaultExpressionId": "b",
+        "expression": {
+          "id": "b",
+          "eyes": "/artsource/risa/016_01_01_b_eye.png",
+          "mouth": "/artsource/risa/016_01_01_b_mouth.png",
+          "blinking": true,
+          "blinkingReview": "pending-human-semantic-review"
+        },
+        "expressions": {
+          "a": {
+            "id": "a",
+            "status": "incomplete",
+            "eyes": null,
+            "mouth": "/artsource/risa/016_01_01_a_mouth.png",
+            "missing": [
+              "eyes"
+            ],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "b": {
+            "id": "b",
+            "status": "complete",
+            "eyes": "/artsource/risa/016_01_01_b_eye.png",
+            "mouth": "/artsource/risa/016_01_01_b_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "c": {
+            "id": "c",
+            "status": "complete",
+            "eyes": "/artsource/risa/016_01_01_c_eye.png",
+            "mouth": "/artsource/risa/016_01_01_c_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "d": {
+            "id": "d",
+            "status": "complete",
+            "eyes": "/artsource/risa/016_01_01_d_eye.png",
+            "mouth": "/artsource/risa/016_01_01_d_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "e": {
+            "id": "e",
+            "status": "complete",
+            "eyes": "/artsource/risa/016_01_01_e_eye.png",
+            "mouth": "/artsource/risa/016_01_01_e_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "f": {
+            "id": "f",
+            "status": "complete",
+            "eyes": "/artsource/risa/016_01_01_f_eye.png",
+            "mouth": "/artsource/risa/016_01_01_f_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          }
+        },
+        "calibrationNotes": {
+          "layerOrder": [
+            "body",
+            "eyes",
+            "mouth",
+            "full-composite-alpha-mask"
+          ],
+          "galStage": "not-authoritative-and-not-part-of-rig",
+          "incompleteExpressions": "diagnostic-only"
+        }
+      },
+      "sourceEvidence": {
+        "familyId": "016_01_01",
+        "coordinateMap": {
+          "path": "../../official-face-coordinate-map.csv",
+          "sha256": "44c14c09300032251adf2f626a59dd23d524d1258145d0ae0e158a8ff96b021d",
+          "recordCount": 6,
+          "coordinateStatus": "resolved",
+          "officialFaceEnabled": true,
+          "coordinateSource": "TextAsset/ToLove:Chara_Eye_Pos|Chara_Mouth_Pos",
+          "eyeCoordinateMethod": "default_frame_pixel_alignment",
+          "mouthCoordinateMethod": "default_frame_pixel_alignment",
+          "eyeEdgeMse": 88.587221,
+          "mouthEdgeMse": 79.426082
+        },
+        "body": {
+          "width": 1024,
+          "height": 1024,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            255,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "sha256": "6efc985bec5be81b8421be034a65c4dc1b756f85c01f69a0f257faf911e3ef28"
+        },
+        "mask": {
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            91,
+            53,
+            405,
+            512
+          ],
+          "sha256": "0e57c083d0ad4a79a0a05cb026acb5b4e7fbe7ca6fd0b5eadf8a59ef52ab3069"
+        },
+        "expressions": {
+          "a": {
+            "status": "incomplete",
+            "missing": [
+              "eyes"
+            ],
+            "files": {
+              "eyes": null,
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "89d44c93ed7a0870d1e9ff43767938dbfc2cf1d6a829c70fb3c75b2cfc1514b3"
+              }
+            }
+          },
+          "b": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "b1fead934e5a2b62e6a709666f867f46af550136cc0087e358b98223efe20f44"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "c39f3b238bcc1be770507910eaf280b48d7fcd3a62efa0f30a75c2f5e3048532"
+              }
+            }
+          },
+          "c": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "9a03869ddef1a1f89a4ae906b223a2d9c584aa3293249763829e7889fbb1722f"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "b90cf25cd8d77c9cf4cc85e3f4c6bb651a252ecf79f82708dbd2dc230c11f79c"
+              }
+            }
+          },
+          "d": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "b4b246796deec4ef80d568f4c3133d90afe53a6695df9c3c56d4c909d5092441"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "0fdcc42df10012daf2a5804845f2fba7d5a91c7123dc25f3921b73f538267084"
+              }
+            }
+          },
+          "e": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "83cb166904e599eed5b8d4e436d940779593f42467a9b3017d41716aba3a8781"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "2e12f3c341f1dc5873946a117b6c357424d9762074a3e65799b2e3dfa42bd07a"
+              }
+            }
+          },
+          "f": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "9459ff94bc4f4dfb3a845fd896c0aa6a328b8dd9ae4482a8cfa131d34d89f5eb"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "477b5f02b8f5241c6ffdc3f1514f302d6a4180d862ec8e8d61bea1c306f8f79d"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ryoko": {
+      "manifest": "outputs/manifests/ryoko-013_01_01.portrait.json",
+      "expressionManifests": {
+        "a": "outputs/manifests/ryoko/013_01_01-a.portrait.json",
+        "b": "outputs/manifests/ryoko/013_01_01-b.portrait.json",
+        "c": "outputs/manifests/ryoko/013_01_01-c.portrait.json",
+        "d": "outputs/manifests/ryoko/013_01_01-d.portrait.json",
+        "e": "outputs/manifests/ryoko/013_01_01-e.portrait.json",
+        "f": "outputs/manifests/ryoko/013_01_01-f.portrait.json"
+      },
+      "modelManifest": {
+        "schemaVersion": 1,
+        "id": "013_01_01",
+        "characterId": "ryoko",
+        "displayName": "御门老师",
+        "status": "calibration-only-awaiting-human-review",
+        "promotionAllowed": false,
+        "runtimeRegistration": "not-connected",
+        "formatProfile": "legacy-compatible",
+        "canvas": {
+          "width": 1024,
+          "height": 1024
+        },
+        "files": {
+          "body": "/artsource/ryoko/013_01_01_a%20%234865.png",
+          "mask": "/artsource/ryoko/013_01_01_a.png",
+          "eyes": "/artsource/ryoko/013_01_01_a_eye.png",
+          "mouth": "/artsource/ryoko/013_01_01_a_mouth.png"
+        },
+        "expectedDimensions": {
+          "body": {
+            "width": 1024,
+            "height": 1024
+          },
+          "mask": {
+            "width": 512,
+            "height": 512
+          },
+          "eyes": {
+            "width": 256,
+            "height": 512
+          },
+          "mouth": {
+            "width": 256,
+            "height": 256
+          }
+        },
+        "regions": {
+          "eyes": {
+            "x": 394,
+            "y": 208,
+            "width": 230,
+            "height": 131,
+            "feather": 0
+          },
+          "mouth": {
+            "x": 394,
+            "y": 337,
+            "width": 230,
+            "height": 57,
+            "feather": 0
+          }
+        },
+        "frameCount": {
+          "eyes": 3,
+          "mouth": 3
+        },
+        "defaultExpressionId": "a",
+        "expression": {
+          "id": "a",
+          "eyes": "/artsource/ryoko/013_01_01_a_eye.png",
+          "mouth": "/artsource/ryoko/013_01_01_a_mouth.png",
+          "blinking": true,
+          "blinkingReview": "pending-human-semantic-review"
+        },
+        "expressions": {
+          "a": {
+            "id": "a",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_a_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_a_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "b": {
+            "id": "b",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_b_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_b_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "c": {
+            "id": "c",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_c_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_c_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "d": {
+            "id": "d",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_d_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_d_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "e": {
+            "id": "e",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_e_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_e_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          },
+          "f": {
+            "id": "f",
+            "status": "complete",
+            "eyes": "/artsource/ryoko/013_01_01_f_eye.png",
+            "mouth": "/artsource/ryoko/013_01_01_f_mouth.png",
+            "missing": [],
+            "blinking": "pending-human-semantic-review",
+            "promotionAllowed": false
+          }
+        },
+        "calibrationNotes": {
+          "layerOrder": [
+            "body",
+            "eyes",
+            "mouth",
+            "full-composite-alpha-mask"
+          ],
+          "galStage": "not-authoritative-and-not-part-of-rig",
+          "incompleteExpressions": "diagnostic-only"
+        }
+      },
+      "sourceEvidence": {
+        "familyId": "013_01_01",
+        "coordinateMap": {
+          "path": "../../official-face-coordinate-map.csv",
+          "sha256": "44c14c09300032251adf2f626a59dd23d524d1258145d0ae0e158a8ff96b021d",
+          "recordCount": 6,
+          "coordinateStatus": "resolved",
+          "officialFaceEnabled": true,
+          "coordinateSource": "TextAsset/ToLove:Chara_Eye_Pos|Chara_Mouth_Pos",
+          "eyeCoordinateMethod": "default_frame_pixel_alignment",
+          "mouthCoordinateMethod": "default_frame_pixel_alignment",
+          "eyeEdgeMse": 50.529707,
+          "mouthEdgeMse": 71.17948
+        },
+        "body": {
+          "width": 1024,
+          "height": 1024,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            255,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "sha256": "08a4182cde65dba5d26757b6baef92707dbe3775ff6642e10c0f401f03d33a91"
+        },
+        "mask": {
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            86,
+            61,
+            404,
+            512
+          ],
+          "sha256": "c094ed1e18adb7eee8ea250844d5cda11b72a31f189524f23430fca4fee9f7e2"
+        },
+        "expressions": {
+          "a": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "c543839551cf5591bee98f201c6d8b79b103c39c0696a95ab06a6e19c6b8cfd8"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "ebf79f89cf556cc4828608d1d5c466295f0b65eed82ec69fb408f6979488df14"
+              }
+            }
+          },
+          "b": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "378b020b17c6581b595a515b354e5cf2e87c43d2a1436165e80c11e0e2e41deb"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "0d3588c073b610b43ce540785a78caa0e0bde0123e1e07be900ad1f4e99d1f36"
+              }
+            }
+          },
+          "c": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "bb509e4afa2748ad693e419bafa6b80582e3cf598f678d2f7bc4c0138932d153"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "287a444136d074940ceefaa2aee1b68fe7a70e34177641360a9921a363f7b3b0"
+              }
+            }
+          },
+          "d": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "7e4c77717305df44110bb0e47bcf0ef4b01c909c29e021426cf0d5c006761efb"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "14e31ae4c5c8d2148c39ae8beaed8bfcab49df2f0a0ab6c823fcf4fdac6b4575"
+              }
+            }
+          },
+          "e": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "d376e0d7d920af3a0b831636c0098bfcaf49b82ecd9ace5abd10229bf5220b82"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "7c5e616fadb7ca5ba3d7cd66b401374609b1e23605b46f0e355388bcff912b18"
+              }
+            }
+          },
+          "f": {
+            "status": "complete",
+            "missing": [],
+            "files": {
+              "eyes": {
+                "width": 256,
+                "height": 512,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  255,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  0,
+                  256,
+                  512
+                ],
+                "sha256": "0fb9dc509c9e1572198afd59791b8a786631ccf64b174d1aef882a930cc0a88a"
+              },
+              "mouth": {
+                "width": 256,
+                "height": 256,
+                "mode": "RGBA",
+                "alphaExtrema": [
+                  0,
+                  255
+                ],
+                "alphaBounds": [
+                  0,
+                  1,
+                  256,
+                  256
+                ],
+                "sha256": "58870c98be90466624c73f264131b69e7dffa38f8967596f9c17256a5f894b10"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "reviewArtifacts": [
+    "outputs/review/eve-default-motion-sequence.png",
+    "outputs/review/eve-expression-frame-review.png",
+    "outputs/review/eve-mask-background-review.png",
+    "outputs/review/four-portrait-neutral-contact.png",
+    "outputs/review/lala-school-default-motion-sequence.png",
+    "outputs/review/lala-school-expression-frame-review.png",
+    "outputs/review/lala-school-mask-background-review.png",
+    "outputs/review/risa-default-motion-sequence.png",
+    "outputs/review/risa-expression-frame-review.png",
+    "outputs/review/risa-mask-background-review.png",
+    "outputs/review/ryoko-default-motion-sequence.png",
+    "outputs/review/ryoko-expression-frame-review.png",
+    "outputs/review/ryoko-mask-background-review.png"
+  ],
+  "humanReview": {
+    "status": "pending",
+    "acceptanceContract": "../acceptance-contract.json",
+    "expressionSemantics": "unassigned",
+    "runtimePromotion": "complete-pairs-require-explicit-human-acceptance; incomplete-pairs-also-require-exact-missing-layer-repair"
+  }
+}

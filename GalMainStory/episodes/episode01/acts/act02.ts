@@ -48,8 +48,14 @@ export const EPISODE_01_ACT_02 = {
             camera: { focusXPercent: 50, focusYPercent: 50, zoom: 1 },
           },
         ],
-        sceneId: 'washroom',
-        afterSceneBeat: 1,
+        // AI may spend any reasonable number of pages on the bathroom reaction.
+        // Open this CG only at the stable story boundary immediately before
+        // Mikan's arrival moves the accepted body into its first home page.
+        trigger: {
+          kind: 'before-scene-beat',
+          sceneId: 'home',
+          sceneBeat: 0,
+        },
         transition: 'steam-zoom-out',
       },
     ],

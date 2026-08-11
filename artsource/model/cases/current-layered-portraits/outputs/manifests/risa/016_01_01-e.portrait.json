@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "id": "016_01_01-e",
+  "characterId": "risa",
+  "displayName": "里纱",
+  "status": "calibration-only-awaiting-human-review",
+  "promotionAllowed": false,
+  "runtimeRegistration": "not-connected",
+  "formatProfile": "legacy-compatible",
+  "canvas": {
+    "width": 1024,
+    "height": 1024
+  },
+  "files": {
+    "body": "/artsource/risa/016_01_01_a.png",
+    "mask": "/artsource/risa/016_01_01_a%20%234646.png",
+    "eyes": "/artsource/risa/016_01_01_e_eye.png",
+    "mouth": "/artsource/risa/016_01_01_e_mouth.png"
+  },
+  "expectedDimensions": {
+    "body": {
+      "width": 1024,
+      "height": 1024
+    },
+    "mask": {
+      "width": 512,
+      "height": 512
+    },
+    "eyes": {
+      "width": 256,
+      "height": 512
+    },
+    "mouth": {
+      "width": 256,
+      "height": 256
+    }
+  },
+  "regions": {
+    "eyes": {
+      "x": 394,
+      "y": 210,
+      "width": 230,
+      "height": 131,
+      "feather": 0
+    },
+    "mouth": {
+      "x": 394,
+      "y": 338,
+      "width": 230,
+      "height": 57,
+      "feather": 0
+    }
+  },
+  "frameCount": {
+    "eyes": 3,
+    "mouth": 3
+  },
+  "defaultExpressionId": "e",
+  "expression": {
+    "id": "e",
+    "eyes": "/artsource/risa/016_01_01_e_eye.png",
+    "mouth": "/artsource/risa/016_01_01_e_mouth.png",
+    "blinking": true,
+    "blinkingReview": "pending-human-semantic-review"
+  },
+  "expressions": {
+    "a": {
+      "id": "a",
+      "status": "incomplete",
+      "eyes": null,
+      "mouth": "/artsource/risa/016_01_01_a_mouth.png",
+      "missing": [
+        "eyes"
+      ],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "b": {
+      "id": "b",
+      "status": "complete",
+      "eyes": "/artsource/risa/016_01_01_b_eye.png",
+      "mouth": "/artsource/risa/016_01_01_b_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "c": {
+      "id": "c",
+      "status": "complete",
+      "eyes": "/artsource/risa/016_01_01_c_eye.png",
+      "mouth": "/artsource/risa/016_01_01_c_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "d": {
+      "id": "d",
+      "status": "complete",
+      "eyes": "/artsource/risa/016_01_01_d_eye.png",
+      "mouth": "/artsource/risa/016_01_01_d_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "e": {
+      "id": "e",
+      "status": "complete",
+      "eyes": "/artsource/risa/016_01_01_e_eye.png",
+      "mouth": "/artsource/risa/016_01_01_e_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "f": {
+      "id": "f",
+      "status": "complete",
+      "eyes": "/artsource/risa/016_01_01_f_eye.png",
+      "mouth": "/artsource/risa/016_01_01_f_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    }
+  },
+  "calibrationNotes": {
+    "layerOrder": [
+      "body",
+      "eyes",
+      "mouth",
+      "full-composite-alpha-mask"
+    ],
+    "galStage": "not-authoritative-and-not-part-of-rig",
+    "incompleteExpressions": "diagnostic-only"
+  }
+}

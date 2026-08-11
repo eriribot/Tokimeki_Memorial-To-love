@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "caseId": "current-layered-portraits-2026-08-10",
+  "coordinateMap": "../../official-face-coordinate-map.csv",
+  "formatProfile": "legacy-compatible",
+  "canvas": { "width": 1024, "height": 1024 },
+  "frameCount": 3,
+  "expectedDimensions": {
+    "body": { "width": 1024, "height": 1024 },
+    "mask": { "width": 512, "height": 512 },
+    "eyes": { "width": 256, "height": 512 },
+    "mouth": { "width": 256, "height": 256 }
+  },
+  "characters": [
+    {
+      "id": "eve",
+      "familyId": "002_01_02",
+      "displayName": "小暗",
+      "assetDirectory": "../../../eve",
+      "runtimeBasePath": "/artsource/eve/",
+      "body": "002_01_02_a.png",
+      "mask": "002_01_02_a #5407.png",
+      "defaultExpressionId": "a",
+      "expressions": ["a", "b", "c", "d", "e", "f"],
+      "declaredMissing": {
+        "b": ["mouth"],
+        "d": ["eyes"],
+        "e": ["eyes"]
+      }
+    },
+    {
+      "id": "lala-school",
+      "familyId": "004_01_01",
+      "displayName": "菈菈（校服）",
+      "assetDirectory": "../../../lala/lala_school",
+      "runtimeBasePath": "/artsource/lala/lala_school/",
+      "body": "004_01_01_a #27472.png",
+      "mask": "004_01_01_a.png",
+      "defaultExpressionId": "a",
+      "expressions": ["a", "b", "c", "d", "e", "f"],
+      "declaredMissing": {
+        "f": ["mouth"]
+      }
+    },
+    {
+      "id": "risa",
+      "familyId": "016_01_01",
+      "displayName": "里纱",
+      "assetDirectory": "../../../risa",
+      "runtimeBasePath": "/artsource/risa/",
+      "body": "016_01_01_a.png",
+      "mask": "016_01_01_a #4646.png",
+      "defaultExpressionId": "b",
+      "expressions": ["a", "b", "c", "d", "e", "f"],
+      "declaredMissing": {
+        "a": ["eyes"]
+      }
+    },
+    {
+      "id": "ryoko",
+      "familyId": "013_01_01",
+      "displayName": "御门老师",
+      "assetDirectory": "../../../ryoko",
+      "runtimeBasePath": "/artsource/ryoko/",
+      "body": "013_01_01_a #4865.png",
+      "mask": "013_01_01_a.png",
+      "defaultExpressionId": "a",
+      "expressions": ["a", "b", "c", "d", "e", "f"],
+      "declaredMissing": {}
+    }
+  ]
+}

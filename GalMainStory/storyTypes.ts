@@ -64,12 +64,27 @@ export interface StoryCgFrameDefinition {
   camera?: StoryCgCameraDefinition;
 }
 
+/**
+ * A scene-local CG boundary. `sceneBeat` is the zero-based occurrence of that
+ * scene in the accepted AI body, so prose length and exact wording may vary.
+ */
+export type StoryCgTriggerDefinition =
+  | {
+      kind: 'after-scene-beat';
+      sceneId: StorySceneId;
+      sceneBeat: number;
+    }
+  | {
+      kind: 'before-scene-beat';
+      sceneId: StorySceneId;
+      sceneBeat: number;
+    };
+
 /** One act-local trigger group. Its frames are consumed in declaration order. */
 export interface StoryActCgDefinition {
   id: string;
   frames: readonly StoryCgFrameDefinition[];
-  sceneId: StorySceneId;
-  afterSceneBeat: number;
+  trigger: StoryCgTriggerDefinition;
   transition: StoryCgTransition;
 }
 

@@ -103,6 +103,7 @@ function buildGenerationPrompt(request: StoryGenerationContextRequest): string {
     requiredSceneSequence: act.generation.requiredSceneSequence,
     portraitOptions: getActPortraitOptions(request.eventId, request.actId),
     portraitRules: act.presentation.portraitRules ?? [],
+    cgCues: (act.presentation.cgShots ?? []).map(cg => cg.trigger),
     continuityMode: (request.historyFloorIds ?? request.contextFloorIds).length > 0 ? 'continue' : 'fresh',
     choicePrompt: act.choice?.prompt,
     settledChoices: (request.previousChoiceDecisions ?? []).flatMap(saved => {

@@ -17,25 +17,31 @@
       "id": "ep01-act02-runtime",
       "kind": "project-authority",
       "location": "GalMainStory/episodes/episode01/acts/act02.ts",
-      "supports": "第二幕由 2008-04-07 的第二次行动触发，首个必经场景是 washroom；幕配置在第二个 washroom 页之后声明派生 CG，通用运行时不按集数或台词猜测镜头。"
+      "supports": "第二幕由 2008-04-07 的第二次行动触发，先经历 washroom，再进入 home；幕配置在首个 home 正文页之前声明派生 CG，通用运行时不按集数、说话人或具体台词猜测镜头。"
     },
     {
       "id": "local-cg-001",
       "kind": "direct-frame",
       "location": "artsource/cg/001.png",
-      "supports": "本地 1280×720 画面是以裸体胸部触碰为中心的近景构图；它只可作为镜头差异证据，不进入本轮运行时。"
+      "supports": "本地横向原画可由幕配置通过 framing 与 camera 选取实际可见构图；是否使用及如何运镜以当前 act02.ts 为权威。"
     },
     {
       "id": "local-cg-002",
       "kind": "direct-frame",
       "location": "artsource/cg/002.jpg",
-      "supports": "本地 844×916 纵向画面上部包含菈菈闭眼微笑、头发和抬起的手臂"
+      "supports": "本地纵向原画可作为同一 CG 组的后续帧；具体裁切、焦点和缩放以当前 act02.ts 为权威。"
     },
     {
       "id": "user-cg-request-2026-08-10",
       "kind": "project-authority",
       "location": "user-request:2026-08-10",
       "supports": "用户要求第二幕增加原动画 CG 配置，把交互顺序明确为先播放台词，再显示没有对话框和控制条的全屏图，并希望模板支持多组 CG、组内多帧和可注释的实用运镜。"
+    },
+    {
+      "id": "user-cg-boundary-2026-08-11",
+      "kind": "project-authority",
+      "location": "user-request:2026-08-11",
+      "supports": "用户确认 AI 正文不必严格命中固定台词或固定页数；只要 CG 在美柑出现前显示即可，并要求把这个宽松边界同时交给第一集第二幕的生成提示。"
     }
   ],
   "roleMap": [
@@ -51,7 +57,7 @@
       "storyFunction": "随机传送到浴室并庆祝逃脱的外星公主",
       "target": "菈菈·萨塔琳·戴比路克",
       "inherit": ["浴缸爆开后的现身", "逃脱成功的轻松反应", "水花与蒸汽中的视觉识别"],
-      "exclude": ["裸体身体细节", "胸部触碰特写", "由镜头把婚约或亲密关系写成已同意"]
+      "exclude": ["露骨身体细节", "由镜头把婚约或亲密关系写成已同意"]
     }
   ],
   "playerAuthority": {
@@ -66,27 +72,33 @@
   },
   "counterevidence": [
     {
-      "id": "broadcast-origin-does-not-set-boundary",
-      "location": "user-request:2026-08-10",
-      "staleClaim": "画面曾在电视动画播出，因此完整胸部触碰特写可以直接作为本项目的擦边 CG。",
-      "resolution": "来源与内容边界分开判断；本轮保留原动画的表情、水花和蒸汽识别，只使用 002 顶部安全裁切，001 与完整 002 均不进入可见运行时。"
+      "id": "stale-fixed-second-washroom-trigger",
+      "location": "previous runtime/config",
+      "staleClaim": "CG 必须紧跟第二个 washroom 正文页或逐字对应“逃脱成功！”的台词页。",
+      "resolution": "由用户在 2026-08-11 修正：AI 可以自然扩写浴室段；CG 改为首个 scene=home 正文页之前显示。"
+    },
+    {
+      "id": "stale-frame-ban",
+      "location": "previous evidence packet",
+      "staleClaim": "证据包可以越过幕配置，永久禁止 001 或固定两帧都只能来自 002。",
+      "resolution": "已被用户当前维护的 act02.ts 帧配置取代；本轮只调整 AI 场景边界，不改动也不重新裁决现有素材与 camera。"
     }
   ],
   "beats": [
     {
       "id": "ep01.act2.cg-arrival",
-      "summary": "第二幕前两个 washroom 正文页照常播放；菈菈说完“逃脱成功！”后，下一次翻页先打开一个派生的纯 CG 页。",
+      "summary": "AI 可以用合理数量的 washroom 正文页演完浴室现身、逃脱庆祝与 User 的即时慌乱；当下一页首次切到 home、即美柑赶来开启下一情节点之前，翻页先打开派生的纯 CG 页。",
       "status": "adapted",
-      "sourceRefs": ["ep01-act02-worldbook", "ep01-act02-runtime", "local-cg-002"],
-      "adaptation": "纯 CG 页不渲染对话框、姓名牌或翻页控制条；使用 002 的顶部安全裁切并以蒸汽覆盖下缘，先以 1.20 倍贴近脸部，再以同一原图的 1.10 倍构图稍微拉远，只保留脸、头发和抬臂轮廓，不显示胸部或触碰。",
-      "causalOwners": ["随机传送与浴缸爆开造成现身", "菈菈庆祝逃脱", "幕配置决定这句台词后的派生镜头"]
+      "sourceRefs": ["ep01-act02-worldbook", "ep01-act02-runtime", "user-cg-boundary-2026-08-11"],
+      "adaptation": "纯 CG 页不渲染对话框、姓名牌或翻页控制条。AI 只负责在人物、地点或情节点实际推进时切换 scene，不输出 CG 标签、素材路径或转场命令；帧素材、顺序、裁切和 camera 全部由幕配置决定。",
+      "causalOwners": ["随机传送与浴缸爆开造成现身", "美柑赶来开启 home 情节点", "幕配置决定首个 home 页之前的派生镜头"]
     },
     {
       "id": "ep01.act2.cg-transition",
-      "summary": "CG 进入时从贴脸构图缓慢拉远；第一次点击只交叉淡化到稍远构图，第二次点击才淡出 CG 并进入第三个 washroom 正文页。",
+      "summary": "最后一个 washroom 正文页之后先进入 CG；组内点击只推进已登记帧，最后一帧再次点击才淡出 CG，并显示首个 home 正文页。",
       "status": "inferred",
-      "sourceRefs": ["user-cg-request-2026-08-10", "local-cg-002", "ep01-act02-runtime"],
-      "adaptation": "原素材没有提供可安全使用的连续帧，因此复用 002 顶部安全区域，以每帧独立 camera 参数完成 1.20 贴脸与 1.10 稍远两种构图；组内切换锁定为 260ms 交叉淡化，最终退出锁定为 420ms 淡出，结束后复用原有翻页意图前进一次。",
+      "sourceRefs": ["user-cg-request-2026-08-10", "local-cg-001", "local-cg-002", "ep01-act02-runtime"],
+      "adaptation": "组内按 act02.ts 当前 frames 声明和各帧独立 camera 参数播放；组内切换使用既有交叉淡化，最终退出使用既有淡出，结束后复用原有翻页意图前进一次。",
       "causalOwners": ["幕配置决定 CG 触发锚点", "通用渲染器消费明确配置", "玩家点击决定何时淡出并继续正文"]
     },
     {
@@ -96,7 +108,7 @@
       "sourceRefs": ["ep01-act02-worldbook", "ep01-act02-runtime"],
       "causalOwners": [
         "Zustand 继续拥有页游标与幕结算",
-        "CG 解析只读取当前幕配置、scene cue 和零基场景页序号",
+        "CG 解析只读取当前幕配置、已接受 scene cue 和零基场景页的前后边界",
         "组件本地状态只控制 CG 显示与淡出"
       ]
     }
@@ -104,9 +116,9 @@
   "mustKeepBeatIds": ["ep01.act2.cg-arrival", "ep01.act2.cg-transition", "ep01.act2.cg-runtime-boundary"],
   "forbidden": [
     "通过台词关键词、说话人或 episode ID 猜测 CG",
+    "要求 AI 输出 CG 标签、素材路径、ID 或固定数量的 washroom 正文页",
     "让 CG 打开时提前推进页游标，或让 CG 层独立结算行动点、日期、好感或完成状态",
-    "把动画原图的来源说明当作身体细节与越界描写的授权",
-    "把没有菈菈脸部画面的 001.png 登记为向上移动到脸部的运行时镜头"
+    "让提示词或证据包越过 act02.ts 改写当前帧素材、顺序、裁切或 camera"
   ],
   "actBoundaries": [
     {
@@ -135,9 +147,10 @@
       "id": "ep01.cg.accept-safe-reaction",
       "type": "positive-paraphrase",
       "expectedDecision": "accept",
-      "candidate": "菈菈说完“逃脱成功！”后，对话框和控制条一起退场，纯 CG 先贴近笑脸；第一次点击交叉淡化到稍远构图但正文页不动，第二次点击才淡出 CG，再显示 User 的下一句慌乱台词。",
+      "candidate": "AI 用数个 scene=washroom 正文页演完菈菈现身、庆祝与 User 的即时慌乱；下一情节点的第一行改为 scene=home。点击最后一个 washroom 页时，对话框和控制条退场并播放配置内 CG，组内点击不动正文页，最终淡出后才显示这行 home 正文。",
       "reviewCriteria": [
-        "两帧都只展示脸、头发和安全的抬臂轮廓",
+        "不依赖逐字台词或固定 washroom 页数",
+        "CG 位于首个 home 页之前，因此早于美柑正式出现",
         "纯 CG 页没有对话框与控制条",
         "中间帧不推进正文",
         "最终淡出结束后正文只前进一页"

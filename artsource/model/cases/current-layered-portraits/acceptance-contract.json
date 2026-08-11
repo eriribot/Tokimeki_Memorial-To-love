@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "status": "awaiting-human-review",
+  "promotionAllowed": false,
+  "authority": "official-face-coordinate-map.csv + source PNG pixels + explicit human visual acceptance",
+  "scope": {
+    "classification": "layered-sprite-atlas",
+    "families": ["002_01_02", "004_01_01", "016_01_01", "013_01_01"],
+    "runtimeRegistration": "forbidden-in-this-loop",
+    "sourceAssetOverwrite": "forbidden"
+  },
+  "automatedGates": {
+    "coordinateStatus": "resolved",
+    "officialFaceEnabled": true,
+    "singleCoordinateSetPerFamily": true,
+    "bodyDimensions": "1024x1024",
+    "maskDimensions": "512x512",
+    "eyeAtlasDimensions": "256x512",
+    "mouthAtlasDimensions": "256x256",
+    "frameCount": 3,
+    "declaredMissingMustMatchDisk": true,
+    "sourceHashesRequired": true
+  },
+  "reviewMatrix": {
+    "completeExpressionPairs": 19,
+    "incompleteDiagnosticExpressions": 5,
+    "regions": ["eyes", "mouth"],
+    "framesPerRegion": [0, 1, 2],
+    "requiredFrameDecisionCount": 114,
+    "maskBackgroundsPerCharacter": ["white", "black", "pink", "blue"],
+    "demonstrationSequence": {
+      "purpose": "static-viewing-only",
+      "frames": [
+        "eyes0-mouth0",
+        "eyes1-mouth0",
+        "eyes2-mouth0",
+        "eyes1-mouth0",
+        "eyes0-mouth0",
+        "eyes0-mouth1",
+        "eyes0-mouth2",
+        "eyes0-mouth1",
+        "eyes0-mouth0"
+      ],
+      "officialTimingOrSemanticEvidence": false
+    },
+    "allFrameAndMaskDecisionsMustBeAcceptedBeforeCasePromotion": true
+  },
+  "humanReview": {
+    "status": "pending",
+    "required": [
+      "逐个完整表情检查 eyes 0/1/2，mouth 固定在 0；额头、发丝、脸颊和眼窗底边不得出现矩形接缝",
+      "逐个完整表情检查 mouth 0/1/2，eyes 固定在 0；鼻梁、脸颊、下巴和眼嘴重叠区不得出现矩形接缝",
+      "连续切换眼睛三帧时眼位、眉线和脸部锚点不得跳动",
+      "连续切换嘴巴三帧时嘴部中心、下巴线和脸部锚点不得跳动",
+      "在白、黑、粉、蓝背景检查完整人物 mask 的黑块、白边和残留背景",
+      "确认 a-f 的剧情语义和 blinking 规则后，才允许建立运行时语义映射"
+    ],
+    "incompleteExpressions": "diagnostic-only; never promotable until the exact missing official layer is restored",
+    "decisions": {}
+  }
+}

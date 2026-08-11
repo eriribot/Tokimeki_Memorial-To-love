@@ -1,5 +1,86 @@
 # 艾尔登特当前状态
 
+# 2026-08-11 AI-tolerant CG scene boundary
+
+```yaml
+status: source_implementation_updated_verification_waived_by_user
+current_loop: episode01_act02_before_mikan_scene_boundary_2026-08-11
+authorized_by:
+  - user_requested_the_episode01_act02_prompt_and_AI_body_contract_be_updated_for_CG_timing
+  - user_confirmed_that_displaying_the_CG_before_Mikan_appears_is_the_sufficient_acceptance_boundary
+  - user_explicitly_requested_no_tests_and_no_live_or_browser_inspection
+authorized_scope:
+  - generalize_each_CG_group_to_an_explicit_before_or_after_zero_based_scene_beat_trigger
+  - project_registered_CG_scene_boundaries_into_the_generic_generation_prompt_without_exposing_assets_or_commands
+  - move_episode01_act02_to_before_the_first_home_page_so_washroom_prose_length_may_vary
+  - document_the_same_washroom_to_home_boundary_in_the_episode01_act02_worldbook_recovery_source
+  - preserve_the_current_user_owned_001_002_frame_assets_order_framing_and_camera_configuration
+forbidden_scope:
+  - require_exact_dialogue_speaker_matching_fixed_washroom_line_count_or_a_model_authored_CG_tag
+  - add_episode_specific_runtime_branches_or_let_the_model_supply_asset_paths_CG_IDs_or_transition_commands
+  - modify_or_re_adjudicate_the_current_episode01_act02_frame_assets_or_camera_values
+  - run_tests_typecheck_lint_build_browser_preview_or_real_Tavern_generation_in_this_loop
+connection_state: source_types_prompt_projection_worldbook_recovery_and_generic_runtime_boundary_updated_unverified
+overall_connection_label:
+  第一集第二幕已改用首个 home 正文页之前的宽松 CG 边界；AI 只需在美柑情节点开始时切换 scene，源码尚未按用户要求执行测试或现场验收
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - automated_tests_typecheck_lint_format_and_build
+    - local_browser_or_mock_visual_flow
+    - real_Tavern_worldbook_scan_prompt_itemization_generation_and_click_flow
+human_review: pending_optional_future_real_AI_body_confirmation_that_the_first_Mikan_beat_uses_scene_home
+```
+
+# 2026-08-10 current official layered portrait calibration batch
+
+```yaml
+status: calibration_package_and_static_motion_sequences_generated_local_model_browser_verified_human_visual_review_pending
+current_loop: eve_lala_school_risa_ryoko_official_layered_portrait_calibration_2026-08-10
+authorized_by:
+  - user_supplied_the_layered_portrait_guide_four_asset_directories_model_directory_and_official_coordinate_map
+  - user_requested_the_current_materials_be_composed_and_proportioned_before_later_GAL_story_registration
+authorized_scope:
+  - select official coordinate rows by exact family_id for 002_01_02 004_01_01 016_01_01 and 013_01_01
+  - validate body mask eye and mouth dimensions alpha roles file hashes and declared missing layers
+  - generate calibration-only model manifests independent eye and mouth frame review sheets and four-background mask
+    sheets
+  - generate one deterministic nine-frame default-expression viewing sequence per character without asserting original
+    timing or semantics
+  - document the proven source-to-stage ratios and preserve incomplete expressions as diagnostics only
+forbidden_scope:
+  - repaint or generate missing official eye or mouth layers or borrow a layer from another expression costume or
+    character
+  - overwrite any source PNG or use the rejected body-edge-graft portrait transformation
+  - register new runtime characters portraits semantic expression names blinking rules cast portrait rules or GAL CSS
+    placement
+  - claim local composites or browser checks are human visual acceptance or formal Tavern runtime integration
+connection_state: reproducible_model_case_and_loadable_calibration_manifests_generated_GAL_runtime_not_connected
+overall_connection_label: 四套官方分层素材已按原生坐标拼合为本地校准包；尚未接入 GAL 正文，表情语义与最终观感待人工验收
+verification:
+  passed:
+    - exact-family CSV selection resolved four unique 1024x1024 canvases with official_face_enabled true
+    - source validation found 19 complete eye-mouth pairs and exactly 5 declared incomplete diagnostics without mutating
+      source PNGs
+    - mask 512x512 to full 1024x1024 stage eye 256x512 to 230x393 and mouth 256x256 to 230x171 contracts passed
+    - builder regenerated 37 output files including 19 per-expression loadable manifests four overview manifests four
+      static motion sequences and the remaining review images
+    - real model/index.html loaded all 19 complete per-expression manifests with 4 of 4 assets decoded and exact
+      official regions
+    - all browser-loaded manifests and body mask eye mouth paths including encoded spaces and hash signs returned HTTP
+      200
+    - browser console reported zero errors and zero warnings
+  failed: []
+  not_run:
+    - the 114 human eyes-and-mouth frame decisions and 16 four-background mask decisions
+    - semantic a-f naming and per-expression blinking acceptance
+    - PC tablet phone responsive GAL rendering reduced-motion animation or real Tavern asset loading
+    - runtime registration build typecheck lint or story tests because this loop intentionally changes no GAL runtime
+      source
+human_review: pending_frame_seams_expression_semantics_mask_edges_and_future_GAL_composition
+```
+
 # 2026-08-10 generic CG groups and multi-frame sequences
 
 ```yaml
@@ -22,7 +103,8 @@ forbidden_scope:
   - put the body-focused 001.png asset into the runtime CG configuration
   - modify prompts worldbook Tavern messages plugins databases shujuku ACU or unrelated existing TypeScript failures
 connection_state: local_types_validator_renderer_click_state_machine_and_development_bundle_connected_browser_flow_stopped_at_user_request
-overall_connection_label: 多组/多帧 CG 模板合同、镜头参数、点击状态机与开发包已接线；用户要求不再继续浏览器验收，本轮不声明最终人工观感
+overall_connection_label:
+  多组/多帧 CG 模板合同、镜头参数、点击状态机与开发包已接线；用户要求不再继续浏览器验收，本轮不声明最终人工观感
 verification:
   passed:
     - the two user-introduced diagnostics for string-array startsWith and resolveAssetPath are absent after the repair

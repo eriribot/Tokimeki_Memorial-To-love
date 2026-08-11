@@ -2,6 +2,7 @@ import type { GalStoryBeat, StoryActCgDefinition, StoryActPresentation, StoryCgF
 
 const STORY_CG_FRAMINGS = ['cover-center', 'safe-face-closeup'] as const;
 const STORY_CG_TRANSITIONS = ['fade', 'steam-zoom-out'] as const;
+const STORY_CG_TRIGGER_KINDS = ['after-scene-beat', 'before-scene-beat'] as const;
 
 function isNonNegativeInteger(value: number): boolean {
   return Number.isInteger(value) && value >= 0;
@@ -51,13 +52,16 @@ export function validateStoryCgDefinitions(presentation: StoryActPresentation): 
       }
       frameIds.add(frame.id);
     }
-    if (!presentation.sceneIds.includes(cg.sceneId)) {
-      throw new Error(`剧情 CG“${cg.id}”引用了当前幕未登记的场景“${cg.sceneId}”。`);
+    if (!cg.trigger || !STORY_CG_TRIGGER_KINDS.includes(cg.trigger.kind)) {
+      throw new Error(`剧情 CG“${cg.id}”的触发方向无效。`);
     }
-    if (!isNonNegativeInteger(cg.afterSceneBeat)) throw new Error(`剧情 CG“${cg.id}”的触发页无效。`);
+    if (!presentation.sceneIds.includes(cg.trigger.sceneId)) {
+      throw new Error(`剧情 CG“${cg.id}”引用了当前幕未登记的场景“${cg.trigger.sceneId}”。`);
+    }
+    if (!isNonNegativeInteger(cg.trigger.sceneBeat)) throw new Error(`剧情 CG“${cg.id}”的触发页无效。`);
     if (!STORY_CG_TRANSITIONS.includes(cg.transition)) throw new Error(`剧情 CG“${cg.id}”的转场无效。`);
 
-    const triggerKey = `${cg.sceneId}\u0000${cg.afterSceneBeat}`;
+    const triggerKey = `${cg.trigger.kind}\u0000${cg.trigger.sceneId}\u0000${cg.trigger.sceneBeat}`;
     if (triggerKeys.has(triggerKey)) throw new Error(`剧情 CG“${cg.id}”与同场景的另一段 CG 触发页重复。`);
     triggerKeys.add(triggerKey);
   }
@@ -77,6 +81,14 @@ export function getNextStoryCgFrameIndex(cg: StoryActCgDefinition, frameIndex: n
   return nextFrameIndex < cg.frames.length ? nextFrameIndex : null;
 }
 
+function getSceneBeatIndex(beats: readonly GalStoryBeat[], pageIndex: number): number {
+  const sceneId = beats[pageIndex]?.presentation.sceneId;
+  if (!sceneId) return -1;
+  return (
+    beats.slice(0, pageIndex + 1).filter(candidate => candidate.presentation.sceneId === sceneId).length - 1
+  );
+}
+
 /**
  * Resolves an act-local CG from accepted presentation cues only. It never
  * guesses from prose, speaker names, episode IDs, or model-authored paths.
@@ -89,13 +101,20 @@ export function resolveStoryCgAfterPage(
   const beat = beats[pageIndex];
   if (!presentation || !beat || !Number.isInteger(pageIndex) || pageIndex < 0) return null;
 
-  const sceneBeatIndex =
-    beats.slice(0, pageIndex + 1).filter(candidate => candidate.presentation.sceneId === beat.presentation.sceneId)
-      .length - 1;
+  const currentSceneBeat = getSceneBeatIndex(beats, pageIndex);
+  const nextBeat = beats[pageIndex + 1];
+  const nextSceneBeat = nextBeat ? getSceneBeatIndex(beats, pageIndex + 1) : -1;
 
   return (
-    presentation.cgShots?.find(
-      cg => cg.sceneId === beat.presentation.sceneId && sceneBeatIndex === cg.afterSceneBeat,
-    ) ?? null
+    presentation.cgShots?.find(cg => {
+      if (cg.trigger.kind === 'after-scene-beat') {
+        return cg.trigger.sceneId === beat.presentation.sceneId && cg.trigger.sceneBeat === currentSceneBeat;
+      }
+      return (
+        nextBeat !== undefined &&
+        cg.trigger.sceneId === nextBeat.presentation.sceneId &&
+        cg.trigger.sceneBeat === nextSceneBeat
+      );
+    }) ?? null
   );
 }

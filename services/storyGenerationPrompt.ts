@@ -1,5 +1,9 @@
 import { getRequiredStoryPortraitId, validateStoryPortraitRules } from '../GalMainStory/portraitRules';
-import type { StorySceneId, StoryScenePortraitRule } from '../GalMainStory/storyTypes';
+import type {
+  StoryCgTriggerDefinition,
+  StorySceneId,
+  StoryScenePortraitRule,
+} from '../GalMainStory/storyTypes';
 
 export interface StoryPromptPortraitOption {
   characterId: string;
@@ -9,6 +13,7 @@ export interface StoryPromptPortraitOption {
 }
 
 export type StoryPromptPortraitRule = StoryScenePortraitRule;
+export type StoryPromptCgCue = StoryCgTriggerDefinition;
 
 export interface StoryGenerationPromptContext {
   eventTitle: string;
@@ -18,6 +23,7 @@ export interface StoryGenerationPromptContext {
   requiredSceneSequence: readonly StorySceneId[];
   portraitOptions: readonly StoryPromptPortraitOption[];
   portraitRules?: readonly StoryPromptPortraitRule[];
+  cgCues?: readonly StoryPromptCgCue[];
   continuityMode?: 'fresh' | 'continue';
   settledChoices?: readonly {
     prompt: string;
@@ -58,6 +64,18 @@ function validatePromptContext(context: StoryGenerationPromptContext): void {
   }
   for (const sceneId of context.requiredSceneSequence) {
     if (!sceneIds.has(sceneId)) throw new Error(`完成合同引用了当前幕未登记的场景“${sceneId}”。`);
+  }
+
+  const cgCueKeys = new Set<string>();
+  for (const cue of context.cgCues ?? []) {
+    if (cue.kind !== 'after-scene-beat' && cue.kind !== 'before-scene-beat') {
+      throw new Error('CG 场景边界的触发方向无效。');
+    }
+    if (!sceneIds.has(cue.sceneId)) throw new Error(`CG 场景边界引用了当前幕未登记的场景“${cue.sceneId}”。`);
+    if (!Number.isInteger(cue.sceneBeat) || cue.sceneBeat < 0) throw new Error('CG 场景边界的页序号无效。');
+    const key = `${cue.kind}\u0000${cue.sceneId}\u0000${cue.sceneBeat}`;
+    if (cgCueKeys.has(key)) throw new Error('当前幕重复登记了同一个 CG 场景边界。');
+    cgCueKeys.add(key);
   }
 
   const optionPairs = new Set<string>();
@@ -170,6 +188,20 @@ function buildRequiredSceneContract(requiredSceneSequence: readonly StorySceneId
   return `- 场景首次推进必须完整覆盖：${requiredSceneSequence.join(' → ')}。`;
 }
 
+function buildCgCueInstruction(cues: readonly StoryPromptCgCue[] | undefined): string {
+  if (!cues || cues.length === 0) return '';
+
+  const cueLines = cues.map(cue => {
+    const ordinal = cue.sceneBeat + 1;
+    return cue.kind === 'before-scene-beat'
+      ? `  - 在第 ${ordinal} 个 scene=${cue.sceneId} 正文页显示前插入。`
+      : `  - 在第 ${ordinal} 个 scene=${cue.sceneId} 正文页显示后插入。`;
+  });
+  return `- 本地运行时会按以下场景页边界插入已登记 CG。你不需要为 CG 固定各场景的正文行数；只需在人物、地点或情节点确实推进时准确切换 scene：
+${cueLines.join('\n')}
+- 不要输出 CG 标签、素材路径、CG ID、帧 ID 或转场说明。`;
+}
+
 function buildAllowedSpeakerList(options: readonly StoryPromptPortraitOption[]): string {
   const characterNames = [...new Set(options.map(option => `@${option.displayName}`))];
   return ['@旁白', '@你', ...characterNames].join('、');
@@ -201,6 +233,7 @@ export function buildStoryOutputProtocol(context: StoryGenerationPromptContext):
 - 未登记说话人使用通用文字名牌。其本人没有可用立绘，不能为其虚构 focus、portrait 或 expression；镜头没有已登记角色时三项都写 none，也可以让镜头聚焦现场已有的登记角色。
 - 每行必须完整写出 scene、focus、portrait、expression、effect 五个字段，不继承上一行。
 - scene 只能使用：${context.sceneIds.join('、')}。
+${buildCgCueInstruction(context.cgCues)}
 - effect 只能使用：none、flash、shake；没有明确闪光或震动时使用 none。
 - focus 表示当前画面实际出镜的角色，不等于说话人；镜头无人时写 none。
 - 只要正文正在描写、展示或持续拍摄一名已登记角色，focus 就必须填写该角色 ID；不能因为是旁白、玩家发言、洗浴场景或没有切换镜头而写 none。

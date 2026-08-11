@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "002_01_02",
+  "characterId": "eve",
+  "displayName": "小暗",
+  "status": "calibration-only-awaiting-human-review",
+  "promotionAllowed": false,
+  "runtimeRegistration": "not-connected",
+  "formatProfile": "legacy-compatible",
+  "canvas": {
+    "width": 1024,
+    "height": 1024
+  },
+  "files": {
+    "body": "/artsource/eve/002_01_02_a.png",
+    "mask": "/artsource/eve/002_01_02_a%20%235407.png",
+    "eyes": "/artsource/eve/002_01_02_a_eye.png",
+    "mouth": "/artsource/eve/002_01_02_a_mouth.png"
+  },
+  "expectedDimensions": {
+    "body": {
+      "width": 1024,
+      "height": 1024
+    },
+    "mask": {
+      "width": 512,
+      "height": 512
+    },
+    "eyes": {
+      "width": 256,
+      "height": 512
+    },
+    "mouth": {
+      "width": 256,
+      "height": 256
+    }
+  },
+  "regions": {
+    "eyes": {
+      "x": 394,
+      "y": 255,
+      "width": 230,
+      "height": 131,
+      "feather": 0
+    },
+    "mouth": {
+      "x": 394,
+      "y": 384,
+      "width": 230,
+      "height": 57,
+      "feather": 0
+    }
+  },
+  "frameCount": {
+    "eyes": 3,
+    "mouth": 3
+  },
+  "defaultExpressionId": "a",
+  "expression": {
+    "id": "a",
+    "eyes": "/artsource/eve/002_01_02_a_eye.png",
+    "mouth": "/artsource/eve/002_01_02_a_mouth.png",
+    "blinking": true,
+    "blinkingReview": "pending-human-semantic-review"
+  },
+  "expressions": {
+    "a": {
+      "id": "a",
+      "status": "complete",
+      "eyes": "/artsource/eve/002_01_02_a_eye.png",
+      "mouth": "/artsource/eve/002_01_02_a_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "b": {
+      "id": "b",
+      "status": "incomplete",
+      "eyes": "/artsource/eve/002_01_02_b_eye.png",
+      "mouth": null,
+      "missing": [
+        "mouth"
+      ],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "c": {
+      "id": "c",
+      "status": "complete",
+      "eyes": "/artsource/eve/002_01_02_c_eye.png",
+      "mouth": "/artsource/eve/002_01_02_c_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "d": {
+      "id": "d",
+      "status": "incomplete",
+      "eyes": null,
+      "mouth": "/artsource/eve/002_01_02_d_mouth.png",
+      "missing": [
+        "eyes"
+      ],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "e": {
+      "id": "e",
+      "status": "incomplete",
+      "eyes": null,
+      "mouth": "/artsource/eve/002_01_02_e_mouth.png",
+      "missing": [
+        "eyes"
+      ],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "f": {
+      "id": "f",
+      "status": "complete",
+      "eyes": "/artsource/eve/002_01_02_f_eye.png",
+      "mouth": "/artsource/eve/002_01_02_f_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    }
+  },
+  "calibrationNotes": {
+    "layerOrder": [
+      "body",
+      "eyes",
+      "mouth",
+      "full-composite-alpha-mask"
+    ],
+    "galStage": "not-authoritative-and-not-part-of-rig",
+    "incompleteExpressions": "diagnostic-only"
+  }
+}

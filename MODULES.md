@@ -127,11 +127,11 @@
 - `episodeTemplate.ts` 定义唯一分集接口及 `single-action / whole-day` 幕耗时合同；`episodes/index.ts`
   是注册清单，目前登记第一集至第四集。共享触发器、生成、存档、历史和渲染只按 `eventId + actId`
   查询模板，没有分集特判。复用既有角色与场景时，新增一集只需新增幕定义、该集 `index.ts`，再在注册清单增加一项。
-- 幕可通过 `presentation.cgShots` 在指定 `sceneId` 的零基页序号后声明一组派生 CG；同一幕可登记多组不同触发点，每组
+- 幕可通过 `presentation.cgShots` 声明一组派生 CG，并用 `trigger.kind` 选择在指定 `sceneId` 的零基页序号前
+  (`before-scene-beat`) 或后 (`after-scene-beat`) 打开；同一幕可登记多组不同触发点，每组
   `frames[]` 可登记多帧并分别保存稳定帧 ID、资源、替代文本、裁切和可选 `camera`。`camera` 使用原图坐标系的
   `focusXPercent / focusYPercent` 与
-  `zoom`，因此同一安全原图可以复用为不同构图，而不需要复制素材。点击正文页先打开不含对话框、姓名牌和控制条的全屏 CG，组内点击以 260ms 交叉淡化逐帧前进，只有最后一帧再次点击才执行 420ms 淡出并复用原有翻页动作进入下一页。CG 组和帧游标只用组件本地状态，不增加存档页或结算路径。第一集第二幕当前在“逃脱成功！”后把
-  `002.jpg` 顶部安全区域依次呈现为贴脸与稍拉远两帧；`001.png` 不进入运行时。
+  `zoom`，因此同一原图可以复用为不同构图，而不需要复制素材。点击正文页先打开不含对话框、姓名牌和控制条的全屏 CG，组内点击以 260ms 交叉淡化逐帧前进，只有最后一帧再次点击才执行 420ms 淡出并复用原有翻页动作进入下一页。CG 组和帧游标只用组件本地状态，不增加存档页或结算路径。AI 提示只收到场景页边界，不收到资源和转场命令；第一集第二幕使用“首个 `scene=home` 正文页之前”的宽松边界，因而浴室段可以自然增减正文页，只要美柑出现所开启的下一情节点从 `home` 开始，CG 就会在她出现前播放。具体帧素材与运镜仍完全由第二幕本地配置负责。
 - `data/lore-books/tolove-tv-episode-02-act01.txt`、`act02.txt`、`act03.txt`
   是第二集三幕恢复源，不进入 bundle。第二集运行时按 `order 152/153/154` 读取真实 Tavern 条目；人物条目按
   `order 100/101/102` 读取。第一幕会选择美柑和春菜人物 lore，但本地 fallback 画面不能证明真实 World Info 扫描已经命中。
@@ -170,10 +170,10 @@
 | `data/skills.ts`                           | 127 项特技定义与六分类                                                                                 | 公开原作资料                                 | 技能静态表                           | 玩家进度                            |
 | `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store                                                          | 技能静态表、日期、已结算行动                 | 本地技能进度                         | 应用技能效果                        |
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉                                                                    | `skilllogic`、当前日期                       | 学习/实践提交意图                    | 重算前置或结算效果                  |
-| `services/storyGenerationPrompt.ts`        | 世界书幕选择、受控 GAL 演出格式与三项 AI 候选输出协议                                                  | lore 小节、场景/立绘可用值、选择问题         | 可复用生成契约                       | 重述具体剧情                        |
+| `services/storyGenerationPrompt.ts`        | 世界书幕选择、受控 GAL 演出格式、宽松 CG 场景边界提示与三项 AI 候选输出协议                             | lore 小节、场景/立绘/CG 边界、选择问题       | 可复用生成契约                       | 重述具体剧情或暴露 CG 素材          |
 | `services/playerPersona.ts`                | 版本化玩家资料序列化、危险结构转义、签名、Persona 覆盖/兜底计划和历史签名校验                          | 冻结的 v4 `PlayerProfile`、当前预设          | Persona 描述覆盖与一次性 system 注入 | 切换或写入真实酒馆 Persona          |
 | `services/storyGenerationMutex.ts`         | 保证剧情生成与一次性世界书钩子单请求互斥                                                               | generation ID、异步操作                      | 互斥结果与 `finally` 清理            | 取消宿主请求                        |
-| `services/storyGenerationContext.ts`       | 生成请求的提示/跨集历史窗口与玩家资料签名的确定性投影                                                  | 幕定义、冻结 PlayerProfile、规范楼层与原文   | `userInput`、资料块、6 条历史、ID    | 改写游戏状态或世界书                |
+| `services/storyGenerationContext.ts`       | 生成请求的提示/CG 边界/跨集历史窗口与玩家资料签名的确定性投影                                          | 幕定义、冻结 PlayerProfile、规范楼层与原文   | `userInput`、资料块、6 条历史、ID    | 改写游戏状态或世界书                |
 | `services/tavernStoryGeneration.ts`        | 冻结玩家身份、覆盖 Persona、屏蔽 Persona Lore、生成并严格解析正文和三项候选                            | 幕定义、PlayerProfile、消息、世界书资料      | 带身份签名的 `GalStoryAct` 楼层      | 修改 Persona/预设/世界书保存态      |
 | `services/localContextPreview.ts`          | 本地快照、原文、当前生成与有效玩家 Persona 投影的只读汇总                                              | Game/Card/Player/Skill store、messagesave    | 上下文与 Persona 预览模型            | 写回状态或触发生成                  |
 | `memory/storyTimeline.ts`                  | 跨集规范时间线、最近 6 条与更旧完整消息对选择                                                          | 主线档案、messagesave、生产剧集注册表        | 楼层和消息只读投影                   | 写档或改 active floor               |
@@ -200,7 +200,7 @@
 | `GalMainStory/portraitRules.ts`            | 解析场景与角色唯一绑定的立绘                                                                           | 当前幕场景立绘规则                           | 必选立绘 ID 或无绑定                 | 选择剧情镜头                        |
 | `GalMainStory/storyTextExtraction.ts`      | 从模型标签输出中结构化抽取正文                                                                         | Tavern Assistant 原文                        | 受支持容器内的可播放文本             | 校验逐行演出字段                    |
 | `GalMainStory/storyPresentation.ts`        | 将 AI 正文与可选演出字段归一为合法逐页 cue                                                             | 标签正文、当前幕素材表与立绘绑定             | 正文与代码补全的演出 cue             | 改写剧情语义或角色资源              |
-| `GalMainStory/storyCg.ts`                  | 校验多触发组/多帧 CG 配置，按场景内零基页序号解析组并提供安全帧游标                                    | `presentation.cgShots`、已接受正文 cue       | 当前页后的 CG 组、帧或空             | 猜测台词语义、集数分支或状态结算    |
+| `GalMainStory/storyCg.ts`                  | 校验多触发组/多帧 CG 配置，按场景内零基页序号的前/后边界解析组并提供帧游标                              | `presentation.cgShots`、已接受正文 cue       | 当前页后的 CG 组、帧或空             | 猜测台词语义、集数分支或状态结算    |
 | `GalMainStory/GalCgPage.tsx`               | 预载组内帧，只暴露当前帧并渲染交叉淡化、进入和退出状态                                                 | 已解析 CG 组、帧游标、资源、裁切和转场       | 无对话框的多帧全屏 CG                | 翻页、存档或剧情结算                |
 | `GalMainStory/GalMainStory.tsx`            | 加载/错误/保底、历史回放、GAL 播放及派生 CG 组的本地帧游标/淡出编排                                    | Store、演出 cue、场景/角色 manifest、CG 定义 | GAL 画面、CG 逐帧显隐与翻页意图      | 选择数据和持久化                    |
 | `GalMainStory/GalChoicePanel.tsx`          | 三项生成候选、第四项自由输入入口及独立同框输入页                                                       | 当前幕候选、已存选择、提交回调               | 选择 UI 与玩家意图                   | 生成候选或推进剧情                  |

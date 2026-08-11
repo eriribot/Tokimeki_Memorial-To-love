@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "id": "013_01_01-d",
+  "characterId": "ryoko",
+  "displayName": "御门老师",
+  "status": "calibration-only-awaiting-human-review",
+  "promotionAllowed": false,
+  "runtimeRegistration": "not-connected",
+  "formatProfile": "legacy-compatible",
+  "canvas": {
+    "width": 1024,
+    "height": 1024
+  },
+  "files": {
+    "body": "/artsource/ryoko/013_01_01_a%20%234865.png",
+    "mask": "/artsource/ryoko/013_01_01_a.png",
+    "eyes": "/artsource/ryoko/013_01_01_d_eye.png",
+    "mouth": "/artsource/ryoko/013_01_01_d_mouth.png"
+  },
+  "expectedDimensions": {
+    "body": {
+      "width": 1024,
+      "height": 1024
+    },
+    "mask": {
+      "width": 512,
+      "height": 512
+    },
+    "eyes": {
+      "width": 256,
+      "height": 512
+    },
+    "mouth": {
+      "width": 256,
+      "height": 256
+    }
+  },
+  "regions": {
+    "eyes": {
+      "x": 394,
+      "y": 208,
+      "width": 230,
+      "height": 131,
+      "feather": 0
+    },
+    "mouth": {
+      "x": 394,
+      "y": 337,
+      "width": 230,
+      "height": 57,
+      "feather": 0
+    }
+  },
+  "frameCount": {
+    "eyes": 3,
+    "mouth": 3
+  },
+  "defaultExpressionId": "d",
+  "expression": {
+    "id": "d",
+    "eyes": "/artsource/ryoko/013_01_01_d_eye.png",
+    "mouth": "/artsource/ryoko/013_01_01_d_mouth.png",
+    "blinking": true,
+    "blinkingReview": "pending-human-semantic-review"
+  },
+  "expressions": {
+    "a": {
+      "id": "a",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_a_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_a_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "b": {
+      "id": "b",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_b_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_b_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "c": {
+      "id": "c",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_c_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_c_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "d": {
+      "id": "d",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_d_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_d_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "e": {
+      "id": "e",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_e_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_e_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    },
+    "f": {
+      "id": "f",
+      "status": "complete",
+      "eyes": "/artsource/ryoko/013_01_01_f_eye.png",
+      "mouth": "/artsource/ryoko/013_01_01_f_mouth.png",
+      "missing": [],
+      "blinking": "pending-human-semantic-review",
+      "promotionAllowed": false
+    }
+  },
+  "calibrationNotes": {
+    "layerOrder": [
+      "body",
+      "eyes",
+      "mouth",
+      "full-composite-alpha-mask"
+    ],
+    "galStage": "not-authoritative-and-not-part-of-rig",
+    "incompleteExpressions": "diagnostic-only"
+  }
+}
