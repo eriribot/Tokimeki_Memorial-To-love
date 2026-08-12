@@ -696,7 +696,7 @@ function ContextTab({
                 <span>WORLD INFO ROUTING</span>
                 <h3>本幕选择的引用</h3>
               </div>
-              <small>剧情生成会屏蔽 Persona Lore；其余来源与本幕引用保留</small>
+              <small>剧情生成期间会接管宿主用户名并屏蔽外部 Persona Description 与 Persona Lore</small>
             </div>
             <ul className="context-preview__reference-list">
               {generation.loreReferences.map(reference => (

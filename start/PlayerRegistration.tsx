@@ -14,6 +14,7 @@ import {
 } from '../stores/playerStore';
 import type { PlayerBloodType, PlayerRegistrationInput } from '../types';
 import { resolveAssetPath } from '../utils/assetPath';
+import VelvetRoom from '../VelvetRoom/VelvetRoom';
 import './PlayerRegistration.css';
 
 interface PlayerRegistrationProps {
@@ -21,8 +22,16 @@ interface PlayerRegistrationProps {
 }
 
 type RegistrationStep =
-  'intro' | 'event-cg' | 'name' | 'birthday' | 'blood-type' | 'appearance' | 'personality' | 'review';
-type RegistrationFormStep = Exclude<RegistrationStep, 'intro' | 'event-cg'>;
+  | 'velvet-room'
+  | 'intro'
+  | 'event-cg'
+  | 'name'
+  | 'birthday'
+  | 'blood-type'
+  | 'appearance'
+  | 'personality'
+  | 'review';
+type RegistrationFormStep = Exclude<RegistrationStep, 'velvet-room' | 'intro' | 'event-cg'>;
 
 const INTRO_LINES = [
   { speaker: '？？？', text: '……喂，起床啦。还要睡到什么时候？' },
@@ -71,7 +80,7 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const familyNameRef = useRef<HTMLInputElement>(null);
   const appearanceRef = useRef<HTMLTextAreaElement>(null);
   const personalityRef = useRef<HTMLTextAreaElement>(null);
-  const [step, setStep] = useState<RegistrationStep>('intro');
+  const [step, setStep] = useState<RegistrationStep>('velvet-room');
   const [introIndex, setIntroIndex] = useState(0);
   const [familyName, setFamilyName] = useState('');
   const [givenName, setGivenName] = useState('');
@@ -80,6 +89,8 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const [bloodType, setBloodType] = useState<PlayerBloodType>('unknown');
   const [appearance, setAppearance] = useState('');
   const [personality, setPersonality] = useState('');
+  // 天鹅绒房间是登记的第一步;离开/采用结果后回到哪一步由这里记录。
+  const [velvetRoomReturnStep, setVelvetRoomReturnStep] = useState<RegistrationStep>('intro');
   const [error, setError] = useState<string | null>(null);
   const birthdayDayMaximum = getBirthdayDayMaximum(birthdayMonth);
   const dayOptions = useMemo(
@@ -89,7 +100,8 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const normalizedFamilyName = normalizePlayerNamePart(familyName);
   const normalizedGivenName = normalizePlayerNamePart(givenName);
   const displayName = `${normalizedFamilyName}${normalizedGivenName}`;
-  const currentStepIndex = step === 'intro' || step === 'event-cg' ? -1 : REGISTRATION_STEPS.indexOf(step);
+  const currentStepIndex =
+    step === 'velvet-room' || step === 'intro' || step === 'event-cg' ? -1 : REGISTRATION_STEPS.indexOf(step);
 
   useEffect(() => {
     if (birthdayDay > birthdayDayMaximum) setBirthdayDay(birthdayDayMaximum);
@@ -111,6 +123,11 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   };
 
   const advanceEventCg = () => setStep('name');
+
+  const openVelvetRoom = () => {
+    setVelvetRoomReturnStep(step === 'velvet-room' ? 'intro' : step);
+    setStep('velvet-room');
+  };
 
   const registrationInput = (): PlayerRegistrationInput => ({
     familyName,
@@ -193,7 +210,17 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
 
   return (
     <main className="player-registration" data-registration-step={step}>
-      {step === 'intro' ? (
+      {step === 'velvet-room' ? (
+        <VelvetRoom
+          onApply={({ appearance: velvetAppearance, personality: velvetPersonality }) => {
+            setAppearance(velvetAppearance);
+            setPersonality(velvetPersonality);
+            setStep(velvetRoomReturnStep);
+          }}
+          onClose={() => setStep(velvetRoomReturnStep)}
+          closeLabel={velvetRoomReturnStep === 'intro' ? '跳过画像，去见梨子' : '返回登记'}
+        />
+      ) : step === 'intro' ? (
         <section
           className="gal-main-story player-registration__opening"
           role="dialog"
@@ -237,6 +264,12 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                 <span className="gal-main-story__progress">
                   {introIndex + 1} / {INTRO_LINES.length}
                 </span>
+                <button type="button" className="player-registration__velvet-room-entry" onClick={openVelvetRoom}>
+                  天鹅绒房间
+                </button>
+                <button type="button" className="player-registration__skip-intro" onClick={() => setStep('name')}>
+                  跳过开场，直接登记
+                </button>
                 <button
                   ref={advanceButtonRef}
                   type="button"
@@ -445,6 +478,9 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                     必填，NFKC 规范化后不超过 {PLAYER_PROFILE_TEXT_MAX_LENGTH} 个 Unicode 字符；当前{' '}
                     {Array.from(appearance.normalize('NFKC')).length} 个。
                   </p>
+                  <button type="button" className="player-registration__velvet-room-entry" onClick={openVelvetRoom}>
+                    前往天鹅绒房间，让赛菲替你画像
+                  </button>
                 </fieldset>
               )}
 

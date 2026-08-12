@@ -36,6 +36,7 @@ import {
   createCurrentPlayerPersonaPromptPlan,
   createPlayerProfileSignature,
   PLAYER_PERSONA_INJECTION_VERSION,
+  withPlayerPersonaHostTakeover,
   type StoredPlayerPersonaCarrier,
 } from './playerPersona';
 import { createStoryGenerationContextProjection } from './storyGenerationContext';
@@ -423,23 +424,25 @@ export async function generateStoryAct(request: GenerateStoryActRequest): Promis
     applyUserAddressBindings(selectedLores, loreSelections, playerProfile, affectionByCharacterId);
     let result: Awaited<ReturnType<typeof api.generate>>;
     try {
-      result = await withStoryLoresForNextWorldInfoScan(selectedLores, { excludePersonaLore: true }, () =>
-        api.generate({
-          preset_name: 'in_use',
-          generation_id: frozenRequest.floorId,
-          user_input: userInput,
-          max_chat_history: generationContext.maxChatHistory,
-          should_stream: false,
-          should_silence: false,
-          overrides: {
-            persona_description: personaPlan.personaDescriptionOverride,
-            chat_history: {
-              with_depth_entries: true,
-              prompts: generationContext.chatHistory,
+      result = await withPlayerPersonaHostTakeover(playerProfile, () =>
+        withStoryLoresForNextWorldInfoScan(selectedLores, { excludePersonaLore: true }, () =>
+          api.generate({
+            preset_name: 'in_use',
+            generation_id: frozenRequest.floorId,
+            user_input: userInput,
+            max_chat_history: generationContext.maxChatHistory,
+            should_stream: false,
+            should_silence: false,
+            overrides: {
+              persona_description: personaPlan.personaDescriptionOverride,
+              chat_history: {
+                with_depth_entries: true,
+                prompts: generationContext.chatHistory,
+              },
             },
-          },
-          injects: personaPlan.injections,
-        }),
+            injects: personaPlan.injections,
+          }),
+        ),
       );
     } catch (error) {
       throw new StoryGenerationRequestError(getErrorMessage(error), personaPlan.carrier, { cause: error });

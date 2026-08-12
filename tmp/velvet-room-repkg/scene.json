@@ -1,0 +1,119 @@
+{
+	"camera" : 
+	{
+		"center" : "0.00000 0.00000 -1.00000",
+		"eye" : "0.00000 0.00000 0.00000",
+		"up" : "0.00000 1.00000 0.00000"
+	},
+	"general" : 
+	{
+		"ambientcolor" : "0.30000 0.30000 0.30000",
+		"bloom" : false,
+		"bloomhdrfeather" : 0.10000000149011612,
+		"bloomhdrscatter" : 1.6189999580383301,
+		"bloomhdrstrength" : 2.0,
+		"bloomhdrthreshold" : 1.0,
+		"bloomstrength" : 2.0,
+		"bloomthreshold" : 0.64999997615814209,
+		"camerafade" : true,
+		"cameraparallax" : false,
+		"cameraparallaxamount" : 0.5,
+		"cameraparallaxdelay" : 0.10000000149011612,
+		"cameraparallaxmouseinfluence" : 0.0,
+		"camerapreview" : true,
+		"camerashake" : false,
+		"camerashakeamplitude" : 0.5,
+		"camerashakeroughness" : 1.0,
+		"camerashakespeed" : 3.0,
+		"clearcolor" : "0.70000 0.70000 0.70000",
+		"clearenabled" : true,
+		"farz" : 10000.0,
+		"fov" : 50.0,
+		"hdr" : false,
+		"nearz" : 0.0099999997764825821,
+		"orthogonalprojection" : 
+		{
+			"height" : 1533,
+			"width" : 2000
+		},
+		"skylightcolor" : "0.30000 0.30000 0.30000",
+		"zoom" : 1.0
+	},
+	"objects" : 
+	[
+		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"angles" : "0.00000 0.00000 0.00000",
+			"brightness" : 1.0,
+			"color" : "1.00000 1.00000 1.00000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 13,
+			"image" : "models/Velvet.Room.full.325280.json",
+			"ledsource" : false,
+			"locktransforms" : true,
+			"name" : "Velvet.Room.full.325280",
+			"origin" : "1000.00000 766.50000 0.00000",
+			"parallaxDepth" : "1.00000 1.00000",
+			"perspective" : false,
+			"scale" : "1.00000 1.00000 1.00000",
+			"size" : "2000.00000 1533.00000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 -0.00000 0.60247",
+			"id" : 27,
+			"instanceoverride" : null,
+			"locktransforms" : false,
+			"name" : "Light shafts 0",
+			"origin" : "639.64398 642.55457 0.00000",
+			"parallaxDepth" : "1.00000 1.00000",
+			"particle" : "particles/presets/light_shafts_0.json",
+			"scale" : "1.50727 1.50727 1.50727",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 0.00000 -1.03739",
+			"id" : 33,
+			"instanceoverride" : null,
+			"locktransforms" : false,
+			"name" : "Dust motes",
+			"origin" : "456.90619 777.87073 0.00000",
+			"parallaxDepth" : "1.00000 1.00000",
+			"particle" : "particles/presets/dust_motes_0.json",
+			"scale" : "0.98993 0.90606 0.90606",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 0.00000 -0.43273",
+			"id" : 38,
+			"instanceoverride" : null,
+			"locktransforms" : false,
+			"name" : "Light shafts 2",
+			"origin" : "1492.68457 738.03302 0.00000",
+			"parallaxDepth" : "1.00000 1.00000",
+			"particle" : "particles/presets/light_shafts_2.json",
+			"scale" : "0.41758 0.41758 0.41758",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 0.00000 0.00000",
+			"id" : 46,
+			"instanceoverride" : 
+			{
+				"colorn" : "0.50980 0.76863 0.94902",
+				"id" : 47
+			},
+			"locktransforms" : false,
+			"name" : "new_particle_system",
+			"origin" : "1033.50330 620.61664 0.00000",
+			"parallaxDepth" : "1.00000 1.00000",
+			"particle" : "particles/new_particle_system.json",
+			"scale" : "1.20667 1.20667 1.20667",
+			"visible" : true
+		}
+	],
+	"version" : 1
+}

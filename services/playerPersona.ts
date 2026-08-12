@@ -21,7 +21,16 @@ export interface PlayerPersonaPromptPlan {
   personaDescriptionOverride: string;
   authorityGuard: string;
   injections: PlayerPersonaInjectionPrompt[];
-  maskedSources: readonly ['active-persona-description', 'persona-lore'];
+  maskedSources: readonly ['active-persona-name', 'active-persona-description', 'persona-lore'];
+}
+
+export interface PlayerPersonaHostAdapter {
+  getCurrentPersonaId: () => string | null;
+  getExpandedUserName: () => string;
+  getPersonaDescription: () => string;
+  setPersonaDescription: (value: string) => void;
+  setTemporaryUserName: (value: string) => Promise<void>;
+  restorePersona: (personaId: string) => Promise<void>;
 }
 
 function escapeJsonForTaggedBlock(value: unknown): string {
@@ -81,7 +90,7 @@ export function buildPlayerIdentityAuthorityGuard(profile: PlayerProfile, signat
     schema: `tolove-player-identity-guard/v${PLAYER_PERSONA_INJECTION_VERSION}`,
     playerProfileSignature: signature,
     authoritativeDisplayName: profile.displayName,
-    rule: '酒馆预设展开的用户名称只视为传输别名；本次剧情主角必须以 authoritativeDisplayName 和对应存档资料为准。',
+    rule: '本次生成的酒馆用户身份已由游戏存档接管；主角必须以 authoritativeDisplayName 和对应存档资料为准。',
   };
   return `<tolove_player_identity_guard version="${PLAYER_PERSONA_INJECTION_VERSION}">\n${escapeJsonForTaggedBlock(payload)}\n</tolove_player_identity_guard>`;
 }
@@ -125,7 +134,7 @@ export function createPlayerPersonaPromptPlan(
         should_scan: false,
       },
     ],
-    maskedSources: ['active-persona-description', 'persona-lore'],
+    maskedSources: ['active-persona-name', 'active-persona-description', 'persona-lore'],
   };
 }
 
@@ -139,4 +148,124 @@ export function createCurrentPlayerPersonaPromptPlan(profile: PlayerProfile): Pl
     console.warn('[ToLove Persona] 无法读取当前预设的 Persona Description 槽，将使用一次性 depth-0 注入。', error);
   }
   return createPlayerPersonaPromptPlan(profile, personaDescriptionPromptEnabled);
+}
+
+function quoteSlashArgument(value: string): string {
+  return JSON.stringify(value);
+}
+
+function createCurrentPlayerPersonaHostAdapter(): PlayerPersonaHostAdapter {
+  const helper = typeof window === 'undefined' ? undefined : window.TavernHelper;
+  if (
+    !helper ||
+    typeof helper.getCurrentPersonaId !== 'function' ||
+    typeof helper.substitudeMacros !== 'function' ||
+    typeof helper.triggerSlash !== 'function'
+  ) {
+    throw new Error('当前 Tavern Helper 不支持请求级玩家身份接管。');
+  }
+  if (typeof SillyTavern === 'undefined' || !isRecord(SillyTavern.powerUserSettings)) {
+    throw new Error('当前环境无法读取酒馆用户设定状态。');
+  }
+
+  const powerUserSettings = SillyTavern.powerUserSettings;
+  return {
+    getCurrentPersonaId: () => helper.getCurrentPersonaId(),
+    getExpandedUserName: () => helper.substitudeMacros('{{user}}'),
+    getPersonaDescription: () => {
+      const value = powerUserSettings.persona_description;
+      if (typeof value !== 'string') throw new Error('酒馆当前 Persona Description 格式无效。');
+      return value;
+    },
+    setPersonaDescription: value => {
+      powerUserSettings.persona_description = value;
+    },
+    setTemporaryUserName: async value => {
+      await helper.triggerSlash(`/persona-set mode=temp ${quoteSlashArgument(value)}`);
+    },
+    restorePersona: async personaId => {
+      await helper.triggerSlash(`/persona-set mode=lookup ${quoteSlashArgument(personaId)}`);
+    },
+  };
+}
+
+/**
+ * Temporarily makes the frozen save profile the host User authority for one
+ * generation request. The selected Persona record is never edited; its live
+ * name and description are restored on every exit path.
+ */
+export async function withPlayerPersonaHostTakeover<T>(
+  profile: Readonly<PlayerProfile>,
+  operation: () => Promise<T>,
+  adapter: PlayerPersonaHostAdapter = createCurrentPlayerPersonaHostAdapter(),
+): Promise<T> {
+  const originalPersonaId = adapter.getCurrentPersonaId();
+  if (!originalPersonaId) {
+    throw new Error('酒馆没有可恢复的当前 Persona；请先选择任意用户设定后重试。');
+  }
+
+  const originalUserName = adapter.getExpandedUserName();
+  const originalPersonaDescription = adapter.getPersonaDescription();
+  let tookOverUserName = false;
+  let verifiedUserNameTakeover = false;
+  let maskedPersonaDescription = false;
+  let primaryError: unknown;
+  let hasPrimaryError = false;
+  let result: T | undefined;
+
+  try {
+    tookOverUserName = true;
+    await adapter.setTemporaryUserName(profile.displayName);
+    if (adapter.getCurrentPersonaId() !== originalPersonaId) {
+      throw new Error('酒馆临时用户名接管意外切换了 Persona，已拒绝生成。');
+    }
+    if (adapter.getExpandedUserName() !== profile.displayName) {
+      throw new Error('酒馆预设的 {{user}} 没有切换为当前存档姓名，已拒绝生成。');
+    }
+    verifiedUserNameTakeover = true;
+
+    adapter.setPersonaDescription('');
+    maskedPersonaDescription = true;
+    result = await operation();
+  } catch (error) {
+    primaryError = error;
+    hasPrimaryError = true;
+  }
+
+  let restoreError: unknown;
+  let hasRestoreError = false;
+  try {
+    const currentPersonaId = adapter.getCurrentPersonaId();
+    if (!verifiedUserNameTakeover && tookOverUserName) {
+      const currentUserName = adapter.getExpandedUserName();
+      if (currentPersonaId !== originalPersonaId || currentUserName !== originalUserName) {
+        await adapter.restorePersona(originalPersonaId);
+        if (adapter.getCurrentPersonaId() !== originalPersonaId || adapter.getExpandedUserName() !== originalUserName) {
+          throw new Error('酒馆原 Persona 没有完整恢复。');
+        }
+      }
+    } else if (currentPersonaId === originalPersonaId) {
+      if (maskedPersonaDescription && adapter.getPersonaDescription() === '') {
+        adapter.setPersonaDescription(originalPersonaDescription);
+      }
+      if (tookOverUserName && adapter.getExpandedUserName() === profile.displayName) {
+        await adapter.restorePersona(originalPersonaId);
+        if (adapter.getCurrentPersonaId() !== originalPersonaId || adapter.getExpandedUserName() !== originalUserName) {
+          throw new Error('酒馆原 Persona 没有完整恢复。');
+        }
+      }
+    }
+  } catch (error) {
+    restoreError = error;
+    hasRestoreError = true;
+  }
+
+  if (hasRestoreError) {
+    const message = hasPrimaryError
+      ? '剧情生成失败，且酒馆原 Persona 恢复失败；请在用户设定管理中重新选择原 Persona。'
+      : '酒馆原 Persona 恢复失败；请在用户设定管理中重新选择原 Persona。';
+    throw new Error(message, { cause: restoreError });
+  }
+  if (hasPrimaryError) throw primaryError;
+  return result as T;
 }

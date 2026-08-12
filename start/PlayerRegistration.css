@@ -883,3 +883,48 @@
     animation: none;
   }
 }
+
+/* 天鹅绒房间入口:深蓝丝绒风格,与登记表的浅色纸面刻意区分。 */
+.player-registration__velvet-room-entry {
+  display: block;
+  margin-top: clamp(6px, 1cqh, 12px);
+  padding: 5px clamp(14px, 2cqw, 24px);
+  min-height: clamp(30px, 4.5cqh, 42px);
+  border: clamp(2px, 0.2cqw, 3px) solid rgb(178 196 255 / 70%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22336e 0%, #131f49 100%);
+  color: #e8ecff;
+  font: inherit;
+  font-size: clamp(10px, 1.2cqw, 15px);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgb(10 18 54 / 45%);
+}
+
+.player-registration__velvet-room-entry:hover,
+.player-registration__velvet-room-entry:focus-visible {
+  outline: 3px solid rgb(120 150 255 / 78%);
+  outline-offset: 2px;
+  filter: brightness(1.12);
+}
+
+/* 开场步的跳过按钮:低调的描边样式,不抢翻页箭头的主操作地位。 */
+.player-registration__skip-intro {
+  padding: 5px clamp(12px, 1.6cqw, 20px);
+  min-height: clamp(28px, 4cqh, 38px);
+  border: clamp(1px, 0.16cqw, 2px) solid rgb(255 255 255 / 80%);
+  border-radius: 999px;
+  background: rgb(23 32 62 / 55%);
+  color: #fff;
+  font: inherit;
+  font-size: clamp(10px, 1.1cqw, 14px);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.player-registration__skip-intro:hover,
+.player-registration__skip-intro:focus-visible {
+  outline: 3px solid rgb(235 80 162 / 78%);
+  outline-offset: 2px;
+  filter: brightness(1.1);
+}

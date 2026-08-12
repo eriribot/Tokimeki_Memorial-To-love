@@ -60,6 +60,11 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
 - `save/` and `message/`: snapshots and the game-owned message mirror.
 - `start/PlayerRegistration.tsx`: the deterministic Riko opening and player-profile draft UI. It may commit one
   validated registration through `services/gameSession.ts`, but it does not write story, card, worldbook, or host state.
+- `VelvetRoom/`: the Sephie-hosted velvet-room personality interview. It is the first step of a new registration —
+  players may skip it straight to the Riko opening. Its multi-turn history lives only in component
+  memory through silent `TavernHelper.generate` calls with overridden chat history — no host floors, no snapshot, no
+  worldbook. The distilled internal prompt (from the Izumi 用户画像模式3 preset) is bundled as data; the preset JSON
+  itself is never imported. Only its `appearance`/`personality` result may be handed back to the registration draft.
 
 Scene switching uses `currentSceneId`; there is no routing library. Three periods exist: morning, afterSchool, evening.
 

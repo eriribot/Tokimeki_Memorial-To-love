@@ -1,0 +1,468 @@
+.velvet-room {
+  --velvet-accent: #83cfff;
+  --velvet-accent-strong: #3289db;
+  --velvet-ink: #111a36;
+  --velvet-panel: #07102e;
+  cursor: default;
+  background: #020616;
+}
+
+.velvet-room > .gal-main-story__background {
+  object-fit: cover;
+  object-position: center;
+  filter: none;
+}
+
+.velvet-room > .gal-main-story__shade {
+  background: transparent;
+}
+
+.velvet-room .gal-main-story__act-label.is-blue {
+  color: #225e9b;
+}
+
+.velvet-room .gal-main-story__icon-button.is-primary {
+  background: var(--velvet-accent-strong);
+}
+
+.velvet-room__ambience {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sephie-portrait {
+  position: absolute;
+  top: 1.5%;
+  left: 50%;
+  z-index: 2;
+  width: auto;
+  height: 82%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sephie-portrait__composite {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center bottom;
+  animation: sephie-portrait-breathe 4.2s ease-in-out infinite;
+}
+
+.sephie-portrait__body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.sephie-portrait__face-window {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 13%, #000 87%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 13%, #000 87%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.sephie-portrait__face-mask {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.sephie-portrait__face-mask img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 300%;
+  max-width: none;
+  max-height: none;
+}
+
+.sephie-portrait__eyes img.is-blinking {
+  animation: sephie-eye-sheet 4.2s steps(1, end) infinite;
+}
+
+.sephie-portrait__mouth img.is-speaking {
+  animation: sephie-mouth-sheet 420ms steps(1, end) 4;
+}
+
+.velvet-room__controls {
+  display: flex;
+  align-items: center;
+}
+
+.velvet-room__answer-button {
+  border-color: #d3ebff;
+  background: #176cb3;
+}
+
+.velvet-room__thinking {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  width: min(72%, 460px);
+  padding: 18px 22px;
+  gap: 9px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #a4d2ff;
+  border-radius: 6px;
+  background: #050c27;
+  color: #eef7ff;
+  text-align: center;
+  box-shadow: 0 16px 42px #000316;
+}
+
+.velvet-room__thinking .gal-main-story__scanner span {
+  background: var(--velvet-accent);
+}
+
+.velvet-room__composer {
+  position: absolute;
+  right: auto;
+  bottom: 2.5%;
+  left: 50%;
+  z-index: 7;
+  display: grid;
+  width: 95%;
+  min-height: min(29%, 210px);
+  padding: 12px 16px 14px;
+  gap: 9px;
+  transform: translateX(-50%);
+  border: 2px solid #58b4ed;
+  border-radius: 4px;
+  background: #071638;
+  box-shadow: 0 -4px 0 #02091d;
+  box-sizing: border-box;
+}
+
+.velvet-room__composer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #eaf6ff;
+}
+
+.velvet-room__composer-close {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid #9ed9ff;
+  border-radius: 50%;
+  background: #0c3768;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.velvet-room__input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.velvet-room__input-row textarea {
+  width: 100%;
+  min-height: 72px;
+  max-height: 128px;
+  resize: vertical;
+  padding: 9px 11px;
+  box-sizing: border-box;
+  border: 2px solid #75bde8;
+  border-radius: 2px;
+  outline: 0;
+  background: #f4f6f8;
+  color: var(--velvet-ink);
+  font: inherit;
+  font-size: clamp(12px, 1.35cqi, 17px);
+  line-height: 1.45;
+}
+
+.velvet-room__input-row textarea:focus {
+  border-color: #6cc7ff;
+  box-shadow: 0 0 0 3px rgb(89 181 255 / 28%);
+}
+
+.velvet-room__input-row button,
+.velvet-room__result footer button {
+  min-width: 76px;
+  padding: 8px 15px;
+  border: 1px solid #c6e4ff;
+  border-radius: 3px;
+  background: #225a9c;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.velvet-room__input-row button:hover:not(:disabled),
+.velvet-room__input-row button:focus-visible,
+.velvet-room__result footer button:hover,
+.velvet-room__result footer button:focus-visible {
+  outline: 2px solid #bce7ff;
+  outline-offset: 2px;
+  filter: brightness(1.12);
+}
+
+.velvet-room__input-row button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.velvet-room__error {
+  margin: 0;
+  color: #ffc1c7;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.velvet-room__result {
+  position: absolute;
+  inset: 6% 9%;
+  z-index: 12;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  padding: clamp(16px, 2.4cqw, 30px);
+  gap: 12px;
+  overflow: hidden;
+  border: 2px solid #a4d2ff;
+  border-radius: 4px;
+  background: var(--velvet-panel);
+  color: #ecf6ff;
+  box-shadow: 0 22px 64px #000214;
+  cursor: default;
+}
+
+.velvet-room__result > header,
+.velvet-room__result > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.velvet-room__result > header p,
+.velvet-room__result > header h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.velvet-room__result > header p {
+  color: #8fcfff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.velvet-room__result > header h2 {
+  margin-top: 3px;
+  font-size: clamp(20px, 2.5cqi, 30px);
+}
+
+.velvet-room__result > header .gal-main-story__icon-button {
+  position: static;
+  flex: none;
+}
+
+.velvet-room__report {
+  min-height: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+  border: 1px solid #315982;
+  background: #0d2145;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.velvet-room__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  gap: 10px;
+}
+
+.velvet-room__fields > div {
+  min-width: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--velvet-accent-strong);
+  background: #0d2145;
+}
+
+.velvet-room__fields dt {
+  color: #9dd5ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.velvet-room__fields dd {
+  margin: 4px 0 0;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.velvet-room__result > footer {
+  justify-content: flex-end;
+}
+
+.velvet-room__result footer button:not(.is-primary) {
+  background: #18345e;
+}
+
+@container player-registration (max-width: 760px) {
+  .sephie-portrait {
+    top: 3%;
+    width: auto;
+    height: 78%;
+  }
+
+  .velvet-room__composer {
+    right: auto;
+    bottom: 2%;
+    width: 96%;
+  }
+
+  .velvet-room__input-row textarea {
+    min-height: 48px;
+  }
+
+  .velvet-room__result {
+    inset: 4%;
+  }
+}
+
+@container player-registration (max-height: 430px) {
+  .sephie-portrait {
+    top: 1%;
+    width: auto;
+    height: 80%;
+  }
+
+  .velvet-room__composer {
+    right: auto;
+    bottom: 2%;
+    width: 96%;
+    min-height: 44%;
+    padding: 7px;
+  }
+
+  .velvet-room__input-row textarea {
+    min-height: 42px;
+    max-height: 72px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .velvet-room__result {
+    inset: 3% 7%;
+    padding: 12px;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .velvet-room__report,
+  .velvet-room__fields > div {
+    padding: 7px 9px;
+  }
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .sephie-portrait {
+    top: 8%;
+    width: 96%;
+    height: auto;
+  }
+
+  .velvet-room__composer {
+    right: auto;
+    bottom: 2%;
+    left: 50%;
+    width: 96%;
+  }
+
+  .velvet-room__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .velvet-room .gal-main-story__scanner span,
+  .sephie-portrait__composite,
+  .sephie-portrait__eyes img.is-blinking,
+  .sephie-portrait__mouth img.is-speaking {
+    animation: none;
+  }
+}
+
+@keyframes sephie-portrait-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  50% {
+    transform: translateY(-0.2%) scaleY(1.0025);
+  }
+}
+
+@keyframes sephie-eye-sheet {
+  0%,
+  91%,
+  100% {
+    top: 0;
+  }
+
+  93%,
+  97% {
+    top: -100%;
+  }
+
+  95% {
+    top: -200%;
+  }
+}
+
+@keyframes sephie-mouth-sheet {
+  0%,
+  100% {
+    top: 0;
+  }
+
+  25%,
+  75% {
+    top: -100%;
+  }
+
+  50% {
+    top: -200%;
+  }
+}
