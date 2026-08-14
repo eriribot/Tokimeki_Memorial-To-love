@@ -23,7 +23,8 @@
 - 原 PSP 日历资源中已经找到 `love_event1..3`、`holiday_01..20`、`birthday_player_01`、`school_01..04`、`festival` 与
   `sakura`
   等图标命名，但当前仍位于原始图集/ARK 中，尚未完成语义切片，也没有进入运行时。图标存在不代表约会或节假日功能已经接通。
-- 教室/图书馆场景、玩家属性、角色卡、好感、事件日志、开始菜单和存档槽。标题页“重新开始”先进入梨子主持的新生登记：确定性开场后依次登记姓、名、生日和血型，最终确认才提交玩家资料并进入游戏；确认前不建立可自动存档的游戏会话。
+- 教室/图书馆场景、玩家属性、角色卡、好感、事件日志、开始菜单和存档槽。标题页“重新开始”先进入赛菲的蓝色天鹅绒房间，并显示是否接受性格画像的同框“是 / 否”选择。“否”不调用模型，“是”进入由内置六阶段自适应提示词引导的画像访谈；两条路径之后都必须完整播放梨子的五页叫醒过场，再进入她递交入学登记表的事件 CG，开场不提供跳过按钮。之后由玩家依次填写姓名、生日、血型、外貌和性格并核对确认；赛菲只可预填性格，姓名、外貌及其他资料仍由玩家填写。梨子在叫醒对话中使用眼嘴动画，在登记表旁保持眨眼。只有最终“确认登记”才提交完整玩家资料、建立可自动存档的游戏会话并进入游戏。
+- 赛菲画像链独立于主线生成：运行时不读取 `Aiforpersonality/Izumi 用户画像模式3 (1).json`，也不采用酒馆当前启用的 preset。接受画像后，第一题及之后每一题都由 `TavernHelper.generateRaw()` 生成；未完成回合必须同时返回问题和恰好三个第一人称候选回答，问题、AI 选项和自由输入都显示在赛菲局部的 episode04 式蓝色选择窗中。调用按顺序提交内置 system prompt、仅存在于当前组件内存的多轮历史和玩家本轮回答；不写酒馆楼层、世界书或游戏存档。最终报告只在当前界面展示，回填登记草稿的字段只有通过本地合同校验的 `personality`。
 - 特技使用 127 项六分类有向无环前置图。初始没有已取得特技；根节点只是可学习。有效 AP 行动获得特技 EXP，当前学期窗口内花费 EXP 取得特技，再从已取得特技中最多选择 6 项实践并一次提交。第一次窗口为
   `2008-05-09`；旧学期不能在后来同日补交。驾照保持考试外部取得，技能效果尚未接入属性或行动结算。
 - 特技面板直接渲染在 `.map-section` 内。桌面使用同框详情栏，手机竖屏使用同框底部抽屉，手机横屏使用同框右侧抽屉；背景使用
@@ -151,8 +152,8 @@
 | `stores/gameStore.ts`                      | 行动、时段、日期与通用主线接口装配                                                                     | 玩家行动意图、主线模板触发结果               | AP、日期、事件节点                   | 分集或楼层实现                      |
 | `stores/mainStoryStore.ts`                 | 通用主线游标、生成态、楼层动作、AI/保底/自由输入选择和按 `timeCost` 完成结算                           | 模板查询、剧情楼层、Game store               | 主线状态与选择决定                   | 识别具体集数                        |
 | `stores/playerStore.ts`                    | 玩家原始数值、v4 `PlayerProfile` 规范化、`999/100` 上限、大学进路五阶段和六轴投影                      | 玩家登记、行动结算、严格快照恢复             | 玩家状态、固定身份与资料页派生值     | 新增文理/根性存档字段               |
-| `start/PlayerRegistration.tsx`             | 梨子确定性开场与姓名/生日/血型/外貌/性格本地草稿；最终一次性登记                                       | 玩家输入、`createPlayerProfile()`            | 不可编辑的登记提交意图               | 生成剧情或修改酒馆 Persona          |
-| `VelvetRoom/` | 天鹅绒房间:赛菲分层立绘、内存内多轮画像采访(静默生成、不写楼层)、结果块解析与登记表回填 | 玩家回答、蒸馏自 Izumi 预设的内部提示词、`TavernHelper.generate` | 一次性画像结果草稿 | 写楼层/存档/世界书、持久保存画像 |
+| `start/PlayerRegistration.tsx`             | 赛菲“是 / 否”入口、两分支强制汇入梨子五页叫醒过场和登记事件、姓名/生日/血型/外貌/性格本地草稿与最终一次性登记 | 玩家选择与输入、赛菲可选性格结果、`createPlayerProfile()` | 梨子动态过场、最终确认后的不可编辑登记提交意图 | 跳过首次梨子开场、确认前保存、让赛菲填写姓名/外貌或修改酒馆 Persona |
+| `VelvetRoom/`                              | 赛菲分层立绘、六阶段画像、AI 问题与三回答协议、局部蓝色选择/输入窗、内存历史、结果解析与性格回填         | 玩家回答、内置 system prompt、`TavernHelper.generateRaw` | 本地报告与一次性 `personality` 草稿 | 修改 episode04 共享选择器、读取 Izumi JSON、采用当前酒馆 preset、写楼层/存档/世界书 |
 | `stores/cardStore.ts`                      | 目标卡、位置与好感；仅保留程序化 JSON 卡初始化                                                         | 角色卡、已结算交谈                           | 角色地图状态                         | 文件/URL 导入、主线触发             |
 | `stores/mapStore.ts`                       | 彩南高中/彩南町地图定义与地点索引                                                                      | 当前地点 ID                                  | 地图背景和当前区域地点               | AP 与剧情结算                       |
 | `components/MapMenu.tsx`                   | 地图边缘护法、区域切换和菜单入口分发                                                                   | 当前地图、另一地图入口、菜单选择             | 切换地点或打开本地界面               | 消耗 AP、改写快照                   |
@@ -212,6 +213,7 @@
 | `GalMainStory/LayeredPortrait.tsx`         | body、mask、眼嘴图集和共享动画渲染                                                                     | rig、表情、当前发言状态                      | 分层立绘画面                         | 选择说话人或结算                    |
 | `save/snapshot.ts`                         | 严格 schema v4 快照、完整玩家资料与剧情楼层签名一致性                                                  | Game/Player/Card/Skill store、消息镜像       | 本地/宿主存档数据                    | v3 及更早迁移                       |
 | `savesolt/SaveSlotModal.tsx`               | 存档槽位读写、删除和状态提示                                                                           | `gameSaveApi`                                | 槽位操作意图                         | 修改快照内容                        |
+| `message/floor0Mirror.ts`                  | 文件对话档写入成功后，把同一份规范化 MessageArchive 非阻断地旁路镜像进既有 `chat[0].extra` 自有命名空间 | MessageArchive、Tavern Helper 楼层接口       | `__tolove_message_archive_mirror_v1` | 创建/删除楼层或改变文件存档权威     |
 | `messagesolt/index.ts`                     | Tavern 文件消息镜像桥                                                                                  | `MessageRequest`、本地文件接口               | MessageArchive 文件                  | 真实宿主消息楼层                    |
 | `components/ContextPreviewModal.tsx`       | 快照/原文/上下文/玩家 Persona 阅读、总结审查与手动按钮禁用态                                           | 本地预览、摘要 archive/runtime、API 开关     | 数据阅读与人工审查意图               | 绕过 API 开关或直接调用剧情生成     |
 | `components/SystemSettingsModal.tsx`       | 记忆 API、固定记忆层级说明、模型拉取与连接测试                                                         | `config/openaiCompatible`、summary policy    | 本地设置意图、调度刷新               | 摘要解析或游戏存档                  |
@@ -246,7 +248,7 @@
   `order 159/160/161`；`order 158` 不属于当前生产注册。每次生成只扫描当前幕剧情条目及该幕登记的人物条目。代码按稳定
   `order` 和名称只读验证，并仅在下一次原生 World
   Info 扫描中启用这些条目的副本；已保存条目的关闭状态不变。本地 TXT 只是恢复源，不进入 bundle。
-- 当前 preset 实际激活的其他世界书可以补充人物和长期事实，但不能覆盖剧情世界书当前小节。代码不会另写 opening/ending 或替缺失、损坏的世界书编造剧情答案。
+- 当前主线剧情 preset 实际激活的其他世界书可以补充人物和长期事实，但不能覆盖剧情世界书当前小节。代码不会另写 opening/ending 或替缺失、损坏的世界书编造剧情答案；此处只描述主线 `generate()` 链，不适用于独立使用内置提示词的赛菲画像。
 - AI 返回的是正文候选。生成 prompt 仍要求只输出一对受支持的同名正文开闭标签；登记值为
   `story_scene/story_scence/gal_scene/story/scene/正文/剧情/narrative/dialogue/script/content/context/body/text/final/answer/output/response`。prompt 默认示例使用
   `<content>...</content>`，但上层已指定 `<正文>`、`<story_scene>` 或 `<story_scence>` 等标签时可以沿用。
@@ -283,7 +285,9 @@
 - 四集当前运行时与人物恢复源统一采用 User 主角、与结城家共同生活和梨子青梅竹马的映射；不存在男性梨斗，也不把原作男主关系转交给梨子。真实 Tavern 世界书仍需用当前恢复源替换
   `order 100-103`、`150-157` 与 `159-161`，并移除或禁用旧
   `order 158`；完成这一步并取得真实扫描与生成证据前，只能证明本地合同一致，不能宣称酒馆实机连续性通过。
-- `TavernHelper.generate()` 返回值只证明生成 API 路线；当前没有创建真实聊天楼层，也没有触发 shujuku/database。
+- `TavernHelper.generate()` 返回值只证明生成 API 路线；当前不会新增真实 user/assistant 聊天楼层，也没有触发
+  shujuku/database。文件对话档写入成功后，独立 sidecar 适配器会尝试把同一份 MessageArchive 写入既有
+  `chat[0].extra.__tolove_message_archive_mirror_v1`；该尝试不参与文件存档成败，真实 Tavern 保存/刷新仍待实机验证。
 - 保底正文必须显式标记为 `fallback`，不能冒充宿主成功。
 - “目录”上下文预览只读取本地 Zustand 和 messagesave；它能证明本地投影与生成调用使用同一选择逻辑，不能证明实际 World
   Info 注入、宿主 hidden floors、MESSAGE_SENT、shujuku 或数据库行为。
@@ -293,15 +297,18 @@
 
 ## 当前接通标签
 
-`真实 generate API 已实现；本地 messagesave 镜像已实现；真实 hidden host floors、shujuku、宿主消息和数据库未接通。`
+`真实 generate API 已实现；本地 messagesave/file 镜像已实现；#0 extra 旁路镜像源码与本地合同已实现、真实宿主生命周期未验证；真实 hidden host floors、shujuku、原生宿主消息和数据库未接通。`
 
 分链路口径：
 
-- 生成链：按当前幕只读验证关闭的剧情/人物条目，注册一次性 `WORLDINFO_ENTRIES_LOADED`
+- 主线生成链：按当前幕只读验证关闭的剧情/人物条目，注册一次性 `WORLDINFO_ENTRIES_LOADED`
   钩子，仅在下一次扫描中启用所选副本，随后调用 `TavernHelper.generate({ preset_name: 'in_use' })`。连续性通过
   `overrides.chat_history` 携带最多 6 条已保存主线 user/assistant 消息；生成结束后无论成功失败都停止一次性钩子。
-- 宿主消息链：未创建真实 hidden user/assistant floors。
+- 天鹅绒房间链：首屏“是 / 否”由本地 UI 结算；选择“否”不调用模型，选择“是”才以内部启动信号请求第一道 AI 问题和三个候选回答。之后每轮调用 `TavernHelper.generateRaw()`，`ordered_prompts` 只含内置 system prompt、组件内存历史和本轮玩家回答；严格解析 `profile_state + question + 三个 @选项`，完成回合则要求第六阶段的 `closing + personality + report`。运行时不读取 Izumi JSON、不采用当前酒馆 preset、不扫描世界书、不创建宿主楼层或存档。画像结束只向登记草稿回填 `personality`；首次的“否”和画像完成都先进入不可跳过的梨子五页叫醒过场，再汇入登记事件并由最终确认统一保存。真实模型是否完整遵守仍需实机验收。
+- 宿主消息链：不创建真实 hidden user/assistant floors；仅有一个不阻断文件存档的既有 `chat[0]` namespaced
+  extra sidecar 写入路径。它不是原生聊天消息发送，也不触发 `MESSAGE_SENT`。
 - 插件/数据库链：未接通 `MESSAGE_SENT`、`/trigger`、shujuku/ACU 或数据库。
-- UI 镜像链：游戏内 messagesave/file bridge 是本地游戏协议，不冒充宿主聊天权威。
+- UI/镜像链：游戏内 messagesave/file bridge 仍是存读档权威；`chat[0].extra` 当前只是最新一次成功文件对话档的
+  旁路副本，不参与读档、删除或回退，不冒充宿主聊天权威或严格同层 v2 权威。
 - 上下文预览链：本地状态演示；当前生成时可显示实际调用投影，空闲时只显示最近原文窗口，不升级任何宿主/插件接通标签。
 - 记忆 API 链：设置 UI、固定 6 消息窗口与 2/5 批次、600/1200 字上限、自动存档后调度、`{API 基址}/chat/completions`、纯文本响应规范化、本地 JSON 候选封装、浏览器候选缓存、审查、失败重试和已拒绝候选重新生成已经实现。真实外部接口成功仍待用户复验；Tavern 记忆侧档、已接受摘要的剧情上下文注入和 shujuku 仍未接通。

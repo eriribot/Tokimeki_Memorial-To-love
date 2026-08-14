@@ -3,9 +3,11 @@ import { useGameStore } from '../stores/gameStore';
 import type { SaveRecord } from '../save/protocol';
 import type { GameSnapshot } from '../save/snapshot';
 import { messageClient } from './client';
+import { FLOOR0_MESSAGE_MIRROR_KEY, floor0MessageMirror } from './floor0Mirror';
 import { MESSAGE_SCHEMA_VERSION, type MessageArchive } from './protocol';
 
 export * from './client';
+export * from './floor0Mirror';
 export * from './protocol';
 
 function cloneJson<T>(value: T): T {
@@ -30,8 +32,19 @@ export function createMessageArchive(save: SaveRecord<GameSnapshot>, messages: G
 
 export const gameMessageApi = {
   probe: () => messageClient.probe(),
-  saveFor: (save: SaveRecord<GameSnapshot>, messages: GalStoryMessageSave[]) =>
-    messageClient.write(createMessageArchive(save, messages)),
+  saveFor: async (save: SaveRecord<GameSnapshot>, messages: GalStoryMessageSave[]) => {
+    const result = await messageClient.write(createMessageArchive(save, messages));
+    void floor0MessageMirror.write(result.archive).then(mirrorResult => {
+      if (mirrorResult.status === 'written') {
+        console.info(
+          `[ToLove Messages] 已旁路镜像到 chat[0].extra.${FLOOR0_MESSAGE_MIRROR_KEY}：${mirrorResult.slotId} REV.${mirrorResult.saveRevision}`,
+        );
+      } else if (mirrorResult.status === 'failed') {
+        console.warn(`[ToLove Messages] chat[0].extra 旁路镜像失败，不影响文件存档：${mirrorResult.reason}`);
+      }
+    });
+    return result;
+  },
   loadFor: async (save: SaveRecord<GameSnapshot>, strict: boolean): Promise<MessageArchive | null> => {
     const { archive } = await messageClient.load(save.slotId, save.saveUuid);
     if (!archive) return null;

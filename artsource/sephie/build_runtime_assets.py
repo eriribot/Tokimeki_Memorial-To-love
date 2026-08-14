@@ -1,87 +1,95 @@
+from collections import deque
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
-from scipy import ndimage
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parent
 CANVAS_SIZE = (1024, 1024)
-BACKGROUND_EDGE_WIDTH = 160
-BACKGROUND_DISTANCE = 13.0
-MIN_FOREGROUND_COMPONENT = 20
-MAX_HAIR_GAP_AREA = 4000
-BODY_OPAQUE_FROM_Y = 370
+ATLAS_WINDOWS = (
+    (400, 90, 225, 145),
+    (420, 185, 185, 105),
+)
+
+
+def _borrow_nearest_opaque_rgb(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Remove baked background color from semitransparent foreground edges."""
+
+    height, width = alpha.shape
+    visible = alpha > 0
+    opaque = alpha >= 240
+    owner_y = np.full((height, width), -1, dtype=np.int16)
+    owner_x = np.full((height, width), -1, dtype=np.int16)
+    queue: deque[tuple[int, int]] = deque()
+
+    ys, xs = np.where(opaque)
+    for y, x in zip(ys.tolist(), xs.tolist(), strict=True):
+        owner_y[y, x] = y
+        owner_x[y, x] = x
+        queue.append((y, x))
+
+    while queue:
+        y, x = queue.popleft()
+        for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            next_y, next_x = y + dy, x + dx
+            if (
+                0 <= next_y < height
+                and 0 <= next_x < width
+                and visible[next_y, next_x]
+                and owner_y[next_y, next_x] < 0
+            ):
+                owner_y[next_y, next_x] = owner_y[y, x]
+                owner_x[next_y, next_x] = owner_x[y, x]
+                queue.append((next_y, next_x))
+
+    result = rgb.copy()
+    edge = visible & (alpha < 240) & (owner_y >= 0)
+    result[edge] = rgb[owner_y[edge], owner_x[edge]]
+    result[~visible] = 0
+    return result
 
 
 def build_runtime_body() -> None:
-    source = Image.open(ROOT / "sources" / "sephie_master_face_veil_source.png").convert("RGB")
-    source = source.resize(CANVAS_SIZE, Image.Resampling.LANCZOS)
-    source_rgb = np.asarray(source).astype(np.float32)
+    """Build the transparent runtime portrait without filling real hair gaps."""
 
-    # The approved source has a nearly flat warm background. Estimate it per row
-    # from both outer edges, then segment the character directly from that source.
-    edge_samples = np.concatenate(
-        (source_rgb[:, :BACKGROUND_EDGE_WIDTH], source_rgb[:, -BACKGROUND_EDGE_WIDTH:]), axis=1
+    trusted = np.asarray(Image.open(ROOT / "sephie_body_runtime_v7.png").convert("RGBA")).copy()
+    cutout = np.asarray(Image.open(ROOT / "sephie_body_runtime_v3.png").convert("RGBA"))
+    legacy_alpha = np.asarray(Image.open(ROOT / "sephie_body_alpha.png").convert("RGBA"))[..., 3]
+    source = np.asarray(
+        Image.open(ROOT / "sources" / "sephie_master_face_veil_source.png")
+        .convert("RGB")
+        .resize(CANVAS_SIZE, Image.Resampling.LANCZOS),
+        dtype=np.int16,
     )
-    background = np.median(edge_samples, axis=1)[:, np.newaxis, :]
-    color_distance = np.linalg.norm(source_rgb - background, axis=2)
-    foreground = color_distance > BACKGROUND_DISTANCE
 
-    labels, _ = ndimage.label(foreground, structure=np.ones((3, 3), dtype=np.uint8))
-    component_sizes = np.bincount(labels.ravel())
-    kept_components = np.flatnonzero(component_sizes >= MIN_FOREGROUND_COMPONENT)
-    kept_components = kept_components[kept_components != 0]
-    silhouette = np.isin(labels, kept_components)
-
-    filled = ndimage.binary_fill_holes(silhouette)
-    holes, hole_count = ndimage.label(filled & ~silhouette, structure=np.ones((3, 3), dtype=np.uint8))
-    hole_sizes = np.bincount(holes.ravel())
-    repaired = silhouette.copy()
-    for hole_id in range(1, hole_count + 1):
-        y, _ = np.where(holes == hole_id)
-        is_body_hole = y.size and y.max() >= BODY_OPAQUE_FROM_Y
-        is_tiny_hair_noise = hole_sizes[hole_id] <= MAX_HAIR_GAP_AREA and y.size and y.min() < BODY_OPAQUE_FROM_Y
-        if is_body_hole or is_tiny_hair_noise:
-            repaired |= holes == hole_id
-
-    # White costume pixels are too close to the warm source background for color
-    # separation alone. This polygon covers only the solid torso/skirt core, not
-    # the transparent gaps between the outer hair strands.
-    body_core_image = Image.new("1", CANVAS_SIZE, 0)
-    ImageDraw.Draw(body_core_image).polygon(
-        [
-            (382, 292),
-            (642, 292),
-            (711, 395),
-            (690, 610),
-            (784, 1023),
-            (238, 1023),
-            (330, 610),
-            (313, 395),
-        ],
-        fill=1,
+    red, green, blue = source[..., 0], source[..., 1], source[..., 2]
+    mean = source.mean(axis=2)
+    chroma = source.max(axis=2) - source.min(axis=2)
+    confident_detail = (
+        ((red - green >= 18) & (red - blue >= 5) & (red >= 120))
+        | (mean < 150)
+        | (chroma >= 45)
     )
-    repaired |= np.asarray(body_core_image, dtype=bool)
 
-    # Keep the interior fully opaque. Only the outer one-pixel boundary uses the
-    # source/background color distance for antialiasing, avoiding a beige fringe.
-    interior_distance = ndimage.distance_transform_edt(repaired)
-    runtime_alpha = np.zeros(CANVAS_SIZE[::-1], dtype=np.uint8)
-    runtime_alpha[interior_distance > 1.0] = 255
-    boundary = repaired & (interior_distance <= 1.0)
-    edge_alpha = np.clip((color_distance - 2.0) / 12.0, 0.0, 1.0)
-    runtime_alpha[boundary] = np.rint(edge_alpha[boundary] * 255).astype(np.uint8)
+    # V3 supplies the real spaces between hair strands. The legacy alpha restores
+    # only high-confidence pink hair and dark linework; broad body polygons and
+    # binary hole filling would bring the baked cream background back.
+    alpha = cutout[..., 3].copy()
+    restore = confident_detail & (legacy_alpha > alpha) & (trusted[..., 3] > 0)
+    alpha[restore] = legacy_alpha[restore]
+    rgb = _borrow_nearest_opaque_rgb(trusted[..., :3], alpha)
+    alpha[alpha < 3] = 0
+    alpha[alpha > 252] = 255
+    body = np.dstack((rgb, alpha)).astype(np.uint8)
 
-    body = np.asarray(source).copy()
-    # Remove the source background tint from antialiased edge pixels by borrowing
-    # RGB from their nearest fully opaque neighbor. Alpha still carries the edge.
-    semitransparent = (runtime_alpha > 0) & (runtime_alpha < 255)
-    if semitransparent.any():
-        _, nearest = ndimage.distance_transform_edt(runtime_alpha < 255, return_indices=True)
-        body[semitransparent] = body[nearest[0][semitransparent], nearest[1][semitransparent]]
-    body = np.dstack((body, runtime_alpha))
-    Image.fromarray(body, "RGBA").save(ROOT / "sephie_body_runtime_v2.png", optimize=True)
+    # Keep the animated eye and mouth atlas windows byte-identical to the trusted
+    # body so the rectangular overlays cannot reveal a new seam.
+    for x, y, width, height in ATLAS_WINDOWS:
+        body[y : y + height, x : x + width] = trusted[y : y + height, x : x + width]
+    body[body[..., 3] == 0, :3] = 0
+
+    Image.fromarray(body, "RGBA").save(ROOT / "sephie_body_runtime_v11.png", optimize=True)
 
 
 if __name__ == "__main__":

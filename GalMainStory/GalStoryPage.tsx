@@ -25,11 +25,15 @@ interface GalStoryPageProps {
   choice?: {
     prompt: string;
     options: readonly { id: string; label: string }[];
-    optionSource: 'ai' | 'fallback';
+    optionSource: 'ai' | 'fallback' | 'authored';
     selectedOptionId: string | null;
     selectedLabel?: string | null;
     onSelect: (optionId: string, customText?: string) => void;
     readOnly?: boolean;
+    allowCustomChoice?: boolean;
+    showSource?: boolean;
+    showPrompt?: boolean;
+    autoFocusFirstOption?: boolean;
   } | null;
 }
 

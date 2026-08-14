@@ -57,14 +57,24 @@ node src/webgame-ui/verify-inline-bundle.mjs dist/webgame-ui/index.html
   not imported into the runtime bundle. Episodes 01 through 03 are registered at runtime. Episode 03 has three
   `whole-day` acts on 2008-04-11, 04-12, and 04-13; its 2008-04-14 school-route fall is an act-03 coda, not act 04.
   `data/worldbook.ts` owns the Tavern read/diagnostic bridge.
-- `save/` and `message/`: snapshots and the game-owned message mirror.
-- `start/PlayerRegistration.tsx`: the deterministic Riko opening and player-profile draft UI. It may commit one
-  validated registration through `services/gameSession.ts`, but it does not write story, card, worldbook, or host state.
-- `VelvetRoom/`: the Sephie-hosted velvet-room personality interview. It is the first step of a new registration —
-  players may skip it straight to the Riko opening. Its multi-turn history lives only in component
-  memory through silent `TavernHelper.generate` calls with overridden chat history — no host floors, no snapshot, no
-  worldbook. The distilled internal prompt (from the Izumi 用户画像模式3 preset) is bundled as data; the preset JSON
-  itself is never imported. Only its `appearance`/`personality` result may be handed back to the registration draft.
+- `save/` and `message/`: snapshots and the game-owned message mirror. `message/floor0Mirror.ts` is a namespaced,
+  best-effort sidecar written only after the file archive succeeds; it is not a second authority and must stay isolated
+  from the file RPC protocol.
+- `start/PlayerRegistration.tsx`: the new-registration coordinator and player-profile draft UI. A new player first sees
+  Sephie's blue-room yes/no consent choice. Both declining and completing the interview must then play Riko's complete
+  five-page wake-up opening before the registration event CG; there is no opening-skip control. Re-entering Sephie from
+  the personality form returns to that form instead of replaying the opening. Only the accepted `personality` result
+  may prefill the draft; name, appearance, birthday, blood type, and every other registration field remain
+  player-authored. It may commit one validated registration through `services/gameSession.ts` only from the final
+  review confirmation, but it does not write story, card, worldbook, or host state before that confirmation.
+- `VelvetRoom/`: the Sephie-hosted personality interview, guided by a built-in six-stage adaptive prompt. The repository's Izumi 用户画像模式3
+  JSON is a design reference only: runtime never imports, fetches, or parses it, and it does not use the currently
+  selected Tavern preset. Accepting consent asks the model for the first question; every unfinished turn must return a
+  question plus exactly three AI-authored first-person answers, rendered together in the local blue episode04-style
+  choice window with an in-window free-answer page. Each silent turn calls `TavernHelper.generateRaw` with an ordered
+  built-in system prompt, the component's in-memory multi-turn history, and the latest player answer. It creates no
+  host floors, snapshot, or worldbook writes. The displayed report remains local; only the validated `personality`
+  result may be handed back to the registration draft.
 
 Scene switching uses `currentSceneId`; there is no routing library. Three periods exist: morning, afterSchool, evening.
 
@@ -93,6 +103,9 @@ Scene switching uses `currentSceneId`; there is no routing library. Three period
 - `TavernHelper.generate()` proves only the generation call. Real Tavern evidence is still required to prove the
   one-shot World Info hook, and it does not prove hidden host floors, `MESSAGE_SENT`, shujuku/ACU, or database hooks.
 - UI or local file-mirror success must not be described as real host/plugin integration.
+- Writing a namespaced value to `chat[0].extra` proves only the narrow host-field sidecar path. Without real reload and
+  read-back evidence it does not prove persistence, strict single-`#0` topology, chat switching, JSONL round-tripping,
+  native host messages, `MESSAGE_SENT`, or plugin/database integration.
 - Asset paths start with `/` and must pass through `resolveAssetPath()`.
 - `window.render_game_to_text()` exposes game state for Tavern AI. `window.advanceTime` remains an external no-op
   placeholder.

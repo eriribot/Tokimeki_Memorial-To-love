@@ -9,7 +9,6 @@ import { captureGameMessages } from '../message';
 import type { PlayerProfile, PlayerRegistrationInput } from '../types';
 
 export function startNewSession() {
-  const existingProfile = usePlayerStore.getState().profile;
   beginNewTavernAutosaveIdentity();
   invalidateMemorySummaryContext('新游戏已经开始。');
   useGameStore.getState().resetGameState();
@@ -19,15 +18,6 @@ export function startNewSession() {
   const cards = useCardStore.getState();
   cards.resetTargets();
   syncCharacterPresence();
-
-  // 已有玩家资料时直接重开游戏，不再回到新生登记界面。
-  if (existingProfile) {
-    usePlayerStore.getState().completeRegistration(existingProfile);
-    useGameStore.getState().completeRegistration();
-    void gameSaveApi.save().catch(error => {
-      console.error('[ToLove Save] 重新开始后的首次存档失败。', error);
-    });
-  }
 }
 
 export function resumeSession() {

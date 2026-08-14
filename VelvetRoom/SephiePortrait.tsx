@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
 
 const SEPHIE_ASSETS = {
-  body: '/artsource/sephie/sephie_body_runtime_v2.png',
+  body: '/artsource/sephie/sephie_body_runtime_v11.png',
   eyes: '/artsource/sephie/sephie_a_eye.png',
   mouth: '/artsource/sephie/sephie_a_mouth.png',
 } as const;
@@ -30,12 +30,7 @@ interface SephiePortraitProps {
  */
 export default function SephiePortrait({ speaking, beatKey }: SephiePortraitProps) {
   return (
-    <div
-      className="sephie-portrait"
-      data-speaking={speaking ? 'true' : 'false'}
-      role="img"
-      aria-label="赛菲"
-    >
+    <div className="sephie-portrait" data-speaking={speaking ? 'true' : 'false'} role="img" aria-label="赛菲">
       <div className="sephie-portrait__composite">
         <img
           className="sephie-portrait__body"
@@ -49,10 +44,7 @@ export default function SephiePortrait({ speaking, beatKey }: SephiePortraitProp
             <img className="is-blinking" src={resolveAssetPath(SEPHIE_ASSETS.eyes)} alt="" aria-hidden="true" />
           </span>
         </span>
-        <span
-          className="sephie-portrait__face-window sephie-portrait__mouth"
-          style={regionStyle(420, 185, 185, 105)}
-        >
+        <span className="sephie-portrait__face-window sephie-portrait__mouth" style={regionStyle(420, 185, 185, 105)}>
           <span className="sephie-portrait__face-mask">
             <img
               key={`sephie-mouth-${beatKey}`}

@@ -605,6 +605,23 @@
   text-shadow: 0 1px 0 #fff;
 }
 
+.gal-main-story__choice-prompt {
+  position: absolute;
+  top: 4.5%;
+  right: 4%;
+  left: 4%;
+  z-index: 2;
+  overflow: hidden;
+  color: currentColor;
+  font-size: clamp(12px, 1.3cqi, 18px);
+  font-weight: 700;
+  line-height: 1;
+  text-align: left;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 #fff;
+  white-space: nowrap;
+}
+
 .gal-main-story__choice.is-pink {
   color: #e35d88;
 }

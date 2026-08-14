@@ -907,24 +907,3 @@
   outline-offset: 2px;
   filter: brightness(1.12);
 }
-
-/* 开场步的跳过按钮:低调的描边样式,不抢翻页箭头的主操作地位。 */
-.player-registration__skip-intro {
-  padding: 5px clamp(12px, 1.6cqw, 20px);
-  min-height: clamp(28px, 4cqh, 38px);
-  border: clamp(1px, 0.16cqw, 2px) solid rgb(255 255 255 / 80%);
-  border-radius: 999px;
-  background: rgb(23 32 62 / 55%);
-  color: #fff;
-  font: inherit;
-  font-size: clamp(10px, 1.1cqw, 14px);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.player-registration__skip-intro:hover,
-.player-registration__skip-intro:focus-visible {
-  outline: 3px solid rgb(235 80 162 / 78%);
-  outline-offset: 2px;
-  filter: brightness(1.1);
-}

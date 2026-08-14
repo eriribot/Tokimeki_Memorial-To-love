@@ -32,6 +32,7 @@ type RegistrationStep =
   | 'personality'
   | 'review';
 type RegistrationFormStep = Exclude<RegistrationStep, 'velvet-room' | 'intro' | 'event-cg'>;
+type VelvetRoomReturnStep = 'intro' | 'personality';
 
 const INTRO_LINES = [
   { speaker: '？？？', text: '……喂，起床啦。还要睡到什么时候？' },
@@ -89,8 +90,8 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const [bloodType, setBloodType] = useState<PlayerBloodType>('unknown');
   const [appearance, setAppearance] = useState('');
   const [personality, setPersonality] = useState('');
-  // 天鹅绒房间是登记的第一步;离开/采用结果后回到哪一步由这里记录。
-  const [velvetRoomReturnStep, setVelvetRoomReturnStep] = useState<RegistrationStep>('intro');
+  // 首次拒绝或完成画像都必须从梨子的叫醒过场开始；登记中重访赛菲才原路返回性格页。
+  const [velvetRoomReturnStep, setVelvetRoomReturnStep] = useState<VelvetRoomReturnStep>('intro');
   const [error, setError] = useState<string | null>(null);
   const birthdayDayMaximum = getBirthdayDayMaximum(birthdayMonth);
   const dayOptions = useMemo(
@@ -125,7 +126,7 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
   const advanceEventCg = () => setStep('name');
 
   const openVelvetRoom = () => {
-    setVelvetRoomReturnStep(step === 'velvet-room' ? 'intro' : step);
+    setVelvetRoomReturnStep('personality');
     setStep('velvet-room');
   };
 
@@ -212,13 +213,12 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
     <main className="player-registration" data-registration-step={step}>
       {step === 'velvet-room' ? (
         <VelvetRoom
-          onApply={({ appearance: velvetAppearance, personality: velvetPersonality }) => {
-            setAppearance(velvetAppearance);
+          onApply={({ personality: velvetPersonality }) => {
             setPersonality(velvetPersonality);
             setStep(velvetRoomReturnStep);
           }}
           onClose={() => setStep(velvetRoomReturnStep)}
-          closeLabel={velvetRoomReturnStep === 'intro' ? '跳过画像，去见梨子' : '返回登记'}
+          closeLabel={velvetRoomReturnStep === 'intro' ? '结束画像，去见梨子' : '返回登记'}
         />
       ) : step === 'intro' ? (
         <section
@@ -264,12 +264,6 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                 <span className="gal-main-story__progress">
                   {introIndex + 1} / {INTRO_LINES.length}
                 </span>
-                <button type="button" className="player-registration__velvet-room-entry" onClick={openVelvetRoom}>
-                  天鹅绒房间
-                </button>
-                <button type="button" className="player-registration__skip-intro" onClick={() => setStep('name')}>
-                  跳过开场，直接登记
-                </button>
                 <button
                   ref={advanceButtonRef}
                   type="button"
@@ -342,7 +336,7 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
             expressionId={RIKO_PORTRAIT_RIG.defaultExpressionId}
             isSpeaking={false}
             beatKey={0}
-            enableBlink={false}
+            enableBlink
           />
           <section className="player-registration__form-shell" aria-labelledby="registration-title">
             <header className="player-registration__header">
@@ -478,9 +472,6 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                     必填，NFKC 规范化后不超过 {PLAYER_PROFILE_TEXT_MAX_LENGTH} 个 Unicode 字符；当前{' '}
                     {Array.from(appearance.normalize('NFKC')).length} 个。
                   </p>
-                  <button type="button" className="player-registration__velvet-room-entry" onClick={openVelvetRoom}>
-                    前往天鹅绒房间，让赛菲替你画像
-                  </button>
                 </fieldset>
               )}
 
@@ -504,6 +495,9 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
                     必填，NFKC 规范化后不超过 {PLAYER_PROFILE_TEXT_MAX_LENGTH} 个 Unicode 字符；当前{' '}
                     {Array.from(personality.normalize('NFKC')).length} 个。
                   </p>
+                  <button type="button" className="player-registration__velvet-room-entry" onClick={openVelvetRoom}>
+                    前往天鹅绒房间，让赛菲分析性格
+                  </button>
                 </fieldset>
               )}
 
