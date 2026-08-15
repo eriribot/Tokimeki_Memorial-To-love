@@ -1,5 +1,63 @@
 # 艾尔登特当前状态
 
+# 2026-08-14 VelvetRoom initial exit label
+
+```yaml
+status: source_implementation_updated_validation_not_run
+current_loop: velvet_room_initial_exit_uses_skip_label_2026-08-14
+authorized_by:
+  - user_requested_replacing_the_end_profile_and_meet_Riko_label_with_a_skip_button
+authorized_scope:
+  - rename_only_the_initial_VelvetRoom_exit_to_跳过
+  - preserve_the_existing_transition_to_Rikos_five_page_opening
+  - preserve_返回登记_when_revisiting_Sephie_from_the_personality_form
+forbidden_scope:
+  - skip_Rikos_opening_or_change_registration_state_settlement
+  - modify_generation_prompt_report_parsing_or_host_state
+connection_state: local_UI_label_updated_behavior_unchanged
+verification:
+  passed:
+    - source_branch_inspection_confirmed_the_initial_and_revisit_labels_remain_separate
+  failed: []
+  not_run:
+    - tests_build_or_browser_visual_review
+human_review: pending_user_visual_confirmation
+```
+
+# 2026-08-14 GalMainStory request-only PlayerProfile isolation
+
+```yaml
+status: source_implementation_updated_validation_not_run_by_user_request
+current_loop: gal_main_story_stops_global_tavern_user_takeover_2026-08-14
+supersedes_for_current_source:
+  - save_player_profile_takes_over_host_user_during_story_generation_2026-08-11
+authorized_by:
+  - user_reported_the_internal_game_user_name_leaking_into_ordinary_Tavern_cards
+authorized_scope:
+  - stop_GalMainStory_from_calling_persona_set_or_temporarily_changing_the_global_Tavern_user_name
+  - remove_the_obsolete_exported_host_Persona_takeover_adapter_and_update_its_contract_checker
+  - keep_the_frozen_save_PlayerProfile_as_the_authority_inside_each_GalMainStory_generation_request
+  - keep_request_scoped_Persona_Description_override_or_depth_zero_fallback_injection
+  - keep_Persona_Lore_excluded_only_from_the_current_main_story_World_Info_scan
+  - leave_ordinary_cards_under_the_current_native_Tavern_Persona
+forbidden_scope:
+  - switch_edit_or_repair_the_users_current_real_Tavern_Persona_or_existing_host_messages
+  - let_the_native_Tavern_Persona_override_the_registered_GalMainStory_player_profile
+  - modify_saved_worldbooks_host_floors_plugins_databases_or_unrelated_VelvetRoom_work
+  - claim_tests_build_browser_or_real_Tavern_evidence
+connection_state: scoped_source_updated_real_Tavern_reload_and_new_message_confirmation_not_run
+overall_connection_label:
+  GalMainStory现只在单次生成请求内注入存档玩家资料，不再改写酒馆全局User；普通卡片继续使用当前原生Persona
+verification:
+  passed: []
+  failed: []
+  not_run:
+    - tests_typecheck_lint_format_or_build_by_explicit_user_request
+    - browser_or_real_Tavern_generation_and_Prompt_Inspector
+    - real_Tavern_confirmation_that_new_ordinary_card_messages_keep_the_selected_native_Persona_name
+human_review: pending_user_fast_development_verification
+```
+
 # 2026-08-13 Sephie AI choice window and mandatory Riko opening correction
 
 ```yaml

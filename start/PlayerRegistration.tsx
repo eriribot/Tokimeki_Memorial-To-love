@@ -218,7 +218,7 @@ export default function PlayerRegistration({ onCancel }: PlayerRegistrationProps
             setStep(velvetRoomReturnStep);
           }}
           onClose={() => setStep(velvetRoomReturnStep)}
-          closeLabel={velvetRoomReturnStep === 'intro' ? '结束画像，去见梨子' : '返回登记'}
+          closeLabel={velvetRoomReturnStep === 'intro' ? '跳过' : '返回登记'}
         />
       ) : step === 'intro' ? (
         <section

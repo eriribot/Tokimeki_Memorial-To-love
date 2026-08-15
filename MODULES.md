@@ -90,7 +90,7 @@
   时，个人行动与交谈只允许休息；休息仍正常消耗行动点并恢复资源。资料页打开时该操作区保留在布局中但 inert/灰化。用户角色卡文件/URL 导入 UI、action 和 loader 已删除；`addCardFromJSON()`
   仅保留给默认角色初始化。
 - 地图菜单的“目录”入口打开本地上下文与总结审查。上下文页会显示当前存档有效的
-  `<tolove_player_profile>`、资料签名、注入版本、Persona 承载方式、身份别名护栏和本次屏蔽的 Persona 来源。当前幕运行时按该幕投影的
+  `<tolove_player_profile>`、资料签名、注入版本、Persona 承载方式、身份别名护栏和本次隔离的 Persona 来源。主线只在当前生成请求中注入存档玩家资料，不调用 `/persona-set`，不切换或改写酒馆当前 Persona；普通卡片继续使用酒馆原生用户设定。当前幕运行时按该幕投影的
   `messageIds`
   显示“当前幕连续性窗口”；空闲时按当前跨集规范时间线显示“下一轮连续性窗口”，两者都最多保留最近 6 条完整原文。历史楼层没有持久化跨集 history 回执，因此空闲窗口明确标成按当前采用版重建，不冒充当时真实发送记录。原文默认折叠且列表与弹窗正文都可独立滚动；快照、生成提示、本幕世界书引用和全部原文仍为只读。
   `historyFloorIds` 只负责跨集生成历史，存档中的同集 `contextFloorIds`
@@ -173,10 +173,10 @@
 | `skilllogic/`                              | 图校验、学期窗口、EXP、学习、实践与技能 store                                                          | 技能静态表、日期、已结算行动                 | 本地技能进度                         | 应用技能效果                        |
 | `components/SpecialSkillPanel.tsx`         | 技能树、状态详情与 map 内响应式抽屉                                                                    | `skilllogic`、当前日期                       | 学习/实践提交意图                    | 重算前置或结算效果                  |
 | `services/storyGenerationPrompt.ts`        | 世界书幕选择、受控 GAL 演出格式、宽松 CG 场景边界提示与三项 AI 候选输出协议                             | lore 小节、场景/立绘/CG 边界、选择问题       | 可复用生成契约                       | 重述具体剧情或暴露 CG 素材          |
-| `services/playerPersona.ts`                | 版本化玩家资料、签名、Persona 覆盖/兜底计划、请求级 `{{user}}`/描述接管、原 Persona 恢复和历史签名校验 | 冻结的 v4 `PlayerProfile`、当前预设与宿主 Persona | 临时用户名、Persona 描述覆盖与一次性 system 注入 | 创建、改名、删除、重绑或持久写入真实酒馆 Persona |
+| `services/playerPersona.ts`                | 版本化玩家资料、签名、Persona Description 覆盖/兜底计划、`{{user}}` 传输别名护栏和历史签名校验 | 冻结的 v4 `PlayerProfile`、当前预设 | 请求级 Persona 描述覆盖与一次性 system 注入 | 切换、改名、删除、重绑或写入真实酒馆 Persona |
 | `services/storyGenerationMutex.ts`         | 保证剧情生成与一次性世界书钩子单请求互斥                                                               | generation ID、异步操作                      | 互斥结果与 `finally` 清理            | 取消宿主请求                        |
 | `services/storyGenerationContext.ts`       | 生成请求的提示/CG 边界/跨集历史窗口与玩家资料签名的确定性投影                                          | 幕定义、冻结 PlayerProfile、规范楼层与原文   | `userInput`、资料块、6 条历史、ID    | 改写游戏状态或世界书                |
-| `services/tavernStoryGeneration.ts`        | 冻结玩家身份、在生成窗口接管并恢复宿主 User、屏蔽外部 Persona 与 Persona Lore、生成并严格解析正文和三项候选 | 幕定义、PlayerProfile、消息、世界书资料 | 带身份签名的 `GalStoryAct` 楼层 | 修改 Persona/预设/世界书保存态 |
+| `services/tavernStoryGeneration.ts`        | 冻结玩家身份、仅在请求内注入内部 PlayerProfile、隔离外部 Persona Description 与 Persona Lore、生成并严格解析正文和三项候选 | 幕定义、PlayerProfile、消息、世界书资料 | 带身份签名的 `GalStoryAct` 楼层 | 切换宿主 Persona、修改全局用户名/预设/世界书保存态 |
 | `services/localContextPreview.ts`          | 本地快照、原文、当前生成与有效玩家 Persona 投影的只读汇总                                              | Game/Card/Player/Skill store、messagesave    | 上下文与 Persona 预览模型            | 写回状态或触发生成                  |
 | `memory/storyTimeline.ts`                  | 跨集规范时间线、最近 6 条与更旧完整消息对选择                                                          | 主线档案、messagesave、生产剧集注册表        | 楼层和消息只读投影                   | 写档或改 active floor               |
 | `memory/summaryPolicy.ts`                  | 固定 6 消息窗口、2/5 总结批次与 600/1200 字上限                                                        | 产品记忆协议                                 | 共享确定性常量                       | 调 API 或保存候选                   |
@@ -223,7 +223,7 @@
 | `data/storyLore.ts`                        | 读取关闭条目并武装下一次原生扫描副本；剧情请求级清空 Persona Lore 并在所有退出路径停止钩子             | 稳定 order/名称、世界书条目、扫描选项        | 一次性 World Info 钩子               | 修改已保存世界书或其他 Lore 来源    |
 | `data/worldbook.ts`                        | 世界书读取、扫描对象构建和显式诊断桥                                                                   | 游戏上下文、TavernHelper                     | 显式读/诊断能力                      | 剧情条目选择                        |
 | `data/lore-books/*.txt`                    | 剧情与人物世界书的人工恢复文本                                                                         | 已校对剧情与人物资料                         | 待导入的纯文本恢复源                 | 运行时扫描和状态                    |
-| `verify-player-persona.cjs`                | 请求级宿主 User 接管、异常回滚、用户主动切换与缺失 Persona 合同检查                                   | `playerPersona.ts`、本地宿主适配器           | 定向校验结果                         | 证明真实 Tavern 最终提示或恢复      |
+| `verify-player-persona.cjs`                | PlayerProfile 请求级覆盖/兜底注入与禁止宿主 Persona 接管的合同检查                                    | `playerPersona.ts`                           | 定向校验结果                         | 证明真实 Tavern 最终提示或普通卡片显示 |
 | `verify-episode03.cjs`                     | 第三集注册、身份、lore、场景资源与 fallback 合同检查                                                   | 生产剧集、角色/场景注册表、恢复源            | 定向校验结果                         | 证明真实 Tavern 扫描或剧情质量      |
 | `verify-episode04.cjs`                     | 第四集注册、选择投影、存档恢复、fallback 变体和 GAL 素材合同检查                                       | 生产剧集、选择档案、恢复源、界面资源         | 定向校验结果                         | 证明真实 Tavern 扫描或人工观感      |
 
@@ -303,7 +303,7 @@
 
 - 主线生成链：按当前幕只读验证关闭的剧情/人物条目，注册一次性 `WORLDINFO_ENTRIES_LOADED`
   钩子，仅在下一次扫描中启用所选副本，随后调用 `TavernHelper.generate({ preset_name: 'in_use' })`。连续性通过
-  `overrides.chat_history` 携带最多 6 条已保存主线 user/assistant 消息；生成结束后无论成功失败都停止一次性钩子。
+  `overrides.chat_history` 携带最多 6 条已保存主线 user/assistant 消息；内部 PlayerProfile 通过本次请求的 Persona Description 覆盖或 depth-0 system 注入保持主角权威，当前酒馆 `{{user}}` 只作为传输别名。该链不调用 `/persona-set`，不改全局用户名或当前 Persona，普通卡片仍由酒馆原生用户设定管理；生成结束后无论成功失败都停止一次性钩子。
 - 天鹅绒房间链：首屏“是 / 否”由本地 UI 结算；选择“否”不调用模型，选择“是”才以内部启动信号请求第一道 AI 问题和三个候选回答。之后每轮调用 `TavernHelper.generateRaw()`，`ordered_prompts` 只含内置 system prompt、组件内存历史和本轮玩家回答；严格解析 `profile_state + question + 三个 @选项`，完成回合则要求第六阶段的 `closing + personality + report`。运行时不读取 Izumi JSON、不采用当前酒馆 preset、不扫描世界书、不创建宿主楼层或存档。画像结束只向登记草稿回填 `personality`；首次的“否”和画像完成都先进入不可跳过的梨子五页叫醒过场，再汇入登记事件并由最终确认统一保存。真实模型是否完整遵守仍需实机验收。
 - 宿主消息链：不创建真实 hidden user/assistant floors；仅有一个不阻断文件存档的既有 `chat[0]` namespaced
   extra sidecar 写入路径。它不是原生聊天消息发送，也不触发 `MESSAGE_SENT`。

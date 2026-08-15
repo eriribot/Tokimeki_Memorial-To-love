@@ -297,7 +297,7 @@ export default function VelvetRoom({ onApply, onClose, closeLabel = '离开房�
           <div className="velvet-room__report">{result.report}</div>
           <dl className="velvet-room__fields">
             <div>
-              <dt>性格</dt>
+              <dt>用户画像</dt>
               <dd>{result.personality}</dd>
             </div>
           </dl>

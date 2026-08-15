@@ -89,7 +89,7 @@ export default function VelvetRoomChoicePanel({
 
       {page === 'custom' && customAllowed ? (
         <form className="gal-main-story__custom-choice velvet-room__custom-answer" onSubmit={submitCustomAnswer}>
-          <label htmlFor={inputId}>用自己的话回答赛菲</label>
+          <label htmlFor={inputId}>写下你的回答</label>
           <textarea
             id={inputId}
             value={customText}
@@ -109,7 +109,7 @@ export default function VelvetRoomChoicePanel({
             <span aria-live="polite">{inputLength}/600</span>
             <div>
               <button type="button" disabled={choiceLocked} onClick={() => setPage('options')}>
-                返回三个回答
+                返回选项
               </button>
               <button type="submit" className="is-primary" disabled={choiceLocked || !normalizedCustomText}>
                 提交回答
@@ -147,7 +147,7 @@ export default function VelvetRoomChoicePanel({
               disabled={choiceLocked}
               onClick={() => setPage('custom')}
             >
-              ✎ 自己输入回答……
+              ✎ 自己输入回答
             </button>
           )}
           {error && (
@@ -158,9 +158,7 @@ export default function VelvetRoomChoicePanel({
         </>
       )}
 
-      {mode === 'interview' && (
-        <span className="gal-main-story__choice-source">赛菲即时生成 · 也可以自由回答</span>
-      )}
+      {mode === 'interview' && <span className="gal-main-story__choice-source">赛菲即时生成 · 也可以自由回答</span>}
       {controls}
     </div>
   );

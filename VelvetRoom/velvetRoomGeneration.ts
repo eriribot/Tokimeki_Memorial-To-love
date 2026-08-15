@@ -56,6 +56,33 @@ function getTavernGenerateApi(): Pick<Window['TavernHelper'], 'generateRaw'> {
   return api;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** 兼容酒馆文本结果和部分快速开发模型直接返回的 Chat Completion 外壳。 */
+function extractGeneratedText(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (!isRecord(value)) throw new Error('酒馆返回了无法识别的回复格式。');
+
+  const toolCalls = value.tool_calls;
+  if (Array.isArray(toolCalls) && toolCalls.length > 0) {
+    throw new Error('酒馆返回了工具调用，天鹅绒房间只接受文本回复。');
+  }
+
+  if (typeof value.content === 'string') return value.content;
+
+  const choices = value.choices;
+  const firstChoice = Array.isArray(choices) && isRecord(choices[0]) ? choices[0] : null;
+  const message = firstChoice && isRecord(firstChoice.message) ? firstChoice.message : null;
+  if (message && Array.isArray(message.tool_calls) && message.tool_calls.length > 0) {
+    throw new Error('酒馆返回了工具调用，天鹅绒房间只接受文本回复。');
+  }
+  if (message && typeof message.content === 'string') return message.content;
+
+  throw new Error('酒馆返回了无法识别的回复格式。');
+}
+
 /** 创建一份只在内存中存在的空会话历史，不写楼层、不进存档，用完即弃。 */
 export function createVelvetRoomHistory(): VelvetRoomMessage[] {
   return [];
@@ -90,6 +117,14 @@ function normalizeVisibleText(value: string): string {
   return value.normalize('NFKC').replace(/[\t\r\n ]+/gu, ' ').trim();
 }
 
+function normalizeReportText(value: string): string {
+  const normalized = value.normalize('NFKC').replace(/\r\n?/gu, '\n').trim();
+  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/u.test(normalized)) {
+    throw new Error('画像报告中不能包含危险控制字符。');
+  }
+  return normalized;
+}
+
 function requireProfileStage(text: string): number {
   const state = extractTagBlock(text, 'profile_state');
   if (!state) throw new Error('赛菲返回的内部阶段状态不完整，请重新生成这一题。');
@@ -120,7 +155,7 @@ export function parseVelvetRoomResult(text: string): VelvetRoomProfileResult | n
     throw new Error(`赛菲返回的性格画像必须为 1 到 ${PLAYER_PROFILE_TEXT_MAX_LENGTH} 个字符，请让她重新归纳。`);
   }
 
-  const normalizedReport = normalizePlayerProfileText(report);
+  const normalizedReport = normalizeReportText(report);
   const reportLength = Array.from(normalizedReport).length;
   if (reportLength < VELVET_ROOM_REPORT_MIN_LENGTH || reportLength > VELVET_ROOM_REPORT_MAX_LENGTH) {
     throw new Error(
@@ -187,7 +222,7 @@ export function parseVelvetRoomTurn(raw: string): VelvetRoomTurn {
 async function requestVelvetRoomTurn(history: VelvetRoomMessage[], input: string): Promise<VelvetRoomTurn> {
   const api = getTavernGenerateApi();
   return runExclusiveStoryGeneration(VELVET_ROOM_GENERATION_ID, async () => {
-    const raw: Awaited<ReturnType<typeof api.generateRaw>> = await api.generateRaw({
+    const generated: unknown = await api.generateRaw({
       generation_id: createSaveUuid(),
       max_chat_history: 0,
       should_stream: false,
@@ -198,9 +233,7 @@ async function requestVelvetRoomTurn(history: VelvetRoomMessage[], input: string
         { role: 'user', content: input },
       ],
     });
-    if (typeof raw !== 'string') {
-      throw new Error('酒馆返回了工具调用，天鹅绒房间只接受文本回复。');
-    }
+    const raw = extractGeneratedText(generated);
     if (!raw.trim()) throw new Error('酒馆没有返回任何内容。');
 
     const turn = parseVelvetRoomTurn(raw);

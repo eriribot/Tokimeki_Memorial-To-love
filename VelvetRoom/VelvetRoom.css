@@ -38,42 +38,133 @@
 }
 
 .velvet-room .velvet-room__choice .gal-main-story__choice-prompt {
-  top: 5%;
-  right: 5%;
-  left: 5%;
-  max-height: 4.8em;
-  font-size: clamp(11px, 1.22cqi, 17px);
-  line-height: 1.22;
+  top: 1.5%;
+  right: 6%;
+  left: 6%;
+  display: flex;
+  height: 13%;
+  max-height: 2.7em;
+  align-items: center;
+  overflow: hidden;
+  color: #f7fcff;
+  font-size: clamp(12px, 1.32cqi, 18px);
+  font-weight: 800;
+  line-height: 1.25;
   text-overflow: clip;
+  text-shadow:
+    0 1px 2px #124b75,
+    0 0 4px rgb(5 46 78 / 48%);
   white-space: normal;
 }
 
+.velvet-room .velvet-room__choice[data-choice-mode='interview'] .gal-main-story__choice-prompt {
+  right: 30%;
+}
+
+.velvet-room .velvet-room__choice[data-choice-mode='consent'] .gal-main-story__choice-prompt {
+  right: 6%;
+}
+
 .velvet-room .velvet-room__choice .gal-main-story__choice-options {
-  inset: 34% 0 22%;
+  inset: 23% 0 27%;
+}
+
+.velvet-room .velvet-room__choice[data-choice-mode='interview'] .gal-main-story__choice-options {
+  inset: 23% 0 27% 18%;
 }
 
 .velvet-room .velvet-room__choice[data-choice-mode='consent'] .gal-main-story__choice-options {
-  inset: 31% 0 12%;
+  inset: 29% 0 16%;
 }
 
 .velvet-room .velvet-room__choice .gal-main-story__custom-choice-entry {
-  bottom: 4%;
+  bottom: 6%;
+  left: 6%;
+  max-width: 44%;
+  color: #f5fbff;
+  text-shadow:
+    0 1px 2px #124b75,
+    0 0 4px rgb(5 46 78 / 48%);
+}
+
+.velvet-room .velvet-room__choice[data-choice-mode='interview'] .gal-main-story__custom-choice-entry {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 2%;
+  display: flex;
+  width: 14%;
+  max-width: none;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-align: center;
+  text-shadow: none;
+  transform: translateY(-50%);
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .velvet-room .velvet-room__choice .gal-main-story__choice-source {
   top: auto;
   right: 4%;
-  bottom: 4%;
+  bottom: 2.5%;
   left: auto;
-  width: 45%;
+  width: 42%;
+  color: #eaf8ff;
+  line-height: 1.15;
+  text-shadow:
+    0 1px 2px #124b75,
+    0 0 4px rgb(5 46 78 / 48%);
+}
+
+.velvet-room .velvet-room__choice .gal-main-story__choice-options button {
+  color: #17688f;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 90%);
+}
+
+.velvet-room .velvet-room__choice .gal-main-story__choice-options button:hover:not(:disabled),
+.velvet-room .velvet-room__choice .gal-main-story__choice-options button:focus-visible,
+.velvet-room .velvet-room__choice .gal-main-story__choice-options button.is-selected {
+  color: #143b3b;
 }
 
 .velvet-room .velvet-room__choice .gal-main-story__custom-choice {
-  inset: 31% 5% 8%;
+  inset: 24% 6% 15%;
+  gap: clamp(5px, 0.8cqi, 10px);
 }
 
 .velvet-room .velvet-room__choice .velvet-room__custom-answer {
   grid-template-rows: auto minmax(0, 1fr) auto auto;
+}
+
+.velvet-room .velvet-room__choice .velvet-room__custom-answer label {
+  color: #17688f;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 90%);
+}
+
+.velvet-room .velvet-room__choice .velvet-room__custom-answer textarea {
+  border-color: #5799bb;
+  background: rgb(255 255 255 / 94%);
+  color: #16253d;
+}
+
+.velvet-room .velvet-room__choice .velvet-room__custom-answer textarea::placeholder {
+  color: #586575;
+  opacity: 1;
+}
+
+.velvet-room .velvet-room__choice .velvet-room__custom-answer .gal-main-story__custom-choice-footer {
+  color: #17688f;
 }
 
 .velvet-room__choice-error {
@@ -116,7 +207,8 @@
 
 .sephie-portrait {
   position: absolute;
-  top: 1.5%;
+  top: auto;
+  bottom: 0;
   left: 50%;
   z-index: 2;
   width: auto;
@@ -328,7 +420,8 @@
 
 @container player-registration (max-width: 760px) {
   .sephie-portrait {
-    top: 3%;
+    top: auto;
+    bottom: 0;
     width: auto;
     height: 78%;
   }
@@ -346,7 +439,8 @@
 
 @container player-registration (max-height: 430px) {
   .sephie-portrait {
-    top: 1%;
+    top: auto;
+    bottom: 0;
     width: auto;
     height: 80%;
   }
@@ -372,7 +466,8 @@
 
 @media (max-width: 640px) and (orientation: portrait) {
   .sephie-portrait {
-    top: 8%;
+    top: auto;
+    bottom: 0;
     width: 96%;
     height: auto;
   }
