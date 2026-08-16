@@ -1,12 +1,9 @@
 import { normalizeCard } from '../data/cardSchema';
-import type { CardLoadResult, CharacterCard, GameCharacter, LocationId } from '../types';
+import { isLocationId } from '../data/locationIds';
+import type { CardLoadResult, CharacterCard, GameCharacter } from '../types';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function isLocationId(value: string): value is LocationId {
-  return ['gate', 'classroom', 'library', 'cafeteria', 'gym', 'musicRoom', 'rooftop', 'courtyard'].includes(value);
 }
 
 export async function loadCardFromJSON(jsonData: unknown): Promise<CardLoadResult> {

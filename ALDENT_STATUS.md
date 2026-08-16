@@ -1,5 +1,53 @@
 # 艾尔登特当前状态
 
+# 2026-08-16 Character map period split and location capacity
+
+```yaml
+status: source_implementation_updated_scoped_checks_passed_full_typecheck_blocked_human_review_pending
+current_loop: character_presence_school_hours_after_school_and_location_cap_2026-08-16
+authorized_by:
+  - user_requested_distinguishing_school_hours_from_after_school_and_limiting_each_map_location_to_four_characters
+  - user_clarified_that_two_AP_should_be_presented_as_阶段一_and_阶段二_with_zero_AP_immediately_ending_the_day
+authorized_scope:
+  - show_the_two_action_slots_as_阶段一_and_阶段二
+  - keep_evening_as_internal_日终结算_instead_of_presenting_it_as_a_third_action_slot
+  - keep_school_hours_character_presence_on_campus
+  - allow_after_school_presence_across_school_and_town_locations
+  - preserve_town_location_preferences_through_card_normalization_and_loading
+  - deterministically_limit_each_map_location_to_four_characters
+  - preserve_character_availability_gates_and_evening_off_map_behavior
+  - inspect_the_correct_artsource_backgrounds_directory_and_copy_only_assets_needed_by_the_implemented_runtime
+forbidden_scope:
+  - modify_main_story_dates_completion_rules_or_character_unlock_conditions
+  - modify_user_owned_Riko_portrait_work_or_default_card_changes
+  - add_unused_background_assets_without_a_rendered_scene_mapping
+untouched_paths:
+  - data/default-cards/riko.json
+  - stores/characterStore.ts
+  - artsource/Tachie/haruna.png
+  - artsource/Tachie/riko.png
+  - artsource/Tachie/risa.png
+  - artsource/backgrounds
+connection_state: source_period_labels_and_group_location_allocator_connected_scoped_automated_checks_passed_browser_visual_review_not_run
+verification:
+  passed:
+    - character_presence_contract_real_card_loading_and_cardStore_integration_tests_passed_7_of_7
+    - existing_main_story_time_cost_tests_passed_5_of_5
+    - scoped_ESLint_passed_for_changed_source_and_test_files
+    - scoped_Prettier_format_check_passed_for_changed_source_and_test_files
+    - background_inventory_and_source_hash_comparison_completed_no_new_copy_required
+    - module_registry_updated_with_location_validation_and_group_allocator_boundaries
+    - current_direct_TypeScript_diagnostics_do_not_reference_the_changed_character_presence_files
+  failed:
+    - full_TypeScript_check_remains_red_on_existing_CalendarModule_storyContextValidation_storyTimeline_and_summaryRuntime_errors
+    - development_build_attempt_stops_at_the_same_preexisting_TypeScript_diagnostics
+  not_run:
+    - browser_map_visual_and_interaction_review
+    - real_save_load_period_transition_review
+    - human_visual_acceptance
+human_review: pending_user_map_and_period_transition_confirmation
+```
+
 # 2026-08-14 VelvetRoom initial exit label
 
 ```yaml

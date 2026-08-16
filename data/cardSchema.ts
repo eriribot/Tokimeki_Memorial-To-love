@@ -5,6 +5,7 @@ import type {
   CharacterGameData,
   LegacyCharacterCard,
 } from '../types';
+import { isLocationId } from './locationIds';
 
 export const CARD_SPEC_VERSION = '2.0';
 
@@ -121,10 +122,7 @@ export function upgradeCardV1toV2(v1Card: LegacyCharacterCard): CharacterCard {
 function normalizeGameData(value: unknown): CharacterGameData {
   const source = isRecord(value) ? value : {};
   const rawStats = isRecord(source.stats) ? source.stats : {};
-  const locations = toStringArray(source.favoriteLocations).filter(
-    (location): location is CharacterGameData['favoriteLocations'][number] =>
-      ['gate', 'classroom', 'library', 'cafeteria', 'gym', 'musicRoom', 'rooftop', 'courtyard'].includes(location),
-  );
+  const locations = toStringArray(source.favoriteLocations).filter(isLocationId);
 
   return {
     id: typeof source.id === 'string' ? source.id : DEFAULT_GAME_DATA.id,

@@ -5,10 +5,14 @@ import { getSkillExperienceReward, useSkillStore } from '../skilllogic';
 import type { GameEvent, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
 import { createInitialMainStoryState, createMainStoryEntryPatch, createMainStoryStoreActions } from './mainStoryStore';
 
+export const ACTION_PERIODS = [
+  { key: 'morning', label: '阶段一' },
+  { key: 'afterSchool', label: '阶段二' },
+] as const satisfies readonly PeriodDefinition[];
+
 export const PERIODS = [
-  { key: 'morning', label: '早' },
-  { key: 'afterSchool', label: '放学' },
-  { key: 'evening', label: '晚上' },
+  ...ACTION_PERIODS,
+  { key: 'evening', label: '日终结算' },
 ] as const satisfies readonly PeriodDefinition[];
 
 export const MAX_DAILY_ACTION_POINTS = 2;

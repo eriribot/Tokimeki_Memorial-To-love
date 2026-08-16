@@ -1,42 +1,13 @@
 import { create } from 'zustand';
-import { isCharacterAvailable } from '../data/characterAvailability';
-import type {
-  CardAddResult,
-  CardLoadResult,
-  CardStore,
-  CharacterPresenceContext,
-  GameCharacter,
-  LocationId,
-  PeriodKey,
-} from '../types';
+import { allocateCharacterLocations } from '../services/characterLocationAllocation';
+import type { CardAddResult, CardLoadResult, CardStore } from '../types';
 import { cardToCharacter, loadCardFromJSON } from '../utils/cardLoader';
-
-type LocationResolver = (favoriteLocations: readonly LocationId[]) => LocationId | null;
-
-const PERIOD_LOCATION_RULES: Record<PeriodKey, LocationResolver> = {
-  morning: favorites => favorites[0] ?? 'classroom',
-  afterSchool: favorites => {
-    const firstChoice = favorites[0] ?? 'courtyard';
-    return firstChoice === 'classroom' ? (favorites[1] ?? 'courtyard') : firstChoice;
-  },
-  evening: () => null,
-};
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function getTargetLocationForPeriod(target: GameCharacter, periodKey: PeriodKey): LocationId | null {
-  return PERIOD_LOCATION_RULES[periodKey](target.favoriteLocations);
-}
-
-export function getTargetLocationForContext(
-  target: GameCharacter,
-  context: CharacterPresenceContext,
-): LocationId | null {
-  if (!isCharacterAvailable(target.id, context.completedMainStoryEventIds)) return null;
-  return getTargetLocationForPeriod(target, context.periodKey);
-}
+export { getTargetLocationForContext, getTargetLocationForPeriod } from '../services/characterLocationAllocation';
 
 export const useCardStore = create<CardStore>((set, get) => {
   const addLoadedCard = async (load: () => Promise<CardLoadResult>): Promise<CardAddResult> => {
@@ -103,9 +74,10 @@ export const useCardStore = create<CardStore>((set, get) => {
       })),
     syncTargetLocations: context =>
       set(state => {
+        const assignments = allocateCharacterLocations(state.targets, context);
         const targets = state.targets.map(target => ({
           ...target,
-          currentLocationId: getTargetLocationForContext(target, context),
+          currentLocationId: assignments.get(target.id) ?? null,
         }));
         const activeTargetId = targets.some(
           target => target.id === state.activeTargetId && target.currentLocationId !== null,

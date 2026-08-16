@@ -12,6 +12,8 @@ import { useCardStore } from './cardStore';
 const DEFAULT_CARDS: readonly unknown[] = [rikoCard, lalaCard, harunaCard, momoCard, yuiCard, yamiCard];
 const RIKO_LEGACY_PORTRAITS = new Set(['/artsource/characters/miyuki.png']);
 const RIKO_PORTRAIT = '/artsource/characters/riko.png';
+const RIKO_TACHIE = '/artsource/Tachie/riko.png';
+const RIKO_NAME = rikoCard.data.name;
 
 const LEGACY_BUNDLED_CHARACTER_IDS: Readonly<Record<string, { id: string; name: string }>> = {
   haruka: { id: 'momo', name: '梦梦·贝莉雅·戴比路克' },
@@ -31,15 +33,27 @@ function resolveBundledCharacterId(id: string, name: string): string {
   return migration?.name === name ? migration.id : id;
 }
 
+function isBundledRiko(id: string, name: string): boolean {
+  return id === 'riko' && name === RIKO_NAME;
+}
+
 function migrateBundledCard(card: CharacterCard): CharacterCard {
   const gameData = card.data.extensions.game_data;
   const id = resolveBundledCharacterId(gameData.id, card.data.name);
+  const bundledRiko = isBundledRiko(id, card.data.name);
   const portraitImage =
-    id === 'riko' && gameData.portrait_image && RIKO_LEGACY_PORTRAITS.has(gameData.portrait_image)
+    bundledRiko && gameData.portrait_image && RIKO_LEGACY_PORTRAITS.has(gameData.portrait_image)
       ? RIKO_PORTRAIT
       : gameData.portrait_image;
+  const tachieImage = bundledRiko && gameData.tachie_image === null ? RIKO_TACHIE : gameData.tachie_image;
 
-  if (id === gameData.id && portraitImage === gameData.portrait_image) return card;
+  if (
+    id === gameData.id &&
+    portraitImage === gameData.portrait_image &&
+    tachieImage === gameData.tachie_image
+  ) {
+    return card;
+  }
 
   return {
     ...card,
@@ -51,6 +65,7 @@ function migrateBundledCard(card: CharacterCard): CharacterCard {
           ...gameData,
           id,
           portrait_image: portraitImage,
+          tachie_image: tachieImage,
         },
       },
     },
@@ -64,10 +79,19 @@ function migrateBundledCharacters(): void {
 
   const targets = state.targets.map((target): GameCharacter => {
     const id = resolveBundledCharacterId(target.id, target.name);
+    const bundledRiko = isBundledRiko(id, target.name);
     const portrait =
-      id === 'riko' && RIKO_LEGACY_PORTRAITS.has(target.portrait) ? RIKO_PORTRAIT : target.portrait;
+      bundledRiko && RIKO_LEGACY_PORTRAITS.has(target.portrait) ? RIKO_PORTRAIT : target.portrait;
+    const tachie = bundledRiko && target.tachie === null ? RIKO_TACHIE : target.tachie;
     const card = migrateBundledCard(target._cardData);
-    if (id === target.id && portrait === target.portrait && card === target._cardData) return target;
+    if (
+      id === target.id &&
+      portrait === target.portrait &&
+      tachie === target.tachie &&
+      card === target._cardData
+    ) {
+      return target;
+    }
 
     changed = true;
     if (id !== target.id) migratedTargetIds.set(target.id, id);
@@ -75,6 +99,7 @@ function migrateBundledCharacters(): void {
       ...target,
       id,
       portrait,
+      tachie,
       _cardData: card,
     };
   });
