@@ -1,5 +1,6 @@
 import { normalizeCard } from '../data/cardSchema';
 import { isLocationId } from '../data/locationIds';
+import { normalizeCharacterRelationshipStats } from '../services/characterRelationship';
 import type { CardLoadResult, CharacterCard, GameCharacter } from '../types';
 
 function getErrorMessage(error: unknown): string {
@@ -28,6 +29,7 @@ export function cardToCharacter(card: CharacterCard, existingCharacters: readonl
 
   const favoriteLocations = gameData.favoriteLocations.filter(isLocationId);
   const primaryLocation = favoriteLocations[0] ?? 'classroom';
+  const relationship = normalizeCharacterRelationshipStats(gameData.stats);
 
   return {
     id,
@@ -39,9 +41,7 @@ export function cardToCharacter(card: CharacterCard, existingCharacters: readonl
     portrait: gameData.portrait_image ?? '/artsource/characters/_placeholder.svg',
     chibi: gameData.chibi_image ?? '/artsource/chibis/_placeholder.svg',
     tachie: gameData.tachie_image,
-    affection: gameData.stats.affection,
-    friendship: gameData.stats.friendship,
-    romance: gameData.stats.romance,
+    ...relationship,
     currentLocationId: primaryLocation,
     _cardData: card,
   };

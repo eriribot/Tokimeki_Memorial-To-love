@@ -7,13 +7,17 @@ interface CharacterProps {
   character: GameCharacter;
   x: number;
   y: number;
+  onInteract?: (character: GameCharacter) => void;
 }
 
-export default function Character({ character, x, y }: CharacterProps) {
+export default function Character({ character, x, y, onInteract }: CharacterProps) {
   return (
-    <div
+    <button
+      type="button"
       className="character-avatar"
       title={`${character.name}（${character.type}）`}
+      aria-label={`与${character.name}互动`}
+      onClick={() => onInteract?.(character)}
       style={{
         position: 'absolute',
         left: x,
@@ -21,6 +25,12 @@ export default function Character({ character, x, y }: CharacterProps) {
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         zIndex: 50,
+        minHeight: 0,
+        padding: 0,
+        border: 0,
+        background: 'transparent',
+        boxShadow: 'none',
+        cursor: onInteract ? 'pointer' : 'default',
       }}
     >
       <ImageWithPlaceholder
@@ -35,6 +45,6 @@ export default function Character({ character, x, y }: CharacterProps) {
           filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.25))',
         }}
       />
-    </div>
+    </button>
   );
 }

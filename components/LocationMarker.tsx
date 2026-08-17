@@ -1,6 +1,7 @@
 import { useGameStore } from '../stores/gameStore';
 import { useMapStore } from '../stores/mapStore';
 import { useCharacterStore } from '../stores/characterStore';
+import { useCardStore } from '../stores/cardStore';
 import type { LocationId, MapLocation } from '../types';
 
 // 地点图标映射
@@ -31,10 +32,11 @@ export default function LocationMarker({ location, isCurrent }: LocationMarkerPr
   const enterScene = useGameStore(state => state.enterScene);
   const addLog = useGameStore(state => state.addLog);
   const characters = useCharacterStore(state => state.characters);
+  const setActiveTarget = useCardStore(state => state.setActiveTarget);
   const hereCharacters = characters.filter(c => c.currentLocationId === location.id);
 
   const icon = LOCATION_ICONS[location.id] || '📍';
-  const canEnterScene = ['classroom', 'library'].includes(location.id) && isCurrent;
+  const canEnterScene = isCurrent && hereCharacters.length > 0;
   const markerSize = Math.round(cellSize * 0.74);
   const markerHeight = canEnterScene ? markerSize + 22 : markerSize;
   const markerOffsetX = (cellSize - markerSize) / 2;
@@ -117,11 +119,12 @@ export default function LocationMarker({ location, isCurrent }: LocationMarkerPr
           type="button"
           className="enter-scene-button"
           onClick={() => {
+            if (hereCharacters[0]) setActiveTarget(hereCharacters[0].id);
             enterScene(location.id);
-            addLog(`你进入了${location.name}。`);
+            addLog(`你走近了${location.name}里的${hereCharacters[0]?.name ?? '人物'}。`);
           }}
         >
-          进入场景
+          与人物互动
         </button>
       )}
     </div>

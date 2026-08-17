@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { allocateCharacterLocations } from '../services/characterLocationAllocation';
+import { applyRelationshipDeltaToCharacter } from '../services/characterRelationship';
 import type { CardAddResult, CardLoadResult, CardStore } from '../types';
 import { cardToCharacter, loadCardFromJSON } from '../utils/cardLoader';
+
+export { applyRelationshipDeltaToCharacter } from '../services/characterRelationship';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -68,8 +71,14 @@ export const useCardStore = create<CardStore>((set, get) => {
       set(state => ({
         targets: state.targets.map(target =>
           target.id === targetId
-            ? { ...target, affection: Math.min(100, Math.max(0, target.affection + amount)) }
+            ? applyRelationshipDeltaToCharacter(target, { friendship: amount, romance: amount })
             : target,
+        ),
+      })),
+    applyRelationshipDelta: (targetId, delta) =>
+      set(state => ({
+        targets: state.targets.map(target =>
+          target.id === targetId ? applyRelationshipDeltaToCharacter(target, delta) : target,
         ),
       })),
     syncTargetLocations: context =>

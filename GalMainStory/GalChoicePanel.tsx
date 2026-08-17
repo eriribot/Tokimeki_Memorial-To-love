@@ -52,7 +52,7 @@ export default function GalChoicePanel({
   }, [allowCustomChoice, page]);
 
   useEffect(() => {
-    if (!autoFocusFirstOption || options.length !== 2 || page !== 'options' || locked) return;
+    if (!autoFocusFirstOption || options.length === 0 || page !== 'options' || locked) return;
     const animationFrame = requestAnimationFrame(() => optionButtonRefs.current[0]?.focus());
     return () => cancelAnimationFrame(animationFrame);
   }, [autoFocusFirstOption, locked, options.length, page, prompt]);

@@ -35,8 +35,8 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
   const socialize = usePlayerStore(state => state.socialize);
   const buySnack = usePlayerStore(state => state.buySnack);
   const targets = useCardStore(state => state.targets);
-  const addAffection = useCardStore(state => state.addAffection);
   const activeTargetId = useCardStore(state => state.activeTargetId);
+  const setActiveTarget = useCardStore(state => state.setActiveTarget);
 
   const currentLocation = locations[currentLocationId];
   const hereCharacters = targets.filter(c => c.currentLocationId === currentLocationId);
@@ -58,22 +58,10 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
     syncCharacterPresence();
   };
 
-  const handleTalk = (character: GameCharacter) => {
-    if (actionPointsRemaining <= 0) {
-      addLog('今天的行动点已经用完了。');
-      return;
-    }
-    if (requiresRest) {
-      addLog(stamina <= 0 ? '你太累了，现在只能休息。' : '压力已经到达上限，现在只能休息。');
-      return;
-    }
-    const settlement = settlePlayerAction({
-      kind: 'talk',
-      message: `你和 ${character.name} 聊了一会儿，好感度上升了！`,
-    });
-    if (!settlement.accepted) return;
-    addAffection(character.id, 5);
-    syncCharacterPresence();
+  const handleMeetCharacter = (character: GameCharacter) => {
+    setActiveTarget(character.id);
+    enterScene(currentLocationId);
+    addLog(`你走近了${character.name}，看看能和她做些什么。`);
   };
 
   const handleEnterScene = () => {
@@ -173,7 +161,7 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
         </h3>
         <div className="buttons grid">
           <button onClick={onOpenSkills}>✨ 特技</button>
-          {currentLocationId === 'classroom' && <button onClick={handleEnterScene}>进入场景</button>}
+          {hereCharacters.length > 0 && <button onClick={handleEnterScene}>与人物互动</button>}
           <button disabled={actionPointsRemaining <= 0 || requiresRest} onClick={() => handleAction(study, '学习')}>
             📖 学习 <span className="action-cost">−1</span>
           </button>
@@ -192,7 +180,10 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
           <button disabled={actionPointsRemaining <= 0} onClick={() => handleAction(rest, '休息', true)}>
             😴 休息 <span className="action-cost">−1</span>
           </button>
-          <button disabled={actionPointsRemaining <= 0 || requiresRest} onClick={() => handleAction(buySnack, '买零食')}>
+          <button
+            disabled={actionPointsRemaining <= 0 || requiresRest}
+            onClick={() => handleAction(buySnack, '买零食')}
+          >
             🍱 买零食 <span className="action-cost">−1</span>
           </button>
         </div>
@@ -206,15 +197,14 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
               <button
                 key={c.id}
                 className="character-action"
-                disabled={actionPointsRemaining <= 0 || requiresRest}
-                onClick={() => handleTalk(c)}
+                onClick={() => handleMeetCharacter(c)}
                 style={{
                   borderColor: c.color,
                   background: activeTargetId === c.id ? `${c.color}22` : '#fff',
                 }}
               >
                 <span className="dot" style={{ backgroundColor: c.color }} />
-                {c.name}（{c.type}）好感 {c.affection}
+                {c.name}（{c.type}）互动 · 好感 {c.affection}
               </button>
             ))}
           </div>

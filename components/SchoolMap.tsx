@@ -1,6 +1,7 @@
 import { useGameStore } from '../stores/gameStore';
 import { getMapForLocation, useMapStore } from '../stores/mapStore';
 import { useCharacterStore } from '../stores/characterStore';
+import { useCardStore } from '../stores/cardStore';
 import { resolveAssetPath } from '../utils/assetPath';
 import LocationMarker from './LocationMarker';
 import Character from './Character';
@@ -29,6 +30,10 @@ function clamp(value: number, minimum: number, maximum: number): number {
 
 export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: SchoolMapProps) {
   const currentLocationId = useGameStore(state => state.currentLocationId);
+  const setLocation = useGameStore(state => state.setLocation);
+  const enterScene = useGameStore(state => state.enterScene);
+  const addLog = useGameStore(state => state.addLog);
+  const setActiveTarget = useCardStore(state => state.setActiveTarget);
   const { locations, width, height, cellSize } = useMapStore();
   const characters = useCharacterStore(state => state.characters);
   const currentMap = getMapForLocation(currentLocationId);
@@ -112,7 +117,7 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
           const markerCenterX = (loc.x + 0.5) * cellSize;
           const markerCenterY = (loc.y + 0.5) * cellSize;
           const markerSize = Math.round(cellSize * 0.74);
-          const canEnterScene = currentLocationId === loc.id && ['classroom', 'library'].includes(loc.id);
+          const canEnterScene = currentLocationId === loc.id && sameLocationCharacters.length > 0;
           const markerHeight = markerSize + (canEnterScene ? 22 : 0);
           const belowMarker = markerCenterY + markerHeight / 2 + MARKER_GAP;
           const aboveMarker = markerCenterY - markerHeight / 2 - MARKER_GAP - groupHeight;
@@ -136,6 +141,13 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
               character={{ ...c, chibi: LEGACY_CHIBI_REPLACEMENTS[c.chibi] ?? c.chibi }}
               x={groupLeft + (groupWidth - rowWidth) / 2 + column * (AVATAR_SIZE + AVATAR_COLUMN_GAP)}
               y={groupTop + row * (AVATAR_SIZE + AVATAR_ROW_GAP)}
+              onInteract={character => {
+                if (!character.currentLocationId) return;
+                setLocation(character.currentLocationId);
+                setActiveTarget(character.id);
+                enterScene(character.currentLocationId);
+                addLog(`你在${loc.name}遇见了${character.name}。`);
+              }}
             />
           );
         })}

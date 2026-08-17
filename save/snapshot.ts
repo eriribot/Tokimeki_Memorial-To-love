@@ -6,6 +6,7 @@ import {
 } from '../GalMainStory/storyPersistence';
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
 import { syncCharacterPresence } from '../services/characterPresence';
+import { normalizeCharacterRelationship } from '../services/characterRelationship';
 import {
   INITIAL_SKILL_PROGRESSION_STATE,
   skillGraph,
@@ -266,7 +267,12 @@ export function restoreGameSnapshot(
   useGameStore.setState(game);
   useGameStore.getState().reconcilePendingMainStoryEntry();
   usePlayerStore.setState({ ...snapshot.player });
-  useCardStore.setState({ ...snapshot.cards, isLoading: false, error: null });
+  useCardStore.setState({
+    ...snapshot.cards,
+    targets: snapshot.cards.targets.map(normalizeCharacterRelationship),
+    isLoading: false,
+    error: null,
+  });
   const skillHydration = useSkillStore.getState().hydrate(normalizedSkills);
   if (!skillHydration.ok) throw new Error(skillHydration.error.message);
   syncCharacterPresence();

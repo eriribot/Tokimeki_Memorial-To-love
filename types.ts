@@ -184,6 +184,11 @@ export interface CharacterStats {
   romance: number;
 }
 
+export interface CharacterRelationshipDelta {
+  friendship?: number;
+  romance?: number;
+}
+
 export interface CharacterGameData {
   id: string;
   color: string;
@@ -324,6 +329,7 @@ export interface CardStoreActions {
   getTargetsByLocation: (locationId: LocationId) => GameCharacter[];
   updateTarget: (targetId: string, updates: Partial<GameCharacter>) => void;
   addAffection: (targetId: string, amount: number) => void;
+  applyRelationshipDelta: (targetId: string, delta: CharacterRelationshipDelta) => void;
   syncTargetLocations: (context: CharacterPresenceContext) => void;
   clearTargets: () => void;
   resetTargets: () => void;

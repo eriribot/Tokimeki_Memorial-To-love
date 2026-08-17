@@ -2,7 +2,7 @@ import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState }
 import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
 import { CalendarCard, DateModule, DayTransition } from './CalendarModule';
 import { buildCalendarSpecialDateCatalog } from './CalendarModule/specialDates';
-import ClassroomScene from './components/ClassroomScene';
+import CharacterInteractionScene from './components/CharacterInteractionScene';
 import Controls from './components/Controls';
 import EventLog from './components/EventLog';
 import DictionaryPanel from './components/DictionaryPanel';
@@ -71,6 +71,8 @@ function App() {
   const mapScale = Math.min(1, availableMapWidth / mapWidth, availableMapHeight / mapHeight);
   const skillFrameWidth = Math.min(mapWidth, availableMapWidth);
   const skillFrameHeight = Math.min(mapHeight, Math.max(320, viewportSize.height - 124));
+  const interactionFrameWidth = Math.min(mapWidth, availableMapWidth);
+  const interactionFrameHeight = Math.min(mapHeight, Math.max(480, viewportSize.height - 124));
   const isPageMode = isNativePageMode;
   const isMainStoryActive = mainStoryRun?.phase === 'playing';
   const hasMainStoryHistory = storyArchives.some(
@@ -81,7 +83,12 @@ function App() {
   const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
   const isBlockingDialogOpen =
-    isContextPreviewOpen || isCharacterArchiveOpen || isDictionaryOpen || isSystemSettingsOpen || isDateModuleOpen;
+    currentSceneId !== null ||
+    isContextPreviewOpen ||
+    isCharacterArchiveOpen ||
+    isDictionaryOpen ||
+    isSystemSettingsOpen ||
+    isDateModuleOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -275,15 +282,23 @@ function App() {
               <section className="play-section">
                 <div
                   className={`map-section ${isSkillPanelOpen ? 'is-skill-panel-open' : ''} ${
-                    isCharacterArchiveOpen ? 'is-character-archive-open' : ''
-                  }`}
+                    currentSceneId ? 'is-character-interaction-open' : ''
+                  } ${isCharacterArchiveOpen ? 'is-character-archive-open' : ''}`}
                   style={{
-                    width: isSkillPanelOpen ? skillFrameWidth : mapWidth * mapScale,
-                    height: isSkillPanelOpen ? skillFrameHeight : mapHeight * mapScale,
+                    width: currentSceneId
+                      ? interactionFrameWidth
+                      : isSkillPanelOpen
+                        ? skillFrameWidth
+                        : mapWidth * mapScale,
+                    height: currentSceneId
+                      ? interactionFrameHeight
+                      : isSkillPanelOpen
+                        ? skillFrameHeight
+                        : mapHeight * mapScale,
                   }}
                 >
                   <div
-                    className="map-stage"
+                    className={`map-stage ${currentSceneId ? 'is-character-interaction-open' : ''}`}
                     inert={
                       isStoryOverlayOpen ||
                       isSkillPanelOpen ||
@@ -305,13 +320,13 @@ function App() {
                         : undefined
                     }
                     style={{
-                      width: mapWidth,
-                      height: mapHeight,
-                      transform: `scale(${mapScale})`,
+                      width: currentSceneId ? '100%' : mapWidth,
+                      height: currentSceneId ? '100%' : mapHeight,
+                      transform: currentSceneId ? 'none' : `scale(${mapScale})`,
                     }}
                   >
                     {currentSceneId ? (
-                      <ClassroomScene />
+                      <CharacterInteractionScene />
                     ) : (
                       <SchoolMap
                         hasStoryHistory={hasMainStoryHistory}
@@ -346,7 +361,8 @@ function App() {
                         />
                       </>
                     )}
-                  {!isStoryOverlayOpen &&
+                  {!currentSceneId &&
+                    !isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
@@ -380,40 +396,42 @@ function App() {
                   )}
                 </div>
 
-                <div
-                  className={`map-bottom-panel ${
-                    isStoryOverlayOpen ||
-                    isSkillPanelOpen ||
-                    isCharacterArchiveOpen ||
-                    isDictionaryOpen ||
-                    isSystemSettingsOpen ||
-                    isDateModuleOpen
-                      ? 'is-story-locked'
-                      : ''
-                  }`}
-                  inert={
-                    isStoryOverlayOpen ||
-                    isSkillPanelOpen ||
-                    isCharacterArchiveOpen ||
-                    isDictionaryOpen ||
-                    isSystemSettingsOpen ||
-                    isDateModuleOpen
-                      ? true
-                      : undefined
-                  }
-                  aria-hidden={
-                    isStoryOverlayOpen ||
-                    isSkillPanelOpen ||
-                    isCharacterArchiveOpen ||
-                    isDictionaryOpen ||
-                    isSystemSettingsOpen ||
-                    isDateModuleOpen
-                      ? true
-                      : undefined
-                  }
-                >
-                  <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
-                </div>
+                {!currentSceneId && (
+                  <div
+                    className={`map-bottom-panel ${
+                      isStoryOverlayOpen ||
+                      isSkillPanelOpen ||
+                      isCharacterArchiveOpen ||
+                      isDictionaryOpen ||
+                      isSystemSettingsOpen ||
+                      isDateModuleOpen
+                        ? 'is-story-locked'
+                        : ''
+                    }`}
+                    inert={
+                      isStoryOverlayOpen ||
+                      isSkillPanelOpen ||
+                      isCharacterArchiveOpen ||
+                      isDictionaryOpen ||
+                      isSystemSettingsOpen ||
+                      isDateModuleOpen
+                        ? true
+                        : undefined
+                    }
+                    aria-hidden={
+                      isStoryOverlayOpen ||
+                      isSkillPanelOpen ||
+                      isCharacterArchiveOpen ||
+                      isDictionaryOpen ||
+                      isSystemSettingsOpen ||
+                      isDateModuleOpen
+                        ? true
+                        : undefined
+                    }
+                  >
+                    <Controls onOpenSkills={() => setIsSkillPanelOpen(true)} />
+                  </div>
+                )}
               </section>
             </main>
 
