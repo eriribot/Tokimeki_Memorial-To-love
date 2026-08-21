@@ -11,6 +11,7 @@ import {
   type AcceptedSummaryInput,
   type SummaryDeterministicState,
   type SummarySourceMessage,
+  type SummaryTimelineEntry,
 } from './summaryPrompts';
 
 // 通过SillyTavern后端发送API请求，避免CORS问题，同时能在CMD看到日志
@@ -119,6 +120,7 @@ interface SmallSummarySource {
   actIds: string[];
   floorIds: string[];
   messages: SummarySourceMessage[];
+  timeline: SummaryTimelineEntry[];
   sourceFingerprint: string;
 }
 
@@ -234,6 +236,7 @@ function getSourceFromFloors(
   if (floors.length === 0) return null;
   const messagesById = new Map(messages.map(message => [message.id, message]));
   const sourceMessages: SummarySourceMessage[] = [];
+  const timeline: SummaryTimelineEntry[] = [];
 
   for (const floor of floors) {
     const pair = floor.messageIds
@@ -241,6 +244,17 @@ function getSourceFromFloors(
       .filter((message): message is MemorySummarySourceMessage => message !== undefined)
       .sort((left, right) => (left.role === 'user' ? -1 : right.role === 'user' ? 1 : 0));
     if (pair.length !== 2 || pair[0].role !== 'user' || pair[1].role !== 'assistant') return null;
+    const scopeLabel = pair[0].scopeLabel;
+    if (!scopeLabel || pair.some(message => message.scopeLabel !== scopeLabel)) return null;
+    timeline.push({
+      floorId: floor.floorId,
+      eventId: floor.eventId,
+      actId: floor.actId,
+      kind: floor.kind,
+      date: { ...floor.date },
+      actionNumber: floor.actionNumber,
+      scopeLabel,
+    });
     for (const message of pair) {
       sourceMessages.push({
         id: message.id,
@@ -256,8 +270,8 @@ function getSourceFromFloors(
     }
   }
 
-  const sourceFingerprint = createSourceFingerprint(
-    sourceMessages.map(message => [
+  const sourceFingerprint = createSourceFingerprint({
+    messages: sourceMessages.map(message => [
       message.id,
       message.eventId,
       message.actId,
@@ -265,14 +279,46 @@ function getSourceFromFloors(
       message.source,
       message.content,
     ]),
-  );
+    timeline,
+  });
   return {
     eventIds: unique(sourceMessages.map(message => message.eventId)),
     actIds: unique(sourceMessages.map(message => message.actId)),
     floorIds: floors.map(floor => floor.floorId),
     messages: sourceMessages,
+    timeline,
     sourceFingerprint,
   };
+}
+
+function getTimelineForFloors(context: SavedMemoryContext, floorIds: readonly string[]): SummaryTimelineEntry[] | null {
+  const projection = createMemorySummarySourceProjection(context.save.data, context.messages);
+  const floorIndexes = new Map(projection.floors.map((floor, index) => [floor.floorId, index]));
+  const selected = floorIds.map(floorId => projection.floors.find(floor => floor.floorId === floorId));
+  if (
+    selected.some((floor): floor is undefined => floor === undefined) ||
+    selected.some(
+      (floor, index) =>
+        index > 0 && floorIndexes.get(floor!.floorId)! <= floorIndexes.get(selected[index - 1]!.floorId)!,
+    )
+  ) {
+    return null;
+  }
+  const messagesById = new Map(projection.messages.map(message => [message.id, message]));
+  const timeline = selected.map(floor => {
+    const scopeLabel = messagesById.get(floor!.messageIds[0])?.scopeLabel;
+    if (!scopeLabel) return null;
+    return {
+      floorId: floor!.floorId,
+      eventId: floor!.eventId,
+      actId: floor!.actId,
+      kind: floor!.kind,
+      date: { ...floor!.date },
+      actionNumber: floor!.actionNumber,
+      scopeLabel,
+    } satisfies SummaryTimelineEntry;
+  });
+  return timeline.every((entry): entry is SummaryTimelineEntry => entry !== null) ? timeline : null;
 }
 
 function getEligibleFloors(context: SavedMemoryContext): {
@@ -590,6 +636,7 @@ async function executeSmallJob(
     const prompt = createSmallSummaryPrompt({
       sourceFingerprint: source.sourceFingerprint,
       messages: source.messages,
+      timeline: source.timeline,
       allowedSubjectIds,
       deterministicState: getDeterministicState(context.save.data),
     });
@@ -712,9 +759,15 @@ async function executeLargeJob(
 
   try {
     const allowedSubjectIds = getAllowedSubjectIds(context.save.data);
+    const timeline = getTimelineForFloors(
+      context,
+      sourceSummaries.flatMap(summary => summary.sourceFloorIds),
+    );
+    if (!timeline) throw new Error('大总结来源楼层无法映射到当前日历时间线。');
     const prompt = createLargeSummaryPrompt({
       sourceFingerprint,
       summaries,
+      timeline,
       allowedSubjectIds,
       deterministicState: getDeterministicState(context.save.data),
     });

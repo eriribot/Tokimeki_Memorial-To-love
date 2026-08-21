@@ -42,6 +42,7 @@ function App() {
   const returnToStart = useGameStore(state => state.returnToStart);
   const mainStoryRun = useGameStore(state => state.mainStory.run);
   const storyArchives = useGameStore(state => state.mainStory.archives);
+  const datingArchives = useDatingStore(state => state.archives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const datingAppointments = useDatingStore(state => state.appointments);
@@ -90,19 +91,25 @@ function App() {
       archive.activeFloorId !== null &&
       archive.floors.some(floor => floor.floorId === archive.activeFloorId && floor.act !== null),
   );
-  const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
+  const hasDatingHistory = datingArchives.some(archive => archive.contents.some(content => content.lines.length > 0));
+  const hasStoryHistory = hasMainStoryHistory || hasDatingHistory;
+  const isStoryHistoryMode = isStoryHistoryOpen && hasStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
-  const currentDatingWalk = datingWalkHomeByDate[
-    `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
-  ];
-  const isDatingOverlayOpen = Boolean(datingRun || datingFeePromptAppointmentId || currentDatingWalk?.status === 'offered');
+  const currentDatingWalk =
+    datingWalkHomeByDate[
+      `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
+    ];
+  const isDatingOverlayOpen = Boolean(
+    datingRun || datingFeePromptAppointmentId || currentDatingWalk?.status === 'offered',
+  );
   const isBlockingDialogOpen =
     currentSceneId !== null ||
     isContextPreviewOpen ||
     isCharacterArchiveOpen ||
     isDictionaryOpen ||
     isSystemSettingsOpen ||
-    isDateModuleOpen || isDatingOverlayOpen;
+    isDateModuleOpen ||
+    isDatingOverlayOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -152,8 +159,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (isMainStoryActive || !hasMainStoryHistory) setIsStoryHistoryOpen(false);
-  }, [hasMainStoryHistory, isMainStoryActive]);
+    if (isMainStoryActive || !hasStoryHistory) setIsStoryHistoryOpen(false);
+  }, [hasStoryHistory, isMainStoryActive]);
 
   useEffect(() => {
     if (isStoryOverlayOpen) {
@@ -352,7 +359,7 @@ function App() {
                       <CharacterInteractionScene />
                     ) : (
                       <SchoolMap
-                        hasStoryHistory={hasMainStoryHistory}
+                        hasStoryHistory={hasStoryHistory}
                         onOpenStoryHistory={() => setIsStoryHistoryOpen(true)}
                       />
                     )}
@@ -420,7 +427,7 @@ function App() {
                   {isDateModuleOpen && (
                     <DateModule date={calendarDate} specialDates={calendarSpecialDates} onClose={closeDateModule} />
                   )}
-                  <DatingScene />
+                  <DatingScene onOpenContextPreview={() => setIsContextPreviewOpen(true)} />
                 </div>
 
                 {!currentSceneId && (

@@ -1,7 +1,7 @@
 .context-preview__overlay {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 8000;
   display: grid;
   place-items: center;
   padding: clamp(12px, 3vw, 36px);
@@ -220,6 +220,13 @@
   padding-bottom: 8px;
   cursor: pointer;
   list-style-position: inside;
+}
+
+.context-preview__message-scope {
+  display: block;
+  padding: 0 10px 4px;
+  color: #8d7c80;
+  font-size: 11px;
 }
 
 .context-preview__message p {

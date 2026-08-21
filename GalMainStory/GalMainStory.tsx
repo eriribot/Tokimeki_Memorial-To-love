@@ -20,7 +20,7 @@ import {
   isStoryCharacterSpeaking,
 } from './characters';
 import GalCgPage from './GalCgPage';
-import GalStoryPage from './GalStoryPage';
+import GalStoryPage, { GalStoryPagePager } from './GalStoryPage';
 import {
   getEpisodeStoryActs,
   getPreviousActiveStoryFloors,
@@ -52,7 +52,9 @@ interface GalMainStoryProps {
 }
 
 type HistoryPlaybackTarget =
-  { kind: 'all'; eventId: string } | { kind: 'floor'; eventId: string; floorId: string } | null;
+  | { kind: 'all'; eventId: string }
+  | { kind: 'floor'; eventId: string; floorId: string }
+  | null;
 type RawHistoryTarget = { floorId: string | null } | null;
 
 function getErrorMessage(error: unknown): string {
@@ -393,6 +395,18 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
     setHistoryPlaybackTarget(null);
     setReplayIndex(0);
   }, []);
+
+  const selectReplayPage = useCallback(
+    (page: number) => {
+      const safePage = Math.max(0, Math.min(readCursors.length - 1, Math.trunc(page)));
+      if (!historyMode && safePage >= readCursors.length - 1) {
+        setReplayIndex(null);
+        return;
+      }
+      setReplayIndex(safePage);
+    },
+    [historyMode, readCursors.length],
+  );
 
   const advanceFromCurrentPage = useCallback(() => {
     if (historyMode) {
@@ -751,11 +765,13 @@ export default function GalMainStory({ historyMode = false, onExitHistory }: Gal
               >
                 ←
               </button>
-              <span className="gal-main-story__progress">
-                {isReplaying && '回放 '}
-                {visibleActIndex + 1}-{visiblePageIndex + 1} / {visibleEpisode?.acts.length ?? historyActs.length}-
-                {visibleAct.beats.length}
-              </span>
+              <GalStoryPagePager
+                currentPage={
+                  historyMode ? (replayCursorIndex ?? 0) : (replayCursorIndex ?? Math.max(0, readCursors.length - 1))
+                }
+                pageCount={readCursors.length}
+                onSelectPage={selectReplayPage}
+              />
               <button
                 type="button"
                 className="gal-main-story__skip"

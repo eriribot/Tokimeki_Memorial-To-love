@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { calendarDateKey } from '../CalendarModule/specialDates';
 import { getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
-import GalStoryPage from '../GalMainStory/GalStoryPage';
+import GalStoryPage, { GalStoryPagePager } from '../GalMainStory/GalStoryPage';
 import { getStoryScene } from '../GalMainStory/scenes';
 import { resolveAssetPath } from '../utils/assetPath';
 import { isCharacterAvailable } from '../data/characterAvailability';
+import { captureGameMessages } from '../message';
+import { createGameSnapshot } from '../save/snapshot';
 import { getEquippedSkillIds, useSkillStore } from '../skilllogic';
 import { useCardStore } from '../stores/cardStore';
 import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { createDatingArchiveSummary, settleDatingChoices, settleDatingRelationshipChoices } from './datingDirector';
+import { settleDatingChoices, settleDatingRelationshipChoices } from './datingDirector';
+import { createDatingGenerationContextProjection } from './datingGenerationContext';
 import { resolveDatingFeeChoice } from './datingCoordinator';
 import {
   getDatingCharacterProgress,
@@ -137,7 +140,11 @@ function createWalkHomeContent(characterName: string, characterId: string, playe
   };
 }
 
-export default function DatingScene() {
+interface DatingSceneProps {
+  onOpenContextPreview: () => void;
+}
+
+export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) {
   const date = useGameStore(state => state.date);
   const periodIndex = useGameStore(state => state.periodIndex);
   const currentLocationId = useGameStore(state => state.currentLocationId);
@@ -152,7 +159,6 @@ export default function DatingScene() {
   const run = useDatingStore(state => state.run);
   const generation = useDatingStore(state => state.generation);
   const relationships = useDatingStore(state => state.relationships);
-  const archives = useDatingStore(state => state.archives);
   const walkHomeByDate = useDatingStore(state => state.walkHomeByDate);
   const feePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
   const appointments = useDatingStore(state => state.appointments);
@@ -246,32 +252,18 @@ export default function DatingScene() {
       error: null,
       requestId,
     });
-    const recentArchives = archives
-      .slice(-3)
-      .map(archive =>
-        createDatingArchiveSummary(
-          archive,
-          targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId,
-        ),
-      );
-    const latestArchivedContent = archives.at(-1)?.contents.at(-1) ?? null;
-    const recentBody =
-      run.stageContents.main?.lines.map(line => line.text).join(' ') ??
-      latestArchivedContent?.lines.map(line => line.text).join(' ') ??
-      null;
-    const previousOptionId = run.selectedOptionIds.at(-1) ?? null;
-    const previousOptionLabel =
-      run.plan.stages.flatMap(item => item.options).find(option => option.id === previousOptionId)?.label ?? null;
-    const relationshipProgress = getDatingCharacterProgress(relationships, run.plan.characterId);
+    const contextProjection = createDatingGenerationContextProjection({
+      snapshot: createGameSnapshot(),
+      mainStoryMessages: captureGameMessages(),
+      plan: run.plan,
+      stageId: stage.id,
+    });
     void generateDatingStage(run.plan, stage.id, {
-      recentArchives,
-      recentBody,
-      selectedOptionLabel: previousOptionLabel,
-      relationshipContext: {
-        sub: relationshipProgress.sub,
-        hurt: relationshipProgress.hurt,
-        girlRelations: getDatingGirlRelations(relationships, run.plan.characterId),
-      },
+      recentArchives: contextProjection.recentArchives,
+      recentBody: contextProjection.recentBody,
+      selectedOptionLabel: contextProjection.selectedOptionLabel,
+      relationshipContext: contextProjection.relationshipContext,
+      continuityMessages: contextProjection.contextMessages,
     })
       .then(generated => {
         const current = useDatingStore.getState();
@@ -303,7 +295,6 @@ export default function DatingScene() {
         });
       });
   }, [
-    archives,
     content,
     generation.appointmentId,
     generation.stageId,
@@ -464,10 +455,11 @@ export default function DatingScene() {
           theme="pink"
           controls={
             <nav className="gal-main-story__controls" aria-label="放学同行翻页">
-              <span className="gal-main-story__progress">
-                {Math.min(walkPlayback.pageIndex + 1, walkPlayback.content.lines.length)} /{' '}
-                {walkPlayback.content.lines.length}
-              </span>
+              <GalStoryPagePager
+                currentPage={walkPlayback.pageIndex}
+                pageCount={walkPlayback.content.lines.length}
+                onSelectPage={pageIndex => setWalkPlayback(value => (value ? { ...value, pageIndex } : null))}
+              />
               <button
                 type="button"
                 className="gal-main-story__icon-button is-primary"
@@ -520,8 +512,7 @@ export default function DatingScene() {
   const choiceVisible = Boolean(content && run.pageIndex >= content.lines.length);
   const portrait = line ? getPortrait(line, run.pageIndex) : null;
   const isRiverbankDate = run.plan.locationId === 'riverbank';
-  const isCurrentGeneration =
-    generation.appointmentId === run.appointmentId && generation.stageId === stage.id;
+  const isCurrentGeneration = generation.appointmentId === run.appointmentId && generation.stageId === stage.id;
   const isGenerationError = !content && isCurrentGeneration && generation.status === 'error';
   const isGenerating = !content && !isGenerationError;
   const displayOptions = stage.options.map(option => {
@@ -554,9 +545,8 @@ export default function DatingScene() {
       return;
     }
     const previousOptionId = activeRun.selectedOptionIds.at(-1);
-    const previousOptionLabel = activeRun.plan.stages
-      .flatMap(item => item.options)
-      .find(option => option.id === previousOptionId)?.label ?? null;
+    const previousOptionLabel =
+      activeRun.plan.stages.flatMap(item => item.options).find(option => option.id === previousOptionId)?.label ?? null;
     setStageContent(stage.id, createDatingFallbackContent(activeRun.plan, stage.id, previousOptionLabel));
   };
 
@@ -571,11 +561,7 @@ export default function DatingScene() {
         aria-busy={!isGenerationError}
         aria-label={isGenerationError ? `${run.plan.characterName}约会生成失败` : `${run.plan.characterName}约会生成中`}
       >
-        <img
-          className="gal-main-story__background"
-          src={resolveAssetPath(scene.asset)}
-          alt={scene.alt}
-        />
+        <img className="gal-main-story__background" src={resolveAssetPath(scene.asset)} alt={scene.alt} />
         <div className="gal-main-story__shade" aria-hidden="true" />
         <div className={`gal-main-story__generation-panel${isGenerationError ? ' is-error' : ''}`}>
           {!isGenerationError && (
@@ -588,7 +574,7 @@ export default function DatingScene() {
           <strong>{isGenerationError ? '这一幕生成失败' : '沛凯正在策划这一幕'}</strong>
           <p>
             {isGenerationError
-              ? generation.error ?? '酒馆没有返回可播放的约会正文。'
+              ? (generation.error ?? '酒馆没有返回可播放的约会正文。')
               : `正在调用酒馆当前预设生成${stage.label}……`}
           </p>
           {isGenerationError && (
@@ -602,6 +588,15 @@ export default function DatingScene() {
             </div>
           )}
         </div>
+        <button
+          type="button"
+          className="gal-main-story__icon-button dating-context-button"
+          aria-label="打开本次约会的上下文预览"
+          title="上下文预览"
+          onClick={onOpenContextPreview}
+        >
+          i
+        </button>
         {isRiverbankDate && (
           <DatingRelationshipStrip
             characterId={run.plan.characterId}
@@ -660,9 +655,11 @@ export default function DatingScene() {
               >
                 ←
               </button>
-              <span className="gal-main-story__progress">
-                {run.pageIndex + 1} / {content.lines.length}
-              </span>
+              <GalStoryPagePager
+                currentPage={run.pageIndex}
+                pageCount={content.lines.length}
+                onSelectPage={pageIndex => setRunPosition(run.stageIndex, pageIndex)}
+              />
               <button
                 type="button"
                 className="gal-main-story__icon-button is-primary"
@@ -675,6 +672,15 @@ export default function DatingScene() {
           ) : null
         }
       />
+      <button
+        type="button"
+        className="gal-main-story__icon-button dating-context-button"
+        aria-label="打开本次约会的上下文预览"
+        title="上下文预览"
+        onClick={onOpenContextPreview}
+      >
+        i
+      </button>
       {isRiverbankDate && (
         <DatingRelationshipStrip
           characterId={run.plan.characterId}

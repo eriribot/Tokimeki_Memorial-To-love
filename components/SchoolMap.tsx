@@ -156,8 +156,8 @@ export default function SchoolMap({ hasStoryHistory, onOpenStoryHistory }: Schoo
         <button
           type="button"
           className="school-map__story-history"
-          aria-label="回放已读主线剧情"
-          title="回放已读主线剧情"
+          aria-label="回放已读剧情"
+          title="回放已读剧情"
           onClick={onOpenStoryHistory}
         >
           <img src={resolveAssetPath('/artsource/ui/skip_kidoku.png')} alt="" aria-hidden="true" />

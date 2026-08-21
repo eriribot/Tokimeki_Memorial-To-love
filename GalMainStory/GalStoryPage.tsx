@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
 import { getSpeakerNameplateAsset, type LayeredPortraitRig } from './characters';
 import { GALBOX_ASSETS } from './galAssets';
@@ -35,6 +35,75 @@ interface GalStoryPageProps {
     showPrompt?: boolean;
     autoFocusFirstOption?: boolean;
   } | null;
+}
+
+export interface GalStoryPagePagerProps {
+  currentPage: number;
+  pageCount: number;
+  onSelectPage: (pageIndex: number) => void;
+}
+
+/** Shared replay pager used by main-story and dating-history playback. */
+export function GalStoryPagePager({ currentPage, pageCount, onSelectPage }: GalStoryPagePagerProps) {
+  const safePageCount = Math.max(0, Math.trunc(pageCount));
+  const safePageIndex = safePageCount > 0 ? Math.min(safePageCount - 1, Math.max(0, Math.trunc(currentPage))) : 0;
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [safePageIndex, safePageCount]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  const label = `${safePageCount > 0 ? safePageIndex + 1 : 0} / ${safePageCount}`;
+  if (safePageCount <= 1) {
+    return <span className="gal-main-story__progress">{label}</span>;
+  }
+
+  return (
+    <div className="gal-main-story__page-jump" onClick={event => event.stopPropagation()}>
+      <button
+        type="button"
+        className="gal-main-story__progress"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-label="选择回放页码"
+        title="选择回放页码"
+        onClick={() => setIsOpen(value => !value)}
+      >
+        {label}
+      </button>
+      {isOpen && (
+        <div className="gal-main-story__page-jump-menu" role="dialog" aria-label="选择回放页码">
+          <div className="gal-main-story__page-jump-grid">
+            {Array.from({ length: safePageCount }, (_, pageIndex) => (
+              <button
+                key={pageIndex}
+                type="button"
+                className={pageIndex === safePageIndex ? 'is-active' : undefined}
+                aria-current={pageIndex === safePageIndex ? 'page' : undefined}
+                onClick={() => {
+                  setIsOpen(false);
+                  onSelectPage(pageIndex);
+                }}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /**

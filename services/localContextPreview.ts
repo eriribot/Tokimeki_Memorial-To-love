@@ -1,6 +1,7 @@
 import { getMainStoryLoreSelections } from '../GalMainStory/storyRegistry';
 import { getPreviousActiveStoryFloors } from '../GalMainStory/storyArchive';
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
+import { createDatingGenerationContextProjection } from '../DatingModule/datingGenerationContext';
 import type { DisabledWorldbookLoreReference } from '../data/storyLore';
 import { captureGameMessages } from '../message';
 import { createGameSnapshot, type GameSnapshot } from '../save/snapshot';
@@ -32,6 +33,10 @@ export interface LocalContextPreview {
   snapshot: GameSnapshot;
   messages: GalStoryMessageSave[];
   generation: LocalContextPreviewGeneration | null;
+  datingGeneration: {
+    projection: ReturnType<typeof createDatingGenerationContextProjection>;
+    source: 'active-run';
+  } | null;
 }
 
 function cloneJson<T>(value: T): T {
@@ -41,6 +46,18 @@ function cloneJson<T>(value: T): T {
 export function createLocalContextPreview(): LocalContextPreview {
   const snapshot = createGameSnapshot();
   const messages = captureGameMessages();
+  const datingRun = snapshot.dating?.run?.status === 'active' ? snapshot.dating.run : null;
+  const datingGeneration = datingRun
+    ? {
+        projection: createDatingGenerationContextProjection({
+          snapshot,
+          mainStoryMessages: messages,
+          plan: datingRun.plan,
+          stageId: datingRun.plan.stages[datingRun.stageIndex].id,
+        }),
+        source: 'active-run' as const,
+      }
+    : null;
   const run = snapshot.game.mainStory.run?.phase === 'playing' ? snapshot.game.mainStory.run : null;
   const latestFloor = snapshot.game.mainStory.archives
     .flatMap(archive => archive.floors)
@@ -80,6 +97,7 @@ export function createLocalContextPreview(): LocalContextPreview {
       snapshot,
       messages,
       generation: null,
+      datingGeneration,
     };
   }
 
@@ -118,6 +136,7 @@ export function createLocalContextPreview(): LocalContextPreview {
         maskedSources: [...personaPlan.maskedSources],
       },
     },
+    datingGeneration,
   };
 }
 

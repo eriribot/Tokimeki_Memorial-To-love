@@ -1,5 +1,8 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDatingStore } from '../DatingModule/datingStore';
+import DatingHistoryPlayback from '../DatingModule/DatingHistoryPlayback';
+import { compareDates, getDatingLocation } from '../DatingModule/datingRules';
+import type { DatingArchive } from '../DatingModule/types';
 import {
   createStoryFloor,
   createStoryFloorId,
@@ -25,6 +28,7 @@ import {
   type SummaryInvalidationResult,
 } from '../memory/summaryInvalidation';
 import { useMemorySummaryArchiveStore } from '../memory/summaryArchive';
+import { useCardStore } from '../stores/cardStore';
 
 interface StoryHistoryArchiveProps {
   isRawHistoryOpen: boolean;
@@ -56,6 +60,10 @@ function formatFloorTime(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN', { hour12: false });
 }
 
+function formatCalendarDate(value: DatingArchive['date']): string {
+  return `${value.year}年${value.month}月${value.day}日`;
+}
+
 export default function StoryHistoryArchive({
   isRawHistoryOpen,
   onExit,
@@ -66,6 +74,7 @@ export default function StoryHistoryArchive({
 }: StoryHistoryArchiveProps) {
   const archives = useGameStore(state => state.mainStory.archives);
   const datingArchives = useDatingStore(state => state.archives);
+  const targets = useCardStore(state => state.targets);
   const messageHistory = useGameStore(state => state.mainStory.messages);
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
@@ -79,6 +88,7 @@ export default function StoryHistoryArchive({
   const [showImpactWarning, setShowImpactWarning] = useState(false);
   const [summaryInvalidation, setSummaryInvalidation] = useState<SummaryInvalidationResult | null>(null);
   const [showSummaryWarning, setShowSummaryWarning] = useState(false);
+  const [datingReplayArchive, setDatingReplayArchive] = useState<DatingArchive | null>(null);
   const saveUuid = useMemorySummaryArchiveStore(state => state.activeSaveUuid) ?? '';
   const sortedArchives = useMemo(
     () =>
@@ -92,6 +102,13 @@ export default function StoryHistoryArchive({
         );
       }),
     [archives],
+  );
+  const sortedDatingArchives = useMemo(
+    () =>
+      [...datingArchives].sort(
+        (left, right) => compareDates(left.date, right.date) || left.createdAt.localeCompare(right.createdAt),
+      ),
+    [datingArchives],
   );
   const hasPlayableStory = sortedArchives.some(archive => Boolean(getActiveFloor(archive)?.act));
   const latestPlayableEventId = [...sortedArchives]
@@ -497,8 +514,69 @@ export default function StoryHistoryArchive({
               </article>
             );
           })}
+
+          {sortedDatingArchives.length > 0 && (
+            <section className="gal-story-archive__act gal-story-archive__dating" aria-label="非主线约会记录">
+              <div className="gal-story-archive__act-heading">
+                <div>
+                  <span>日历记录 · 已完成约会</span>
+                  <h3>非主线约会</h3>
+                </div>
+              </div>
+              <p className="gal-story-archive__summary">
+                共 {sortedDatingArchives.length} 场 · 正文和返程记录均来自约会归档
+              </p>
+              <ol className="gal-story-archive__floors">
+                {sortedDatingArchives.map(archive => {
+                  const characterName =
+                    targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId;
+                  const location = getDatingLocation(archive.locationId);
+                  const lineCount = archive.contents.reduce((count, content) => count + content.lines.length, 0);
+                  return (
+                    <li key={archive.id}>
+                      <div className="gal-story-archive__floor-meta">
+                        <strong>
+                          {characterName} · {location.label}
+                        </strong>
+                        <span>
+                          {archive.quality === 'great'
+                            ? '气氛很好'
+                            : archive.quality === 'good'
+                              ? '相处顺利'
+                              : '有点笨拙'}
+                        </span>
+                        <time dateTime={archive.createdAt}>{formatCalendarDate(archive.date)}</time>
+                      </div>
+                      <p>
+                        {archive.contents.length} 段记录 · {lineCount} 句已保存正文
+                      </p>
+                      <div className="gal-story-archive__floor-actions">
+                        <button
+                          type="button"
+                          disabled={lineCount === 0}
+                          onClick={() => setDatingReplayArchive(archive)}
+                        >
+                          回放约会
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          )}
         </div>
       </div>
+      {datingReplayArchive && (
+        <DatingHistoryPlayback
+          archive={datingReplayArchive}
+          characterName={
+            targets.find(target => target.id === datingReplayArchive.characterId)?.name ??
+            datingReplayArchive.characterId
+          }
+          onClose={() => setDatingReplayArchive(null)}
+        />
+      )}
       {showImpactWarning && impactAnalysis && (
         <div className="gal-story-archive__impact-warning" role="dialog" aria-modal="true">
           <div className="gal-story-archive__impact-content">

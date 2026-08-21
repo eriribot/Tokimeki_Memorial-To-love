@@ -933,6 +933,75 @@
   letter-spacing: 0;
 }
 
+.gal-main-story__page-jump {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.gal-main-story__page-jump .gal-main-story__progress {
+  min-width: 4.6em;
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(28, 32, 44, 0.52);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.gal-main-story__page-jump .gal-main-story__progress:hover,
+.gal-main-story__page-jump .gal-main-story__progress:focus-visible {
+  border-color: #ffdc72;
+  color: #ffdc72;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 220, 114, 0.38);
+}
+
+.gal-main-story__page-jump-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  width: min(300px, 46cqi);
+  max-height: min(300px, 42cqi);
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 6px;
+  background: rgba(24, 29, 42, 0.96);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.36);
+  cursor: default;
+}
+
+.gal-main-story__page-jump-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 5px;
+}
+
+.gal-main-story__page-jump-grid button {
+  min-height: 30px;
+  padding: 3px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.gal-main-story__page-jump-grid button:hover,
+.gal-main-story__page-jump-grid button:focus-visible,
+.gal-main-story__page-jump-grid button.is-active {
+  border-color: #ffdc72;
+  background: rgba(255, 220, 114, 0.22);
+  color: #ffdc72;
+  outline: none;
+}
+
 .gal-main-story__raw-backdrop {
   position: absolute;
   inset: 0;
@@ -1803,13 +1872,24 @@
   .gal-main-story__controls {
     top: -42px;
     right: 6px;
-    grid-template-columns: 30px auto 30px;
+    grid-template-columns: 30px 30px auto 30px;
     gap: 5px;
   }
 
-  .gal-main-story__progress,
   .gal-main-story__skip {
     display: none;
+  }
+
+  .gal-main-story__progress {
+    display: none;
+  }
+
+  .gal-main-story__page-jump .gal-main-story__progress {
+    display: block;
+    min-width: 3.8em;
+    min-height: 28px;
+    padding: 3px 5px;
+    font-size: 10px;
   }
 
   .gal-main-story__icon-button {
@@ -1828,11 +1908,6 @@
   .gal-main-story__skip {
     min-height: 28px;
     font-size: 11px;
-  }
-
-  .gal-main-story__progress {
-    min-width: 3.8em;
-    font-size: 10px;
   }
 
   .gal-main-story__raw-backdrop {

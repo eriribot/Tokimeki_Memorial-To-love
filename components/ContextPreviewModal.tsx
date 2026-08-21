@@ -67,6 +67,10 @@ function getPeriodLabel(periodIndex: number): string {
 }
 
 function getFloorLabel(preview: LocalContextPreview): string {
+  if (preview.datingGeneration) {
+    const { projection } = preview.datingGeneration;
+    return `当前约会 · ${projection.characterName} · ${projection.stageId === 'main' ? '约会正文' : '返程'}`;
+  }
   const generation = preview.generation;
   if (!generation) return '当前没有可审查的生成记录';
   const { projection } = generation;
@@ -620,6 +624,8 @@ function ContextTab({
   messages: LocalContextPreview['messages'];
 }) {
   const generation = preview.generation;
+  const datingGeneration = preview.datingGeneration;
+  const datingProjection = datingGeneration?.projection ?? null;
   const isActiveProjection = generation?.source === 'active-run';
   return (
     <div className="context-preview__sections">
@@ -627,32 +633,86 @@ function ContextTab({
         <div className="context-preview__section-heading">
           <div>
             <span>RAW WINDOW</span>
-            <h3>
-              {isActiveProjection ? '当前幕连续性窗口' : '下一轮连续性窗口'} · {messages.length}/
-              {generation?.projection.maxChatHistory ?? RECENT_CONTEXT_MESSAGE_LIMIT}
-            </h3>
+            {datingProjection ? (
+              <h3>
+                当前约会连续性窗口 · {datingProjection.contextMessages.length}/{datingProjection.maxContextMessages}
+              </h3>
+            ) : (
+              <h3>
+                {isActiveProjection ? '当前幕连续性窗口' : '下一轮连续性窗口'} · {messages.length}/
+                {generation?.projection.maxChatHistory ?? RECENT_CONTEXT_MESSAGE_LIMIT}
+              </h3>
+            )}
           </div>
           <small>
-            {!isActiveProjection && generation ? '按当前采用版重建 · ' : ''}
-            {messages.map(message => message.id).join(' / ') || '当前为空'}
+            {datingProjection
+              ? datingProjection.contextMessages.map(message => message.id).join(' / ') || '当前为空'
+              : `${!isActiveProjection && generation ? '按当前采用版重建 · ' : ''}${
+                  messages.map(message => message.id).join(' / ') || '当前为空'
+                }`}
           </small>
         </div>
         <div className="context-preview__message-list">
-          {messages.length === 0 && <p className="context-preview__empty">暂无可用原文。</p>}
-          {messages.map(message => (
-            <details className="context-preview__message" key={message.id}>
-              <summary>
-                <strong>{message.extra.role === 'user' ? 'User' : 'Assistant'}</strong>
-                <span>{message.extra.source === 'fallback' ? 'fallback' : 'Tavern'}</span>
-                <time dateTime={message.send_date}>{formatDateTime(message.send_date)}</time>
-              </summary>
-              <p>{message.mes}</p>
-            </details>
-          ))}
+          {datingProjection ? (
+            <>
+              {datingProjection.contextMessages.length === 0 && (
+                <p className="context-preview__empty">暂无可用的主线或已完成约会原文。</p>
+              )}
+              {datingProjection.contextMessages.map(message => (
+                <details className="context-preview__message" key={message.id}>
+                  <summary>
+                    <strong>{message.role === 'user' ? 'User' : 'Assistant'}</strong>
+                    <span>{message.kind === 'dating' ? '约会' : '主线'}</span>
+                    <span>{message.source === 'fallback' ? 'fallback' : 'Tavern'}</span>
+                    <time dateTime={message.createdAt}>{formatDateTime(message.createdAt)}</time>
+                  </summary>
+                  <small className="context-preview__message-scope">{message.scopeLabel}</small>
+                  <p>{message.content}</p>
+                </details>
+              ))}
+            </>
+          ) : (
+            <>
+              {messages.length === 0 && <p className="context-preview__empty">暂无可用原文。</p>}
+              {messages.map(message => (
+                <details className="context-preview__message" key={message.id}>
+                  <summary>
+                    <strong>{message.extra.role === 'user' ? 'User' : 'Assistant'}</strong>
+                    <span>{message.extra.source === 'fallback' ? 'fallback' : 'Tavern'}</span>
+                    <time dateTime={message.send_date}>{formatDateTime(message.send_date)}</time>
+                  </summary>
+                  <p>{message.mes}</p>
+                </details>
+              ))}
+            </>
+          )}
         </div>
       </section>
 
-      {generation ? (
+      {datingGeneration ? (
+        <>
+          <section className="context-preview__section">
+            <div className="context-preview__section-heading">
+              <div>
+                <span>USER INPUT</span>
+                <h3>当前约会生成提示</h3>
+              </div>
+              <small>{datingProjection?.stageId === 'main' ? '约会正文' : '返程'} · 已接入主线与已完成约会上下文</small>
+            </div>
+            <pre className="context-preview__prompt">{datingProjection?.userInput}</pre>
+          </section>
+          <section className="context-preview__section">
+            <div className="context-preview__section-heading">
+              <div>
+                <span>WORLD INFO ROUTING</span>
+                <h3>沿用当前酒馆预设与世界书</h3>
+              </div>
+              <small>约会请求只提交 user_input，不覆盖模型、采样、历史或预设</small>
+            </div>
+            <p>上下文窗口来自本地已采纳叙事投影；当前约会主段由“最近一次已采纳正文”继续传给返程。</p>
+          </section>
+        </>
+      ) : generation ? (
         <>
           <section className="context-preview__section">
             <div className="context-preview__section-heading">

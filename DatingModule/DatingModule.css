@@ -32,6 +32,16 @@
   z-index: 8;
 }
 
+.dating-context-button {
+  position: absolute;
+  top: 54px;
+  left: 12px;
+  z-index: 10;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
 .dating-riverbank .gal-main-story__choice {
   height: 260px;
   max-height: 46%;
@@ -150,8 +160,12 @@
   animation: dating-flash 220ms ease-out;
 }
 
-.dating-scene.effect-shake {
-  animation: dating-shake 260ms ease-out;
+.dating-scene.effect-shake .gal-main-story__background {
+  animation: dating-shake-background 260ms ease-out both;
+}
+
+.dating-scene.effect-shake .layered-portrait-stage {
+  animation: dating-shake-centered 260ms ease-out both;
 }
 
 .dating-modal-panel,
@@ -437,16 +451,29 @@
   }
 }
 
-@keyframes dating-shake {
+@keyframes dating-shake-background {
   0%,
   100% {
-    transform: translate3d(0, -50%, 0);
+    transform: translateX(0);
   }
   25% {
-    transform: translate3d(-4px, -50%, 0);
+    transform: translateX(-4px);
   }
   75% {
-    transform: translate3d(4px, -50%, 0);
+    transform: translateX(4px);
+  }
+}
+
+@keyframes dating-shake-centered {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  25% {
+    transform: translateX(calc(-50% - 4px));
+  }
+  75% {
+    transform: translateX(calc(-50% + 4px));
   }
 }
 

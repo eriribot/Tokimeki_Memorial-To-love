@@ -75,9 +75,7 @@ export function validateFloorContext(
 /**
  * 验证整个剧情档案的上下文完整性
  */
-export function validateAllContexts(
-  archives: readonly GalStoryActArchive[],
-): ContextValidationResult[] {
+export function validateAllContexts(archives: readonly GalStoryActArchive[]): ContextValidationResult[] {
   const results: ContextValidationResult[] = [];
 
   for (const archive of archives) {
@@ -151,18 +149,14 @@ export function analyzeRegenerationImpact(
 /**
  * 获取所有上下文失效的楼层
  */
-export function getInvalidContextFloors(
-  archives: readonly GalStoryActArchive[],
-): ContextValidationResult[] {
+export function getInvalidContextFloors(archives: readonly GalStoryActArchive[]): ContextValidationResult[] {
   return validateAllContexts(archives).filter(result => !result.isValid);
 }
 
 /**
  * 生成上下文验证报告（人类可读）
  */
-export function generateContextReport(
-  archives: readonly GalStoryActArchive[],
-): string {
+export function generateContextReport(archives: readonly GalStoryActArchive[]): string {
   const validations = validateAllContexts(archives);
   const invalid = validations.filter(v => !v.isValid);
 
@@ -170,13 +164,11 @@ export function generateContextReport(
     return `✅ 所有 ${validations.length} 个活动楼层的上下文均有效。`;
   }
 
-  const lines: string[] = [
-    `⚠️ 发现 ${invalid.length} / ${validations.length} 个楼层的上下文失效：\n`,
-  ];
+  const lines: string[] = [`⚠️ 发现 ${invalid.length} / ${validations.length} 个楼层的上下文失效：\n`];
 
   for (const result of invalid) {
     const episode = getMainStoryEpisode(result.eventId);
-    const episodeName = episode?.displayName ?? result.eventId;
+    const episodeName = episode?.title ?? result.eventId;
     lines.push(`【${episodeName} - Act ${result.actIndex + 1}】`);
     lines.push(`  楼层 ID: ${result.floorId.slice(0, 20)}...`);
     lines.push(`  期望依赖: ${result.expectedContextFloorIds.length} 个前置楼层`);
@@ -204,7 +196,7 @@ export function generateContextReport(
  */
 export function generateImpactReport(impact: ContextImpactAnalysis): string {
   const episode = getMainStoryEpisode(impact.targetFloor.eventId);
-  const episodeName = episode?.displayName ?? impact.targetFloor.eventId;
+  const episodeName = episode?.title ?? impact.targetFloor.eventId;
 
   const lines: string[] = [
     `🎯 目标楼层：【${episodeName} - Act ${impact.targetFloor.actIndex + 1}】`,
