@@ -1,4 +1,5 @@
 import { isCalendarDateValue } from '../CalendarModule/date';
+import { getPendingMainStoryEntry } from '../GalMainStory/storyRegistry';
 import {
   createMainStorySaveState,
   restoreMainStoryState,
@@ -18,6 +19,13 @@ import {
 import { useCardStore } from '../stores/cardStore';
 import { syncDefaultCards } from '../stores/characterStore';
 import { useGameStore } from '../stores/gameStore';
+import {
+  createDatingStateSnapshot,
+  normalizeDatingState,
+  useDatingStore,
+  validateDatingState,
+} from '../DatingModule/datingStore';
+import type { DatingState } from '../DatingModule/types';
 import {
   createPlayerProfile,
   PLAYER_RESOURCE_MAX,
@@ -39,6 +47,43 @@ import { assertGameSnapshotSchemaVersion, GAME_SNAPSHOT_SCHEMA_VERSION } from '.
 
 export { GAME_SNAPSHOT_SCHEMA_VERSION } from './snapshotSchema';
 
+function sameCalendarDate(left: CalendarDateValue, right: CalendarDateValue): boolean {
+  return left.year === right.year && left.month === right.month && left.day === right.day;
+}
+
+function assertDatingRestoreCompatibility(
+  game: GameSnapshot['game'],
+  mainStory: MainStorySaveState,
+  dating: DatingState,
+): void {
+  if (dating.run) {
+    if (!sameCalendarDate(game.date, dating.run.plan.date)) {
+      throw new Error('约会运行日期与游戏当前日期不一致');
+    }
+    if (mainStory.run?.phase === 'playing') {
+      throw new Error('约会运行状态与主线运行状态冲突');
+    }
+    for (const actionNumber of [1, 2] as const) {
+      if (
+        getPendingMainStoryEntry({
+          date: game.date,
+          actionNumber,
+          run: mainStory.run,
+          completedEventIds: mainStory.completedEventIds,
+        })
+      ) {
+        throw new Error('约会运行状态与当天待触发主线冲突');
+      }
+    }
+  }
+  if (dating.feePromptAppointmentId) {
+    const appointment = dating.appointments.find(item => item.id === dating.feePromptAppointmentId);
+    if (!appointment || !sameCalendarDate(game.date, appointment.date)) {
+      throw new Error('约会费用提示与当前日期不一致');
+    }
+  }
+}
+
 export interface GameSnapshot {
   schemaVersion: typeof GAME_SNAPSHOT_SCHEMA_VERSION;
   savedAt: string;
@@ -56,6 +101,7 @@ export interface GameSnapshot {
     log: string[];
     events: GameEvent[];
     mainStory: MainStorySaveState;
+    wholeDayActivity?: 'dating' | null;
   };
   player: PlayerState;
   cards: {
@@ -63,6 +109,7 @@ export interface GameSnapshot {
     activeTargetId: string | null;
     loadedCards: CharacterCard[];
   };
+  dating?: DatingState;
 }
 
 function cloneJson<T>(value: T): T {
@@ -126,7 +173,7 @@ function isPlayerProfile(value: unknown): value is PlayerProfile {
   }
 }
 
-function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
+export function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
   if (!isRecord(value)) throw new Error('存档内容不完整');
   assertGameSnapshotSchemaVersion(value.schemaVersion);
   if (!isRecord(value.game) || !isRecord(value.player) || !isRecord(value.cards)) {
@@ -151,11 +198,46 @@ function assertSnapshotShape(value: unknown): asserts value is GameSnapshot {
     !game.log.every(item => typeof item === 'string') ||
     !Array.isArray(game.events) ||
     !isRecord(game.mainStory) ||
+    (game.wholeDayActivity !== undefined && game.wholeDayActivity !== null && game.wholeDayActivity !== 'dating') ||
     !Array.isArray(value.cards.targets) ||
     !Array.isArray(value.cards.loadedCards) ||
     (value.cards.activeTargetId !== null && typeof value.cards.activeTargetId !== 'string')
   ) {
     throw new Error('存档字段格式无效');
+  }
+  if (value.dating !== undefined && !validateDatingState(value.dating)) {
+    throw new Error('约会存档字段格式无效');
+  }
+  const dating = value.dating === undefined ? null : value.dating;
+  const gameDate = game.date as CalendarDateValue;
+  const datingRun = dating?.run ?? null;
+  const datingActiveAppointment = dating?.appointments.find(appointment => appointment.status === 'active') ?? null;
+  if (datingRun) {
+    if (game.wholeDayActivity !== 'dating' || game.actionPointsRemaining !== 1 || game.periodIndex !== 1) {
+      throw new Error('约会运行状态与游戏整天活动状态不一致');
+    }
+    if (!datingActiveAppointment || datingActiveAppointment.id !== datingRun.appointmentId) {
+      throw new Error('约会运行状态缺少对应的活动预约');
+    }
+  } else if (
+    datingActiveAppointment ||
+    dating?.generation.status === 'loading' ||
+    dating?.generation.status === 'ready'
+  ) {
+    throw new Error('约会存档存在没有运行 cursor 的活动状态');
+  }
+  if (game.wholeDayActivity === 'dating' && !datingRun) {
+    const hasPendingDatingStart = Boolean(
+      dating?.feePromptAppointmentId ||
+      dating?.appointments.some(
+        appointment =>
+          appointment.status === 'booked' &&
+          appointment.date.year === gameDate.year &&
+          appointment.date.month === gameDate.month &&
+          appointment.date.day === gameDate.day,
+      ),
+    );
+    if (!hasPendingDatingStart) throw new Error('游戏标记为约会日，但约会存档没有待启动预约');
   }
   let profile: PlayerProfile | null;
   if (player.profile === null) profile = null;
@@ -210,6 +292,7 @@ export function createGameSnapshot(): GameSnapshot {
       log: game.log,
       events: game.events,
       mainStory: createMainStorySaveState(game.mainStory),
+      wholeDayActivity: game.wholeDayActivity,
     },
     player: {
       name: player.name,
@@ -229,6 +312,7 @@ export function createGameSnapshot(): GameSnapshot {
       activeTargetId: cards.activeTargetId,
       loadedCards: cards.loadedCards,
     },
+    dating: createDatingStateSnapshot(useDatingStore.getState()),
   });
 }
 
@@ -256,15 +340,19 @@ export function restoreGameSnapshot(
   if (!normalizedSkillsResult.ok) throw new Error(normalizedSkillsResult.error.message);
   const normalizedSkills = normalizedSkillsResult.value;
   const mainStory = restoreMainStoryState(snapshot.game.mainStory, archivedMessages, snapshot.player.profile);
+  const dating = normalizeDatingState(snapshot.dating);
+  assertDatingRestoreCompatibility(snapshot.game, mainStory, dating);
   const game = {
     ...snapshot.game,
     day: Math.max(1, Math.trunc(snapshot.game.day)),
     actionPointsRemaining: Math.min(2, Math.max(0, Math.trunc(snapshot.game.actionPointsRemaining))),
     periodIndex: Math.min(2, Math.max(0, Math.trunc(snapshot.game.periodIndex))),
+    wholeDayActivity: snapshot.game.wholeDayActivity ?? null,
     mainStory,
   };
 
   useGameStore.setState(game);
+  useDatingStore.getState().replaceDatingState(dating);
   useGameStore.getState().reconcilePendingMainStoryEntry();
   usePlayerStore.setState({ ...snapshot.player });
   useCardStore.setState({

@@ -5,6 +5,7 @@ import { useCardStore } from '../stores/cardStore';
 import { startNewSession } from '../services/gameSession';
 import { syncCharacterPresence } from '../services/characterPresence';
 import type { GameCharacter, PlayerAction } from '../types';
+import { startScheduledDatingIfNeeded } from '../DatingModule/datingCoordinator';
 
 interface ControlsProps {
   onOpenSkills: () => void;
@@ -52,6 +53,8 @@ export default function Controls({ onOpenSkills }: ControlsProps) {
       addLog(stamina <= 0 ? '你太累了，现在只能休息。' : '压力已经到达上限，现在只能休息。');
       return;
     }
+    const datingStart = startScheduledDatingIfNeeded();
+    if (datingStart.started || datingStart.needsFeeChoice) return;
     const settlement = settlePlayerAction({ kind: 'activity', message: `你进行了${label}。` });
     if (!settlement.accepted) return;
     action();

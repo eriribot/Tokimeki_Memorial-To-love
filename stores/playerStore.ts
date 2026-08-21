@@ -205,4 +205,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         stress: clampPlayerResource(state.stress - 5),
       };
     }),
+  spendMoney: amount => {
+    if (!Number.isFinite(amount) || amount < 0 || get().money < amount) return false;
+    set(state => ({ money: state.money - Math.round(amount) }));
+    return true;
+  },
 }));

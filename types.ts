@@ -1,4 +1,5 @@
 import type { GalStoryFloor, GalStoryMessageSave, MainStoryState } from './GalMainStory/storyTypes';
+import type { DatingState } from './DatingModule/types';
 
 export type GameScreen = 'start' | 'registration' | 'game';
 
@@ -104,6 +105,7 @@ export interface GameState {
   log: string[];
   events: GameEvent[];
   mainStory: MainStoryState;
+  wholeDayActivity: 'dating' | null;
 }
 
 export type PlayerActionKind = 'activity' | 'talk';
@@ -120,6 +122,12 @@ export interface PlayerActionSettlement {
   periodKey: PeriodKey;
 }
 
+export interface WholeDayActivitySettlement {
+  accepted: boolean;
+  dayAdvanced: boolean;
+  reason: string | null;
+}
+
 export interface GameActions {
   startGame: () => void;
   pauseGame: () => void;
@@ -129,6 +137,9 @@ export interface GameActions {
   enterScene: (id: LocationId) => void;
   exitScene: () => void;
   settlePlayerAction: (request: PlayerActionRequest) => PlayerActionSettlement;
+  consumeActionPoint: (message: string) => PlayerActionSettlement;
+  beginWholeDayActivity: (kind?: 'dating') => WholeDayActivitySettlement;
+  finishWholeDayActivity: () => boolean;
   addLog: (message: string) => void;
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
@@ -147,6 +158,8 @@ export interface GameActions {
 }
 
 export type GameStore = GameState & GameActions;
+
+export type { DatingState };
 
 export interface PlayerState {
   name: string;
@@ -174,6 +187,7 @@ export interface PlayerActions {
   rest: () => void;
   socialize: () => void;
   buySnack: () => void;
+  spendMoney: (amount: number) => boolean;
 }
 
 export type PlayerStore = PlayerState & PlayerActions;

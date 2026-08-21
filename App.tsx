@@ -3,6 +3,7 @@ import SaveSlotModal, { type SaveSlotMode } from './savesolt/SaveSlotModal';
 import { CalendarCard, DateModule, DayTransition } from './CalendarModule';
 import { buildCalendarSpecialDateCatalog } from './CalendarModule/specialDates';
 import CharacterInteractionScene from './components/CharacterInteractionScene';
+import DatingScene from './DatingModule/DatingScene';
 import Controls from './components/Controls';
 import EventLog from './components/EventLog';
 import DictionaryPanel from './components/DictionaryPanel';
@@ -21,6 +22,8 @@ import GalMainStory from './GalMainStory/GalMainStory';
 import { gameSaveApi, startTavernAutosave } from './save';
 import { resumeSession } from './services/gameSession';
 import { useGameStore } from './stores/gameStore';
+import { useDatingStore } from './DatingModule/datingStore';
+import { projectDatingAppointmentSpecialDates } from './DatingModule/datingRules';
 import { useMapStore } from './stores/mapStore';
 import { useViewportSize } from './hooks/useViewportSize';
 import { resolveAssetPath } from './utils/assetPath';
@@ -41,7 +44,14 @@ function App() {
   const storyArchives = useGameStore(state => state.mainStory.archives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
-  const calendarSpecialDates = useMemo(() => buildCalendarSpecialDateCatalog(), []);
+  const datingAppointments = useDatingStore(state => state.appointments);
+  const datingRun = useDatingStore(state => state.run);
+  const datingFeePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
+  const datingWalkHomeByDate = useDatingStore(state => state.walkHomeByDate);
+  const calendarSpecialDates = useMemo(
+    () => [...buildCalendarSpecialDateCatalog(), ...projectDatingAppointmentSpecialDates(datingAppointments)],
+    [datingAppointments],
+  );
   const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
   const [isStoryHistoryOpen, setIsStoryHistoryOpen] = useState(false);
   const [saveSlotMode, setSaveSlotMode] = useState<SaveSlotMode | null>(null);
@@ -82,13 +92,17 @@ function App() {
   );
   const isStoryHistoryMode = isStoryHistoryOpen && hasMainStoryHistory && !isMainStoryActive;
   const isStoryOverlayOpen = isMainStoryActive || isStoryHistoryMode;
+  const currentDatingWalk = datingWalkHomeByDate[
+    `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
+  ];
+  const isDatingOverlayOpen = Boolean(datingRun || datingFeePromptAppointmentId || currentDatingWalk?.status === 'offered');
   const isBlockingDialogOpen =
     currentSceneId !== null ||
     isContextPreviewOpen ||
     isCharacterArchiveOpen ||
     isDictionaryOpen ||
     isSystemSettingsOpen ||
-    isDateModuleOpen;
+    isDateModuleOpen || isDatingOverlayOpen;
   const viewportStyle = {
     '--tolove-viewport-width': `${viewportSize.width}px`,
     '--tolove-viewport-height': `${viewportSize.height}px`,
@@ -147,6 +161,13 @@ function App() {
       setIsDateModuleOpen(false);
     }
   }, [isStoryOverlayOpen]);
+
+  useEffect(() => {
+    if (isDatingOverlayOpen) {
+      setIsSkillPanelOpen(false);
+      setIsDateModuleOpen(false);
+    }
+  }, [isDatingOverlayOpen]);
 
   useEffect(() => {
     if (currentSceneId) setIsDateModuleOpen(false);
@@ -305,7 +326,8 @@ function App() {
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
                       isSystemSettingsOpen ||
-                      isDateModuleOpen
+                      isDateModuleOpen ||
+                      isDatingOverlayOpen
                         ? true
                         : undefined
                     }
@@ -315,7 +337,8 @@ function App() {
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
                       isSystemSettingsOpen ||
-                      isDateModuleOpen
+                      isDateModuleOpen ||
+                      isDatingOverlayOpen
                         ? true
                         : undefined
                     }
@@ -341,7 +364,8 @@ function App() {
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
                     !isSystemSettingsOpen &&
-                    !isDateModuleOpen && (
+                    !isDateModuleOpen &&
+                    !isDatingOverlayOpen && (
                       <>
                         <CalendarCard
                           className="game-calendar-card"
@@ -367,14 +391,16 @@ function App() {
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
                     !isSystemSettingsOpen &&
-                    !isDateModuleOpen && <CharacterProfileModal />}
+                    !isDateModuleOpen &&
+                    !isDatingOverlayOpen && <CharacterProfileModal />}
                   {!currentSceneId &&
                     !isStoryOverlayOpen &&
                     !isSkillPanelOpen &&
                     !isCharacterArchiveOpen &&
                     !isDictionaryOpen &&
                     !isSystemSettingsOpen &&
-                    !isDateModuleOpen && (
+                    !isDateModuleOpen &&
+                    !isDatingOverlayOpen && (
                       <MapMenu
                         onOpenSave={() => setSaveSlotMode('save')}
                         onOpenLoad={() => setSaveSlotMode('load')}
@@ -394,6 +420,7 @@ function App() {
                   {isDateModuleOpen && (
                     <DateModule date={calendarDate} specialDates={calendarSpecialDates} onClose={closeDateModule} />
                   )}
+                  <DatingScene />
                 </div>
 
                 {!currentSceneId && (
@@ -404,7 +431,8 @@ function App() {
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
                       isSystemSettingsOpen ||
-                      isDateModuleOpen
+                      isDateModuleOpen ||
+                      isDatingOverlayOpen
                         ? 'is-story-locked'
                         : ''
                     }`}
@@ -414,7 +442,8 @@ function App() {
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
                       isSystemSettingsOpen ||
-                      isDateModuleOpen
+                      isDateModuleOpen ||
+                      isDatingOverlayOpen
                         ? true
                         : undefined
                     }
@@ -424,7 +453,8 @@ function App() {
                       isCharacterArchiveOpen ||
                       isDictionaryOpen ||
                       isSystemSettingsOpen ||
-                      isDateModuleOpen
+                      isDateModuleOpen ||
+                      isDatingOverlayOpen
                         ? true
                         : undefined
                     }

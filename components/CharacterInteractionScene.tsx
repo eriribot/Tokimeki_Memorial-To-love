@@ -28,6 +28,8 @@ import type { GameCharacter } from '../types';
 import { resolveAssetPath } from '../utils/assetPath';
 import { ImageWithPlaceholder } from '../utils/placeholderGenerator';
 import './CharacterInteractionScene.css';
+import DatingInviteDialog from '../DatingModule/DatingInviteDialog';
+import { getCharacterInvitationGate } from '../DatingModule/datingRules';
 
 export type CharacterInteractionSceneMode = 'menu' | 'topics' | 'message';
 
@@ -113,6 +115,7 @@ export default function CharacterInteractionScene() {
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
   const periodIndex = useGameStore(state => state.periodIndex);
   const date = useGameStore(state => state.date);
+  const completedMainStoryEventIds = useGameStore(state => state.mainStory.completedEventIds);
   const exitScene = useGameStore(state => state.exitScene);
   const locations = useMapStore(state => state.locations);
   const targets = useCardStore(state => state.targets);
@@ -126,6 +129,7 @@ export default function CharacterInteractionScene() {
   const [activeSequence, setActiveSequence] = useState<ActiveInteractionSequence | null>(null);
   const [beatIndex, setBeatIndex] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const isSettlingRef = useRef(false);
   const sceneRootRef = useRef<HTMLElement | null>(null);
   const continueButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -152,6 +156,7 @@ export default function CharacterInteractionScene() {
     setActiveSequence(null);
     setBeatIndex(0);
     setNotice(null);
+    setIsInviteOpen(false);
     isSettlingRef.current = false;
   }, [activeCharacter?.id, sceneLocationId]);
 
@@ -197,6 +202,9 @@ export default function CharacterInteractionScene() {
   const paidResourceReason = getPaidResourceReason(actionPointsRemaining, stamina, stress);
   const togetherGate = activeRelationship ? getCharacterInteractionGate(activeRelationship, 'together') : null;
   const closerGate = activeRelationship ? getCharacterInteractionGate(activeRelationship, 'closer') : null;
+  const inviteGate = activeCharacter
+    ? getCharacterInvitationGate(activeCharacter.id, activeRelationship ?? { affection: 0, friendship: 0, romance: 0 }, completedMainStoryEventIds)
+    : null;
   const currentBeat = activeSequence?.sequence.beats[beatIndex] ?? null;
   const isFinalBeat = Boolean(activeSequence && beatIndex >= activeSequence.sequence.beats.length - 1);
   const storySpeaker = notice
@@ -438,6 +446,26 @@ export default function CharacterInteractionScene() {
               </span>
             </button>
 
+            <button
+              type="button"
+              className={`character-interaction-scene__action is-special ${
+                !inviteGate?.available || actionPointsRemaining <= 0 ? 'is-locked' : ''
+              }`}
+              disabled={!activeCharacter || !inviteGate?.available || actionPointsRemaining <= 0}
+              title={inviteGate?.reason ?? '浏览日历与地点，成功邀约后消耗 1 AP'}
+              onClick={() => setIsInviteOpen(true)}
+            >
+              <span className="character-interaction-scene__action-icon" aria-hidden="true">
+                ♥
+              </span>
+              <span className="character-interaction-scene__action-copy">
+                <strong>邀约</strong>
+                <small>
+                  {inviteGate?.available ? '未来 28 天 · 周末或节日' : (inviteGate?.reason ?? '需要人物')}
+                </small>
+              </span>
+            </button>
+
             <button type="button" className="character-interaction-scene__action is-locked" disabled>
               <span className="character-interaction-scene__action-icon" aria-hidden="true">
                 🎁
@@ -558,6 +586,7 @@ export default function CharacterInteractionScene() {
           {portraitStage}
         </div>
       )}
+      {isInviteOpen && activeCharacter && <DatingInviteDialog character={activeCharacter} onClose={() => setIsInviteOpen(false)} />}
     </section>
   );
 }

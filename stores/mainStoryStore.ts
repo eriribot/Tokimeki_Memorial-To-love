@@ -90,7 +90,13 @@ export function createMainStoryStoreActions(
     reconcilePendingMainStoryEntry: () => {
       let started = false;
       set(state => {
-        if (!state.hasSession || state.screen !== 'game' || state.mainStory.run?.phase === 'playing') return state;
+        if (
+          !state.hasSession ||
+          state.screen !== 'game' ||
+          state.mainStory.run?.phase === 'playing' ||
+          state.wholeDayActivity !== null
+        )
+          return state;
         const pendingMainStory = getPendingMainStoryEntry({
           date: state.date,
           actionNumber: getActionNumber(state.actionPointsRemaining),

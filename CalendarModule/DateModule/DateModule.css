@@ -279,6 +279,18 @@
   pointer-events: none;
 }
 
+.tm-date-module__date-appointment {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  z-index: 0;
+  display: block;
+  font-size: 11px;
+  line-height: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .tm-date-module__date-marks {
   position: absolute;
   top: 56%;
@@ -310,6 +322,14 @@
 }
 
 .tm-date-module__date-marks .tm-date-module__date-birthday--compact {
+  position: relative;
+  top: auto;
+  left: auto;
+  font-size: 10px;
+  transform: none;
+}
+
+.tm-date-module__date-marks .tm-date-module__date-appointment--compact {
   position: relative;
   top: auto;
   left: auto;

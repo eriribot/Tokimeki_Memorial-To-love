@@ -1,0 +1,739 @@
+《Love & Sex: Second Base》约会系统
+源码实现 vs 校园心动回忆适配方案
+
+文档用途
+========
+
+这不是代码变更，也不是 Second Base 的完整源码复制。
+它把源码中的关键实现片段、实际玩法效果、当前校园项目的已有实现和拟议方案放在一起比较。
+
+阅读标记：
+  [SOURCE]  Second Base 的实际 .rpy 代码或接近原文的关键片段。
+  [CURRENT]  当前 webgame-ui DatingModule 已存在的代码。
+  [PLAN]    本项目准备采用的设计伪代码或规则，不代表已经实现。
+  [KEEP]    保留原理。
+  [CHANGE]  保留目的但改写实现。
+  [DROP]    明确不移植。
+  [LATER]   放到后续阶段，首个可玩切片不做。
+
+源码根目录（本轮只读）：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\
+
+当前项目根目录：
+D:\webgame\tavern_helper_template-main\src\webgame-ui\
+
+
+0. 先看一句话结论
+==================
+
+Second Base 的约会强，不是因为它有更多成人文本，而是因为它把一次约会做成了一个连续的临时状态：
+
+  取得联系方式
+    -> 邀约并写入日历
+    -> 到点赴约
+    -> 地点活动池
+    -> 角色即时反应改变约会分数
+    -> 达到门槛后角色主动提出继续
+    -> 晚间或追加活动
+    -> 最终关系结算、取消/失约后果、手机日历记录
+
+当前 DatingModule 更接近：
+
+  邀约
+    -> 预先抽一次 awkward/good/great
+    -> 播放 main GAL
+    -> 播放 return GAL
+    -> 把两次固定增量相加
+
+本方案的核心改动只有一句话：
+
+  把“开场预抽质量 + 两段固定结算”改成“约会内累积 dateScore + 阶段门槛 + 角色主动续摊”。
+
+
+1. 预约和邀约：原作做了什么
+============================
+
+1.1 原作的邀约活动定义
+-----------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ac\date.rpy:1-37
+
+关键代码：
+
+    InteractActivity(**{
+        "name": "ask_date",
+        "display_name": "Ask on a date",
+        "label": "date_her",
+        "conditions": [
+            HeroTarget(
+                MinStat("energy", 2),
+                MinStat("hunger", 2),
+                MinStat("grooming", 2),
+                MinStat("fun", 2),
+            ),
+            ActiveTarget(
+                Not(IsActivity("sleep")),
+                Not(IsDatePlanned()),
+                IsFlag("breakup", False),
+                IsFlag("noproposedate", False),
+                MinStat("love", 20),
+            ),
+        ],
+        "once_day": "ACTIVE",
+        "duration": 0,
+    })
+
+这段代码实际意味着：
+
+  - 邀约本身不推进时间，但它是一个有条件、有每日限制的行动。
+  - 对方睡觉、已有预约、关系破裂或禁止邀约时，按钮不会正常工作。
+  - 代码层面的最低关系门槛是 20；通用对白还会在 love < 50 时拒绝，角色专属 label 可以覆盖通用逻辑。
+
+[KEEP] “先获得对方许可，再产生预约”这个社交顺序。
+[CHANGE] 不把原作的 love 单轴和性别条件搬到校园项目；使用当前的 friendship/romance 和角色可用性。
+
+1.2 原作接受后如何排日程
+-------------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ac\date.rpy:120-171
+
+关键代码：
+
+    label date_her_internal(smartphone):
+        ...
+        if not smartphone and game.hour in [14, 20] and not active_girl.on_date:
+            choices.append(("Now", ("now", 0)))
+        if game.hour < 20:
+            choices.append(("Today", (game.days_played, game.week_day)))
+        for i in range(1, 7):
+            ...
+            choices.append(("Tomorrow/Next day", ...))
+        choices.append(("Cancel", ("cancel", None)))
+        ...
+        choices = [("Afternoon", 14), ("Evening", 20), ("Cancel", "cancel")]
+        ...
+        hero.calendar.add(day, DateAppointment(hour, active_girl.id))
+
+实际玩法：
+
+  - 先问“你愿不愿意”，再问“哪一天、哪个时段”。
+  - 手机邀约不能直接选择 Now，必须进入未来日程。
+  - 预约进入 Calendar，后续会显示在手机日历并产生期待压力。
+  - 同角色的冲突预约会被检查；原作还会尝试把多人预约合并为 HaremAppointment。
+
+[KEEP] 联系、许可、预约、日历四步闭环。
+[DROP] 原作 harem 合并；它会扩大状态和叙事边界，不适合首版校园约会。
+       包括 HaremAppointment 整条线、Harem.join_by_name 触发器、
+       lesbian + sub 双闸门（ch/harems_full/criminal/events.rpy:314）、
+       以及"把第二个角色永久拉进同一事件池"的逻辑。
+
+1.3 原作取消和失约
+-------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ac\date.rpy:92-108
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\cl\class_date.rpy:201-219
+
+关键代码：
+
+    label cancel_date_internal:
+        ...
+        active_girl.love -= 5
+
+    def fail(self):
+        ...
+        for participant in self.participants:
+            Person.find(participant).love -= 10
+        renpy.say("", "I missed my date ...")
+
+实际玩法：主动取消和自然失约不是同一件事。失约更严重。
+
+[KEEP] 预约是有社会成本的，不是可以随时删除的购物车。
+[CHANGE] 当前项目先做确定性的取消/失约结果；迟到要等游戏的时间粒度足够后再开放。
+
+
+2. 约会执行：原作的真正核心
+============================
+
+2.1 建立临时约会状态
+---------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ev\romance.rpy:67-90
+
+    label date_do_date(date):
+        $ date_girl.object = date.participants[0]
+        $ game.active_date = date
+        $ active_girl.object = date_girl
+        if game.hour in [14, 20]:
+            $ dif = 20
+        elif game.hour in [15, 21]:
+            $ dif = 30
+            $ date_girl.love -= 1
+        elif game.hour in [16, 22]:
+            $ dif = 40
+            $ date_girl.love -= 2
+        elif game.hour in [17, 23]:
+            $ dif = 50
+            $ date_girl.love -= 3
+        $ date.abort = False
+        $ date.stay = True
+        $ date.stay_coffee = True
+        $ afternoon = False
+        $ evening = False
+        $ dinner = False
+        $ night = False
+
+这里的 `date` 不是静态地点，而是本场约会的运行时对象。它保存参与者、地点、当前 score、是否继续、是否允许追加等临时状态。
+
+[KEEP] 本场约会有独立运行时状态。
+[CHANGE] 当前项目用 `DatingRun` 保存同类状态；增加 dateScore 和阶段状态，不再只保存 quality。
+
+2.2 阶段门槛和“她还想继续吗”
+-----------------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ev\romance.rpy:121-180
+
+    while date.stay:
+        if game.hour in [14, 15, 16, 17] and not afternoon:
+            $ afternoon = True
+            $ dif += 25
+            call choose_and_do_date
+        elif game.hour == 18 and date.score >= dif and not evening:
+            $ evening = True
+            $ dif += 25
+            date_girl.say "I really don't want to end things right now..."
+            menu:
+                "Yes":
+                    $ game.pass_time(2)
+                    call choose_and_do_date
+                "No":
+                    $ date.stay = False
+        elif game.hour in [20, 21, 22, 23] and not dinner:
+            $ dinner = True
+            $ dif += 25
+            call choose_and_do_date
+        elif weekend and date.score >= dif and not night:
+            ...
+            call date_do(DATES["nightclub"])
+
+实际玩法不是固定的“四段剧情”。
+
+  - 下午约会做得好，18 点才会出现续摊机会。
+  - 续摊是 NPC 主动提出，玩家仍可以拒绝。
+  - 20 点起始的约会走晚餐入口。
+  - 周末高分可能追加夜间地点。
+
+[KEEP] “玩家行为挣来 NPC 主动追加”的临界时刻。
+[CHANGE] 校园项目显式定义 main -> optional_continue -> return，避免原作依赖小时分支造成理解困难。
+[DROP] 夜店、成人 coffee/hot coffee 分支。
+
+2.3 约会结束结算
+-----------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ev\romance.rpy:209-221
+
+    if not date.abort:
+        $ date_girl.love += int((date.score * 0.2) - 10)
+    $ game.active_date = NoDateEvent()
+    $ active_girl.object = None
+    $ date_girl.object = None
+
+[KEEP] 结束时统一结算并清理临时状态。
+[DROP] `score * 0.2 - 10` 原公式。它和原作单轴 love、成人内容、难度曲线绑定，不能直接移植。
+
+
+3. 地点和活动：原作为什么不像“换背景图”
+==============================================
+
+3.1 地点进入逻辑
+-----------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ev\romance.rpy:303-362
+
+    label date_do(date):
+        $ game.active_date.location = date
+        if date_girl.flags.last_date_location == date.name:
+            $ game.active_date.score -= 10
+        if date.name in date_girl.desire_factors:
+            $ game.active_date.score += 25
+        elif f"not_{date.name}" in date_girl.desire_factors:
+            $ game.active_date.score -= 25
+        if date.money_cost:
+            $ hero.money -= date.money_cost
+        ...
+        if renpy.has_label(f"{date_girl.id}_date_{date.name}_{hero.gender}"):
+            call expression f"{date_girl.id}_date_{date.name}_{hero.gender}"
+        else:
+            call expression f"date_{date.name}"
+        call enter_room(..., max_time=max_time)
+
+地点同时决定：
+
+  - 费用、开放时间、服装和资源消耗。
+  - 角色偏好和重复惩罚。
+  - 可用活动列表。
+  - 角色专属地点反应。
+
+3.2 公园活动：同一动作不是固定答案
+-----------------------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\da\date_park.rpy:441-464
+
+    label date_hold_hand:
+        $ gain = 5
+        if "innocent" in active_girl.traits:
+            $ gain += 5
+        if "romantic" in active_girl.traits:
+            $ gain += 5
+        $ game.active_date.score += gain
+
+    label date_picnic:
+        if "gourmand" in active_girl.traits:
+            $ game.active_date.score += 10
+        else:
+            $ game.active_date.score += 5
+
+同一个“牵手/野餐”行动，角色 profile 会改变结果。
+
+3.3 商场购物：它不是完整礼物系统
+---------------------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\da\date_mall.rpy:354-377
+
+    menu:
+        "Spend 50":
+            $ game.active_date.score += 5
+            $ hero.money -= 50
+        "Spend 100" if hero.money >= 100:
+            $ game.active_date.score += 10
+            $ hero.money -= 100
+        "Spend 200" if hero.money >= 200:
+            $ game.active_date.score += 15
+            $ hero.money -= 200
+        ...
+
+源码里的购物本质是“消费档位 -> 约会分数”，不是“物品 -> 角色偏好 -> 关系回忆”。
+
+[KEEP] 约会中可以有经济决策。
+[CHANGE] 校园项目把“逛商店”和“送礼”拆开。
+[DROP] 可反复花钱直接刷 score 的档位公式。
+
+3.4 餐厅付款：价值观比价格更重要
+---------------------------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\da\date_restaurant.rpy:350-387
+
+    menu:
+        "Offer to cover the bill":
+            if "rebel" in date_girl.traits or "workaholic" in date_girl.traits:
+                $ game.active_date.score -= 5
+            elif "princess" in date_girl.traits or "dominant" in date_girl.traits:
+                $ game.active_date.score += 10
+            else:
+                $ game.active_date.score += 5
+            $ hero.money -= 40
+        "Suggest they split the bill":
+            if "rebel" in date_girl.traits or "workaholic" in date_girl.traits:
+                $ game.active_date.score += 5
+            elif "princess" in date_girl.traits or "dominant" in date_girl.traits:
+                $ game.active_date.score -= 10
+            $ hero.money -= 20
+
+[KEEP] 同一社会行为对不同角色可以有相反结果。
+[CHANGE] 用校园角色的显式 profile 标签重写，不使用原作成人 trait。
+
+
+4. 电话系统：原作如何把“关系权限”接到约会
+===============================================
+
+4.1 取得号码
+----------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ac\asknumber.rpy:16-28
+
+    label ask_number:
+        ...
+        if hero.charm < 20 - active_girl.love:
+            active_girl.say "I don't think so."
+        else:
+            $ hero.smartphone_contacts.append(active_girl.id)
+            active_girl.say "Sure."
+
+号码不是 UI 开关，而是关系阶段解锁。
+
+4.2 电话菜单
+----------------
+
+[SOURCE] 文件：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\ac\smartphone.rpy:163-192
+
+    label smartphone_call(girl):
+        $ DONE[f"smartphone_call_{girl.id}"] = game.days_played
+        ...
+        choices = [("Chat", 1), ("Ask location", 2)]
+        if ... girl.love >= 50 ...:
+            choices.append(("Ask to join you", 3))
+        if not dates:
+            if girl.love >= 20:
+                choices.append(("Ask on a date", 4))
+        else:
+            choices.append(("Cancel date", 5))
+        ...
+        call date_her_internal(True)
+
+电话可做聊天、问位置、邀请加入当前活动、邀约、取消预约；它本身不直接完成约会。
+
+[KEEP] “联系人 -> 电话 -> 邀约 -> 日历 -> 见面”的权限链。
+[CHANGE] 当前项目采用每月 4 次邀约电话，电话不耗 AP；失败也计入额度，避免免费反复尝试。
+[DROP] 原作成人短信和直接电话升级路线。
+
+
+5. 当前校园项目到底已经做了什么
+=================================
+
+5.1 当前导演器：先抽质量，再生成两段
+-------------------------------------
+
+[CURRENT] 文件：
+D:\webgame\tavern_helper_template-main\src\webgame-ui\DatingModule\datingDirector.ts:13-40,43-98
+
+    function qualityFromUnit(value, weights) {
+        ...
+        if (cursor < weights.awkward) return 'awkward';
+        if (cursor < weights.awkward + weights.good) return 'good';
+        return 'great';
+    }
+
+    export function createDatingDirectorPlan(input) {
+        const quality = qualityFromUnit(
+            stableUnit(`${input.appointment.id}|quality|${input.appointment.characterId}`),
+            getDatingQualityWeights(input.equippedSkillIds ?? []),
+        );
+        const stages = [
+            { id: 'main', options: buildMainOptions(quality, input.characterName) },
+            { id: 'return', options: buildReturnOptions(quality, input.characterName) },
+        ];
+        return { ..., quality, stages };
+    }
+
+    export function settleDatingChoices(plan, selectedOptionIds) {
+        return plan.stages.reduce((total, stage, index) => {
+            const selected = stage.options.find(...);
+            return {
+                friendship: total.friendship + selected.relationshipDelta.friendship,
+                romance: total.romance + selected.relationshipDelta.romance,
+            };
+        }, { friendship: 0, romance: 0 });
+    }
+
+当前行为：
+
+  - 约会开始前就决定 awkward/good/great。
+  - 选项本身不会把 awkward 变成 great，也不会打开新阶段。
+  - 最后只是把 main 和 return 的 friendship/romance 增量相加。
+
+5.2 当前邀约：只有当面，成功才扣 AP
+-------------------------------------
+
+[CURRENT] 文件：
+D:\webgame\tavern_helper_template-main\src\webgame-ui\DatingModule\DatingInviteDialog.tsx:78-171
+
+    const result = resolveInvitation({
+        ...,
+        faceToFace: true,
+    });
+
+    if (!result.accepted) {
+        recordAttempt({ ..., accepted: false, apSpent: 0 });
+        return;
+    }
+
+    const settlement = consumeActionPoint("...约好了...");
+    ...
+    recordAttempt({ ..., accepted: true, apSpent: 1 });
+
+当前行为和现有设计文档有两个差异：
+
+  - 失败不扣 AP，可能产生免费重试。
+  - UI 直接显示成功率，而设计文档原本要求隐藏具体概率。
+
+5.3 当前正式约会：整天活动模型已经存在
+-----------------------------------------
+
+[CURRENT] 文件：
+D:\webgame\tavern_helper_template-main\src\webgame-ui\DatingModule\datingCoordinator.ts:83-129
+
+    const settlement = game.beginWholeDayActivity('dating');
+    ...
+    if (appointment.fee > 0) {
+        spendMoney(appointment.fee);
+    }
+    dating.startRun(run);
+
+这部分其实已经接近目标：约会日第一次有效行动启动正式约会，从 2 AP 进入整天活动；约会内部不逐项扣 AP。
+
+[KEEP] `beginWholeDayActivity('dating')` 和费用事务。
+[CHANGE] 在 `DatingRun` 中增加约会内阶段、dateScore、活动记录和追加结果。
+
+
+6. 方案：逐项把原作概念改成校园版本
+=====================================
+
+6.1 预约和 AP
+-------------
+
+[PLAN]
+
+    phone invitation:
+        require contact
+        monthly quota = 4
+        AP cost = 0
+        accepted or declined both consume one quota
+
+    face-to-face invitation:
+        AP cost = 1 on attempt       # 推荐默认，防止免费刷失败
+        phone quota unchanged
+
+    formal date on the scheduled day:
+        beginWholeDayActivity('dating')
+        consume one daily activity slot
+        internal date actions consume no extra AP
+
+这意味着 AP 的职责是“开始一个社会行动/占用一天”，不是给约会中的每句话收费。
+
+6.2 约会状态
+-------------
+
+[PLAN] 伪代码，不是 TypeScript 实现：
+
+    DateRun {
+        appointmentId
+        invitationChannel       // phone | faceToFace
+        dateScore               // 本场临时分数，建议内部 0..100
+        phase                   // main | continue | return
+        continuationOffered
+        continuationAccepted
+        selectedActivities[]
+        giftId                  // 没有送礼时为空
+        paymentOutcome
+        relationshipDelta
+        outcomeBand             // cool | steady | warm | excellent
+    }
+
+    begin date:
+        dateScore = neutral
+        phase = main
+
+    choose activity:
+        local rule settles score, friendship, romance, money, time
+        character reaction is selected from the saved director plan
+
+    after main phase:
+        if dateScore >= continuationThreshold:
+            character asks whether to continue
+            player chooses continue or end
+        else:
+            go to return
+
+    finish:
+        convert outcomeBand to authoritative friendship/romance deltas
+        archive the plan, choices, resources and accepted text
+
+[KEEP] friendship/romance 仍是权威关系轴。
+[CHANGE] `dateScore` 只描述这一场约会，不成为第三条长期好感轴。
+
+6.3 地点活动池
+---------------
+
+[PLAN] 首个可玩切片：公园、河堤、商店街；每个地点 2-3 个活动。
+
+    DateActivity {
+        id
+        locationTag
+        duration
+        moneyCost
+        baseScore
+        friendshipDelta
+        romanceDelta
+        matchTags
+        mismatchTags
+        oncePerDate
+        nextPhaseTag
+    }
+
+    scoreDelta = baseScore + locationFit + profileMatch + riskResult
+
+角色 profile 使用校园语义，例如：安静、爱热闹、务实、贪吃、浪漫、怕尴尬。
+不要把原作的 `sub`, `sexperience`, 成人服装或成人性格标签搬过来。
+
+6.4 购物和送礼
+---------------
+
+原作商场代码只做：
+
+    money spent -> score gained
+
+校园版本拆成两个不同动作：
+
+    shopTogether:
+        一起逛商店街/看文具/吃点心
+        影响时间、dateScore 和角色反应
+
+    giveGift:
+        item has cost, tags, novelty, target preferences
+        one gift per date
+        local rule decides liked / awkward / inappropriate
+        result writes to dateScore and friendship/romance
+
+送礼不应成为“越贵越好”的通用按钮；昂贵但不合适的礼物可以比普通但合适的礼物更差。
+
+当前设计文档把礼物列为首版暂不纳入，因此建议：
+
+  - 首版先做 shopTogether。
+  - 送礼作为第二阶段，在角色偏好数据准备好后加入。
+
+6.5 AI 和本地规则的边界
+-----------------------
+
+[PLAN]
+
+    directorPlan = local deterministic data
+        - chosen location
+        - activity pool
+        - score effects
+        - character tags
+        - continuation permission
+        - payment/gift result
+        - allowed facts and names
+
+    AI receives directorPlan
+    AI writes only the current GAL text
+    parser rejects text that invents AP, money, relationship values or events
+
+[KEEP] 当前 `datingStoryGeneration` 的 parser/fallback 和“AI 不结算状态”边界。
+[CHANGE] 给 AI 的计划从“quality + 两段通用选项”变成“当前阶段已确定的活动结果和角色反应”。
+
+
+7. 同一场约会：原作与校园方案并排演示
+========================================
+
+7.1 原作公园约会
+-----------------
+
+    预约 Harmony 在公园见面
+    -> 选择牵手
+    -> score +5，若 romantic 再 +5
+    -> 选择野餐
+    -> gourmand 角色额外加分
+    -> 18 点检查 score >= dif
+    -> 角色主动问是否继续
+    -> 最终 love += int(score * 0.2 - 10)
+
+这里玩家在意的是：前面做得好不好，决定她会不会愿意延长约会。
+
+7.2 校园项目的同类场景（示例数字，不是最终数值）
+--------------------------------------------------
+
+    预约 Riko 在河堤见面
+    -> main 阶段出现：谈社团 / 买饮料 / 拍照
+    -> 选择“谈社团”
+       本地结算：dateScore +10，friendship +2
+       Riko 的 profile 匹配“熟悉话题”，反应为放松
+    -> 选择“买饮料”
+       若资金足够：dateScore +5，触发口味反应
+    -> dateScore 达到继续门槛
+    -> Riko 主动问“要不要再走一段”
+    -> 玩家接受后进入 riverbank continuation
+    -> 回程选择“认真约下次见面”
+       本地结算：romance +3
+    -> GAL 只负责把这些已确定结果写成自然对白
+
+如果第一步选择了明显不合 Riko profile 的行动，可能仍然完成约会，但不会出现继续邀约。
+这就是“选择改变过程”，而不是“选择只改变结尾数字”。
+
+
+8. 最终的保留、改写、删除、后置清单
+=====================================
+
+[KEEP]
+  - Calendar 预约和手机日历提醒
+  - 联系方式是关系阶段权限
+  - 约会有独立临时状态
+  - 地点拥有活动池和时间窗
+  - 角色 profile 改变同一行动的反应
+  - 角色主动提出继续
+  - 结束时统一结算并写约会回忆
+  - 当前项目的本地导演器、GAL parser、fallback
+
+[CHANGE]
+  - 单轴 love -> friendship + romance
+  - 原作小时循环 -> 当前项目明确的 main/continue/return 阶段
+  - 可见百分比 -> 推荐显示“冷淡/自然/升温/很开心”等气氛等级
+  - 预抽 quality -> 约会内 dateScore
+  - 商场花钱换分 -> 逛街活动 + 独立送礼物品
+  - 原作随机事件 -> 稳定、保存、可解释的本地事件选择
+
+[DROP]
+  - hot coffee、性行为、sexperience、sub 和成人服装路线
+  - lesbian + sub 双闸门触发的 Harem.join_by_name / HaremAppointment
+  - 原作 `score * 0.2 - 10` 公式
+  - 直接复制 harem / 多人恋爱合并
+  - 让 AI 自由决定关系数值、费用、AP 或是否追加
+  - 反复消费直接刷约会分
+
+[LATER]
+  - 送礼物品库
+  - 同日最多三份邀约和当天择一
+  - 迟到精细化
+  - 爽约后的乱入与竞争事件
+  - 天气、服装评价、生日专属约会
+  - 如果未来要做校园多人支线，沿用双闸门（见姊妹文档第 7 节、第 10 节第 5 项）
+
+
+9. 首个可玩切片和验收方式
+==========================
+
+首个切片只验证：
+
+  - 3 名角色
+  - 3 个地点
+  - 每地点 2-3 个活动
+  - 1 条电话邀约路径
+  - 1 条当面邀约路径
+  - main -> 可选 continue -> return
+  - 一次成功和一次失败结果
+  - 读档、重生成不会重新抽签
+
+验收时要能观察到：
+
+  1. 不同活动会改变角色反应或是否得到继续机会。
+  2. 约会内部活动不额外扣 AP。
+  3. 电话额度、当面 AP、金钱和关系结算由本地规则控制。
+  4. AI 重生成只改变文字，不改变导演计划和结算。
+  5. 约会回忆记录活动、结果和已采纳正文。
+
+本轮状态：
+  - 这份文件已写入，作为设计对照材料。
+  - 运行时代码没有修改。
+  - 具体阶段数量、当面邀约扣 AP 时机、送礼是否进入首版仍需产品确认。
+
+姊妹文档：
+  references\SecondBase成人约会子系统解剖_仅供学习对照.txt
+    - 上面 [DROP] 段里写到的那些"被阉割掉的子系统"的源码解剖。
+    - 目的：把 SecondBase 在 sexperience / sub / traits / HaremAppointment /
+      ch/<角色>/events.rpy 上的结构讲清楚。
+    - 边界：不进入 DatingModule 运行时，仅作学习与未来设计参考。
+    - 不能作为"在 DatingModule 中恢复该系统"的直接依据——
+      任何启用提议都必须先回到本份文档，重新做一遍
+      [KEEP] / [CHANGE] / [DROP] / [LATER] 决策流程。
+

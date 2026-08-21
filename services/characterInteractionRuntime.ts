@@ -5,6 +5,7 @@ import { isCharacterAvailable } from '../data/characterAvailability';
 import type { CharacterRelationshipDelta, CharacterStats, LocationId, PlayerActionSettlement } from '../types';
 import { syncCharacterPresence } from './characterPresence';
 import { normalizeCharacterRelationshipStats } from './characterRelationship';
+import { startScheduledDatingIfNeeded } from '../DatingModule/datingCoordinator';
 
 export type PaidCharacterInteractionId = 'talk' | 'together' | 'closer';
 
@@ -83,6 +84,11 @@ export function executeCharacterInteraction(
   }
   if (!isCharacterAvailable(character.id, game.mainStory.completedEventIds)) {
     return { ok: false, reason: '这名角色尚未在主线中正式登场。' };
+  }
+
+  const scheduledDating = startScheduledDatingIfNeeded();
+  if (scheduledDating.started || scheduledDating.needsFeeChoice) {
+    return { ok: false, reason: scheduledDating.reason ?? '今天已经安排了约会。' };
   }
 
   const gate = getCharacterInteractionGate(character, request.actionId);

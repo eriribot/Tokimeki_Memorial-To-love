@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { resolveAssetPath } from '../utils/assetPath';
 import { getSpeakerNameplateAsset, type LayeredPortraitRig } from './characters';
 import { GALBOX_ASSETS } from './galAssets';
-import GalChoicePanel from './GalChoicePanel';
+import GalChoicePanel, { type GalChoiceOption } from './GalChoicePanel';
 import LayeredPortrait from './LayeredPortrait';
 
 interface GalStoryPortraitView {
@@ -24,7 +24,7 @@ interface GalStoryPageProps {
   theme?: 'blue' | 'pink';
   choice?: {
     prompt: string;
-    options: readonly { id: string; label: string }[];
+    options: readonly GalChoiceOption[];
     optionSource: 'ai' | 'fallback' | 'authored';
     selectedOptionId: string | null;
     selectedLabel?: string | null;

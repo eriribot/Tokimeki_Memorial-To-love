@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { CalendarDateValue } from '../../types';
 import { resolveAssetPath } from '../../utils/assetPath';
 import { getDaysInMonth } from '../date';
@@ -38,6 +38,10 @@ export interface DateModuleProps {
   date: CalendarDateValue;
   specialDates: readonly SpecialDateDefinition[];
   onClose: () => void;
+  onSelectDate?: (date: CalendarDateValue) => void;
+  isDateSelectable?: (date: CalendarDateValue) => boolean;
+  getDateStatus?: (date: CalendarDateValue) => string | null;
+  footer?: ReactNode;
 }
 
 interface CalendarMonth {
@@ -49,8 +53,10 @@ interface MonthPageProps extends CalendarMonth {
   side: 'left' | 'right';
   currentDate: CalendarDateValue;
   selectedDate: CalendarDateValue;
-  specialDateLookup: ReadonlyMap<string, SpecialDateDefinition>;
+  specialDateLookup: ReadonlyMap<string, readonly SpecialDateDefinition[]>;
   onSelectDate: (date: CalendarDateValue) => void;
+  isDateSelectable?: (date: CalendarDateValue) => boolean;
+  getDateStatus?: (date: CalendarDateValue) => string | null;
 }
 
 function addMonths({ year, month }: CalendarMonth, offset: number): CalendarMonth {
@@ -84,6 +90,8 @@ function MonthPage({
   selectedDate,
   specialDateLookup,
   onSelectDate,
+  isDateSelectable: isDateSelectableOverride,
+  getDateStatus,
 }: MonthPageProps) {
   const firstWeekday = getFirstWeekday(year, month);
   const daysInMonth = getDaysInMonth(year, month);
@@ -126,11 +134,15 @@ function MonthPage({
           const specialDateGroup = specialDateLookup.get(calendarDateKey(dateValue)) ?? [];
           const isBlocked = specialDateGroup.some(entry => entry.marker === 'blocked');
           const isBirthday = specialDateGroup.some(entry => entry.marker === 'birthday');
+          const isAppointment = specialDateGroup.some(entry => entry.marker === 'appointment');
           const specialSummary = [
             ...specialDateGroup.filter(entry => entry.marker !== 'blocked').map(entry => entry.label),
             ...(isBlocked ? ['已有重要日程，该日期暂不可安排'] : []),
           ].join(' / ');
-          const isSelectable = isSelectableCalendarDate(dateValue, currentDate);
+          const isSelectable =
+            isSelectableCalendarDate(dateValue, currentDate) &&
+            (isDateSelectableOverride ? isDateSelectableOverride(dateValue) : true);
+          const customStatus = getDateStatus?.(dateValue);
           const classes = [
             'tm-date-module__date-button',
             weekday === 0 ? 'is-sunday' : '',
@@ -150,7 +162,7 @@ function MonthPage({
               type="button"
               className={classes}
               disabled={!isSelectable}
-              aria-label={`${formatDateLabel(dateValue)}，${specialSummary || '暂无特别日程'}${
+              aria-label={`${formatDateLabel(dateValue)}，${customStatus ?? (specialSummary || '暂无特别日程')}${
                 isSelectable ? '，点击查看' : '，已过去'
               }`}
               aria-current={isToday ? 'date' : undefined}
@@ -168,6 +180,18 @@ function MonthPage({
                 </span>
               ) : isBlocked ? (
                 <span className="tm-date-module__date-mark" aria-hidden="true" />
+              ) : isAppointment && isBirthday ? (
+                <span className="tm-date-module__date-marks" aria-hidden="true">
+                  <span className="tm-date-module__date-birthday tm-date-module__date-birthday--compact">🎂</span>
+                  <span className="tm-date-module__date-marks-separator">/</span>
+                  <span className="tm-date-module__date-appointment tm-date-module__date-appointment--compact">
+                    💕
+                  </span>
+                </span>
+              ) : isAppointment ? (
+                <span className="tm-date-module__date-appointment" aria-hidden="true">
+                  💕
+                </span>
               ) : isBirthday ? (
                 <span className="tm-date-module__date-birthday" aria-hidden="true">
                   🎂
@@ -181,7 +205,15 @@ function MonthPage({
   );
 }
 
-export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
+export function DateModule({
+  date,
+  specialDates,
+  onClose,
+  onSelectDate: onSelectDateOverride,
+  isDateSelectable: isDateSelectableOverride,
+  getDateStatus,
+  footer,
+}: DateModuleProps) {
   const titleId = useId();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [visibleMonth, setVisibleMonth] = useState<CalendarMonth>(() => ({ year: date.year, month: date.month }));
@@ -191,10 +223,11 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
   const selectedSpecialDateGroup = specialDateLookup.get(calendarDateKey(selectedDate)) ?? [];
   const selectedDateLabel = formatDateLabel(selectedDate);
   const selectedDateStatus =
-    [
+    getDateStatus?.(selectedDate) ??
+    ([
       ...selectedSpecialDateGroup.filter(entry => entry.marker !== 'blocked').map(entry => entry.label),
       ...(selectedSpecialDateGroup.some(entry => entry.marker === 'blocked') ? ['已有重要日程，该日期暂不可安排'] : []),
-    ].join(' / ') || '暂无特别日程';
+    ].join(' / ') || '暂无特别日程');
   const dialogLabel = `${visibleMonth.year}年${visibleMonth.month}月与${nextMonth.year}年${nextMonth.month}月日历，今天是${date.year}年${date.month}月${date.day}日`;
 
   const turnPages = (offset: number) => {
@@ -229,7 +262,12 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
             currentDate={date}
             selectedDate={selectedDate}
             specialDateLookup={specialDateLookup}
-            onSelectDate={setSelectedDate}
+            onSelectDate={selected => {
+              setSelectedDate(selected);
+              onSelectDateOverride?.(selected);
+            }}
+            isDateSelectable={isDateSelectableOverride}
+            getDateStatus={getDateStatus}
           />
           <MonthPage
             {...nextMonth}
@@ -237,7 +275,12 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
             currentDate={date}
             selectedDate={selectedDate}
             specialDateLookup={specialDateLookup}
-            onSelectDate={setSelectedDate}
+            onSelectDate={selected => {
+              setSelectedDate(selected);
+              onSelectDateOverride?.(selected);
+            }}
+            isDateSelectable={isDateSelectableOverride}
+            getDateStatus={getDateStatus}
           />
           <button
             type="button"
@@ -277,6 +320,7 @@ export function DateModule({ date, specialDates, onClose }: DateModuleProps) {
           >
             {selectedDateStatus}
           </div>
+          {footer && <div className="tm-date-module__footer">{footer}</div>}
         </div>
       </div>
     </div>

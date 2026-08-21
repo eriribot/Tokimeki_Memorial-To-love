@@ -1,0 +1,537 @@
+.dating-overlay {
+  position: absolute;
+  z-index: 7000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(29 24 33 / 72%);
+  color: #2d2430;
+  isolation: isolate;
+}
+
+.dating-scene.gal-main-story {
+  position: absolute;
+  inset: 0;
+  z-index: 7000;
+  cursor: default;
+}
+
+.map-section > .dating-scene.gal-main-story {
+  inset: auto 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 30 / 17;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 100vmax #000;
+}
+
+.dating-scene .gal-main-story__dialogue,
+.dating-scene .gal-main-story__choice,
+.dating-scene .gal-main-story__choice-panel {
+  z-index: 8;
+}
+
+.dating-riverbank .gal-main-story__choice {
+  height: 260px;
+  max-height: 46%;
+}
+
+.dating-riverbank .gal-main-story__choice-options {
+  inset: 18% 4% 8%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.dating-riverbank .gal-main-story__choice-options button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 5px 8px;
+  font-size: 16px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.dating-scene .gal-main-story__choice-options button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 5px 8px;
+  overflow-wrap: anywhere;
+}
+
+.dating-scene .gal-main-story__choice-options {
+  inset: 18% 4% 8%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.dating-scene .gal-main-story__choice-option-visual {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 3px 10px rgb(80 41 61 / 16%);
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.dating-scene .gal-main-story__choice-options button:hover:not(:disabled) .gal-main-story__choice-option-visual,
+.dating-scene .gal-main-story__choice-options button:focus-visible .gal-main-story__choice-option-visual,
+.dating-scene .gal-main-story__choice-options button.is-selected .gal-main-story__choice-option-visual {
+  background: #75dec5;
+  color: #172b29;
+  transform: translateY(-2px);
+}
+
+.dating-relationship-strip {
+  position: absolute;
+  top: 3%;
+  right: 3%;
+  z-index: 9;
+  display: flex;
+  max-width: min(620px, 92%);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid rgb(255 255 255 / 58%);
+  border-radius: 6px;
+  background: rgb(30 22 33 / 72%);
+  box-shadow: 0 5px 18px rgb(20 13 24 / 24%);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.dating-relationship-strip__axis,
+.dating-relationship-strip__pair {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  padding: 4px 7px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 9%);
+}
+
+.dating-relationship-strip__axis {
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 6px;
+}
+
+.dating-relationship-strip__axis small {
+  grid-column: 1 / -1;
+  color: #f4c7d8;
+  font-size: 11px;
+}
+
+.dating-relationship-strip__pair small {
+  color: #d9e8e4;
+  white-space: nowrap;
+}
+
+.dating-scene.effect-flash .gal-main-story__shade {
+  animation: dating-flash 220ms ease-out;
+}
+
+.dating-scene.effect-shake {
+  animation: dating-shake 260ms ease-out;
+}
+
+.dating-modal-panel,
+.dating-invite-dialog {
+  width: min(92%, 760px);
+  max-height: min(88%, 760px);
+  overflow: auto;
+  box-sizing: border-box;
+  border: 1px solid rgb(226 92 139 / 38%);
+  border-radius: 8px;
+  background: #fffafc;
+  box-shadow: 0 22px 70px rgb(24 13 27 / 42%);
+}
+
+.dating-modal-panel {
+  padding: clamp(24px, 5vw, 48px);
+  text-align: center;
+}
+
+.dating-modal-panel h2,
+.dating-invite-dialog h2 {
+  margin: 4px 0 8px;
+  color: #452b3d;
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0;
+}
+
+.dating-modal-panel p,
+.dating-invite-dialog p {
+  margin: 0;
+  color: #665461;
+  line-height: 1.65;
+}
+
+.dating-eyebrow {
+  display: inline-block;
+  color: #c33d76;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dating-modal-actions,
+.dating-invite-dialog__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.dating-button {
+  min-height: 42px;
+  padding: 9px 18px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.dating-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.dating-button:focus-visible,
+.dating-icon-button:focus-visible,
+.dating-location-card:focus-visible {
+  outline: 3px solid #56a9c5;
+  outline-offset: 2px;
+}
+
+.dating-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.dating-button.is-primary {
+  background: #c94378;
+  box-shadow: 0 6px 16px rgb(201 67 120 / 24%);
+  color: #fff;
+}
+
+.dating-button.is-quiet {
+  border-color: #ddc8d2;
+  background: #fff;
+  color: #604657;
+}
+
+.dating-invite-dialog {
+  position: absolute;
+  z-index: 7200;
+  inset: 50% auto auto 50%;
+  width: min(1180px, 96%);
+  max-height: 94%;
+  transform: translate(-50%, -50%);
+}
+
+.dating-invite-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 26px 16px;
+  border-bottom: 1px solid #f0dbe5;
+  background: #fff;
+}
+
+.dating-invite-dialog__header h2 {
+  margin-top: 2px;
+}
+
+.dating-invite-dialog__header p {
+  font-size: 13px;
+}
+
+.dating-icon-button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #e3cbd6;
+  border-radius: 50%;
+  background: #fff;
+  color: #7a4f63;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dating-invite-dialog__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.dating-invite-dialog__calendar {
+  min-width: 0;
+  min-height: 390px;
+  overflow: hidden;
+  border: 1px solid #ead6df;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.dating-invite-dialog__calendar .tm-date-module {
+  position: relative;
+  inset: auto;
+  min-height: 390px;
+  padding: 10px;
+  background: #fff;
+}
+
+.dating-invite-dialog__calendar .tm-date-module__layout {
+  width: min(100%, 680px);
+}
+
+.dating-invite-dialog__calendar .tm-date-module__backdrop,
+.dating-invite-dialog__calendar .tm-date-module__close {
+  display: none;
+}
+
+.dating-invite-dialog__choices {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 6px 4px;
+}
+
+.dating-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #4b3041;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.dating-section-heading small {
+  color: #947482;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dating-location-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dating-location-card {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 2px 9px rgb(71 33 52 / 10%);
+  color: #482f40;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dating-location-card:hover {
+  border-color: #df8eac;
+}
+
+.dating-location-card.is-selected {
+  border-color: #c94378;
+  box-shadow: 0 0 0 2px rgb(201 67 120 / 15%);
+}
+
+.dating-location-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.dating-location-card__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+}
+
+.dating-location-card__copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dating-location-card__copy small {
+  color: #9a7484;
+  font-size: 11px;
+}
+
+.dating-invite-dialog__summary {
+  display: grid;
+  gap: 6px;
+  margin-top: auto;
+  padding: 14px 0 0;
+  color: #725767;
+  font-size: 13px;
+}
+
+.dating-invite-dialog__summary p {
+  padding: 9px 10px;
+  border-left: 3px solid #c94378;
+  background: #fff0f5;
+  color: #71324e;
+  font-size: 13px;
+}
+
+.dating-invite-dialog__actions {
+  justify-content: flex-end;
+}
+
+.tm-date-module__footer {
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ead2de;
+  border-radius: 5px;
+  background: #fff8fb;
+  color: #754c60;
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes dating-flash {
+  0% {
+    background: rgb(255 255 255 / 75%);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes dating-shake {
+  0%,
+  100% {
+    transform: translate3d(0, -50%, 0);
+  }
+  25% {
+    transform: translate3d(-4px, -50%, 0);
+  }
+  75% {
+    transform: translate3d(4px, -50%, 0);
+  }
+}
+
+@media (max-width: 760px) {
+  .dating-riverbank .gal-main-story__choice {
+    height: 220px;
+    max-height: 50%;
+  }
+
+  .dating-riverbank .gal-main-story__choice-options {
+    inset: 19% 2% 8%;
+    gap: 3px;
+  }
+
+  .dating-riverbank .gal-main-story__choice-options button {
+    gap: 4px;
+    padding: 3px;
+    font-size: 14px;
+  }
+
+  .dating-scene .gal-main-story__choice-option-visual {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .dating-relationship-strip {
+    top: 2%;
+    right: 2%;
+    left: 2%;
+    max-width: none;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .dating-relationship-strip__pair small {
+    white-space: normal;
+  }
+
+  .dating-invite-dialog__body {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .dating-invite-dialog__calendar,
+  .dating-invite-dialog__calendar .tm-date-module {
+    min-height: 330px;
+  }
+
+  .dating-location-grid {
+    grid-template-columns: repeat(3, minmax(90px, 1fr));
+  }
+
+  .dating-invite-dialog__actions {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dating-invite-dialog {
+    width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .dating-invite-dialog__header {
+    padding: 16px;
+  }
+
+  .dating-invite-dialog__body {
+    padding: 8px;
+  }
+
+  .dating-location-grid {
+    gap: 5px;
+  }
+
+  .dating-location-card__copy {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .dating-modal-actions,
+  .dating-invite-dialog__actions {
+    flex-wrap: wrap;
+  }
+}

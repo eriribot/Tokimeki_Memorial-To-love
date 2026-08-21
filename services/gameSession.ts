@@ -1,4 +1,5 @@
 import { useGameStore } from '../stores/gameStore';
+import { useDatingStore } from '../DatingModule/datingStore';
 import { createPlayerProfile, usePlayerStore } from '../stores/playerStore';
 import { useCardStore } from '../stores/cardStore';
 import { beginNewTavernAutosaveIdentity, gameSaveApi } from '../save';
@@ -12,6 +13,7 @@ export function startNewSession() {
   beginNewTavernAutosaveIdentity();
   invalidateMemorySummaryContext('新游戏已经开始。');
   useGameStore.getState().resetGameState();
+  useDatingStore.getState().resetDatingState();
   usePlayerStore.getState().resetPlayer();
   useSkillStore.getState().reset();
 

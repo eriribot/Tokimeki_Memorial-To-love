@@ -2,7 +2,14 @@ import { create } from 'zustand';
 import { GAME_START_DATE, getNextCalendarDate } from '../CalendarModule/date';
 import { getPendingMainStoryEntry } from '../GalMainStory/storyRegistry';
 import { getSkillExperienceReward, useSkillStore } from '../skilllogic';
-import type { GameEvent, GameStore, LocationId, PeriodDefinition, PlayerActionSettlement } from '../types';
+import type {
+  GameEvent,
+  GameStore,
+  LocationId,
+  PeriodDefinition,
+  PlayerActionSettlement,
+  WholeDayActivitySettlement,
+} from '../types';
 import { createInitialMainStoryState, createMainStoryEntryPatch, createMainStoryStoreActions } from './mainStoryStore';
 
 export const ACTION_PERIODS = [
@@ -74,6 +81,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   log: [INITIAL_LOG],
   events: [],
   mainStory: createInitialMainStoryState(),
+  wholeDayActivity: null,
 
   startGame: () => set({ isPlaying: true }),
   pauseGame: () => set({ isPlaying: false }),
@@ -81,7 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(state => (state.hasSession ? { screen: 'game', isPlaying: true } : {}));
     get().reconcilePendingMainStoryEntry();
   },
-  returnToStart: () => set({ screen: 'start', isPlaying: false }),
+  returnToStart: () => set({ screen: 'start', isPlaying: false, wholeDayActivity: null }),
   setLocation: id => set({ currentLocationId: id, currentSceneId: null }),
   enterScene: id => set({ currentSceneId: id }),
   exitScene: () => set({ currentSceneId: null }),
@@ -97,7 +105,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(state => {
       const currentPeriod = PERIODS[state.periodIndex] ?? PERIODS[0];
       settlement = { ...settlement, periodKey: currentPeriod.key };
-      if (state.actionPointsRemaining <= 0 || state.mainStory.run?.phase === 'playing') return state;
+      if (state.actionPointsRemaining <= 0 || state.mainStory.run?.phase === 'playing' || state.wholeDayActivity !== null) return state;
 
       const actionPointsRemaining = state.actionPointsRemaining - 1;
       const periodIndex = actionPointsRemaining > 0 ? AFTER_SCHOOL_PERIOD_INDEX : EVENING_PERIOD_INDEX;
@@ -159,6 +167,55 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return settlement;
   },
 
+  consumeActionPoint: message => get().settlePlayerAction({ kind: 'talk', message }),
+
+  beginWholeDayActivity: (kind = 'dating'): WholeDayActivitySettlement => {
+    let settlement: WholeDayActivitySettlement = { accepted: false, dayAdvanced: false, reason: null };
+    set(state => {
+      if (state.wholeDayActivity !== null) {
+        settlement = { accepted: false, dayAdvanced: false, reason: '当天已经有整天活动正在进行。' };
+        return state;
+      }
+      if (state.mainStory.run?.phase === 'playing') {
+        settlement = { accepted: false, dayAdvanced: false, reason: '主线剧情进行中，暂时无法开始整天活动。' };
+        return state;
+      }
+      if (state.actionPointsRemaining !== MAX_DAILY_ACTION_POINTS) {
+        settlement = { accepted: false, dayAdvanced: false, reason: '整天活动只能由当天第一次有效行动启动。' };
+        return state;
+      }
+      settlement = { accepted: true, dayAdvanced: false, reason: null };
+      return {
+        actionPointsRemaining: MAX_DAILY_ACTION_POINTS - 1,
+        periodIndex: AFTER_SCHOOL_PERIOD_INDEX,
+        currentSceneId: null,
+        wholeDayActivity: kind,
+        log: [...state.log, '今天的整天约会开始了。'].slice(-20),
+      };
+    });
+    return settlement;
+  },
+
+  finishWholeDayActivity: () => {
+    let finished = false;
+    set(state => {
+      if (state.wholeDayActivity === null) return state;
+      const nextDay = state.day + 1;
+      finished = true;
+      return {
+        day: nextDay,
+        date: getNextCalendarDate(state.date),
+        actionPointsRemaining: MAX_DAILY_ACTION_POINTS,
+        periodIndex: 0,
+        currentSceneId: null,
+        wholeDayActivity: null,
+        events: spawnRandomEvents(nextDay),
+        log: [...state.log, `第 ${state.day} 天结束，第 ${nextDay} 天的早晨到了。`].slice(-20),
+      };
+    });
+    return finished;
+  },
+
   addLog: message => set(state => ({ log: [...state.log.slice(-19), message] })),
   spawnEvents: () => set(state => ({ events: spawnRandomEvents(state.day) })),
   resolveEvent: eventId =>
@@ -199,5 +256,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       log: [INITIAL_LOG],
       events: [],
       mainStory: createInitialMainStoryState(),
+      wholeDayActivity: null,
     }),
 }));

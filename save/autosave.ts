@@ -2,6 +2,7 @@ import { useCardStore } from '../stores/cardStore';
 import { useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useSkillStore } from '../skilllogic';
+import { useDatingStore } from '../DatingModule/datingStore';
 import { captureGameMessages, gameMessageApi } from '../message';
 import { saveClient } from './client';
 import { DEFAULT_SAVE_SLOT, type SaveRecord } from './protocol';
@@ -189,9 +190,7 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
 
   const runtime: TavernAutosaveRuntime = {
     pause: async () => {
-      const fingerprint = canAutosave()
-        ? createAutosaveFingerprint(createGameSnapshot(), captureGameMessages())
-        : null;
+      const fingerprint = canAutosave() ? createAutosaveFingerprint(createGameSnapshot(), captureGameMessages()) : null;
       suspended = true;
       dirty = false;
       pendingFingerprint = null;
@@ -220,6 +219,7 @@ export function startTavernAutosave(options: TavernAutosaveOptions = {}): () => 
     usePlayerStore.subscribe(schedule),
     useCardStore.subscribe(schedule),
     useSkillStore.subscribe(schedule),
+    useDatingStore.subscribe(schedule),
   ];
   globalThis.addEventListener('pagehide', flush);
   schedule();

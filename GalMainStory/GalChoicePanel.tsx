@@ -3,9 +3,21 @@ import { resolveAssetPath } from '../utils/assetPath';
 import { STORY_CUSTOM_CHOICE_OPTION_ID } from './storyTypes';
 import { GALBOX_ASSETS } from './galAssets';
 
+export interface GalChoiceVisual {
+  type: 'glyph' | 'asset';
+  value: string;
+  alt?: string;
+}
+
+export interface GalChoiceOption {
+  id: string;
+  label: string;
+  visual?: GalChoiceVisual;
+}
+
 interface GalChoicePanelProps {
   prompt: string;
-  options: readonly { id: string; label: string }[];
+  options: readonly GalChoiceOption[];
   optionSource: 'ai' | 'fallback' | 'authored';
   selectedOptionId: string | null;
   selectedLabel?: string | null;
@@ -130,6 +142,18 @@ export default function GalChoicePanel({
                   onKeyDown={event => handleOptionKeyDown(event, optionIndex)}
                   onClick={() => onSelect(option.id)}
                 >
+                  {option.visual?.type === 'asset' ? (
+                    <img
+                      className="gal-main-story__choice-option-visual"
+                      src={resolveAssetPath(option.visual.value)}
+                      alt={option.visual.alt ?? ''}
+                      aria-hidden={option.visual.alt ? undefined : true}
+                    />
+                  ) : option.visual ? (
+                    <span className="gal-main-story__choice-option-visual" aria-hidden="true">
+                      {option.visual.value}
+                    </span>
+                  ) : null}
                   {option.label}
                 </button>
               );

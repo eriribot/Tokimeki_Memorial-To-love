@@ -1,0 +1,557 @@
+《Love & Sex: Second Base》成人相关约会子系统
+源码解剖（仅作学习对照，不会进入 DatingModule 运行时）
+
+文档用途
+========
+
+本文件是 references/第二Base约会系统源码与校园项目方案对照.txt 的"姊妹篇"，但定位相反：
+
+  - 那份对照文档定义了【要移植】【要改写】【要删掉】【要延后】四个去向。
+  - 本文件专门记录**被那份文档明确 [DROP] 掉的子系统**——也就是 SecondBase 原作中的成人相关约会机制。
+
+本文件的目的：
+
+  1. 记录 SecondBase 在约会闭环之上，把"角色关系"接向"亲密/性经验/服装拆脱/sub 性格"等子系统时的代码组织方式。
+  2. 让设计者知道：原作靠哪些数值、哪些字段、哪些 flag 来决定"什么时候进入下一阶段"。
+  3. 帮助对比"校园心动回忆"的阉割版与原作完整版在状态机层面的实际差距。
+
+本文件的边界（务必先看）：
+
+  - 本文件只描述系统结构、触发条件和文件位置；不复制大段 .rpy 原文。
+  - 本文件不会触发任何 DatingModule 代码改动；它不会创建也不会修改 .ts/.tsx。
+  - 本文件不允许被引用为"在 DatingModule 中实现该系统的依据"；它只供学习/对照/未来设计参考。
+  - 项目最终发布版本（如果有一天）依然遵循那份校园方案的 [DROP] 列表。
+
+阅读标记：
+
+  [STRUCTURE] SecondBase 在 .rpy 中如何组织这个子系统。
+  [STATE]     涉及的持久化字段、运行时状态、人物属性。
+  [GATE]      触发这个子系统的前置条件（数值、flag、场景）。
+  [BRANCH]    子系统内部的分支走向。
+  [DROPPED]   校园方案对此子系统的处置（继承上一份对照文档的 [DROP] 决定）。
+  [SOURCE]    涉及的 SecondBase 源码文件路径与行号范围，仅供核对。
+
+
+源码根目录（本轮只读）：
+E:\娱乐\secondbase\14-Second Base-PC\LoSeSb-26.7.0b-pc_patreon\game\
+
+当前项目根目录：
+D:\webgame\tavern_helper_template-main\src\webgame-ui\
+
+
+0. 一句话结论
+==============
+
+SecondBase 的约会机制之所以"强"，是因为它把"亲密度升级"做成了与"约会分数"并行的第二条进度条：
+
+  角色 love (单轴关系轴)
+    -> sexperience (性经验计数，独立递增)
+    -> sub (性格支配/屈服轴，独立有符号整数)
+    -> flags.sexperience / flags.sub / flags.first_* (关系阶段 flag)
+    -> traits.{princess, rebel, romantic, innocent, gourmand, sporty, dominant, workaholic}
+    -> 这些状态再反过来决定下一次约会的地点、活动、可用意图分支与文本走向。
+
+校园方案把这一整段抽掉了：只用 friendship + romance，没有 sexperience/sub/traits/服装/亲密动作。这也是为什么"约会"在校园方案里是"气氛好坏"问题，而不是"关系能走多远"问题。
+
+
+1. 数值层：人物属性上的成人相关字段
+=====================================
+
+SecondBase 的人物类（class_hero.rpy / class_person.rpy）里，除了 love、money、energy 等"安全"字段之外，还存在一组成人向字段。它们都是 int，部分有符号，参与事件触发。
+
+[STATE] class_hero / class_person 上的成人字段（按出现顺序）：
+
+  sexperience          int   该角色与主角发生过的"亲密事件"计数。
+                              每次事件 +1。某些动作只允许 sexperience >= N 才出现。
+                              反向触发：bree.events.rpy 里有"sexperience_achievement_2/3"，
+                              表示 sexperience=0 的"从未发生过"成就。
+
+  sub                   int   支配/屈服轴，可正可负：
+                              正数越偏支配/女王；负数越偏屈服/M属性。
+                              范围示例：class_hero.rpy 中 sub 可以是任意有符号 int。
+                              watch.rpy 中 sasha.sub <= -50 触发顶级足部场景。
+
+  lesbian               int   角色对同性关系的倾向数值（仅角色为女性时有效）。
+                              与 sub 不同维度，由"lesbian porn"等电影场景缓慢增长。
+                              它不只是"成人内容"分类的字段——
+                              真正起作用是作为 Harem 路线的隐形闸门，
+                              见第 7 节《百合值 / lesbian 与后宫结局的闸门》。
+
+  flags.footrub         int   0..N 递增的状态序号，记录足部场景的阶段。
+                              4 / 5 等阈值是触发下一级足部剧情的硬门槛。
+
+  flags.first_*         bool  各角色的"第一次"标记：初吻、初夜、初次肛交等。
+                              用于剧情分叉（"是否仍为处子"影响后续文本走向）。
+                              出现位置：ch/<角色>/events.rpy 系列。
+
+  flags.work_stripclub  bool  角色是否在脱衣舞俱乐部工作。
+                              bree_stripclub_intro 末尾根据玩家选择写入。
+
+  traits.*              str   角色性格标签集合，字符串白名单。
+                              校园项目 [DROP] 的关键原因就是这些 trait 是 18+ 分类。
+                              出现在 class_hero.rpy / class_person.rpy / date_park.rpy 等。
+
+[GATE] 一个亲密动作在 SecondBase 中"出现"的最小门槛组合：
+
+    MinStat("love", X)               love 单轴门槛
+  AND  MinStat("sexperience", N)     已发生过亲密事件
+  AND  MinStat("sub", S)             sub 值在范围内
+  AND  traits.contains("innocent")   性格匹配
+  AND  Not(IsHidden())               角色未离开主线
+
+  这四类条件同时为真，菜单里才出现该动作的选项。复制到校园方案里就是
+  friendship+romance 双轴 + affection + 当前是否在校 + 性格预设。
+
+[DROPPED] 校园方案处置：
+
+  - sexperience / sub / lesbian / flags.footrub / flags.first_* / flags.work_stripclub
+    全部不进 DatingState。
+  - traits.* 不进 GameCharacter.favoriteLocations 这类结构；
+    改用"profile 标签"（安静/爱热闹/务实/贪吃/浪漫/怕尴尬）。
+  - 数值门槛仍是"邀请/触发"的标准，但触发目标是友谊/恋爱增量，不是亲密动作解锁。
+
+
+2. 约会后阶段：score 决定能不能"继续玩"
+=========================================
+
+约会本体（`game\ev\romance.rpy`）建立了一个临时对象 date，它保存：
+
+  date.score              int   本场约会累积分数（变化区间）
+  date.stay               bool  玩家是否接受继续
+  date.abort              bool  玩家是否中断约会
+  date.stay_coffee        bool  是否允许续摊到"hot coffee"分支
+  afternoon / evening /
+  dinner / night          bool  阶段门是否已触发
+  participants            list  参与者 ID（可多人 → harem）
+
+[STRUCTURE] 阶段门槛逻辑（romance.rpy:121-180）：
+
+  while date.stay:
+      if 14..17 点 and not afternoon:
+          afternoon = True
+          dif += 25                       ← 难度门槛随阶段抬高
+          call choose_and_do_date
+      elif 18 点 and date.score >= dif and not evening:
+          evening = True
+          dif += 25
+          date_girl.say "I really don't want to end things right now..."
+          menu:
+              "Yes":  pass_time(2); call choose_and_do_date
+              "No":   date.stay = False
+      elif 20..23 点 and not dinner:
+          dinner = True; dif += 25
+          call choose_and_do_date
+      elif weekend and date.score >= dif and not night:
+          night = True
+          call date_do(DATES["nightclub"])
+
+  核心是 dif 递增：每跨一个时段，门槛抬高 25 分。
+  只有当前 score 达到 dif，角色才会主动开口"我们再玩一会"。
+  玩家可以拒绝。
+
+[GATE] 一个动作的 score 增量条件（date_park.rpy:441-464）：
+
+  date_hold_hand:
+      gain = 5
+      if "innocent" in traits:      gain += 5
+      if "romantic" in traits:      gain += 5
+      game.active_date.score += gain
+
+  同一动作 "牵手"，对不同角色结果不同。
+  gain 不是直接给 love，而是给"本场约会的临时分数"。
+
+[BRANCH] 活动 → 分数 → 关系分支树：
+
+  main 阶段的活动（公园/河堤/餐厅/商场）
+    ↓ 累积 date.score
+  18 点门槛（score >= dif）
+    ↓
+  evening 阶段（角色主动续摊，玩家可选）
+    ↓
+  20 点门槛（score >= dif）
+    ↓
+  dinner 阶段
+    ↓
+  weekend + score >= dif
+    ↓
+  night 阶段（nightclub / 成人内容）
+    ↓
+  score >= 80 + sexperience >= 1
+    ↓
+  角色发出亲密信号（ch/bree/events/events.rpy:3738）
+
+[DROPPED] 校园方案处置：
+
+  - date.score 抽出来变成 dateScore，但只用于本地阶段推进，
+    不会写回人物持久属性。
+  - 阶段从"按小时"改成 main → continue → return 三段；
+    continue 是否出现完全由 dateScore >= 阈值 决定。
+  - night/nightclub/hot coffee 全部不进校园项目的地点池；
+    周末高分最多追加"再走一段"的散步，不会进入夜间场所。
+
+
+3. 约会结束结算公式（已知被 [DROP]）
+=====================================
+
+[STATE] romance.rpy:209-221：
+
+  if not date.abort:
+      $ date_girl.love += int((date.score * 0.2) - 10)
+  $ game.active_date = NoDateEvent()
+  $ active_girl.object = None
+  $ date_girl.object = None
+
+  公式含义：
+
+    score 0..49   →   love += -10  （约会白忙，love 反而下降）
+    score 50      →   love += 0    （持平）
+    score 75      →   love += 5
+    score 100     →   love += 10
+
+  整个公式以"低于中位就扣分、高于中位才加分"为基础，
+  是原作难度曲线的核心。
+
+[STRUCTURE] 失败/失约/取消（class_date.rpy:201-219）：
+
+  def fail(self):
+      ...
+      for participant in self.participants:
+          Person.find(participant).love -= 10
+      renpy.say("", "I missed my date with ...")
+
+  取消（cancel_date_internal, ac/date.rpy:92-108）：
+
+      active_girl.love -= 5
+
+  主动取消 -5；自然失约 -10。
+  主动取消比失约轻，但都比成功低得多。
+
+[DROPPED] 校园方案处置：
+
+  - `score * 0.2 - 10` 公式不进 DatingRun。
+  - 成功约会的关系增量来自 settleDatingChoices 对每个 stage 选项的
+    friendshipDelta/romanceDelta 求和，不依赖单一公式。
+  - 取消 vs 失约的区别在校园方案中先做确定性结果，迟到等时间粒度
+    完善后再做（参见上一份对照文档 6.1 / 8 [LATER] 段）。
+
+
+4. 升级到亲密：约会后独立的状态机
+==================================
+
+[STRUCTURE] ch/<角色>/events.rpy 文件组织：
+
+  每个角色都有一个 events.rpy，里面集中定义"角色专属事件"。
+  这些事件用装饰器注册，触发条件写在 conditions 列表里。
+
+  InteractActivity(**{
+      "name": "<event_id>",
+      "label": "<label_name>",
+      "conditions": [
+          HeroTarget(...),
+          ActiveTarget(
+              MinStat("love", X),
+              MinStat("sexperience", N),
+              MinStat("sub", S),
+              PersonTarget(...),
+              RoomTarget('bedroom2'),
+              Not(IsHidden()),
+          ),
+      ],
+      "priority": <int>,
+      "duration": <int>,
+  })
+
+  触发条件是"AND 列表"：所有条件为真才进入。
+  MinStat 检查人物属性的当前值；
+  PersonTarget 限定和特定人物一起触发；
+  RoomTarget 限定当前所在房间。
+
+[STATE] 触发后会发生什么（ch/bree/events/events.rpy）：
+
+  show bree missionary bowsette bedroom2 vaginal
+  "I clamber onto the bed, just as tired of the build up as her, ..."
+  ...
+  $ bree.sexperience += 1
+
+  流程：
+    1. 进入特定房间（bedroom2 等）
+    2. 播放角色专属演出剧本
+    3. 末尾对角色 sexperience += 1
+    4. 某些剧本会再判定 sub、first_*、anal 等子分支
+    5. 触发成就系统（sexperience_achievement_2/3）
+
+[BRANCH] 服装拆脱与镜头切换：
+
+  show bree flirt                       角色当前服装
+  show bree underwear with dissolve     拆到内衣
+  show bree missionary bowsette bedroom2 vaginal   全裸 + 姿势 + 房间 + 体位
+  ...
+  show bree threesome dwaynemike close  多角色场景（harem 路线）
+
+  Ren'Py 的 show 语句接受"角色 + 姿势 + 房间 + 体位"的组合字符串，
+  引擎据此在 image registry 中寻找对应图片资源。
+  也就是说 SecondBase 不是用 CG 标签表驱动，而是用"姿势-房间-体位"三轴
+  拼接字符串做运行时查表。
+
+[DROPPED] 校园方案处置：
+
+  - ch/<角色>/events.rpy 这一整套不进 DatingModule。
+  - 不存在 sexperience/sub/first_* 字段；最接近的概念是
+    约会档案里的 selectedOptionIds + outcomeBand。
+  - 服装/姿势/房间/体位的查表约定不被移植；校园方案的资源命名
+    仍是静态立绘 + 表情 ID（见 datingStoryGeneration.ts 的
+    getStoryPortraitRig）。
+
+
+5. 性格 traits 系统：约会反应的"个性维度"
+==========================================
+
+[STATE] SecondBase 的 traits 是字符串集合（set of str）。
+
+  常见 trait 取值（来自 class_hero.rpy / date_park.rpy / date_restaurant.rpy）：
+
+    innocent     单纯，第一次接触 +5 分
+    romantic     浪漫倾向，牵手 +5 分
+    gourmand     美食，野餐 +10 分
+    princess     公主型，付款被邀请时 +10 分
+    dominant     主导型，付款被邀请时 +10 分
+    rebel        反叛型，付款被邀请时 -5 分
+    workaholic   工作狂，付款被邀请时 -5 分
+    sporty       运动型，与主角健身对比 sub
+
+[STRUCTURE] traits 不是一个 axis，而是离散标签集合：
+
+  if "innocent" in active_girl.traits:
+      gain += 5
+
+  这意味着：
+    - traits 是叠加的，不是互斥的。
+    - 同一动作可以同时检查多个 traits。
+    - 新增 trait 只需要在初始化时写入 set 即可，不需要改判定代码。
+
+[GATE] 餐厅付款典型案例（date_restaurant.rpy:350-387）：
+
+  "Offer to cover the bill":
+      if "rebel" in traits or "workaholic" in traits:
+          game.active_date.score -= 5
+      elif "princess" in traits or "dominant" in traits:
+          game.active_date.score += 10
+      else:
+          game.active_date.score += 5
+      hero.money -= 40
+
+  "Suggest they split the bill":
+      if "rebel" in traits or "workaholic" in traits:
+          game.active_date.score += 5
+      elif "princess" in traits or "dominant" in traits:
+          game.active_date.score -= 10
+      hero.money -= 20
+
+  同一社会行为对不同角色完全相反。
+  这就是"约会不是预抽质量，是行动组合"的来源。
+
+[DROPPED] 校园方案处置：
+
+  - 不直接复制 traits；改用 profile 标签（安静/爱热闹/务实/贪吃/浪漫/怕尴尬）。
+  - 但**"同一行动对不同角色不同结果"的设计原则保留**：
+    校园项目通过 DateActivity.matchTags / mismatchTags 表达。
+  - DateActivity 的 score 增量公式不照搬 `score * 0.2 - 10`，
+    而是基于 baseScore + locationFit + profileMatch + riskResult 求和。
+
+
+6. 多人约会 / Harem：被校园方案彻底 [DROP]
+==========================================
+
+[STRUCTURE] class_date.rpy 与 ch/harems_full/* 中：
+
+  DateAppointment 类支持 participants: list[str]
+  Harem 类负责多人合并逻辑：
+    Harem.together(*people, name="home")
+  同一约会可以同时包含 bree + sasha + mike + dwayne，
+  触发条件是 love >= 150 + sexperience >= 1 + 角色在同房间。
+
+[STATE] 多人约会触发后的分支（ch/harems_full/criminal/events.rpy:2177）：
+
+  "Fuck her ass" if hero.sexperience >= 5:
+      ...
+
+  多人路线会暴露更多敏感选项，每条选项再独立检查
+  hero.sexperience / character.sub / character.flags.anal。
+
+[DROPPED] 校园方案处置：
+
+  - HaremAppointment 整条线不进校园方案。
+  - participants 永远为单角色。
+  - 同日最多三份邀约 → 当天择一，是 [LATER] 项；首版不做。
+  - 爽约后的乱入与竞争事件也是 [LATER]。
+
+
+7. 百合值 / lesbian：Harem 路线的隐形闸门
+==========================================
+
+这是上一节里没讲完的事，必须单独写一节。
+
+[STATE] lesbian 字段的真实身份：
+
+  class_person.lesbian  int  角色对同性关系的倾向数值。
+                          阈值示例：原作中常见的门槛是 lesbian >= 9 或 15。
+                          增长路径：观看 "lesbian porn" 等电影场景时会缓慢 +1。
+
+[STRUCTURE] lesbian 不只是分类标签，它是 Harem 路线的"双闸门"之一：
+
+  在 ch/harems_full/criminal/events.rpy:314 可以看到实际触发条件：
+
+    if camila.sub >= 75 and camila.lesbian >= 9:
+        $ game.flags.CriminalRequest = 2
+        mike.say "I...I get it if we're over, Camila."
+        ...
+        $ Harem.join_by_name("criminal", "camila", "lexi")
+
+  注意是 AND：sub 高 且 lesbian 高，Harem 才接受第二个角色。
+  单独 lesbian 高 → 不会发生。
+  单独 sub 高 → 不会发生。
+  必须同时跨过两道门槛。
+
+[GATE] 双闸门的形成路径：
+
+  sub 增长：
+    ac/trainwith.rpy:51-54   健身对比中，如果 hero.fitness >= active_girl.sub，
+                             角色 sub += 1；sporty 角色 sub -= 1。
+    ac/watch.rpy:227-238     看 sm / femdom 类型电影时，
+                             女方 sub += 1 / 男方 sub -= 1 等。
+
+  lesbian 增长：
+    ac/watch.rpy:244-258     看 lesbian 类型电影时，
+                             is_female 角色 lesbian < 15 才增长；否则截断。
+
+[BRANCH] 闸门通过后的走向：
+
+  Harem.join_by_name(<harem_id>, <person>, <other_person>)
+
+  这一句做了三件事：
+    1. 把 person 从单角色约会池移出。
+    2. 把 other_person 加进同一个 harem。
+    3. 让该 harem 后续事件（ch/harems_full/<harem_id>/events.rpy）
+       在两人都满足 IsHour / RoomTarget / IsPresent 时一并触发。
+
+  也就是说："百合值"+"sub"双闸门一旦通过，
+  第二个角色就被永久拉进这条线，剧情走向由单人变多人，
+  文本里会出现 "threesome / camlick / lexlick" 等多人演出。
+
+[DROPPED] 校园方案处置：
+
+  - lesbian 字段不进 DatingState。
+  - Harem 双闸门不进任何分支树。
+  - 但**双闸门本身作为"状态机设计模式"是有学习价值的**：
+      一项行为（让第二个角色进线）由两个独立维度共同决定，
+      单维度增长到顶也不会触发。
+    校园方案未来如果要加"多人支线"，
+    应当沿用双闸门而不是单阈值，
+    见第 10 节 [LATER] 第 5 项。
+
+[容易混淆]
+
+  - lesbian ≠ sexperience：
+      sexperience 计数与主角的亲密次数；
+      lesbian 计数与同性场景的接触次数。
+      两者各自独立，独自高都不触发 Harem。
+
+  - lesbian 高不等于"该角色是同性恋"：
+      它只是 Harem 路线的入口条件之一；
+      单独 lesbian 高只表示她看过同类题材的影片，
+      不代表她会主动找同性约会。
+
+  - Harem 触发 ≠ 立刻发生亲密事件：
+      Harem.join_by_name 只是把角色纳入同一条事件池；
+      之后还需要 IsHour / RoomTarget / IsPresent / IsActiveHarem
+      等复合条件才会触发具体事件。
+
+
+8. 完整字段表：原作 vs 校园方案
+=================================
+
+下面这张表是这份文档的索引表——也方便之后任何一份想"恢复某项功能"的草案核对。
+
+| SecondBase 字段 / 子系统                | 类型       | 触发阶段             | 校园方案对应                  |
+| --------------------------------------- | ---------- | -------------------- | ----------------------------- |
+| date.score                              | int (临时) | 约会内               | DateRun.dateScore (临时)      |
+| date.stay / stay_coffee / abort         | bool (临时)| 约会内               | DateRun.phase + continuation  |
+| afternoon/evening/dinner/night 标志     | bool (临时)| 约会内               | phase 字段（main/continue/return）|
+| hero.money -= fee                       | int        | 约会开始/活动         | spendMoney 一次性结算          |
+| score * 0.2 - 10 公式                   | 计算公式   | 约会结束             | settleDatingChoices 求和      |
+| MinStat("love", X)                      | 数值门槛   | 事件触发             | DATING_FRIENDSHIP_GATE 等     |
+| MinStat("sexperience", N)               | 数值门槛   | 亲密事件             | 不移植                        |
+| MinStat("sub", S)                       | 数值门槛   | 亲密/SM 偏好         | 不移植                        |
+| traits.innocent / romantic / gourmand   | 字符串集合 | 活动结果加成         | profile 标签（语义重命名）    |
+| traits.princess / dominant / rebel      | 字符串集合 | 餐厅付款结果         | profile 标签                  |
+| flags.first_* / footrub / work_stripclub| bool/int   | 关系阶段 flag        | 不移植                        |
+| HaremAppointment                        | 类         | 多人约会             | 不移植                        |
+| lesbian + sub 双闸门                    | AND 条件   | 拉人进 Harem         | 不移植（设计模式可借鉴）      |
+| 服装/姿势/房间/体位 查表                 | 字符串拼接 | 演出渲染             | 不移植（用静态立绘 + 表情）   |
+| <dating_content> 协议 parser             | (无)       | (本作无 AI)          | datingStoryGeneration.ts 改造 |
+
+
+9. 一些容易混淆的概念
+====================
+      romance 是校园方案把 love 拆出的"恋爱侧"。
+      校园方案同时保留 friendship 和 romance，与原作 love 单轴不一一对应。
+
+  - "约会分"不是"关系分"：
+      date.score 只描述这一场约会的临时表现；
+      它通过 settleDatingChoices 转译成 friendship/romance 增量，
+      不会成为人物的第三条轴。
+
+  - "traits" ≠ "profile 标签"：
+      traits 是字符串集合，可叠加；
+      profile 标签在校园方案里是有限枚举（已写入 [PLAN] 6.3 段），
+      设计目标是为匹配打分，不是表达 SM/支配/屈服。
+
+  - "约会后亲密动作" ≠ "约会内阶段":
+      SecondBase 把亲密动作放在 events.rpy，是约会外的独立状态机；
+      校园方案里不存在约会外的亲密事件；
+      约会结束后立刻结算并归档，没有下一次约会前的"中间态"。
+
+  - "lesbian 高" ≠ "她会进 Harem":
+      必须 lesbian 高且 sub 高，两个维度同时跨门槛，
+      Harem.join_by_name 才会被调用。
+      单独任何一项高都不会触发。
+      见第 7 节《百合值 / lesbian 与后宫结局的闸门》。
+
+  - "Harem 触发" ≠ "立刻发生亲密":
+      Harem.join_by_name 只是把角色纳入同一事件池；
+      之后还需要 IsHour / RoomTarget / IsPresent / IsActiveHarem
+      等复合条件才会触发具体事件。
+      见第 7 节末尾。
+
+
+10. 留待未来判断的事项
+=======================
+
+下面这些是"如果未来某天校园方案想做更深的成人向分支时"才需要决定的事，
+本轮**不实现**：
+
+  1. 校园角色要不要有自己的 sub/dom 倾向轴？
+  2. 约会后要不要保留"是否发生了第一次"这种状态？
+  3. 周末高分是否允许追加夜间场景（独立咖啡/夜市）？
+  4. 同日最多三份邀约是否要落地，以及当天择一如何排序？
+  5. 如果未来要做"校园多人支线"，是否沿用双闸门设计
+     （要求两项独立数值同时跨门槛，而不是单阈值）？
+     这是借鉴原作结构，不是复制内容。
+  6. 校园角色是否需要"和同性朋友的亲密值"独立轴？
+     （对应原作 lesbian 字段的语义位置，不是它的标签名。）
+
+以上每一项都在 [LATER] 列表里，与本份文档同时保留。
+
+
+11. 自检：本份文档的边界
+==========================
+
+  - 本文档提到任何子系统，仅描述 SecondBase 的结构、状态、触发条件与文件位置；
+    不复制大段 .rpy 原文。
+  - 本文档不会在 DatingModule 下新增任何 .ts/.tsx 文件。
+  - 本文档不会修改 types.ts / datingDirector.ts / datingStore.ts / datingRules.ts /
+    DatingScene.tsx / DatingInviteDialog.tsx / datingStoryGeneration.ts / datingCoordinator.ts /
+    datingStore.ts / verifyDatingModule.cjs 中任何一个。
+  - 任何"在 DatingModule 中实现该系统"的提议，都必须先回到那份校园方案对照文档，
+    重新做一遍 [KEEP]/[CHANGE]/[DROP]/[LATER] 决策流程，
+    不能直接以本份文档作为依据。
