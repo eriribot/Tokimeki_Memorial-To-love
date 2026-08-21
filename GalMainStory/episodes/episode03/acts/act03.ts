@@ -17,10 +17,18 @@ export const EPISODE_03_ACT_03 = {
   presentation: {
     sceneIds: ['aquarium', 'schoolRoad'],
     cast: [
-      { characterId: 'lala', portraitIds: ['arrival-default'] },
+      { characterId: 'lala', portraitIds: ['arrival-default', 'school-uniform'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'schoolRoad',
+        characterId: 'lala',
+        portraitId: 'school-uniform',
+        outsideScenePortraitId: 'arrival-default',
+      },
     ],
   },
   generation: {
@@ -320,7 +328,7 @@ export const EPISODE_03_ACT_03 = {
       presentation: {
         sceneId: 'schoolRoad',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },

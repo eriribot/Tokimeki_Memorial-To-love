@@ -1,10 +1,7 @@
-import type { GalStoryActArchive, GalStoryFloor } from '../GalMainStory/storyTypes';
+import type { GalStoryActArchive } from '../GalMainStory/storyTypes';
+import type { DatingArchive } from '../DatingModule/types';
 import { getCanonicalStoryTimeline } from './storyTimeline';
-import {
-  getMemorySummariesForSave,
-  useMemorySummaryArchiveStore,
-  type MemorySummaryCandidate,
-} from './summaryArchive';
+import { getMemorySummariesForSave, useMemorySummaryArchiveStore, type MemorySummaryCandidate } from './summaryArchive';
 
 /**
  * 总结失效检测结果
@@ -21,6 +18,16 @@ export interface InvalidatedSummary {
   missingFloorIds: string[];
 }
 
+function getActiveSummaryFloorIds(
+  archives: readonly GalStoryActArchive[],
+  datingArchives: readonly DatingArchive[],
+): Set<string> {
+  return new Set([
+    ...getCanonicalStoryTimeline(archives).map(floor => floor.floorId),
+    ...datingArchives.map(archive => archive.id),
+  ]);
+}
+
 /**
  * 检测某个楼层被重新生成后，哪些总结会失效
  */
@@ -28,14 +35,10 @@ export function detectSummaryInvalidation(
   archives: readonly GalStoryActArchive[],
   regeneratedFloorId: string,
   saveUuid: string,
+  datingArchives: readonly DatingArchive[],
 ): SummaryInvalidationResult {
   const summaries = getMemorySummariesForSave(saveUuid);
-  const activeFloorIds = new Set(
-    archives
-      .map(archive => archive.floors.find(f => f.floorId === archive.activeFloorId))
-      .filter((f): f is GalStoryFloor => f !== null)
-      .map(f => f.floorId),
-  );
+  const activeFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   const invalidatedSummaries: InvalidatedSummary[] = [];
 
@@ -92,11 +95,11 @@ export function invalidateSummaries(summaryIds: string[]): number {
  */
 export function hasInvalidSummaries(
   archives: readonly GalStoryActArchive[],
+  datingArchives: readonly DatingArchive[],
   saveUuid: string,
 ): boolean {
   const summaries = getMemorySummariesForSave(saveUuid);
-  const timeline = getCanonicalStoryTimeline(archives);
-  const timelineFloorIds = new Set(timeline.map(f => f.floorId));
+  const timelineFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   for (const summary of summaries) {
     if (summary.status !== 'accepted' || summary.mode !== 'small') continue;
@@ -114,11 +117,11 @@ export function hasInvalidSummaries(
  */
 export function getInvalidSummaries(
   archives: readonly GalStoryActArchive[],
+  datingArchives: readonly DatingArchive[],
   saveUuid: string,
 ): MemorySummaryCandidate[] {
   const summaries = getMemorySummariesForSave(saveUuid);
-  const timeline = getCanonicalStoryTimeline(archives);
-  const timelineFloorIds = new Set(timeline.map(f => f.floorId));
+  const timelineFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   return summaries.filter(summary => {
     if (summary.status !== 'accepted' || summary.mode !== 'small') return false;
@@ -134,9 +137,7 @@ export function generateInvalidationReport(result: SummaryInvalidationResult): s
     return '✅ 没有总结会失效。';
   }
 
-  const lines: string[] = [
-    `⚠️ 重新生成将使 ${result.affectedCount} 条总结失效：\n`,
-  ];
+  const lines: string[] = [`⚠️ 重新生成将使 ${result.affectedCount} 条总结失效：\n`];
 
   for (const { summary, reason, missingFloorIds } of result.invalidatedSummaries) {
     lines.push(`【${summary.title}】`);

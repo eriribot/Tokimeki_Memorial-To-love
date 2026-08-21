@@ -1,6 +1,5 @@
 import { getMainStoryEpisode } from '../GalMainStory/storyRegistry';
-import type { GalStoryFloor, GalStoryMessageSave } from '../GalMainStory/storyTypes';
-import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
+import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
 import { loadOpenAICompatibleConfig } from '../config/openaiCompatible';
 import { captureGameMessages } from '../message';
 import type { SaveRecord } from '../save';
@@ -13,77 +12,6 @@ import {
   type SummaryDeterministicState,
   type SummarySourceMessage,
 } from './summaryPrompts';
-
-/**
- * 清理GAL渲染标识符，只保留纯文本内容用于总结
- * 例如：@旁白【scene=riverbank;focus=lala;...】：菈菈转过头...
- * 清理后：旁白：菈菈转过头...
- */
-function cleanGalDirectives(text: string): string {
-  // 移除每行开头的 @ 符号和 【...】 内的所有渲染指令
-  return text
-    .split(/\r?\n/)
-    .map(line => {
-      // 匹配格式：@角色名【scene=xxx;focus=xxx;...】：对话内容
-      const match = line.match(/^@([^【]+)【[^】]*】：(.*)$/);
-      if (match) {
-        const speaker = match[1].trim();
-        const content = match[2].trim();
-        return `${speaker}：${content}`;
-      }
-      return line;
-    })
-    .join('\n')
-    .trim();
-}
-
-/**
- * 提取消息的纯剧情内容
- * - USER消息：提取最后的剧情请求部分（去掉指令和规则）
- * - ASSISTANT消息：只提取<content>标签内的剧情正文
- */
-function extractStoryContent(message: { role: 'user' | 'assistant'; content: string }): string {
-  if (message.role === 'assistant') {
-    // ASSISTANT消息：提取<content>或其他正文容器内的内容
-    try {
-      const extracted = extractPlayableText(message.content, { requirePlayableWrapper: false });
-      return cleanGalDirectives(extracted);
-    } catch {
-      // 如果提取失败，使用原始内容并清理
-      return cleanGalDirectives(message.content);
-    }
-  }
-
-  // USER消息：通常是生成请求，包含大量指令
-  // 尝试找到实际的剧情上下文或请求
-  const lines = message.content.split('\n');
-
-  // 查找是否有明确的剧情内容标记
-  const storyStartIndex = lines.findIndex(line =>
-    line.includes('SOURCE_MESSAGES') ||
-    line.includes('前序剧情') ||
-    line.includes('已提供的')
-  );
-
-  if (storyStartIndex >= 0) {
-    // 如果找到剧情内容标记，提取该部分之后的内容
-    return lines.slice(storyStartIndex).join('\n').trim();
-  }
-
-  // 否则，只保留第一行（通常是简短的请求描述）
-  const firstLine = lines[0]?.trim() || '';
-  if (firstLine.length > 0 && firstLine.length < 200) {
-    return firstLine;
-  }
-
-  // 如果第一行太长，可能是完整的指令，尝试提取关键信息
-  const match = message.content.match(/请演绎[《「]([^》」]+)[》」]/);
-  if (match) {
-    return `请求演绎：${match[1]}`;
-  }
-
-  return '（生成请求）';
-}
 
 // 通过SillyTavern后端发送API请求，避免CORS问题，同时能在CMD看到日志
 async function requestThroughSillyTavern(
@@ -172,13 +100,18 @@ import {
   SMALL_SUMMARY_SOURCE_FLOOR_COUNT,
 } from './summaryPolicy';
 import { useMemorySummaryProgressStore } from './summaryProgress';
-import { getCanonicalStoryTimeline } from './storyTimeline';
+import {
+  createMemorySummarySourceProjection,
+  DATING_SUMMARY_EVENT_ID,
+  type MemorySummarySourceFloor,
+  type MemorySummarySourceMessage,
+} from './summarySourceProjection';
 
 const SUMMARY_RUNTIME_DELAY_MS = 350;
 
 interface SavedMemoryContext {
   save: SaveRecord<GameSnapshot>;
-  messages: GalStoryMessageSave[];
+  messages: readonly GalStoryMessageSave[];
 }
 
 interface SmallSummarySource {
@@ -246,8 +179,7 @@ function hasRejectedSummaryReplacement(candidate: MemorySummaryCandidate): boole
   );
   if (hasNewerCandidate) return true;
   return archive.jobs.some(
-    job =>
-      job.candidateId !== candidate.summaryId && job.createdAt >= reviewedAt && hasSameJobSource(candidate, job),
+    job => job.candidateId !== candidate.summaryId && job.createdAt >= reviewedAt && hasSameJobSource(candidate, job),
   );
 }
 
@@ -296,32 +228,30 @@ function hasSameDeterministicState(left: GameSnapshot, right: GameSnapshot): boo
 }
 
 function getSourceFromFloors(
-  timeline: readonly GalStoryFloor[],
-  floors: readonly GalStoryFloor[],
-  messages: readonly GalStoryMessageSave[],
+  floors: readonly MemorySummarySourceFloor[],
+  messages: readonly MemorySummarySourceMessage[],
 ): SmallSummarySource | null {
   if (floors.length === 0) return null;
   const messagesById = new Map(messages.map(message => [message.id, message]));
-  const ordinalByFloorId = new Map(timeline.map((floor, index) => [floor.floorId, index]));
   const sourceMessages: SummarySourceMessage[] = [];
 
   for (const floor of floors) {
     const pair = floor.messageIds
       .map(messageId => messagesById.get(messageId))
-      .filter((message): message is GalStoryMessageSave => message !== undefined)
-      .sort((left, right) => (left.extra.role === 'user' ? -1 : right.extra.role === 'user' ? 1 : 0));
-    if (pair.length !== 2 || pair[0].extra.role !== 'user' || pair[1].extra.role !== 'assistant') return null;
+      .filter((message): message is MemorySummarySourceMessage => message !== undefined)
+      .sort((left, right) => (left.role === 'user' ? -1 : right.role === 'user' ? 1 : 0));
+    if (pair.length !== 2 || pair[0].role !== 'user' || pair[1].role !== 'assistant') return null;
     for (const message of pair) {
       sourceMessages.push({
         id: message.id,
-        role: message.extra.role,
-        eventId: message.extra.eventId,
-        actId: message.extra.actId,
-        floorId: message.extra.floorId,
-        source: message.extra.source,
+        role: message.role,
+        eventId: message.eventId,
+        actId: message.actId,
+        floorId: message.floorId,
+        source: message.source,
         outcome: 'accepted',
-        canonicalOrdinal: ordinalByFloorId.get(message.extra.floorId) ?? 0,
-        content: extractStoryContent({ role: message.extra.role, content: message.mes }), // 提取纯剧情内容
+        canonicalOrdinal: message.canonicalOrdinal,
+        content: message.content,
       });
     }
   }
@@ -345,26 +275,32 @@ function getSourceFromFloors(
   };
 }
 
-function getEligibleFloors(context: SavedMemoryContext): { timeline: GalStoryFloor[]; floors: GalStoryFloor[] } {
-  const timeline = getCanonicalStoryTimeline(context.save.data.game.mainStory.archives);
-  const availableMessageIds = new Set(context.messages.map(message => message.id));
-  const floors = timeline.filter(floor => floor.messageIds.every(messageId => availableMessageIds.has(messageId)));
+function getEligibleFloors(context: SavedMemoryContext): {
+  timeline: MemorySummarySourceFloor[];
+  floors: MemorySummarySourceFloor[];
+  messages: MemorySummarySourceMessage[];
+} {
+  const projection = createMemorySummarySourceProjection(context.save.data, context.messages);
   console.log('[ToLove Memory] getEligibleFloors', {
-    timelineLength: timeline.length,
-    eligibleFloorsLength: floors.length,
-    floorIds: floors.map(f => f.floorId),
+    timelineLength: projection.floors.length,
+    eligibleFloorsLength: projection.floors.length,
+    mainStoryFloorCount: projection.floors.filter(floor => floor.kind === 'main-story').length,
+    datingFloorCount: projection.floors.filter(floor => floor.kind === 'dating').length,
+    floorIds: projection.floors.map(floor => floor.floorId),
   });
   return {
-    timeline,
-    floors,
+    timeline: projection.floors,
+    floors: projection.floors,
+    messages: projection.messages,
   };
 }
 
 function getUncoveredSmallSummaryFloors(context: SavedMemoryContext): {
-  timeline: GalStoryFloor[];
-  floors: GalStoryFloor[];
+  timeline: MemorySummarySourceFloor[];
+  floors: MemorySummarySourceFloor[];
+  messages: MemorySummarySourceMessage[];
 } {
-  const { timeline, floors } = getEligibleFloors(context);
+  const { timeline, floors, messages } = getEligibleFloors(context);
   const summaries = getMemorySummariesForSave(context.save.saveUuid);
   const jobs = getMemoryJobsForSave(context.save.saveUuid);
   const coveredIds = new Set([
@@ -374,24 +310,21 @@ function getUncoveredSmallSummaryFloors(context: SavedMemoryContext): {
   return {
     timeline,
     floors: floors.filter(floor => floor.messageIds.every(messageId => !coveredIds.has(messageId))),
+    messages,
   };
 }
 
 function createAutomaticSmallSource(context: SavedMemoryContext): SmallSummarySource | null {
-  const { timeline, floors } = getUncoveredSmallSummaryFloors(context);
+  const { floors, messages } = getUncoveredSmallSummaryFloors(context);
   if (floors.length < SMALL_SUMMARY_SOURCE_FLOOR_COUNT) return null;
-  return getSourceFromFloors(
-    timeline,
-    floors.slice(0, SMALL_SUMMARY_SOURCE_FLOOR_COUNT),
-    context.messages,
-  );
+  return getSourceFromFloors(floors.slice(0, SMALL_SUMMARY_SOURCE_FLOOR_COUNT), messages);
 }
 
 function createManualSmallSource(context: SavedMemoryContext): SmallSummarySource | null {
-  const { timeline, floors } = getUncoveredSmallSummaryFloors(context);
+  const { floors, messages } = getUncoveredSmallSummaryFloors(context);
   const selectedFloors = floors.slice(0, SMALL_SUMMARY_SOURCE_FLOOR_COUNT);
   if (selectedFloors.length < SMALL_SUMMARY_MIN_SOURCE_FLOOR_COUNT) return null;
-  return getSourceFromFloors(timeline, selectedFloors, context.messages);
+  return getSourceFromFloors(selectedFloors, messages);
 }
 
 function createSpecificSmallSource(
@@ -406,10 +339,10 @@ function createSpecificSmallSource(
   ) {
     return null;
   }
-  const { timeline, floors } = getEligibleFloors(context);
+  const { floors, messages } = getEligibleFloors(context);
   const requestedIds = new Set(sourceMessageIds);
   const selectedFloors = floors.filter(floor => floor.messageIds.every(messageId => requestedIds.has(messageId)));
-  const source = getSourceFromFloors(timeline, selectedFloors, context.messages);
+  const source = getSourceFromFloors(selectedFloors, messages);
   if (!source || source.messages.length !== sourceMessageIds.length) return null;
   const actualIds = source.messages.map(message => message.id);
   return actualIds.every((messageId, index) => messageId === sourceMessageIds[index]) ? source : null;
@@ -517,8 +450,7 @@ function getAutomaticLargeBatch(context: SavedMemoryContext): MemorySummaryCandi
       .flatMap(summary => summary.sourceSummaryIds),
     ...jobs
       .filter(
-        job =>
-          job.mode === 'large' && hasCurrentLargeSource(context, job.sourceSummaryIds, job.sourceFingerprint),
+        job => job.mode === 'large' && hasCurrentLargeSource(context, job.sourceSummaryIds, job.sourceFingerprint),
       )
       .flatMap(job => job.sourceSummaryIds),
   ]);
@@ -669,16 +601,11 @@ async function executeSmallJob(
     });
 
     // 通过SillyTavern后端发送请求，避免预设干扰
-    const responseText = await requestThroughSillyTavern(
-      config,
-      prompt.systemPrompt,
-      prompt.userPrompt,
-      {
-        temperature: 0.1,
-        maxTokens: 1600,
-        signal: controller.signal,
-      },
-    );
+    const responseText = await requestThroughSillyTavern(config, prompt.systemPrompt, prompt.userPrompt, {
+      temperature: 0.1,
+      maxTokens: 1600,
+      signal: controller.signal,
+    });
 
     console.log('[ToLove Memory] 小总结生成成功', {
       textLength: responseText.length,
@@ -798,16 +725,11 @@ async function executeLargeJob(
     });
 
     // 通过SillyTavern后端发送请求，避免预设干扰
-    const responseText = await requestThroughSillyTavern(
-      config,
-      prompt.systemPrompt,
-      prompt.userPrompt,
-      {
-        temperature: 0,
-        maxTokens: 2200,
-        signal: controller.signal,
-      },
-    );
+    const responseText = await requestThroughSillyTavern(config, prompt.systemPrompt, prompt.userPrompt, {
+      temperature: 0,
+      maxTokens: 2200,
+      signal: controller.signal,
+    });
 
     console.log('[ToLove Memory] 大总结生成成功', {
       textLength: responseText.length,
@@ -1042,11 +964,7 @@ export function invalidateMemorySummaryContext(reason = '权威存档上下文�
 }
 
 export interface MemorySummaryContextTransition {
-  adopt: (
-    save: SaveRecord<GameSnapshot>,
-    messages: readonly GalStoryMessageSave[],
-    schedule?: boolean,
-  ) => boolean;
+  adopt: (save: SaveRecord<GameSnapshot>, messages: readonly GalStoryMessageSave[], schedule?: boolean) => boolean;
   rollback: () => boolean;
   commitInvalidated: () => boolean;
 }
@@ -1217,17 +1135,19 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
     // 在重新生成前，删除相同来源的其他pending候选（避免重复）
     const sourceFingerprint = candidate.sourceFingerprint;
     const duplicates = archive.summaries.filter(
-      s => s.summaryId !== summaryId &&
-           s.status === 'pending' &&
-           s.sourceFingerprint === sourceFingerprint &&
-           s.mode === candidate.mode
+      s =>
+        s.summaryId !== summaryId &&
+        s.status === 'pending' &&
+        s.sourceFingerprint === sourceFingerprint &&
+        s.mode === candidate.mode,
     );
     if (duplicates.length > 0) {
-      console.log('[ToLove Memory] 删除重复的pending候选:', duplicates.map(d => d.summaryId));
+      console.log(
+        '[ToLove Memory] 删除重复的pending候选:',
+        duplicates.map(d => d.summaryId),
+      );
       useMemorySummaryArchiveStore.setState(state => ({
-        summaries: state.summaries.filter(
-          s => !duplicates.some(dup => dup.summaryId === s.summaryId)
-        ),
+        summaries: state.summaries.filter(s => !duplicates.some(dup => dup.summaryId === s.summaryId)),
       }));
     }
 
@@ -1296,7 +1216,7 @@ export function reviewMemorySummaryCandidate(
   if (!isCurrent) return false;
 
   const reviewed = archive.reviewCandidate(summaryId, decision, edits);
-  if (reviewed && decision !== 'reject') refreshMemorySummarySchedule();
+  if (reviewed) refreshMemorySummarySchedule();
   return reviewed;
 }
 
@@ -1310,6 +1230,10 @@ export function getMemorySummaryRuntimeLabel(): string {
 }
 
 export function getMemorySourceLabel(candidate: MemorySummaryCandidate): string {
-  const episode = getMainStoryEpisode(candidate.sourceEventIds[0]);
-  return episode?.title ?? candidate.sourceFloorIds[0] ?? '未知来源';
+  const includesDating = candidate.sourceEventIds.includes(DATING_SUMMARY_EVENT_ID);
+  if (includesDating && candidate.sourceEventIds.length === 1) return '约会记录';
+  const firstMainStoryEventId = candidate.sourceEventIds.find(eventId => eventId !== DATING_SUMMARY_EVENT_ID);
+  const episode = getMainStoryEpisode(firstMainStoryEventId);
+  const label = episode?.title ?? candidate.sourceFloorIds[0] ?? '未知来源';
+  return includesDating ? `${label} · 含约会` : label;
 }

@@ -16,9 +16,17 @@ export const EPISODE_02_ACT_03 = {
   presentation: {
     sceneIds: ['riverbank', 'home', 'schoolRoad', 'school'],
     cast: [
-      { characterId: 'lala', portraitIds: ['arrival-default'] },
+      { characterId: 'lala', portraitIds: ['arrival-default', 'school-uniform'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'school',
+        characterId: 'lala',
+        portraitId: 'school-uniform',
+        outsideScenePortraitId: 'arrival-default',
+      },
     ],
   },
   generation: {
@@ -169,7 +177,7 @@ export const EPISODE_02_ACT_03 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'flash',
       },
@@ -202,7 +210,7 @@ export const EPISODE_02_ACT_03 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'shake',
       },

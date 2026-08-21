@@ -17,9 +17,17 @@ export const EPISODE_04_ACT_01 = {
   presentation: {
     sceneIds: ['bedroom', 'home', 'school', 'rooftop'],
     cast: [
-      { characterId: 'lala', portraitIds: ['arrival-default'] },
+      { characterId: 'lala', portraitIds: ['arrival-default', 'school-uniform'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'school',
+        characterId: 'lala',
+        portraitId: 'school-uniform',
+        outsideScenePortraitId: 'arrival-default',
+      },
     ],
   },
   generation: {
@@ -98,7 +106,7 @@ export const EPISODE_04_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -109,7 +117,7 @@ export const EPISODE_04_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },

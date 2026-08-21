@@ -17,10 +17,24 @@ export const EPISODE_03_ACT_01 = {
   presentation: {
     sceneIds: ['rooftop', 'school', 'home'],
     cast: [
-      { characterId: 'lala', portraitIds: ['arrival-default'] },
+      { characterId: 'lala', portraitIds: ['arrival-default', 'school-uniform'] },
       { characterId: 'haruna', portraitIds: ['school-uniform'] },
       { characterId: 'mikan', portraitIds: ['arrival-default'] },
       { characterId: 'riko', portraitIds: ['school-uniform'] },
+    ],
+    portraitRules: [
+      {
+        sceneId: 'rooftop',
+        characterId: 'lala',
+        portraitId: 'school-uniform',
+        outsideScenePortraitId: 'arrival-default',
+      },
+      {
+        sceneId: 'school',
+        characterId: 'lala',
+        portraitId: 'school-uniform',
+        outsideScenePortraitId: 'arrival-default',
+      },
     ],
   },
   generation: {
@@ -34,7 +48,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -45,7 +59,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'neutral',
         effect: 'none',
       },
@@ -56,7 +70,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -67,7 +81,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'neutral',
         effect: 'none',
       },
@@ -78,7 +92,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -89,7 +103,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'serious',
         effect: 'shake',
       },
@@ -100,7 +114,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'none',
       },
@@ -122,7 +136,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'panic',
         effect: 'shake',
       },
@@ -133,7 +147,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'neutral',
         effect: 'none',
       },
@@ -144,8 +158,8 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
-        expressionId: 'shy',
+        portraitId: 'school-uniform',
+        expressionId: 'neutral',
         effect: 'shake',
       },
     },
@@ -155,7 +169,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'worried',
         effect: 'none',
       },
@@ -166,7 +180,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'worried',
         effect: 'shake',
       },
@@ -188,7 +202,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'panic',
         effect: 'shake',
       },
@@ -199,7 +213,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'worried',
         effect: 'none',
       },
@@ -210,7 +224,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'serious',
         effect: 'shake',
       },
@@ -221,7 +235,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'rooftop',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'serious',
         effect: 'none',
       },
@@ -320,7 +334,7 @@ export const EPISODE_03_ACT_01 = {
       presentation: {
         sceneId: 'school',
         focusCharacterId: 'lala',
-        portraitId: 'arrival-default',
+        portraitId: 'school-uniform',
         expressionId: 'happy',
         effect: 'flash',
       },

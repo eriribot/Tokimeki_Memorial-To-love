@@ -53,6 +53,31 @@ const LALA_WASHROOM_PORTRAIT = {
   ),
 } as const;
 
+const LALA_SCHOOL_PORTRAIT = {
+  id: 'school-uniform',
+  characterId: 'lala',
+  displayName: '菈菈',
+  canvas: { width: 1024, height: 1024 },
+  body: '/artsource/lala/lala_school/004_01_01_a%20%2327472.png',
+  mask: '/artsource/lala/lala_school/004_01_01_a.png',
+  regions: {
+    eyes: { x: 394, y: 217, width: 230, height: 131 },
+    mouth: { x: 394, y: 345, width: 230, height: 57 },
+  },
+  defaultExpressionId: 'neutral',
+  expressions: createFaceAtlasExpressions(
+    '/artsource/lala/lala_school/004_01_01_',
+    {
+      neutral: 'a',
+      worried: 'e',
+      happy: 'b',
+      serious: 'd',
+      panic: 'c',
+    },
+    ['worried', 'happy'],
+  ),
+} as const;
+
 export const LALA_STORY_CHARACTER = {
   id: 'lala',
   displayName: '菈菈',
@@ -70,6 +95,7 @@ export const LALA_STORY_CHARACTER = {
   portraits: {
     [LALA_DEFAULT_PORTRAIT.id]: LALA_DEFAULT_PORTRAIT,
     [LALA_WASHROOM_PORTRAIT.id]: LALA_WASHROOM_PORTRAIT,
+    [LALA_SCHOOL_PORTRAIT.id]: LALA_SCHOOL_PORTRAIT,
   },
   loreReferences: [
     {

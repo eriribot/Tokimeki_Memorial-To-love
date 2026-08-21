@@ -28,7 +28,10 @@ import {
   SMALL_SUMMARY_MAX_LENGTH,
   SMALL_SUMMARY_SOURCE_FLOOR_COUNT,
 } from '../memory/summaryPolicy';
-import { getCanonicalStoryTimeline } from '../memory/storyTimeline';
+import {
+  createMemorySummarySourceProjection,
+  type MemorySummarySourceMessage,
+} from '../memory/summarySourceProjection';
 import { PERIODS } from '../stores/gameStore';
 import { LOCATIONS } from '../stores/mapStore';
 import './ContextPreviewModal.css';
@@ -182,11 +185,12 @@ function getSummaryStatusLabel(status: MemorySummaryCandidate['status']): string
 
 type SummarySourceReference = Pick<MemorySummaryCandidate, 'mode' | 'sourceMessageIds' | 'sourceSummaryIds'>;
 
-function getSourceMessageScope(message: LocalContextPreview['messages'][number]): string {
-  const episode = getMainStoryEpisode(message.extra.eventId);
-  const actIndex = getMainStoryActIndex(message.extra.eventId, message.extra.actId);
-  const actLabel = actIndex >= 0 ? `第 ${actIndex + 1} 幕` : message.extra.actId;
-  return `${episode?.title ?? message.extra.eventId} · ${actLabel} · ${message.extra.floorId}`;
+function getSourceMessageScope(message: MemorySummarySourceMessage): string {
+  if (message.kind === 'dating') return `${message.scopeLabel} · ${message.floorId}`;
+  const episode = getMainStoryEpisode(message.eventId);
+  const actIndex = getMainStoryActIndex(message.eventId, message.actId);
+  const actLabel = actIndex >= 0 ? `第 ${actIndex + 1} 幕` : message.actId;
+  return `${episode?.title ?? message.eventId} · ${actLabel} · ${message.floorId}`;
 }
 
 function SummarySourceEvidence({
@@ -196,7 +200,7 @@ function SummarySourceEvidence({
   canonicalFloorIds,
 }: {
   source: SummarySourceReference;
-  messages: LocalContextPreview['messages'];
+  messages: readonly MemorySummarySourceMessage[];
   summaries: readonly MemorySummaryCandidate[];
   canonicalFloorIds: ReadonlySet<string>;
 }) {
@@ -209,16 +213,16 @@ function SummarySourceEvidence({
           return message ? (
             <li key={messageId}>
               <div className="context-preview__summary-source-meta">
-                <b>{message.extra.role === 'user' ? 'User' : 'Assistant'}</b>
+                <b>{message.role === 'user' ? 'User' : 'Assistant'}</b>
                 <span>{getSourceMessageScope(message)}</span>
-                <span>{message.extra.source === 'fallback' ? 'fallback' : 'Tavern'}</span>
-                <span className={canonicalFloorIds.has(message.extra.floorId) ? undefined : 'is-stale'}>
-                  {canonicalFloorIds.has(message.extra.floorId) ? '当前采用' : '非当前采用'}
+                <span>{message.source === 'fallback' ? 'fallback' : 'Tavern'}</span>
+                <span className={canonicalFloorIds.has(message.floorId) ? undefined : 'is-stale'}>
+                  {canonicalFloorIds.has(message.floorId) ? '当前采用' : '非当前采用'}
                 </span>
-                <time dateTime={message.send_date}>{formatDateTime(message.send_date)}</time>
+                <time dateTime={message.createdAt}>{formatDateTime(message.createdAt)}</time>
                 <code>{message.id}</code>
               </div>
-              <pre>{message.mes}</pre>
+              <pre>{message.content}</pre>
             </li>
           ) : (
             <li className="is-missing" key={messageId}>
@@ -277,9 +281,13 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
         .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
     [activeSaveUuid, storedJobs],
   );
-  const canonicalFloorIds = useMemo(
-    () => new Set(getCanonicalStoryTimeline(preview.snapshot.game.mainStory.archives).map(floor => floor.floorId)),
+  const sourceProjection = useMemo(
+    () => createMemorySummarySourceProjection(preview.snapshot, preview.messages),
     [preview],
+  );
+  const canonicalFloorIds = useMemo(
+    () => new Set(sourceProjection.floors.map(floor => floor.floorId)),
+    [sourceProjection],
   );
   const nextSmallBatch = getNextMemorySmallSummaryBatch();
   const config = loadOpenAICompatibleConfig();
@@ -457,7 +465,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                   <summary>冻结来源</summary>
                   <SummarySourceEvidence
                     source={job}
-                    messages={preview.messages}
+                    messages={sourceProjection.messages}
                     summaries={summaries}
                     canonicalFloorIds={canonicalFloorIds}
                   />
@@ -537,7 +545,7 @@ function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
                     </summary>
                     <SummarySourceEvidence
                       source={summary}
-                      messages={preview.messages}
+                      messages={sourceProjection.messages}
                       summaries={summaries}
                       canonicalFloorIds={canonicalFloorIds}
                     />

@@ -64,8 +64,10 @@ function getCanonicalFloorMessages(
   floor: GalStoryFloor,
   messagesById: ReadonlyMap<string, GalStoryMessageSave>,
 ): [GalStoryMessageSave, GalStoryMessageSave] | null {
-  const pair = floor.messageIds.map(messageId => messagesById.get(messageId));
-  if (pair.length !== 2 || !pair[0] || !pair[1]) return null;
+  const pair = floor.messageIds
+    .map(messageId => messagesById.get(messageId))
+    .filter((message): message is GalStoryMessageSave => message !== undefined);
+  if (pair.length !== 2) return null;
   const user = pair.find(message => message.extra.role === 'user');
   const assistant = pair.find(message => message.extra.role === 'assistant');
   if (
@@ -90,9 +92,7 @@ export function selectRecentStoryMessages(
   const pairLimit = Math.max(0, Math.floor(limit / 2));
   if (pairLimit === 0) return [];
   const messagesById = new Map(messages.map(message => [message.id, message]));
-  return timeline
-    .slice(-pairLimit)
-    .flatMap(floor => getCanonicalFloorMessages(floor, messagesById) ?? []);
+  return timeline.slice(-pairLimit).flatMap(floor => getCanonicalFloorMessages(floor, messagesById) ?? []);
 }
 
 /** Returns complete canonical pairs older than the fixed recent-message window. */

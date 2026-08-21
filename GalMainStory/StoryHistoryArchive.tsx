@@ -1,4 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDatingStore } from '../DatingModule/datingStore';
 import {
   createStoryFloor,
   createStoryFloorId,
@@ -64,6 +65,7 @@ export default function StoryHistoryArchive({
   children,
 }: StoryHistoryArchiveProps) {
   const archives = useGameStore(state => state.mainStory.archives);
+  const datingArchives = useDatingStore(state => state.archives);
   const messageHistory = useGameStore(state => state.mainStory.messages);
   const addFloor = useGameStore(state => state.addMainStoryFloor);
   const selectFloor = useGameStore(state => state.selectMainStoryFloor);
@@ -182,7 +184,7 @@ export default function StoryHistoryArchive({
       // 分析影响范围
       if (baseFloor.floorId === archive.activeFloorId) {
         const impact = analyzeRegenerationImpact(sortedArchives, baseFloor.floorId);
-        const summaryImpact = detectSummaryInvalidation(sortedArchives, baseFloor.floorId, saveUuid);
+        const summaryImpact = detectSummaryInvalidation(sortedArchives, baseFloor.floorId, saveUuid, datingArchives);
 
         if (impact && impact.totalAffected > 0) {
           setImpactAnalysis(impact);
@@ -250,7 +252,16 @@ export default function StoryHistoryArchive({
         if (isMountedRef.current) setRegeneratingActKey(null);
       }
     },
-    [addFloor, messageHistory, onPreviewFloor, playerProfile, regeneratingActKey, saveUuid, sortedArchives],
+    [
+      addFloor,
+      datingArchives,
+      messageHistory,
+      onPreviewFloor,
+      playerProfile,
+      regeneratingActKey,
+      saveUuid,
+      sortedArchives,
+    ],
   );
 
   const confirmRegeneration = useCallback(

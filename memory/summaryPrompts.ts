@@ -216,10 +216,7 @@ function assertSmallMessagePairs(messages: readonly SummarySourceMessage[]): voi
   if (messages.length === 0) throw new Error('小总结至少需要一条完整消息对。');
   if (messages.length % 2 !== 0) throw new Error('小总结来源必须由完整的User/Assistant消息对组成。');
   const floorCount = messages.length / 2;
-  if (
-    floorCount < SMALL_SUMMARY_MIN_SOURCE_FLOOR_COUNT ||
-    floorCount > SMALL_SUMMARY_SOURCE_FLOOR_COUNT
-  ) {
+  if (floorCount < SMALL_SUMMARY_MIN_SOURCE_FLOOR_COUNT || floorCount > SMALL_SUMMARY_SOURCE_FLOOR_COUNT) {
     throw new Error(
       `小总结来源必须包含${SMALL_SUMMARY_MIN_SOURCE_FLOOR_COUNT}至${SMALL_SUMMARY_SOURCE_FLOOR_COUNT}个完整楼层。`,
     );
@@ -329,7 +326,7 @@ function buildSmallUserPrompt(input: SmallSummaryPromptInput): MemorySummaryProm
 4. 风格：客观叙述剧情发展和角色互动
 
 【内容要求】
-- 阅读下面的 SOURCE_MESSAGES（剧情原文）
+- 阅读下面的 SOURCE_MESSAGES（主线或已完成约会的剧情原文）
 - 按时间顺序总结已经发生的重要事件、对话、互动和约定
 - 只总结原文中明确提到的内容
 - 本次来源是 ${sourceFloorCount} 个楼层
@@ -345,7 +342,7 @@ ${FORBIDDEN_RULES}
 DETERMINISTIC_STATE（当前游戏状态，仅供参考）：
 ${JSON.stringify(deterministicState, null, 2)}
 
-SOURCE_MESSAGES（${sourceFloorCount} 个楼层的剧情原文）：
+SOURCE_MESSAGES（${sourceFloorCount} 个楼层的主线/约会剧情原文）：
 ${messages.map(message => `[${message.role.toUpperCase()}] ${message.content}`).join('\n\n')}
 
 ---
@@ -380,12 +377,7 @@ function buildLargeUserPrompt(input: LargeSummaryPromptInput): MemorySummaryProm
         messageIds: uniqueIds(summary.source.messageIds, 'summary.source.messageIds'),
       },
       title: requireRangedText(summary.title, 'summary.title', 1, 30),
-      text: requireRangedText(
-        summary.text,
-        'summary.text',
-        SMALL_SUMMARY_MIN_LENGTH,
-        SMALL_SUMMARY_MAX_LENGTH,
-      ),
+      text: requireRangedText(summary.text, 'summary.text', SMALL_SUMMARY_MIN_LENGTH, SMALL_SUMMARY_MAX_LENGTH),
     };
   });
   if (summaries.length !== LARGE_SUMMARY_SOURCE_COUNT) {
