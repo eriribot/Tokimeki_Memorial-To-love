@@ -88,8 +88,6 @@ async function requestThroughSillyTavern(
 }
 import {
   createMemoryRuntimeId,
-  getMemoryJobsForSave,
-  getMemorySummariesForSave,
   useMemorySummaryArchiveStore,
   type MemorySummaryCandidate,
   type MemorySummaryJob,
@@ -106,7 +104,9 @@ import {
   DATING_SUMMARY_EVENT_ID,
   type MemorySummarySourceFloor,
   type MemorySummarySourceMessage,
+  type MemorySummarySourceProjection,
 } from './summarySourceProjection';
+import { createScopedMemorySummaryArchive, type ScopedMemorySummaryArchive } from './summaryScope';
 
 const SUMMARY_RUNTIME_DELAY_MS = 350;
 
@@ -172,7 +172,9 @@ function hasSameJobSource(candidate: MemorySummaryCandidate, job: MemorySummaryJ
 function hasRejectedSummaryReplacement(candidate: MemorySummaryCandidate): boolean {
   const reviewedAt = candidate.reviewedAt;
   if (!reviewedAt) return true;
-  const archive = useMemorySummaryArchiveStore.getState();
+  if (!latestContext || latestContext.save.saveUuid !== candidate.saveUuid) return true;
+  const archive = getScopedArchiveForContext(latestContext);
+  if (!archive.summaries.some(summary => summary.summaryId === candidate.summaryId)) return true;
   const hasNewerCandidate = archive.summaries.some(
     summary =>
       summary.summaryId !== candidate.summaryId &&
@@ -341,14 +343,31 @@ function getEligibleFloors(context: SavedMemoryContext): {
   };
 }
 
+function getScopedArchiveForContext(
+  context: SavedMemoryContext,
+  projection: MemorySummarySourceProjection = createMemorySummarySourceProjection(context.save.data, context.messages),
+): ScopedMemorySummaryArchive {
+  const archive = useMemorySummaryArchiveStore.getState();
+  return createScopedMemorySummaryArchive({
+    saveUuid: context.save.saveUuid,
+    saveRevision: context.save.revision,
+    projection,
+    summaries: archive.summaries,
+    jobs: archive.jobs,
+  });
+}
+
+export function getCurrentMemorySummaryArchiveView(): ScopedMemorySummaryArchive {
+  return latestContext ? getScopedArchiveForContext(latestContext) : { summaries: [], jobs: [] };
+}
+
 function getUncoveredSmallSummaryFloors(context: SavedMemoryContext): {
   timeline: MemorySummarySourceFloor[];
   floors: MemorySummarySourceFloor[];
   messages: MemorySummarySourceMessage[];
 } {
   const { timeline, floors, messages } = getEligibleFloors(context);
-  const summaries = getMemorySummariesForSave(context.save.saveUuid);
-  const jobs = getMemoryJobsForSave(context.save.saveUuid);
+  const { summaries, jobs } = getScopedArchiveForContext(context, { floors: timeline, messages });
   const coveredIds = new Set([
     ...summaries.filter(summary => summary.mode === 'small').flatMap(summary => summary.sourceMessageIds),
     ...jobs.filter(job => job.mode === 'small').flatMap(job => job.sourceMessageIds),
@@ -432,6 +451,8 @@ function getCurrentSmallSummarySource(
   if (
     summary.mode !== 'small' ||
     summary.status !== 'accepted' ||
+    summary.saveUuid !== context.save.saveUuid ||
+    summary.saveRevision > context.save.revision ||
     summary.sourceFloorIds.length < SMALL_SUMMARY_MIN_SOURCE_FLOOR_COUNT ||
     summary.sourceFloorIds.length > SMALL_SUMMARY_SOURCE_FLOOR_COUNT
   ) {
@@ -452,8 +473,8 @@ function getCurrentSmallSummaryBatch(
 ): MemorySummaryCandidate[] | null {
   if (sourceSummaryIds.length !== LARGE_SUMMARY_SOURCE_COUNT) return null;
   const summariesById = new Map(
-    getMemorySummariesForSave(context.save.saveUuid)
-      .filter(summary => summary.mode === 'small' && summary.status === 'accepted')
+    getScopedArchiveForContext(context)
+      .summaries.filter(summary => summary.mode === 'small' && summary.status === 'accepted')
       .map(summary => [summary.summaryId, summary]),
   );
   const summaries = sourceSummaryIds
@@ -484,8 +505,7 @@ function hasCurrentLargeSource(
 }
 
 function getAutomaticLargeBatch(context: SavedMemoryContext): MemorySummaryCandidate[] {
-  const summaries = getMemorySummariesForSave(context.save.saveUuid);
-  const jobs = getMemoryJobsForSave(context.save.saveUuid);
+  const { summaries, jobs } = getScopedArchiveForContext(context);
   const coveredIds = new Set([
     ...summaries
       .filter(
@@ -537,12 +557,14 @@ function getAutomaticLargeBatch(context: SavedMemoryContext): MemorySummaryCandi
 }
 
 function getSpecificLargeBatch(context: SavedMemoryContext, job: MemorySummaryJob): MemorySummaryCandidate[] | null {
-  if (context.save.saveUuid !== job.saveUuid) return null;
+  if (context.save.saveUuid !== job.saveUuid || job.saveRevision > context.save.revision) return null;
   return getCurrentSmallSummaryBatch(context, job.sourceSummaryIds);
 }
 
 function isCurrentFailedJob(context: SavedMemoryContext, job: MemorySummaryJob): boolean {
-  if (job.status !== 'failed' || job.saveUuid !== context.save.saveUuid) return false;
+  if (job.status !== 'failed' || job.saveUuid !== context.save.saveUuid || job.saveRevision > context.save.revision) {
+    return false;
+  }
   if (job.mode === 'large') {
     return hasCurrentLargeSource(context, job.sourceSummaryIds, job.sourceFingerprint);
   }
@@ -554,7 +576,7 @@ function isCurrentFailedJob(context: SavedMemoryContext, job: MemorySummaryJob):
 export function hasBlockingMemorySummaryJob(): boolean {
   if (!latestContext) return false;
   const context = latestContext;
-  return getMemoryJobsForSave(context.save.saveUuid).some(
+  return getScopedArchiveForContext(context).jobs.some(
     job => job.status === 'running' || isCurrentFailedJob(context, job),
   );
 }
@@ -851,8 +873,8 @@ async function processContext(context: SavedMemoryContext): Promise<void> {
   if (!config.enabled) return;
   const liveContext = createLiveContext(context);
   if (!hasSameDeterministicState(context.save.data, liveContext.save.data)) return;
-  useMemorySummaryArchiveStore.getState().setActiveSave(context.save.saveUuid);
-  if (getMemoryJobsForSave(context.save.saveUuid).some(job => isCurrentFailedJob(context, job))) return;
+  useMemorySummaryArchiveStore.getState().setActiveSave(context.save.saveUuid, context.save.revision);
+  if (getScopedArchiveForContext(context).jobs.some(job => isCurrentFailedJob(context, job))) return;
 
   const largeBatch = getAutomaticLargeBatch(context);
   if (largeBatch.length === LARGE_SUMMARY_SOURCE_COUNT) {
@@ -897,7 +919,7 @@ function adoptMemorySummaryContext(
 ): void {
   const context = { save: cloneJson(save), messages: cloneJson(messages) };
   latestContext = context;
-  useMemorySummaryArchiveStore.getState().setActiveSave(save.saveUuid);
+  useMemorySummaryArchiveStore.getState().setActiveSave(save.saveUuid, save.revision);
   if (!schedule) return;
   queuedContext = context;
   if (queueTimer !== null) clearTimeout(queueTimer);
@@ -970,7 +992,7 @@ export async function generateNextMemorySmallSummary(): Promise<void> {
   if (!latestContext) throw new Error('当前存档尚未完成可校验的自动保存。');
 
   const context = cloneJson(latestContext);
-  if (getMemoryJobsForSave(context.save.saveUuid).some(job => isCurrentFailedJob(context, job))) {
+  if (getScopedArchiveForContext(context).jobs.some(job => isCurrentFailedJob(context, job))) {
     throw new Error('当前存在失败任务，请先重试或处理该任务。');
   }
   const source = createManualSmallSource(context);
@@ -1027,6 +1049,7 @@ export function beginMemorySummaryContextTransition(
 ): MemorySummaryContextTransition {
   const previousContext = latestContext ? cloneJson(latestContext) : null;
   const previousActiveSaveUuid = useMemorySummaryArchiveStore.getState().activeSaveUuid;
+  const previousActiveSaveRevision = useMemorySummaryArchiveStore.getState().activeSaveRevision;
   invalidateMemorySummaryContext(reason);
   const generation = contextGeneration;
   activeContextTransitionGeneration = generation;
@@ -1053,7 +1076,7 @@ export function beginMemorySummaryContextTransition(
         adoptMemorySummaryContext(restoredContext.save, restoredContext.messages, true);
       } else {
         latestContext = null;
-        useMemorySummaryArchiveStore.getState().setActiveSave(previousActiveSaveUuid);
+        useMemorySummaryArchiveStore.getState().setActiveSave(previousActiveSaveUuid, previousActiveSaveRevision);
       }
       return true;
     },
@@ -1071,10 +1094,12 @@ export async function retryMemoryJob(jobId: string): Promise<void> {
   if (running || activeController) throw new Error('已有摘要任务正在运行，请稍后再试。');
   running = true;
   try {
-    const saveUuid = useMemorySummaryArchiveStore.getState().activeSaveUuid;
-    const job = getMemoryJobsForSave(saveUuid).find(item => item.jobId === jobId);
-    if (!job || job.status !== 'failed') throw new Error('找不到可重试的失败任务。');
-    if (!latestContext || latestContext.save.saveUuid !== job.saveUuid) {
+    if (!latestContext) {
+      throw new Error('当前存档尚未完成可校验的自动保存，不能重试旧任务。');
+    }
+    const job = getScopedArchiveForContext(latestContext).jobs.find(item => item.jobId === jobId);
+    if (!job || job.status !== 'failed') throw new Error('找不到当前存档可重试的失败任务。');
+    if (latestContext.save.saveUuid !== job.saveUuid) {
       throw new Error('当前存档尚未完成可校验的自动保存，不能重试旧任务。');
     }
 
@@ -1116,11 +1141,13 @@ export async function retryRejectedMemorySummary(summaryId: string): Promise<voi
   if (running || activeController) throw new Error('已有摘要任务正在运行，请稍后再试。');
   running = true;
   try {
-    const archive = useMemorySummaryArchiveStore.getState();
-    const candidate = archive.summaries.find(
+    if (!latestContext) {
+      throw new Error('当前存档尚未完成可校验的自动保存，不能重新生成旧总结。');
+    }
+    const candidate = getScopedArchiveForContext(latestContext).summaries.find(
       summary => summary.summaryId === summaryId && summary.status === 'rejected',
     );
-    if (!candidate) throw new Error('找不到可重新生成的已拒绝总结。');
+    if (!candidate) throw new Error('找不到当前存档可重新生成的已拒绝总结。');
     if (hasRejectedSummaryReplacement(candidate)) {
       throw new Error('该来源已有后续候选或任务，请处理最新记录。');
     }
@@ -1169,9 +1196,12 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
   if (running || activeController) throw new Error('已有摘要任务正在运行，请稍后再试。');
   running = true;
   try {
-    const archive = useMemorySummaryArchiveStore.getState();
-    const candidate = archive.summaries.find(summary => summary.summaryId === summaryId);
-    if (!candidate) throw new Error('找不到指定的总结。');
+    if (!latestContext) {
+      throw new Error('当前存档尚未完成可校验的自动保存，不能重新生成旧总结。');
+    }
+    const scopedArchive = getScopedArchiveForContext(latestContext);
+    const candidate = scopedArchive.summaries.find(summary => summary.summaryId === summaryId);
+    if (!candidate) throw new Error('找不到当前存档中的指定总结。');
 
     // 对于已接受的总结，不需要检查是否有后续候选
     if (candidate.status === 'rejected' && hasRejectedSummaryReplacement(candidate)) {
@@ -1187,7 +1217,7 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
 
     // 在重新生成前，删除相同来源的其他pending候选（避免重复）
     const sourceFingerprint = candidate.sourceFingerprint;
-    const duplicates = archive.summaries.filter(
+    const duplicates = scopedArchive.summaries.filter(
       s =>
         s.summaryId !== summaryId &&
         s.status === 'pending' &&
@@ -1237,9 +1267,10 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
 }
 
 export function canRetryRejectedMemorySummary(summaryId: string): boolean {
-  const candidate = useMemorySummaryArchiveStore
-    .getState()
-    .summaries.find(summary => summary.summaryId === summaryId && summary.status === 'rejected');
+  if (!latestContext) return false;
+  const candidate = getScopedArchiveForContext(latestContext).summaries.find(
+    summary => summary.summaryId === summaryId && summary.status === 'rejected',
+  );
   return !!candidate && !hasRejectedSummaryReplacement(candidate);
 }
 
@@ -1249,12 +1280,13 @@ export function reviewMemorySummaryCandidate(
   edits?: { title: string; text: string },
 ): boolean {
   const archive = useMemorySummaryArchiveStore.getState();
-  const candidate = archive.summaries.find(summary => summary.summaryId === summaryId && summary.status === 'pending');
-  if (!candidate) return false;
-  if (decision === 'reject') return archive.reviewCandidate(summaryId, decision, edits);
-
   const savedContext = latestContext;
-  if (!savedContext || savedContext.save.saveUuid !== candidate.saveUuid) return false;
+  if (!savedContext) return false;
+  const candidate = getScopedArchiveForContext(savedContext).summaries.find(
+    summary => summary.summaryId === summaryId && summary.status === 'pending',
+  );
+  if (!candidate) return false;
+  if (savedContext.save.saveUuid !== candidate.saveUuid) return false;
   const liveContext = createLiveContext(savedContext);
   const isCurrent =
     candidate.mode === 'small'
@@ -1276,9 +1308,9 @@ export function reviewMemorySummaryCandidate(
 export function getMemorySummaryRuntimeLabel(): string {
   const config = loadOpenAICompatibleConfig();
   if (!config.enabled) return '副 API 已关闭';
-  const saveUuid = useMemorySummaryArchiveStore.getState().activeSaveUuid;
-  const pending = getMemorySummariesForSave(saveUuid).filter(summary => summary.status === 'pending').length;
-  const failed = getMemoryJobsForSave(saveUuid).filter(job => job.status === 'failed').length;
+  const archive = getCurrentMemorySummaryArchiveView();
+  const pending = archive.summaries.filter(summary => summary.status === 'pending').length;
+  const failed = archive.jobs.filter(job => job.status === 'failed').length;
   return `自动摘要 · 待确认 ${pending} · 失败 ${failed}`;
 }
 

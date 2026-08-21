@@ -67,7 +67,8 @@ interface StoredMemorySummaryArchive {
 }
 
 interface MemorySummaryArchiveState extends StoredMemorySummaryArchive {
-  setActiveSave: (saveUuid: string | null) => void;
+  activeSaveRevision: number | null;
+  setActiveSave: (saveUuid: string | null, saveRevision?: number | null) => void;
   beginJob: (job: MemorySummaryJob) => void;
   restartJob: (jobId: string, saveRevision: number) => void;
   completeJob: (jobId: string, candidate: MemorySummaryCandidate) => void;
@@ -289,10 +290,7 @@ function hasValidLargeSummarySources(
       candidate.sourceEventIds,
       uniqueStrings(smallSources.flatMap(source => source.sourceEventIds)),
     ) &&
-    areEqualStringArrays(
-      candidate.sourceActIds,
-      uniqueStrings(smallSources.flatMap(source => source.sourceActIds)),
-    ) &&
+    areEqualStringArrays(candidate.sourceActIds, uniqueStrings(smallSources.flatMap(source => source.sourceActIds))) &&
     areEqualStringArrays(
       candidate.sourceFloorIds,
       smallSources.flatMap(source => source.sourceFloorIds),
@@ -310,7 +308,8 @@ function sanitizeArchiveEntries(
 ): Pick<StoredMemorySummaryArchive, 'jobs' | 'summaries'> {
   const summaryIdCounts = new Map<string, number>();
   const jobIdCounts = new Map<string, number>();
-  for (const summary of summaries) summaryIdCounts.set(summary.summaryId, (summaryIdCounts.get(summary.summaryId) ?? 0) + 1);
+  for (const summary of summaries)
+    summaryIdCounts.set(summary.summaryId, (summaryIdCounts.get(summary.summaryId) ?? 0) + 1);
   for (const job of jobs) jobIdCounts.set(job.jobId, (jobIdCounts.get(job.jobId) ?? 0) + 1);
 
   const uniqueSummaries = summaries.filter(summary => summaryIdCounts.get(summary.summaryId) === 1);
@@ -391,11 +390,19 @@ const initialArchive = loadArchive();
 
 export const useMemorySummaryArchiveStore = create<MemorySummaryArchiveState>((set, get) => ({
   ...initialArchive,
+  // The revision is an in-memory authority anchor. Persisting it would make a
+  // stale browser session look current before the paired save/message archive
+  // has been adopted again.
+  activeSaveRevision: null,
 
-  setActiveSave: saveUuid => {
+  setActiveSave: (saveUuid, saveRevision = null) => {
     if (saveUuid !== null && !saveUuid.trim()) return;
-    if (get().activeSaveUuid === saveUuid) return;
-    set({ activeSaveUuid: saveUuid });
+    if (saveRevision !== null && (!Number.isInteger(saveRevision) || saveRevision < 1)) {
+      return;
+    }
+    const normalizedRevision = saveUuid === null ? null : saveRevision;
+    if (get().activeSaveUuid === saveUuid && get().activeSaveRevision === normalizedRevision) return;
+    set({ activeSaveUuid: saveUuid, activeSaveRevision: normalizedRevision });
     persistArchive(get());
   },
 
@@ -441,9 +448,7 @@ export const useMemorySummaryArchiveStore = create<MemorySummaryArchiveState>((s
     const now = new Date().toISOString();
     set(state => ({
       jobs: state.jobs.map(job =>
-        job.jobId === jobId
-          ? { ...job, status: 'failed' as const, candidateId: null, error, updatedAt: now }
-          : job,
+        job.jobId === jobId ? { ...job, status: 'failed' as const, candidateId: null, error, updatedAt: now } : job,
       ),
     }));
     persistArchive(get());

@@ -12,6 +12,7 @@ import { useCardStore } from '../stores/cardStore';
 import { PERIODS, useGameStore } from '../stores/gameStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { settleDatingChoices, settleDatingRelationshipChoices } from './datingDirector';
+import { shouldAdvanceDatingDialogueClick } from './datingDialoguePaging';
 import { createDatingGenerationContextProjection } from './datingGenerationContext';
 import { resolveDatingFeeChoice } from './datingCoordinator';
 import {
@@ -398,6 +399,14 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
     setWalkPlayback({ content: walkContent, pageIndex: 0 });
   };
 
+  const advanceWalkPlayback = () => {
+    setWalkPlayback(value => {
+      if (!value) return null;
+      if (value.pageIndex >= value.content.lines.length - 1) return null;
+      return { ...value, pageIndex: value.pageIndex + 1 };
+    });
+  };
+
   if (feePromptAppointmentId) {
     const appointment = appointments.find(candidate => candidate.id === feePromptAppointmentId);
     const character = targets.find(target => target.id === appointment?.characterId);
@@ -445,7 +454,13 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
     const line = walkPlayback.content.lines[walkPlayback.pageIndex];
     const scene = getStoryScene(line?.sceneId ?? 'schoolRoad');
     return (
-      <section className="dating-overlay gal-main-story dating-scene" data-dating-overlay="walk-home">
+      <section
+        className="dating-overlay gal-main-story dating-scene"
+        data-dating-overlay="walk-home"
+        onClick={event => {
+          if (shouldAdvanceDatingDialogueClick(event)) advanceWalkPlayback();
+        }}
+      >
         <GalStoryPage
           backgroundAsset={scene.asset}
           backgroundAlt={scene.alt}
@@ -464,13 +479,7 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
                 type="button"
                 className="gal-main-story__icon-button is-primary"
                 aria-label={walkPlayback.pageIndex >= walkPlayback.content.lines.length - 1 ? '结束同行' : '下一句'}
-                onClick={() => {
-                  if (walkPlayback.pageIndex >= walkPlayback.content.lines.length - 1) {
-                    setWalkPlayback(null);
-                    return;
-                  }
-                  setWalkPlayback(value => (value ? { ...value, pageIndex: value.pageIndex + 1 } : null));
-                }}
+                onClick={advanceWalkPlayback}
               >
                 {walkPlayback.pageIndex >= walkPlayback.content.lines.length - 1 ? '✓' : '→'}
               </button>
@@ -523,6 +532,11 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
       visual: getDatingOptionVisual(option.id),
     };
   });
+
+  const advanceDatingPage = () => {
+    if (!content || choiceVisible) return;
+    setRunPosition(run.stageIndex, run.pageIndex + 1);
+  };
 
   const retryGeneration = () => {
     setGeneration({
@@ -618,6 +632,9 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
       data-generation-status={isGenerating ? 'loading' : content ? 'ready' : generation.status}
       aria-busy={isGenerating}
       aria-label={`${run.plan.characterName}约会`}
+      onClick={event => {
+        if (shouldAdvanceDatingDialogueClick(event)) advanceDatingPage();
+      }}
     >
       <GalStoryPage
         backgroundAsset={scene.asset}
@@ -664,7 +681,7 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
                 type="button"
                 className="gal-main-story__icon-button is-primary"
                 aria-label={run.pageIndex >= content.lines.length - 1 ? '显示回应选项' : '下一句'}
-                onClick={() => setRunPosition(run.stageIndex, run.pageIndex + 1)}
+                onClick={advanceDatingPage}
               >
                 {run.pageIndex >= content.lines.length - 1 ? '✓' : '→'}
               </button>

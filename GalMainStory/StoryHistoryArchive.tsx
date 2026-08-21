@@ -22,12 +22,9 @@ import {
   getInvalidContextFloors,
   type ContextImpactAnalysis,
 } from './storyContextValidation';
-import {
-  detectSummaryInvalidation,
-  invalidateSummaries,
-  type SummaryInvalidationResult,
-} from '../memory/summaryInvalidation';
+import { detectSummaryInvalidation, type SummaryInvalidationResult } from '../memory/summaryInvalidation';
 import { useMemorySummaryArchiveStore } from '../memory/summaryArchive';
+import { getCurrentMemorySummaryArchiveView } from '../memory/summaryRuntime';
 import { useCardStore } from '../stores/cardStore';
 
 interface StoryHistoryArchiveProps {
@@ -37,6 +34,11 @@ interface StoryHistoryArchiveProps {
   onPlayAll: (eventId: string) => void;
   onPreviewFloor: (floorId: string) => void;
   children?: ReactNode;
+}
+
+interface DatingReplayTarget {
+  archive: DatingArchive;
+  stageIndex: number;
 }
 
 function getActiveFloor(archive: GalStoryActArchive): GalStoryFloor | null {
@@ -88,7 +90,8 @@ export default function StoryHistoryArchive({
   const [showImpactWarning, setShowImpactWarning] = useState(false);
   const [summaryInvalidation, setSummaryInvalidation] = useState<SummaryInvalidationResult | null>(null);
   const [showSummaryWarning, setShowSummaryWarning] = useState(false);
-  const [datingReplayArchive, setDatingReplayArchive] = useState<DatingArchive | null>(null);
+  const [pendingRegenerationActKey, setPendingRegenerationActKey] = useState<string | null>(null);
+  const [datingReplayTarget, setDatingReplayTarget] = useState<DatingReplayTarget | null>(null);
   const saveUuid = useMemorySummaryArchiveStore(state => state.activeSaveUuid) ?? '';
   const sortedArchives = useMemo(
     () =>
@@ -138,7 +141,7 @@ export default function StoryHistoryArchive({
   }, []);
 
   useEffect(() => {
-    if (isRawHistoryOpen) return;
+    if (isRawHistoryOpen || datingReplayTarget || showImpactWarning || showSummaryWarning) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       event.preventDefault();
@@ -146,7 +149,7 @@ export default function StoryHistoryArchive({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRawHistoryOpen, onExit]);
+  }, [datingReplayTarget, isRawHistoryOpen, onExit, showImpactWarning, showSummaryWarning]);
 
   const adoptFloor = useCallback(
     (floorId: string) => {
@@ -192,6 +195,7 @@ export default function StoryHistoryArchive({
       }
 
       const actIndex = getMainStoryActIndex(archive.eventId, archive.actId);
+      const actKey = `${archive.eventId}:${archive.actId}`;
       const previousFloors = getPreviousActiveStoryFloors(sortedArchives, archive.eventId, archive.actId);
       if (actIndex < 0 || previousFloors.length !== actIndex) {
         setNotice('前面的幕还没有采用版本，暂时不能重新生成这一幕。');
@@ -201,23 +205,31 @@ export default function StoryHistoryArchive({
       // 分析影响范围
       if (baseFloor.floorId === archive.activeFloorId) {
         const impact = analyzeRegenerationImpact(sortedArchives, baseFloor.floorId);
-        const summaryImpact = detectSummaryInvalidation(sortedArchives, baseFloor.floorId, saveUuid, datingArchives);
+        const summaryImpact = detectSummaryInvalidation(
+          sortedArchives,
+          baseFloor.floorId,
+          saveUuid,
+          datingArchives,
+          getCurrentMemorySummaryArchiveView().summaries,
+        );
 
         if (impact && impact.totalAffected > 0) {
           setImpactAnalysis(impact);
           setSummaryInvalidation(summaryImpact);
+          setPendingRegenerationActKey(actKey);
           setShowImpactWarning(true);
           return; // 等待用户确认
         }
 
         if (summaryImpact.needsRegeneration) {
           setSummaryInvalidation(summaryImpact);
+          setPendingRegenerationActKey(actKey);
           setShowSummaryWarning(true);
           return; // 等待用户确认
         }
       }
 
-      const actKey = `${archive.eventId}:${archive.actId}`;
+      setPendingRegenerationActKey(null);
       setRegeneratingActKey(actKey);
       setNotice(null);
       const floorId = createStoryFloorId(archive.eventId, archive.actId);
@@ -285,14 +297,7 @@ export default function StoryHistoryArchive({
     async (archive: GalStoryActArchive) => {
       setShowImpactWarning(false);
       setShowSummaryWarning(false);
-
-      // 使失效的总结无效化
-      if (summaryInvalidation && summaryInvalidation.affectedCount > 0) {
-        const invalidatedCount = invalidateSummaries(
-          summaryInvalidation.invalidatedSummaries.map(s => s.summary.summaryId),
-        );
-        console.log(`已使 ${invalidatedCount} 条总结失效`);
-      }
+      setPendingRegenerationActKey(null);
 
       setImpactAnalysis(null);
       setSummaryInvalidation(null);
@@ -338,7 +343,7 @@ export default function StoryHistoryArchive({
           if (isMountedRef.current) {
             const message =
               summaryInvalidation && summaryInvalidation.affectedCount > 0
-                ? `新楼层已保存。${summaryInvalidation.affectedCount} 条总结已失效，系统将自动生成新总结。`
+                ? `新楼层已保存为候选。当前总结保持不变；采用候选后，${summaryInvalidation.affectedCount} 条旧楼层总结会退出当前视图。`
                 : '新楼层已保存。注意：后续依赖此幕的楼层需要重新生成。';
             setNotice(message);
             onPreviewFloor(generated.floor.floorId);
@@ -376,6 +381,7 @@ export default function StoryHistoryArchive({
     setShowSummaryWarning(false);
     setImpactAnalysis(null);
     setSummaryInvalidation(null);
+    setPendingRegenerationActKey(null);
   }, []);
 
   // 检查所有上下文失效的楼层
@@ -515,66 +521,73 @@ export default function StoryHistoryArchive({
             );
           })}
 
-          {sortedDatingArchives.length > 0 && (
-            <section className="gal-story-archive__act gal-story-archive__dating" aria-label="非主线约会记录">
-              <div className="gal-story-archive__act-heading">
-                <div>
-                  <span>日历记录 · 已完成约会</span>
-                  <h3>非主线约会</h3>
+          {sortedDatingArchives.map((archive, archiveIndex) => {
+            const characterName =
+              targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId;
+            const location = getDatingLocation(archive.locationId);
+            const lineCount = archive.contents.reduce((count, content) => count + content.lines.length, 0);
+            return (
+              <article
+                className="gal-story-archive__act gal-story-archive__dating"
+                key={archive.id}
+                aria-label={`${formatCalendarDate(archive.date)}与${characterName}的约会记录`}
+              >
+                <div className="gal-story-archive__act-heading">
+                  <div>
+                    <span>
+                      日历记录 · 第 {archiveIndex + 1} 场约会 · {formatCalendarDate(archive.date)}
+                    </span>
+                    <h3>
+                      {characterName} · {location.label}
+                    </h3>
+                  </div>
+                  <span>
+                    {archive.quality === 'great' ? '气氛很好' : archive.quality === 'good' ? '相处顺利' : '有点笨拙'}
+                  </span>
                 </div>
-              </div>
-              <p className="gal-story-archive__summary">
-                共 {sortedDatingArchives.length} 场 · 正文和返程记录均来自约会归档
-              </p>
-              <ol className="gal-story-archive__floors">
-                {sortedDatingArchives.map(archive => {
-                  const characterName =
-                    targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId;
-                  const location = getDatingLocation(archive.locationId);
-                  const lineCount = archive.contents.reduce((count, content) => count + content.lines.length, 0);
-                  return (
-                    <li key={archive.id}>
-                      <div className="gal-story-archive__floor-meta">
-                        <strong>
-                          {characterName} · {location.label}
-                        </strong>
-                        <span>
-                          {archive.quality === 'great'
-                            ? '气氛很好'
-                            : archive.quality === 'good'
-                              ? '相处顺利'
-                              : '有点笨拙'}
-                        </span>
-                        <time dateTime={archive.createdAt}>{formatCalendarDate(archive.date)}</time>
-                      </div>
-                      <p>
-                        {archive.contents.length} 段记录 · {lineCount} 句已保存正文
-                      </p>
-                      <div className="gal-story-archive__floor-actions">
-                        <button
-                          type="button"
-                          disabled={lineCount === 0}
-                          onClick={() => setDatingReplayArchive(archive)}
-                        >
-                          回放约会
-                        </button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          )}
+                <p className="gal-story-archive__summary">
+                  共 {archive.contents.length} 个楼层 · {lineCount} 句已保存正文
+                </p>
+                <ol className="gal-story-archive__floors">
+                  {archive.contents.map((content, stageIndex) => {
+                    const isPlayable = content.lines.length > 0;
+                    return (
+                      <li key={`${archive.id}:${content.stageId}:${stageIndex}`}>
+                        <div className="gal-story-archive__floor-meta">
+                          <strong>楼层 {stageIndex + 1}</strong>
+                          <span>{content.stageId === 'main' ? '约会正文' : '返程记录'}</span>
+                          <span>{content.source === 'tavern' ? 'AI' : '保底'}</span>
+                          <span>{isPlayable ? '可播放' : '无正文'}</span>
+                          <time dateTime={content.createdAt}>{formatFloorTime(content.createdAt)}</time>
+                        </div>
+                        <p>{content.lines.length} 句已保存正文</p>
+                        <div className="gal-story-archive__floor-actions">
+                          <button
+                            type="button"
+                            disabled={!isPlayable}
+                            onClick={() => setDatingReplayTarget({ archive, stageIndex })}
+                          >
+                            预览
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </article>
+            );
+          })}
         </div>
       </div>
-      {datingReplayArchive && (
+      {datingReplayTarget && (
         <DatingHistoryPlayback
-          archive={datingReplayArchive}
+          archive={datingReplayTarget.archive}
           characterName={
-            targets.find(target => target.id === datingReplayArchive.characterId)?.name ??
-            datingReplayArchive.characterId
+            targets.find(target => target.id === datingReplayTarget.archive.characterId)?.name ??
+            datingReplayTarget.archive.characterId
           }
-          onClose={() => setDatingReplayArchive(null)}
+          stageIndex={datingReplayTarget.stageIndex}
+          onClose={() => setDatingReplayTarget(null)}
         />
       )}
       {showImpactWarning && impactAnalysis && (
@@ -622,10 +635,10 @@ export default function StoryHistoryArchive({
       {showSummaryWarning && summaryInvalidation && (
         <div className="gal-story-archive__impact-warning" role="dialog" aria-modal="true">
           <div className="gal-story-archive__impact-content">
-            <h3>⚠️ 总结将失效</h3>
+            <h3>⚠️ 采用候选后总结范围会变化</h3>
             <p>
-              重新生成本幕会使 <strong>{summaryInvalidation.affectedCount}</strong> 条总结失效。
-              这些总结基于当前楼层生成，重新生成后将自动标记为过期：
+              这次操作只生成候选楼层，当前采用楼层和总结不会立即变化。若之后采用候选，
+              <strong>{summaryInvalidation.affectedCount}</strong> 条基于旧楼层的总结会退出当前读档视图：
             </p>
             <ul>
               {summaryInvalidation.invalidatedSummaries.map(({ summary }) => (
@@ -635,7 +648,7 @@ export default function StoryHistoryArchive({
               ))}
             </ul>
             <p className="gal-story-archive__impact-note">
-              继续操作后，失效的总结会自动标记为 rejected。 系统会在新正文生成后自动创建新总结。
+              旧总结不会被删除或改成 rejected；回退到原楼层时会恢复显示，采用新楼层后则可按新来源重新总结。
             </p>
             <div className="gal-story-archive__impact-actions">
               <button type="button" onClick={cancelRegeneration}>
@@ -646,16 +659,12 @@ export default function StoryHistoryArchive({
                 className="is-primary"
                 onClick={() => {
                   const targetArchive = sortedArchives.find(
-                    a =>
-                      summaryInvalidation.invalidatedSummaries.length > 0 &&
-                      summaryInvalidation.invalidatedSummaries[0].summary.sourceFloorIds.includes(
-                        a.floors.find(f => f.floorId === a.activeFloorId)?.floorId ?? '',
-                      ),
+                    a => `${a.eventId}:${a.actId}` === pendingRegenerationActKey,
                   );
                   if (targetArchive) confirmRegeneration(targetArchive);
                 }}
               >
-                确认重新生成
+                确认生成候选
               </button>
             </div>
           </div>

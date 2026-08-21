@@ -9,5 +9,9 @@
 修改桥源码后，在仓库根目录运行：
 
 ```powershell
-node src/webgame-ui/savesolt/build-import.mjs
+node src/Tokimeki_Memorial-To-love/savesolt/build-import.mjs
 ```
+
+若 SillyTavern 控制台出现
+`Input path does not start with the root directory`，说明当前文件接口混用了相对与绝对数据根路径。桥会对“文件已经落盘、但接口随后报错”的情况做完整 JSON 回读确认；仍建议把
+`config.yaml` 的 `dataRoot` 改为实际数据目录的绝对路径并彻底重启 SillyTavern，以免其他文件功能继续输出同类错误。

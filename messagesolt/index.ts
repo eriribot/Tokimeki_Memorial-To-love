@@ -14,6 +14,7 @@ import {
   type MessageResponse,
   type MessageWriteResult,
 } from '../message/protocol';
+import { uploadWithCommittedReadback } from '../fileBridge/uploadWithCommittedReadback';
 
 const BRIDGE_RUNTIME_KEY = '__toloveMessageBridgeRuntimeV1__';
 const MESSAGE_FILE_PREFIX = 'tokimeki-to-love-messages';
@@ -126,9 +127,7 @@ async function readAllSlotFiles(): Promise<MessageArchive[]> {
   const slotPaths = MESSAGE_SLOT_IDS.map(slotId => [slotId, getMessageFilePath(slotId)] as const);
   const existingPaths = await getExistingFilePaths(slotPaths.map(([, filePath]) => filePath));
   const archives = await Promise.all(
-    slotPaths
-      .filter(([, filePath]) => existingPaths.has(filePath))
-      .map(([slotId]) => readExistingSlotFile(slotId)),
+    slotPaths.filter(([, filePath]) => existingPaths.has(filePath)).map(([slotId]) => readExistingSlotFile(slotId)),
   );
   return archives.filter((archive): archive is MessageArchive => archive !== null);
 }
@@ -141,17 +140,21 @@ async function uploadSlotFile(archive: MessageArchive): Promise<MessageArchive> 
   };
   const fileName = getMessageFileName(archive.slotId);
   const expectedPath = getMessageFilePath(archive.slotId);
-  const response = await fetch('/api/files/upload', {
-    method: 'POST',
-    headers: getRequestHeaders(),
-    body: JSON.stringify({
-      name: fileName,
-      data: encodeBase64Utf8(JSON.stringify(envelope, null, 2)),
-    }),
+  const { response, recovered } = await uploadWithCommittedReadback({
+    upload: () =>
+      fetch('/api/files/upload', {
+        method: 'POST',
+        headers: getRequestHeaders(),
+        body: JSON.stringify({
+          name: fileName,
+          data: encodeBase64Utf8(JSON.stringify(envelope, null, 2)),
+        }),
+      }),
+    readPersisted: () => readSlotFile(archive.slotId),
+    expected: archive,
+    failureLabel: `写入 ${fileName} 失败`,
   });
-  if (!response.ok) {
-    throw new Error(`写入 ${fileName} 失败：${await getResponseError(response)}`);
-  }
+  if (recovered) return recovered;
 
   const result = (await response.json()) as { path?: unknown };
   const uploadedPath = typeof result.path === 'string' ? result.path.replace(/\\/g, '/') : '';

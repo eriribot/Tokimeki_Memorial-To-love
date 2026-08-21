@@ -28,6 +28,14 @@ function getActiveSummaryFloorIds(
   ]);
 }
 
+function getCurrentSummariesForSave(
+  saveUuid: string,
+  currentSummaries?: readonly MemorySummaryCandidate[],
+): readonly MemorySummaryCandidate[] {
+  const summaries = currentSummaries ?? getMemorySummariesForSave(saveUuid);
+  return summaries.filter(summary => summary.saveUuid === saveUuid);
+}
+
 /**
  * 检测某个楼层被重新生成后，哪些总结会失效
  */
@@ -36,8 +44,9 @@ export function detectSummaryInvalidation(
   regeneratedFloorId: string,
   saveUuid: string,
   datingArchives: readonly DatingArchive[],
+  currentSummaries?: readonly MemorySummaryCandidate[],
 ): SummaryInvalidationResult {
-  const summaries = getMemorySummariesForSave(saveUuid);
+  const summaries = getCurrentSummariesForSave(saveUuid, currentSummaries);
   const activeFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   const invalidatedSummaries: InvalidatedSummary[] = [];
@@ -97,8 +106,9 @@ export function hasInvalidSummaries(
   archives: readonly GalStoryActArchive[],
   datingArchives: readonly DatingArchive[],
   saveUuid: string,
+  currentSummaries?: readonly MemorySummaryCandidate[],
 ): boolean {
-  const summaries = getMemorySummariesForSave(saveUuid);
+  const summaries = getCurrentSummariesForSave(saveUuid, currentSummaries);
   const timelineFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   for (const summary of summaries) {
@@ -119,8 +129,9 @@ export function getInvalidSummaries(
   archives: readonly GalStoryActArchive[],
   datingArchives: readonly DatingArchive[],
   saveUuid: string,
+  currentSummaries?: readonly MemorySummaryCandidate[],
 ): MemorySummaryCandidate[] {
-  const summaries = getMemorySummariesForSave(saveUuid);
+  const summaries = getCurrentSummariesForSave(saveUuid, currentSummaries);
   const timelineFloorIds = getActiveSummaryFloorIds(archives, datingArchives);
 
   return summaries.filter(summary => {

@@ -1,5 +1,108 @@
 # 艾尔登特当前状态
 
+# 2026-08-22 Recover SillyTavern post-commit file upload failures
+
+```yaml
+status: source_and_checked_in_tavern_helper_bundles_connected_semantic_regressions_passed_real_broken_install_writeback_not_run
+current_loop: recover_autosave_message_pair_after_post_commit_http_500_2026-08-22
+authorized_by:
+  - user_reported_autosave_missing_its_message_archive_with_clientRelativePath_root_error_on_one_computer
+authorized_scope:
+  - diagnose_the_cross_machine_SillyTavern_file_path_difference
+  - allow_save_and_message_bridges_to_reconcile_an_ambiguous_failed_upload_only_by_exact_persisted_JSON_readback
+  - rebuild_the_two_Tavern_Helper_import_manifests
+forbidden_scope:
+  - edit_the_external_SillyTavern_install_or_user_data_without_separate_authorization
+  - recover_a_missing_message_archive_from_unrelated_or_revision_mismatched_data
+  - claim_two_independent_file_uploads_are_a_host_transaction
+connection_state: source_and_both_checked_in_file_bridge_bundles_recover_commit_before_http_500_by_exact_fixed_path_readback
+verification:
+  passed:
+    - local_SillyTavern_source_and_config_prove_relative_dataRoot_vs_absolute_upload_path_mismatch_after_atomic_write
+    - disk_inspection_confirms_autosave_REV_394_exists_while_the_matching_message_file_is_absent
+    - upload_reconciliation_unit_tests_4_of_4
+    - checked_in_Tavern_Helper_bundle_semantic_tests_4_of_4_cover_normal_200_pair_success_true_500_and_corrupted_readback
+    - both_Tavern_Helper_import_manifests_rebuilt_from_current_source
+    - full_ToLove_TypeScript_check
+    - scoped_ESLint_and_Pretty_format_check
+    - development_webpack_build
+    - git_diff_check
+  failed: []
+  not_run:
+    - real_writeback_against_the_users_broken_SillyTavern_install_because_it_would_mutate_external_user_data
+    - recovery_of_the_existing_orphan_autosave_when_no_matching_live_in_memory_messages_are_available
+human_review: pending_user_import_of_both_rebuilt_bridges_and_save_reload_on_the_affected_computer
+```
+
+# 2026-08-22 Restore main-story per-act progress
+
+```yaml
+status: implementation_source_connected_static_and_build_checks_passed_real_saved_game_visual_qa_pending
+current_loop: restore_main_story_act_page_progress_2026-08-22
+authorized_by:
+  - user_reported_main_story_progress_showing_cumulative_156_of_156_instead_of_current_floor_progress_and_immediate_total
+authorized_scope:
+  - restore_pre_regression_main_story_current_act_page_total_act_current_act_total_page_label
+  - remove_the_accidental_main_story_use_of_the_dating_page_jump_pager
+  - keep_dating_scene_and_dating_history_pagers_unchanged
+forbidden_scope:
+  - change_story_cursor_history_navigation_floor_adoption_generation_settlement_or_dating_paging
+connection_state: main_story_visible_progress_reconnected_to_visible_act_and_full_visible_act_beat_count
+verification:
+  passed:
+    - git_history_identified_a6b1352_as_regression_and_c25c5b7_as_prior_authority
+    - structural_contract_rejects_readCursors_length_as_main_story_page_total
+    - main_story_CG_tests_4_of_4
+    - main_story_time_tests_5_of_5
+    - full_ToLove_TypeScript_check
+    - scoped_ESLint_and_Pretty_format_check
+    - development_webpack_build
+    - git_diff_check
+  failed: []
+  not_run:
+    - real_saved_game_visual_check_of_first_middle_last_page_and_cross_act_replay
+human_review: pending_user_recheck_of_the_progress_label_in_the_reported_save
+```
+
+# 2026-08-22 Dating dialogue click paging, floor replay, and load-scoped summaries
+
+```yaml
+status: implementation_source_connected_automated_checks_passed_except_pre_existing_dating_fixture_real_tavern_browser_qa_pending
+current_loop: dating_dialogue_floor_replay_and_memory_load_scope_2026-08-22
+authorized_by:
+  - user_requested_clicking_anywhere_on_the_Gal_dialogue_box_to_advance_dating_body_and_replay
+  - user_reported_memory_summaries_not_rolling_back_with_loaded_floors
+  - user_requested_completed_dates_to_replay_one_persisted_stage_floor_at_a_time
+authorized_scope:
+  - advance_active_dates_walk_home_and_read_only_date_replay_from_the_whole_non_control_Gal_dialogue_surface
+  - isolate_page_jumps_buttons_links_and_inputs_so_their_clicks_do_not_double_advance
+  - expose_each_completed_date_as_an_independent_archive_and_each_main_or_return_stage_as_one_replay_floor
+  - project_summary_candidates_jobs_coverage_retry_and_large_dependencies_by_current_UUID_revision_complete_message_pairs_and_content_timeline_fingerprint
+  - preserve_out_of_scope_future_summary_records_non_destructively_for_a_later_matching_load
+  - keep_candidate_generation_from_permanently_rejecting_current_summaries_before_the_candidate_floor_is_adopted
+forbidden_scope:
+  - change_dating_generation_choices_settlement_AP_money_calendar_or_relationship_authority
+  - delete_future_summary_candidates_or_jobs_when_loading_an_older_floor_projection
+  - merge_dating_stage_replay_into_main_story_floor_persistence_or_create_host_chat_floors
+  - claim_browser_or_real_Tavern_acceptance_without_running_it
+connection_state: persisted_DatingArchive_stages_to_floor_replay_and_paired_SaveRecord_MessageArchive_to_non_destructive_summary_scope_connected
+verification:
+  passed:
+    - memory_summary_regression_suites_passed_10_of_10_including_revision_rollback_restore_content_fingerprint_large_dependency_and_queue_coverage
+    - dating_dialogue_click_control_isolation_and_single_stage_selection_assertions_passed_before_the_legacy_fixture_failure
+    - full_ToLove_TypeScript_check_passed
+    - scoped_ESLint_passed_for_all_changed_TS_TSX_CJS_and_regression_tests
+    - scoped_Pretty_format_check_passed_for_changed_code_and_tests
+    - development_webpack_build_completed_successfully
+    - git_diff_check_passed
+  failed:
+    - legacy_DatingModule_verify_script_stops_at_its_existing_parse_fixture_because_that_fixture_does_not_supply_the_current_required_three_options
+  not_run:
+    - browser_pointer_review_of_text_nameplate_and_blank_dialogue_areas_on_desktop_and_mobile
+    - real_SillyTavern_older_floor_load_then_newer_floor_reload_with_persisted_summary_archive
+human_review: pending_user_playthrough_of_dialogue_click_replay_and_real_save_floor_rollback
+```
+
 # 2026-08-21 Completed dating archives in read-story history
 
 ```yaml

@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getStoryPortraitRig, isStoryCharacterId } from '../GalMainStory/characters';
 import GalStoryPage, { GalStoryPagePager } from '../GalMainStory/GalStoryPage';
 import { getStoryScene } from '../GalMainStory/scenes';
+import { isDatingDialogueControlTarget, shouldAdvanceDatingDialogueClick } from './datingDialoguePaging';
+import { selectDatingHistoryReplayContents } from './datingHistoryReplay';
 import { getDatingLocation } from './datingRules';
 import type { DatingArchive, DatingStoryLine } from './types';
 import './DatingModule.css';
@@ -10,6 +12,7 @@ interface DatingHistoryPlaybackProps {
   archive: DatingArchive;
   characterName: string;
   onClose: () => void;
+  stageIndex?: number;
 }
 
 interface DatingHistoryLine extends DatingStoryLine {
@@ -32,26 +35,44 @@ function getPortrait(line: DatingStoryLine, beatKey: number) {
   }
 }
 
-export default function DatingHistoryPlayback({ archive, characterName, onClose }: DatingHistoryPlaybackProps) {
+export default function DatingHistoryPlayback({
+  archive,
+  characterName,
+  onClose,
+  stageIndex,
+}: DatingHistoryPlaybackProps) {
   const [lineIndex, setLineIndex] = useState(0);
   const location = getDatingLocation(archive.locationId);
+  const replayContents = useMemo(
+    () => selectDatingHistoryReplayContents(archive.contents, stageIndex),
+    [archive.contents, stageIndex],
+  );
   const lines = useMemo<DatingHistoryLine[]>(
     () =>
-      archive.contents.flatMap(content =>
+      replayContents.flatMap(content =>
         content.lines.map(line => ({
           ...line,
           stageLabel: content.stageId === 'main' ? '约会正文' : '返程记录',
         })),
       ),
-    [archive.contents],
+    [replayContents],
   );
 
   useEffect(() => {
     setLineIndex(0);
-  }, [archive.id]);
+  }, [archive.id, stageIndex]);
+
+  const advance = useCallback(() => {
+    if (lineIndex >= lines.length - 1) {
+      onClose();
+      return;
+    }
+    setLineIndex(lineIndex + 1);
+  }, [lineIndex, lines.length, onClose]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isDatingDialogueControlTarget(event.target)) return;
       if (event.key === 'Escape') {
         event.preventDefault();
         onClose();
@@ -60,12 +81,12 @@ export default function DatingHistoryPlayback({ archive, characterName, onClose 
         setLineIndex(index => Math.max(0, index - 1));
       } else if (event.key === 'ArrowRight' || event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        setLineIndex(index => (index >= lines.length - 1 ? index : index + 1));
+        advance();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lines.length, onClose]);
+  }, [advance, onClose]);
 
   const line = lines[lineIndex] ?? null;
   const scene = getStoryScene(line?.sceneId ?? location.sceneId);
@@ -76,6 +97,11 @@ export default function DatingHistoryPlayback({ archive, characterName, onClose 
       className={`dating-overlay gal-main-story dating-scene effect-${line?.effect ?? 'none'}`}
       data-dating-overlay="history"
       role="dialog"
+      aria-modal="true"
+      aria-label={`${characterName}约会回放`}
+      onClick={event => {
+        if (shouldAdvanceDatingDialogueClick(event)) advance();
+      }}
     >
       <GalStoryPage
         backgroundKey={`${archive.id}-${lineIndex}-${line?.sceneId ?? location.sceneId}`}
@@ -102,7 +128,7 @@ export default function DatingHistoryPlayback({ archive, characterName, onClose 
               type="button"
               className="gal-main-story__icon-button is-primary"
               aria-label={isLastLine ? '返回约会档案' : '下一句'}
-              onClick={() => (isLastLine ? onClose() : setLineIndex(index => index + 1))}
+              onClick={advance}
             >
               {isLastLine ? '✓' : '→'}
             </button>

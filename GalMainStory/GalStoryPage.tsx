@@ -43,7 +43,7 @@ export interface GalStoryPagePagerProps {
   onSelectPage: (pageIndex: number) => void;
 }
 
-/** Shared replay pager used by main-story and dating-history playback. */
+/** Shared page-jump control for dating scenes and dating-history playback. */
 export function GalStoryPagePager({ currentPage, pageCount, onSelectPage }: GalStoryPagePagerProps) {
   const safePageCount = Math.max(0, Math.trunc(pageCount));
   const safePageIndex = safePageCount > 0 ? Math.min(safePageCount - 1, Math.max(0, Math.trunc(currentPage))) : 0;

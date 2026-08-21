@@ -8,5 +8,5 @@ prompt 与 Assistant 正文。本轮不会创建真实酒馆楼层，也不会�
 修改桥源码后，在仓库根目录运行：
 
 ```powershell
-node src/webgame-ui/messagesolt/build-import.mjs
+node src/Tokimeki_Memorial-To-love/messagesolt/build-import.mjs
 ```

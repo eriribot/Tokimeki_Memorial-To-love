@@ -17,6 +17,7 @@ import {
   toSaveSummary,
 } from '../save/protocol';
 import { createSaveUuid, getUuidMode } from '../save/uuid';
+import { uploadWithCommittedReadback } from '../fileBridge/uploadWithCommittedReadback';
 
 const BRIDGE_RUNTIME_KEY = '__toloveSaveBridgeRuntimeV1__';
 const SAVE_FILE_PREFIX = 'tokimeki-to-love-save';
@@ -188,9 +189,7 @@ async function readAllSlotFiles(): Promise<SaveRecord[]> {
   const slotPaths = SAVE_SLOT_IDS.map(slotId => [slotId, getSaveFilePath(slotId)] as const);
   const existingPaths = await getExistingFilePaths(slotPaths.map(([, filePath]) => filePath));
   const records = await Promise.all(
-    slotPaths
-      .filter(([, filePath]) => existingPaths.has(filePath))
-      .map(([slotId]) => readExistingSlotFile(slotId)),
+    slotPaths.filter(([, filePath]) => existingPaths.has(filePath)).map(([slotId]) => readExistingSlotFile(slotId)),
   );
   return records.filter((save): save is SaveRecord => save !== null);
 }
@@ -203,18 +202,21 @@ async function uploadSlotFile(save: SaveRecord): Promise<SaveRecord> {
   };
   const fileName = getSaveFileName(save.slotId);
   const expectedPath = getSaveFilePath(save.slotId);
-  const response = await fetch('/api/files/upload', {
-    method: 'POST',
-    headers: getRequestHeaders(),
-    body: JSON.stringify({
-      name: fileName,
-      data: encodeBase64Utf8(JSON.stringify(envelope, null, 2)),
-    }),
+  const { response, recovered } = await uploadWithCommittedReadback({
+    upload: () =>
+      fetch('/api/files/upload', {
+        method: 'POST',
+        headers: getRequestHeaders(),
+        body: JSON.stringify({
+          name: fileName,
+          data: encodeBase64Utf8(JSON.stringify(envelope, null, 2)),
+        }),
+      }),
+    readPersisted: () => readSlotFile(save.slotId),
+    expected: save,
+    failureLabel: `写入 ${fileName} 失败`,
   });
-
-  if (!response.ok) {
-    throw new Error(`写入 ${fileName} 失败：${await getResponseError(response)}`);
-  }
+  if (recovered) return recovered;
 
   const result = (await response.json()) as { path?: unknown };
   const uploadedPath = typeof result.path === 'string' ? result.path.replace(/\\/g, '/') : '';

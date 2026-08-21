@@ -18,7 +18,11 @@ import {
   retryRejectedMemorySummary,
   reviewMemorySummaryCandidate,
 } from '../memory/summaryRuntime';
-import { useMemorySummaryArchiveStore, type MemorySummaryCandidate } from '../memory/summaryArchive';
+import {
+  useMemorySummaryArchiveStore,
+  type MemorySummaryCandidate,
+  type MemorySummaryJob,
+} from '../memory/summaryArchive';
 import {
   LARGE_SUMMARY_MIN_LENGTH,
   LARGE_SUMMARY_MAX_LENGTH,
@@ -31,7 +35,9 @@ import {
 import {
   createMemorySummarySourceProjection,
   type MemorySummarySourceMessage,
+  type MemorySummarySourceProjection,
 } from '../memory/summarySourceProjection';
+import { createScopedMemorySummaryArchive } from '../memory/summaryScope';
 import { PERIODS } from '../stores/gameStore';
 import { LOCATIONS } from '../stores/mapStore';
 import './ContextPreviewModal.css';
@@ -95,9 +101,26 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
   const [preview, setPreview] = useState<LocalContextPreview>(() => createLocalContextPreview());
   const connections = useMemo(() => getPreviewConnectionLabels(), [preview.capturedAt]);
   const windowMessages = useMemo(() => getPreviewWindowMessages(preview), [preview]);
-  const totalSummaryCount = useMemorySummaryArchiveStore(
-    state => state.summaries.filter(summary => summary.saveUuid === state.activeSaveUuid).length,
+  const activeSaveUuid = useMemorySummaryArchiveStore(state => state.activeSaveUuid);
+  const activeSaveRevision = useMemorySummaryArchiveStore(state => state.activeSaveRevision);
+  const storedSummaries = useMemorySummaryArchiveStore(state => state.summaries);
+  const storedJobs = useMemorySummaryArchiveStore(state => state.jobs);
+  const summarySourceProjection = useMemo(
+    () => createMemorySummarySourceProjection(preview.snapshot, preview.messages),
+    [preview],
   );
+  const scopedSummaryArchive = useMemo(
+    () =>
+      createScopedMemorySummaryArchive({
+        saveUuid: activeSaveUuid,
+        saveRevision: activeSaveRevision,
+        projection: summarySourceProjection,
+        summaries: storedSummaries,
+        jobs: storedJobs,
+      }),
+    [activeSaveRevision, activeSaveUuid, storedJobs, storedSummaries, summarySourceProjection],
+  );
+  const totalSummaryCount = scopedSummaryArchive.summaries.length;
   useEffect(() => {
     closeButtonRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -167,7 +190,14 @@ export default function ContextPreviewModal({ onClose }: ContextPreviewModalProp
         <div className="context-preview__body">
           {tab === 'context' && <ContextTab preview={preview} messages={windowMessages} />}
           {tab === 'snapshot' && <SnapshotTab preview={preview} />}
-          {tab === 'summaries' && <SummaryReviewTab preview={preview} />}
+          {tab === 'summaries' && (
+            <SummaryReviewTab
+              activeSaveUuid={activeSaveUuid}
+              summaries={scopedSummaryArchive.summaries}
+              jobs={scopedSummaryArchive.jobs}
+              sourceProjection={summarySourceProjection}
+            />
+          )}
           {tab === 'archive' && <ArchiveTab preview={preview} />}
         </div>
 
@@ -267,27 +297,20 @@ function SummarySourceEvidence({
   );
 }
 
-function SummaryReviewTab({ preview }: { preview: LocalContextPreview }) {
-  const activeSaveUuid = useMemorySummaryArchiveStore(state => state.activeSaveUuid);
-  const storedSummaries = useMemorySummaryArchiveStore(state => state.summaries);
-  const storedJobs = useMemorySummaryArchiveStore(state => state.jobs);
-  const summaries = useMemo(
-    () =>
-      storedSummaries
-        .filter(summary => summary.saveUuid === activeSaveUuid)
-        .sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
-    [activeSaveUuid, storedSummaries],
-  );
+function SummaryReviewTab({
+  activeSaveUuid,
+  summaries,
+  jobs: scopedJobs,
+  sourceProjection,
+}: {
+  activeSaveUuid: string | null;
+  summaries: readonly MemorySummaryCandidate[];
+  jobs: readonly MemorySummaryJob[];
+  sourceProjection: MemorySummarySourceProjection;
+}) {
   const jobs = useMemo(
-    () =>
-      storedJobs
-        .filter(job => job.saveUuid === activeSaveUuid && (job.status === 'failed' || job.status === 'running'))
-        .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
-    [activeSaveUuid, storedJobs],
-  );
-  const sourceProjection = useMemo(
-    () => createMemorySummarySourceProjection(preview.snapshot, preview.messages),
-    [preview],
+    () => scopedJobs.filter(job => job.status === 'failed' || job.status === 'running'),
+    [scopedJobs],
   );
   const canonicalFloorIds = useMemo(
     () => new Set(sourceProjection.floors.map(floor => floor.floorId)),

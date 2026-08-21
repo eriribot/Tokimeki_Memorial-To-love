@@ -5,6 +5,7 @@ process.env.TS_NODE_COMPILER_OPTIONS = JSON.stringify({
   module: 'CommonJS',
   moduleResolution: 'node',
   target: 'ES2022',
+  ignoreDeprecations: '6.0',
 });
 require('ts-node/register/transpile-only');
 
@@ -31,6 +32,34 @@ const { usePlayerStore } = require('../stores/playerStore.ts');
 const { useCardStore } = require('../stores/cardStore.ts');
 const { startScheduledDatingIfNeeded, resolveDatingFeeChoice } = require('./datingCoordinator.ts');
 const { createGameSnapshot, assertSnapshotShape } = require('../save/snapshot.ts');
+const { isDatingDialogueControlTarget, shouldAdvanceDatingDialogueClick } = require('./datingDialoguePaging.ts');
+const { selectDatingHistoryReplayContents } = require('./datingHistoryReplay.ts');
+
+function createPagingTarget({ dialogue = false, control = false } = {}) {
+  return {
+    closest(selector) {
+      if (selector === '.gal-main-story__dialogue') return dialogue ? this : null;
+      return control ? this : null;
+    },
+  };
+}
+
+const dialogueTarget = createPagingTarget({ dialogue: true });
+const dialogueButtonTarget = createPagingTarget({ dialogue: true, control: true });
+assert.equal(shouldAdvanceDatingDialogueClick({ defaultPrevented: false, target: dialogueTarget }), true);
+assert.equal(shouldAdvanceDatingDialogueClick({ defaultPrevented: true, target: dialogueTarget }), false);
+assert.equal(shouldAdvanceDatingDialogueClick({ defaultPrevented: false, target: dialogueButtonTarget }), false);
+assert.equal(shouldAdvanceDatingDialogueClick({ defaultPrevented: false, target: createPagingTarget() }), false);
+assert.equal(isDatingDialogueControlTarget(dialogueButtonTarget), true);
+assert.equal(isDatingDialogueControlTarget(dialogueTarget), false);
+
+const mainReplayContent = { stageId: 'main', lines: [{ text: 'main-1' }, { text: 'main-2' }] };
+const returnReplayContent = { stageId: 'return', lines: [{ text: 'return-1' }] };
+const replayContents = [mainReplayContent, returnReplayContent];
+assert.equal(selectDatingHistoryReplayContents(replayContents), replayContents);
+assert.deepEqual(selectDatingHistoryReplayContents(replayContents, 1), [returnReplayContent]);
+assert.deepEqual(selectDatingHistoryReplayContents(replayContents, -1), []);
+assert.deepEqual(selectDatingHistoryReplayContents(replayContents, 2), []);
 
 const current = { year: 2008, month: 4, day: 7 };
 const saturday = { year: 2008, month: 4, day: 12 };
