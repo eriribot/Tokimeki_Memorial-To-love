@@ -4,8 +4,8 @@
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgb(29 24 33 / 72%);
-  color: #2d2430;
+  background: rgb(60 38 50 / 62%);
+  color: #3a2a36;
   isolation: isolate;
 }
 
@@ -222,21 +222,40 @@
 }
 
 .dating-button {
-  min-height: 42px;
-  padding: 9px 18px;
-  border: 1px solid transparent;
-  border-radius: 6px;
+  --dating-button-bg: #fff;
+  --dating-button-fg: #604657;
+  --dating-button-border: #ddc8d2;
+  --dating-button-shadow: 0 6px 14px rgb(60 38 50 / 14%);
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 26px;
+  border: 2px solid var(--dating-button-border);
+  border-radius: 999px;
+  background: var(--dating-button-bg);
+  box-shadow: var(--dating-button-shadow);
+  color: var(--dating-button-fg);
   font: inherit;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition:
     transform 120ms ease,
     box-shadow 120ms ease,
-    background-color 120ms ease;
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .dating-button:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(60 38 50 / 18%);
+}
+
+.dating-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgb(60 38 50 / 18%);
 }
 
 .dating-button:focus-visible,
@@ -249,45 +268,145 @@
 .dating-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+  box-shadow: none;
 }
 
 .dating-button.is-primary {
-  background: #c94378;
-  box-shadow: 0 6px 16px rgb(201 67 120 / 24%);
-  color: #fff;
+  --dating-button-bg: linear-gradient(180deg, #f4d479 0%, #d9a838 100%);
+  --dating-button-fg: #5a3a14;
+  --dating-button-border: #b4842b;
+  --dating-button-shadow: 0 8px 18px rgb(180 132 43 / 36%);
+  text-shadow: 0 1px 0 rgb(255 240 198 / 70%);
+}
+
+.dating-button.is-primary:hover:not(:disabled) {
+  --dating-button-bg: linear-gradient(180deg, #f8dd86 0%, #e4b340 100%);
+}
+
+.dating-button.is-special {
+  --dating-button-bg: linear-gradient(180deg, #fff2c4 0%, #f9d99a 100%);
+  --dating-button-fg: #6b4521;
+  --dating-button-border: #c69a55;
+  --dating-button-shadow: 0 6px 16px rgb(198 154 85 / 30%);
 }
 
 .dating-button.is-quiet {
-  border-color: #ddc8d2;
-  background: #fff;
-  color: #604657;
+  --dating-button-bg: #fff;
+  --dating-button-fg: #604657;
+  --dating-button-border: #ddc8d2;
 }
 
 .dating-invite-dialog {
+  --dating-invite-cream: #fff8ec;
+  --dating-invite-cream-2: #fbeed1;
+  --dating-invite-gold: #c69a55;
+  --dating-invite-gold-dark: #8b6a2c;
+  --dating-invite-rose: #d76f8c;
+  --dating-invite-ink: #4a2f23;
   position: absolute;
   z-index: 7200;
   inset: 50% auto auto 50%;
   width: min(1180px, 96%);
   max-height: 94%;
   transform: translate(-50%, -50%);
+  border: 2px solid var(--dating-invite-gold);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, var(--dating-invite-cream) 0%, var(--dating-invite-cream-2) 100%);
+  box-shadow:
+    0 0 0 6px var(--dating-invite-cream),
+    0 0 0 8px var(--dating-invite-gold),
+    0 28px 80px rgb(40 22 30 / 50%);
+  color: var(--dating-invite-ink);
+  overflow: hidden;
+}
+
+.dating-invite-dialog::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  border: 1px dashed var(--dating-invite-gold);
+  border-radius: 10px;
+  opacity: 0.55;
 }
 
 .dating-invite-dialog__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 22px 26px 16px;
-  border-bottom: 1px solid #f0dbe5;
-  background: #fff;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 24px 14px;
+  background:
+    linear-gradient(180deg, #fff6dd 0%, #f6dfa5 100%);
+  border-bottom: 2px solid var(--dating-invite-gold);
+  text-align: left;
+}
+
+.dating-invite-dialog__header::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -8px;
+  height: 6px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--dating-invite-gold) 0 6px,
+      transparent 6px 12px
+    );
+  border-radius: 6px;
+  opacity: 0.7;
 }
 
 .dating-invite-dialog__header h2 {
-  margin-top: 2px;
+  margin: 2px 0;
+  color: var(--dating-invite-ink);
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .dating-invite-dialog__header p {
+  margin-top: 4px;
+  color: #7a5630;
   font-size: 13px;
+}
+
+.dating-invite-dialog__title-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dating-invite-dialog__portrait {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 2px solid var(--dating-invite-gold);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 12px rgb(139 106 44 / 30%);
+}
+
+.dating-invite-dialog__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dating-invite-dialog__portrait-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--dating-invite-gold-dark);
+  font-size: 26px;
+  font-weight: 800;
 }
 
 .dating-icon-button {
@@ -296,37 +415,108 @@
   height: 36px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid #e3cbd6;
+  border: 1px solid var(--dating-invite-gold);
   border-radius: 50%;
-  background: #fff;
-  color: #7a4f63;
+  background: #fff8ec;
+  color: var(--dating-invite-gold-dark);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
 }
 
+.dating-invite-dialog__stepper {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 10px;
+  padding: 14px 24px 6px;
+  background: transparent;
+}
+
+.dating-stepper-pip {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.dating-stepper-pip__dot {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 2px solid var(--dating-invite-gold);
+  border-radius: 50%;
+  background: #fff8ec;
+  color: var(--dating-invite-gold-dark);
+  font-size: 12px;
+  font-weight: 800;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.dating-stepper-pip.is-active .dating-stepper-pip__dot,
+.dating-stepper-pip.is-done .dating-stepper-pip__dot {
+  background: var(--dating-invite-gold);
+  color: #fff;
+}
+
+.dating-stepper-pip__label {
+  color: #8a6a3c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.dating-stepper-pip.is-active .dating-stepper-pip__label,
+.dating-stepper-pip.is-done .dating-stepper-pip__label {
+  color: var(--dating-invite-ink);
+}
+
+.dating-stepper-rail {
+  position: absolute;
+  left: calc(24px + 12.5px);
+  right: calc(24px + 12.5px);
+  top: 25px;
+  height: 2px;
+  background: var(--dating-invite-gold);
+  opacity: 0.4;
+}
+
 .dating-invite-dialog__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 20px;
-  padding: 20px;
+  padding: 18px 22px 22px;
 }
 
 .dating-invite-dialog__calendar {
+  position: relative;
   min-width: 0;
-  min-height: 390px;
+  min-height: 360px;
   overflow: hidden;
-  border: 1px solid #ead6df;
-  border-radius: 6px;
-  background: #fff;
+  border: 1px solid #e8d4a4;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, #fffaee 0%, #fff1d2 100%);
+  box-shadow:
+    inset 0 0 0 4px #fff8ec,
+    0 6px 14px rgb(139 106 44 / 18%);
+}
+
+/* Allow month-calendar to scroll horizontally when it overflows */
+.dating-invite-dialog__calendar .tm-date-module__layout {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dating-invite-gold) transparent;
 }
 
 .dating-invite-dialog__calendar .tm-date-module {
   position: relative;
   inset: auto;
-  min-height: 390px;
-  padding: 10px;
-  background: #fff;
+  min-height: 360px;
+  padding: 8px;
+  background: transparent;
 }
 
 .dating-invite-dialog__calendar .tm-date-module__layout {
@@ -334,114 +524,528 @@
 }
 
 .dating-invite-dialog__calendar .tm-date-module__backdrop,
-.dating-invite-dialog__calendar .tm-date-module__close {
+.dating-invite-dialog__calendar .tm-date-module__close,
+.dating-invite-dialog__calendar .tm-date-module__page-button {
   display: none;
+}
+
+.dating-invite-dialog__calendar .tm-date-module__book {
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1px #e8d4a4,
+    0 6px 16px rgb(139 106 44 / 22%);
 }
 
 .dating-invite-dialog__choices {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: 6px 4px;
+  gap: 14px;
 }
 
 .dating-section-heading {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 10px;
-  color: #4b3041;
+  margin-bottom: 0;
+  color: var(--dating-invite-ink);
   font-size: 16px;
   font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .dating-section-heading small {
-  color: #947482;
+  color: #9a7a4c;
   font-size: 11px;
   font-weight: 600;
 }
 
-.dating-location-grid {
+.dating-info-card {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px dashed var(--dating-invite-gold);
+  border-radius: 10px;
+  background: #fff8ec;
+  color: #6b4824;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
-.dating-location-card {
-  min-width: 0;
-  padding: 0;
-  overflow: hidden;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  background: #fff;
-  box-shadow: 0 2px 9px rgb(71 33 52 / 10%);
-  color: #482f40;
-  text-align: left;
-  cursor: pointer;
-}
-
-.dating-location-card:hover {
-  border-color: #df8eac;
-}
-
-.dating-location-card.is-selected {
-  border-color: #c94378;
-  box-shadow: 0 0 0 2px rgb(201 67 120 / 15%);
-}
-
-.dating-location-card img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-
-.dating-location-card__copy {
+.dating-info-card__row {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 8px;
+  flex-wrap: wrap;
+  gap: 6px 12px;
 }
 
-.dating-location-card__copy strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.dating-info-card__row strong {
+  color: var(--dating-invite-ink);
 }
 
-.dating-location-card__copy small {
-  color: #9a7484;
+.dating-info-card .dating-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border: 1px solid var(--dating-invite-gold);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dating-invite-ink);
   font-size: 11px;
+  font-weight: 700;
+}
+
+.dating-info-card .dating-chip.is-rose {
+  border-color: #d76f8c;
+  color: #b13c5b;
+  background: #fff2f6;
+}
+
+.dating-invite-dialog__choices .dating-info-card p {
+  color: #6b4824;
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
 }
 
 .dating-invite-dialog__summary {
   display: grid;
   gap: 6px;
   margin-top: auto;
-  padding: 14px 0 0;
-  color: #725767;
+  padding: 0;
+  color: #6b4824;
   font-size: 13px;
 }
 
 .dating-invite-dialog__summary p {
-  padding: 9px 10px;
-  border-left: 3px solid #c94378;
-  background: #fff0f5;
-  color: #71324e;
+  padding: 9px 12px;
+  border-left: 3px solid var(--dating-invite-gold);
+  background: #fff3da;
+  color: var(--dating-invite-ink);
   font-size: 13px;
+}
+
+.dating-invite-dialog__summary p[role='status'] {
+  border-left-color: var(--dating-invite-rose);
+  background: #ffe9f1;
+  color: #8a234d;
 }
 
 .dating-invite-dialog__actions {
   justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.dating-result-bubble {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 18px 22px;
+  border: 2px solid var(--dating-invite-gold);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, #fffaee 0%, #fbe9c1 100%);
+  color: var(--dating-invite-ink);
+  box-shadow: inset 0 -3px 0 rgb(198 154 85 / 18%);
+  text-align: center;
+}
+
+.dating-result-bubble.is-accepted {
+  border-color: #d76f8c;
+  background:
+    linear-gradient(180deg, #fff0f6 0%, #ffd5e1 100%);
+  box-shadow: inset 0 -3px 0 rgb(215 111 140 / 26%);
+}
+
+.dating-result-bubble__lead {
+  color: var(--dating-invite-ink);
+  font-size: clamp(16px, 2.4vw, 20px);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.dating-result-bubble__sub {
+  color: #6b4824;
+  font-size: 12px;
+}
+
+/* ── GS4-style route-map: L/R switches a "route" page, each route shows
+      3 photo slots with spring physics (selected = big, others = small+dim).
+      Bottom bar always shows: ◀ [route name] ▶  |  location name  |  cost ── */
+
+.dating-location-stage {
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+/* Full-bleed scene photograph that fills the whole stage */
+.dating-location-map {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--dating-invite-gold);
+  border-radius: 14px;
+  /* aspect-ratio restores height after the old block was deleted */
+  aspect-ratio: 16 / 9;
+  background: #0a0812;
+  box-shadow:
+    inset 0 0 0 4px #fff8ec,
+    0 10px 24px rgb(60 38 50 / 32%);
+}
+
+/* The full scene photograph — fills the whole .dating-location-map */
+.dating-location-map__scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Vignette overlay to frame the photos like a map */
+.dating-location-map__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 60%, transparent 30%, rgb(8 6 14 / 65%) 100%),
+    linear-gradient(0deg, rgb(8 6 14 / 50%) 0%, transparent 35%);
+}
+
+/* Route name ribbon — e.g. "公园地带" — sits over the top of the scene */
+.dating-location-route-ribbon {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 20px;
+  border: 1px solid rgb(198 154 85 / 60%);
+  border-radius: 999px;
+  background: rgb(8 6 14 / 78%);
+  backdrop-filter: blur(6px);
+  color: #f5d890;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  box-shadow:
+    0 2px 12px rgb(0 0 0 / 50%),
+    inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+
+.dating-location-route-ribbon::before,
+.dating-location-route-ribbon::after {
+  content: '◀';
+  font-size: 9px;
+  opacity: 0.5;
+}
+
+.dating-location-route-ribbon::after {
+  content: '▶';
+}
+
+/* The photo grid — 3 slots (left / center / right). */
+.dating-location-photo-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;   /* vertical center within the 16:9 container */
+  padding: 0 6%;
+}
+
+/* A photo item button */
+.dating-location-photo-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 280ms ease,
+    filter 280ms ease,
+    z-index 0ms;
+  /* spring physics: selected = big+center, others = small+dim */
+  transform: scale(0.86) translateY(8px);
+  opacity: 0.55;
+  filter: saturate(0.75);
+  z-index: 1;
+}
+
+.dating-location-photo-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 40%);
+  transition:
+    border-color 280ms ease,
+    box-shadow 280ms ease;
+}
+
+/* Hover: slightly lift and de-dim */
+.dating-location-photo-item:hover {
+  transform: scale(0.93) translateY(2px);
+  opacity: 0.82;
+  filter: saturate(0.9);
+}
+
+/* Selected = center slot, biggest, gold border, no dim */
+.dating-location-photo-item.is-selected {
+  transform: scale(1.04) translateY(0);
+  opacity: 1;
+  filter: saturate(1.05);
+  z-index: 3;
+}
+
+.dating-location-photo-item.is-selected img {
+  border-color: var(--dating-invite-gold);
+  box-shadow:
+    0 0 0 3px rgb(255 240 198 / 45%),
+    0 8px 24px rgb(0 0 0 / 55%);
+}
+
+/* "確定 ○" badge on selected item */
+.dating-location-photo-item__badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: none;
+  padding: 3px 10px;
+  border: 1px solid var(--dating-invite-gold);
+  border-radius: 999px;
+  background: rgb(8 6 14 / 82%);
+  backdrop-filter: blur(4px);
+  color: #f5d890;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 50%);
+}
+
+.dating-location-photo-item.is-selected .dating-location-photo-item__badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Bottom info bar — always visible, shows location + cost */
+.dating-location-bottom-bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--dating-invite-gold);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  background:
+    linear-gradient(180deg, #fff8ec 0%, #fbe9c1 100%);
+  box-shadow: 0 4px 12px rgb(139 106 44 / 18%);
+}
+
+.dating-location-bottom-bar__location-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dating-invite-ink);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.dating-location-bottom-bar__favorite-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1px solid #d76f8c;
+  border-radius: 999px;
+  background: #fff0f6;
+  color: #b13c5b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.dating-location-bottom-bar__cost {
+  display: flex;
+  justify-content: center;
+  color: var(--dating-invite-gold-dark);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.dating-location-bottom-bar__cost.is-free {
+  color: #5a8a3c;
+}
+
+/* L / R route switch buttons */
+.dating-location-route-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--dating-invite-gold);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--dating-invite-gold-dark);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(139 106 44 / 25%);
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 120ms ease;
+}
+
+.dating-location-route-btn:hover {
+  background: var(--dating-invite-gold);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.dating-location-route-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .dating-location-map {
+    border-radius: 10px;
+  }
+
+  .dating-location-photo-item {
+    transform: scale(0.8) translateY(10px);
+    opacity: 0.4;
+  }
+
+  .dating-location-photo-item.is-selected {
+    transform: scale(0.95) translateY(0);
+    opacity: 0.85;
+  }
+
+  .dating-location-bottom-bar {
+    padding: 8px 12px;
+  }
+
+  .dating-location-bottom-bar__location-name {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dating-location-photo-grid {
+    padding: 0 2%;
+  }
+
+  .dating-location-photo-item {
+    transform: scale(0.72) translateY(12px);
+    opacity: 0.3;
+  }
+
+  .dating-location-photo-item.is-selected {
+    transform: scale(0.88) translateY(0);
+    opacity: 0.88;
+  }
+
+  .dating-location-bottom-bar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .dating-location-route-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}
+
+.dating-ticket {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 18px 22px;
+  border: 2px dashed var(--dating-invite-gold);
+  border-radius: 14px;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #fff8ec 0 12px,
+      #fceed2 12px 24px
+    );
+  color: var(--dating-invite-ink);
+}
+
+.dating-ticket__stub {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  padding-right: 16px;
+  border-right: 1px dashed var(--dating-invite-gold);
+}
+
+.dating-ticket__stub-label {
+  color: #8a6a3c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dating-ticket__stub-value {
+  color: var(--dating-invite-ink);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.dating-ticket__stub-meta {
+  color: #6b4824;
+  font-size: 12px;
+}
+
+.dating-ticket__seal {
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border: 3px double var(--dating-invite-rose);
+  border-radius: 50%;
+  background: #fff;
+  color: #b13c5b;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.2;
+  box-shadow: inset 0 0 0 4px #fff8ec;
+}
+
+.dating-ticket__seal small {
+  display: block;
+  color: #8a6a3c;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
 }
 
 .tm-date-module__footer {
   max-width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ead2de;
-  border-radius: 5px;
-  background: #fff8fb;
-  color: #754c60;
+  border: 1px solid #e8d4a4;
+  border-radius: 999px;
+  background: #fff8ec;
+  color: #6b4824;
   font-size: 12px;
   text-align: center;
 }
@@ -520,16 +1124,41 @@
   .dating-invite-dialog__body {
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 12px;
+    padding: 14px;
   }
 
   .dating-invite-dialog__calendar,
   .dating-invite-dialog__calendar .tm-date-module {
-    min-height: 330px;
+    min-height: 320px;
   }
 
-  .dating-location-grid {
-    grid-template-columns: repeat(3, minmax(90px, 1fr));
+  .dating-location-map {
+    aspect-ratio: 4 / 3;
+  }
+
+  .dating-location-marker {
+    width: 32%;
+  }
+
+  .dating-location-marker--center {
+    left: 33%;
+  }
+
+  .dating-location-marker__thumb {
+    transform: scale(0.86);
+  }
+
+  .dating-location-marker.is-selected .dating-location-marker__thumb {
+    transform: scale(1);
+  }
+
+  .dating-location-focus {
+    grid-template-columns: 1fr;
+  }
+
+  .dating-location-focus__visual {
+    border-right: 0;
+    border-bottom: 1px dashed #c69a55;
   }
 
   .dating-invite-dialog__actions {
@@ -545,24 +1174,58 @@
   }
 
   .dating-invite-dialog__header {
-    padding: 16px;
+    padding: 14px 16px;
+  }
+
+  .dating-invite-dialog__stepper {
+    padding: 12px 16px 4px;
   }
 
   .dating-invite-dialog__body {
-    padding: 8px;
+    padding: 10px;
   }
 
-  .dating-location-grid {
-    gap: 5px;
+  .dating-location-map {
+    aspect-ratio: 1 / 1;
   }
 
-  .dating-location-card__copy {
-    padding: 6px;
-    font-size: 12px;
+  .dating-location-photo-grid {
+    padding: 0 2%;
+  }
+
+  .dating-location-photo-item {
+    transform: scale(0.72) translateY(12px);
+    opacity: 0.3;
+  }
+
+  .dating-location-photo-item.is-selected {
+    transform: scale(0.88) translateY(0);
+    opacity: 0.88;
+  }
+
+  .dating-location-bottom-bar {
+    grid-template-columns: 1fr auto;
+    padding: 8px 12px;
+  }
+
+  .dating-location-bottom-bar__location-name {
+    font-size: 14px;
   }
 
   .dating-modal-actions,
   .dating-invite-dialog__actions {
     flex-wrap: wrap;
+  }
+
+  .dating-ticket {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .dating-ticket__stub {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px dashed var(--dating-invite-gold);
+    padding-bottom: 12px;
   }
 }

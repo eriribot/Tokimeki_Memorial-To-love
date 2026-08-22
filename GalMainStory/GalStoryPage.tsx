@@ -43,6 +43,21 @@ export interface GalStoryPagePagerProps {
   onSelectPage: (pageIndex: number) => void;
 }
 
+/** Splits bilingual text "日文原文{中文译文}" into two styled lines.
+ *  If text contains no {zh} segment, returns a plain paragraph. */
+function BilingualText({ text, isNarration }: { text: string; isNarration: boolean }) {
+  const parts = text.split(/\{(.+?)\}/);
+  if (parts.length <= 1) return <p className={isNarration ? 'is-narration' : ''}>{text}</p>;
+  const jp = parts.filter((_, i) => i % 2 === 0).join('');
+  const cn = parts.filter((_, i) => i % 2 === 1).join('');
+  return (
+    <div className="gal-bilingual-text">
+      <p className="gal-bilingual-text__jp">{jp}</p>
+      <p className="gal-bilingual-text__cn">{cn}</p>
+    </div>
+  );
+}
+
 /** Shared page-jump control for dating scenes and dating-history playback. */
 export function GalStoryPagePager({ currentPage, pageCount, onSelectPage }: GalStoryPagePagerProps) {
   const safePageCount = Math.max(0, Math.trunc(pageCount));
@@ -172,7 +187,7 @@ export default function GalStoryPage({
           )}
 
           <div className="gal-main-story__copy" aria-live="polite" aria-atomic="true">
-            <p className={speaker ? '' : 'is-narration'}>{text}</p>
+            <BilingualText text={text} isNarration={!speaker} />
           </div>
 
           <span className="gal-main-story__push" aria-hidden="true">

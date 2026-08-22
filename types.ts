@@ -105,7 +105,25 @@ export interface GameState {
   log: string[];
   events: GameEvent[];
   mainStory: MainStoryState;
-  wholeDayActivity: 'dating' | null;
+  /**
+   * 整天活动状态：
+   *  - `'dating'`：约会进行中（Zustand 中持有 run cursor 与 stage）。
+   *  - `'dating-completing'`：约会正文已完成、评价页等待玩家点"返回地图"；此时 store 已经没有 run cursor，
+   *     等待 `finishWholeDayActivity({source:'dating-complete'})` 推进日期。
+   *  - `null`：非整天活动。
+   */
+  wholeDayActivity: 'dating' | 'dating-completing' | null;
+  /**
+   * Transient source marker for the most recent `date` advance. Not persisted
+   * to `GameSnapshot`. Consumed (and cleared) by `<App>` to decide whether to
+   * mount `DayTransition`. Values:
+   *  - `whole-day`: a normal AP-exhausted day end (settlePlayerAction).
+   *  - `dating-complete`: a dating run finished via finishWholeDayActivity({source:'dating-complete'}).
+   *  - `load`: restoreGameSnapshot wrote a new date.
+   *  - `new-game`: resetGameState / new registration.
+   *  - `action`: explicit other call sites that intentionally push the date.
+   */
+  lastDateAdvanceSource: DateAdvanceSource | null;
 }
 
 export type PlayerActionKind = 'activity' | 'talk';
@@ -128,6 +146,8 @@ export interface WholeDayActivitySettlement {
   reason: string | null;
 }
 
+export type DateAdvanceSource = 'whole-day' | 'dating-complete' | 'load' | 'new-game' | 'action';
+
 export interface GameActions {
   startGame: () => void;
   pauseGame: () => void;
@@ -139,7 +159,9 @@ export interface GameActions {
   settlePlayerAction: (request: PlayerActionRequest) => PlayerActionSettlement;
   consumeActionPoint: (message: string) => PlayerActionSettlement;
   beginWholeDayActivity: (kind?: 'dating') => WholeDayActivitySettlement;
-  finishWholeDayActivity: () => boolean;
+  finishWholeDayActivity: (options?: { source?: DateAdvanceSource }) => boolean;
+  /** Mark the active dating run as finished-but-acknowledgement-pending. */
+  markDatingSettlementPending: () => boolean;
   addLog: (message: string) => void;
   spawnEvents: () => void;
   resolveEvent: (eventId: string) => void;
@@ -155,6 +177,8 @@ export interface GameActions {
   finishMainStoryAct: () => boolean;
   completeRegistration: () => void;
   resetGameState: () => void;
+  /** Clear `lastDateAdvanceSource` after `<App>` has consumed it. */
+  acknowledgeDateAdvance: () => void;
 }
 
 export type GameStore = GameState & GameActions;

@@ -1,15 +1,12 @@
 import { getMainStoryEpisode } from '../GalMainStory/storyRegistry';
 import type { GalStoryMessageSave } from '../GalMainStory/storyTypes';
 import { loadOpenAICompatibleConfig } from '../config/openaiCompatible';
-import { captureGameMessages } from '../message';
 import type { SaveRecord } from '../save';
-import { createGameSnapshot, type GameSnapshot } from '../save/snapshot';
-import { PERIODS } from '../stores/gameStore';
+import type { GameSnapshot } from '../save/snapshot';
 import {
   createLargeSummaryPrompt,
   createSmallSummaryPrompt,
   type AcceptedSummaryInput,
-  type SummaryDeterministicState,
   type SummarySourceMessage,
   type SummaryTimelineEntry,
 } from './summaryPrompts';
@@ -198,37 +195,6 @@ function hashText(value: string): string {
 
 function createSourceFingerprint(value: unknown): string {
   return hashText(JSON.stringify(value));
-}
-
-function getDeterministicState(snapshot: GameSnapshot): SummaryDeterministicState {
-  const period = PERIODS[snapshot.game.periodIndex] ?? PERIODS[0];
-  return {
-    date: snapshot.game.date,
-    period: period.key,
-    locationId: snapshot.game.currentLocationId,
-    player: {
-      name: snapshot.player.name,
-      intelligence: snapshot.player.intelligence,
-      athletics: snapshot.player.athletics,
-      art: snapshot.player.art,
-      charm: snapshot.player.charm,
-    },
-    relationships: snapshot.cards.targets.map(target => ({
-      characterId: target.id,
-      affection: target.affection,
-      friendship: target.friendship,
-      romance: target.romance,
-    })),
-    completedEventIds: [...snapshot.game.mainStory.completedEventIds],
-  };
-}
-
-function getAllowedSubjectIds(snapshot: GameSnapshot): string[] {
-  return unique(['player', ...snapshot.cards.targets.map(target => target.id)]);
-}
-
-function hasSameDeterministicState(left: GameSnapshot, right: GameSnapshot): boolean {
-  return createSourceFingerprint(getDeterministicState(left)) === createSourceFingerprint(getDeterministicState(right));
 }
 
 function getSourceFromFloors(
@@ -607,18 +573,15 @@ function createJob(
 }
 
 function isRequestAnchorCurrent(job: MemorySummaryJob): boolean {
+  // Revisions advance during normal play and autosave, so an in-flight request
+  // may finish against a newer revision. A rollback to an older revision must
+  // still invalidate it, otherwise a future-timeline result could reappear
+  // after the player advances again.
   return (
     latestContext !== null &&
     latestContext.save.saveUuid === job.saveUuid &&
-    latestContext.save.revision === job.saveRevision
+    latestContext.save.revision >= job.saveRevision
   );
-}
-
-function createLiveContext(anchor: SavedMemoryContext): SavedMemoryContext {
-  return {
-    save: { ...anchor.save, data: createGameSnapshot() },
-    messages: captureGameMessages(),
-  };
 }
 
 async function executeSmallJob(
@@ -654,13 +617,10 @@ async function executeSmallJob(
   activeController = controller;
 
   try {
-    const allowedSubjectIds = getAllowedSubjectIds(context.save.data);
     const prompt = createSmallSummaryPrompt({
       sourceFingerprint: source.sourceFingerprint,
       messages: source.messages,
       timeline: source.timeline,
-      allowedSubjectIds,
-      deterministicState: getDeterministicState(context.save.data),
     });
 
     console.log('[ToLove Memory] 开始生成小总结...', {
@@ -688,19 +648,11 @@ async function executeSmallJob(
     });
     const currentContext = latestContext;
     if (!isRequestAnchorCurrent(job) || !currentContext) {
-      throw new Error('摘要返回时存档版本已经变化，候选已丢弃。');
+      throw new Error('摘要返回时当前存档已经切换，候选已丢弃。');
     }
     const savedSource = createSpecificSmallSource(currentContext, job.sourceMessageIds);
-    const liveContext = createLiveContext(currentContext);
-    const liveSource = createSpecificSmallSource(liveContext, job.sourceMessageIds);
-    if (
-      !savedSource ||
-      savedSource.sourceFingerprint !== job.sourceFingerprint ||
-      !liveSource ||
-      liveSource.sourceFingerprint !== job.sourceFingerprint ||
-      !hasSameDeterministicState(context.save.data, liveContext.save.data)
-    ) {
-      throw new Error('摘要返回时采用楼层、原文或确定性状态已经变化，候选已丢弃。');
+    if (!savedSource || savedSource.sourceFingerprint !== job.sourceFingerprint) {
+      throw new Error('摘要返回时采用楼层或原文已经变化，候选已丢弃。');
     }
 
     const candidate: MemorySummaryCandidate = {
@@ -780,7 +732,6 @@ async function executeLargeJob(
   activeController = controller;
 
   try {
-    const allowedSubjectIds = getAllowedSubjectIds(context.save.data);
     const timeline = getTimelineForFloors(
       context,
       sourceSummaries.flatMap(summary => summary.sourceFloorIds),
@@ -790,8 +741,6 @@ async function executeLargeJob(
       sourceFingerprint,
       summaries,
       timeline,
-      allowedSubjectIds,
-      deterministicState: getDeterministicState(context.save.data),
     });
 
     console.log('[ToLove Memory] 开始生成大总结...', {
@@ -816,20 +765,11 @@ async function executeLargeJob(
       sourceFloorIds: unique(sourceSummaries.flatMap(summary => summary.sourceFloorIds)),
       sourceSummaryIds: sourceSummaries.map(summary => summary.summaryId),
     });
-    if (!isRequestAnchorCurrent(job)) throw new Error('大总结返回时存档版本已经变化，候选已丢弃。');
+    if (!isRequestAnchorCurrent(job)) throw new Error('大总结返回时当前存档已经切换，候选已丢弃。');
     const currentContext = latestContext;
     const currentSummaries = currentContext ? getSpecificLargeBatch(currentContext, job) : null;
-    const liveContext = currentContext ? createLiveContext(currentContext) : null;
-    const liveSummaries = liveContext ? getSpecificLargeBatch(liveContext, job) : null;
-    if (
-      !currentSummaries ||
-      createLargeFingerprint(currentSummaries) !== job.sourceFingerprint ||
-      !liveSummaries ||
-      createLargeFingerprint(liveSummaries) !== job.sourceFingerprint ||
-      !liveContext ||
-      !hasSameDeterministicState(context.save.data, liveContext.save.data)
-    ) {
-      throw new Error('大总结返回时已接受小总结或确定性状态已经变化，候选已丢弃。');
+    if (!currentSummaries || createLargeFingerprint(currentSummaries) !== job.sourceFingerprint) {
+      throw new Error('大总结返回时已接受小总结或来源已经变化，候选已丢弃。');
     }
 
     const candidate: MemorySummaryCandidate = {
@@ -871,29 +811,17 @@ async function executeLargeJob(
 async function processContext(context: SavedMemoryContext): Promise<void> {
   const config = loadOpenAICompatibleConfig();
   if (!config.enabled) return;
-  const liveContext = createLiveContext(context);
-  if (!hasSameDeterministicState(context.save.data, liveContext.save.data)) return;
   useMemorySummaryArchiveStore.getState().setActiveSave(context.save.saveUuid, context.save.revision);
   if (getScopedArchiveForContext(context).jobs.some(job => isCurrentFailedJob(context, job))) return;
 
   const largeBatch = getAutomaticLargeBatch(context);
   if (largeBatch.length === LARGE_SUMMARY_SOURCE_COUNT) {
-    const liveBatch = getCurrentSmallSummaryBatch(
-      liveContext,
-      largeBatch.map(summary => summary.summaryId),
-    );
-    if (!liveBatch || createLargeFingerprint(liveBatch) !== createLargeFingerprint(largeBatch)) return;
     await executeLargeJob(context, largeBatch);
     return;
   }
 
   const smallSource = createAutomaticSmallSource(context);
   if (smallSource) {
-    const liveSource = createSpecificSmallSource(
-      liveContext,
-      smallSource.messages.map(message => message.id),
-    );
-    if (!liveSource || liveSource.sourceFingerprint !== smallSource.sourceFingerprint) return;
     await executeSmallJob(context, smallSource);
   }
 }
@@ -998,19 +926,6 @@ export async function generateNextMemorySmallSummary(): Promise<void> {
   const source = createManualSmallSource(context);
   if (!source) throw new Error('当前没有尚未归档的完整楼层。');
 
-  const liveContext = createLiveContext(context);
-  const liveSource = createSpecificSmallSource(
-    liveContext,
-    source.messages.map(message => message.id),
-  );
-  if (
-    !liveSource ||
-    liveSource.sourceFingerprint !== source.sourceFingerprint ||
-    !hasSameDeterministicState(context.save.data, liveContext.save.data)
-  ) {
-    throw new Error('当前采用楼层、原文或确定性状态已经变化，请先完成自动保存。');
-  }
-
   running = true;
   try {
     await executeSmallJob(context, source);
@@ -1104,16 +1019,9 @@ export async function retryMemoryJob(jobId: string): Promise<void> {
     }
 
     const context = cloneJson(latestContext);
-    const liveContext = createLiveContext(context);
     if (job.mode === 'small') {
       const source = createSpecificSmallSource(context, job.sourceMessageIds);
-      const liveSource = createSpecificSmallSource(liveContext, job.sourceMessageIds);
-      if (
-        !source ||
-        source.sourceFingerprint !== job.sourceFingerprint ||
-        !liveSource ||
-        liveSource.sourceFingerprint !== job.sourceFingerprint
-      ) {
+      if (!source || source.sourceFingerprint !== job.sourceFingerprint) {
         throw new Error('失败任务的采用楼层或原文已经变化，不能沿用旧请求。');
       }
       await executeSmallJob(context, source, job);
@@ -1121,13 +1029,7 @@ export async function retryMemoryJob(jobId: string): Promise<void> {
     }
 
     const summaries = getSpecificLargeBatch(context, job);
-    const liveSummaries = getSpecificLargeBatch(liveContext, job);
-    if (
-      !summaries ||
-      createLargeFingerprint(summaries) !== job.sourceFingerprint ||
-      !liveSummaries ||
-      createLargeFingerprint(liveSummaries) !== job.sourceFingerprint
-    ) {
+    if (!summaries || createLargeFingerprint(summaries) !== job.sourceFingerprint) {
       throw new Error('失败任务引用的小总结已经变化，不能沿用旧请求。');
     }
     await executeLargeJob(context, summaries, job);
@@ -1156,16 +1058,9 @@ export async function retryRejectedMemorySummary(summaryId: string): Promise<voi
     }
 
     const context = cloneJson(latestContext);
-    const liveContext = createLiveContext(context);
     if (candidate.mode === 'small') {
       const source = createSpecificSmallSource(context, candidate.sourceMessageIds);
-      const liveSource = createSpecificSmallSource(liveContext, candidate.sourceMessageIds);
-      if (
-        !source ||
-        source.sourceFingerprint !== candidate.sourceFingerprint ||
-        !liveSource ||
-        liveSource.sourceFingerprint !== candidate.sourceFingerprint
-      ) {
+      if (!source || source.sourceFingerprint !== candidate.sourceFingerprint) {
         throw new Error('已拒绝总结的采用楼层或原文已经变化，不能沿用旧来源。');
       }
       await executeSmallJob(context, source);
@@ -1173,13 +1068,7 @@ export async function retryRejectedMemorySummary(summaryId: string): Promise<voi
     }
 
     const summaries = getCurrentSmallSummaryBatch(context, candidate.sourceSummaryIds);
-    const liveSummaries = getCurrentSmallSummaryBatch(liveContext, candidate.sourceSummaryIds);
-    if (
-      !summaries ||
-      createLargeFingerprint(summaries) !== candidate.sourceFingerprint ||
-      !liveSummaries ||
-      createLargeFingerprint(liveSummaries) !== candidate.sourceFingerprint
-    ) {
+    if (!summaries || createLargeFingerprint(summaries) !== candidate.sourceFingerprint) {
       throw new Error('已拒绝大总结引用的小总结已经变化，不能沿用旧来源。');
     }
     await executeLargeJob(context, summaries);
@@ -1213,7 +1102,6 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
     }
 
     const context = cloneJson(latestContext);
-    const liveContext = createLiveContext(context);
 
     // 在重新生成前，删除相同来源的其他pending候选（避免重复）
     const sourceFingerprint = candidate.sourceFingerprint;
@@ -1236,13 +1124,7 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
 
     if (candidate.mode === 'small') {
       const source = createSpecificSmallSource(context, candidate.sourceMessageIds);
-      const liveSource = createSpecificSmallSource(liveContext, candidate.sourceMessageIds);
-      if (
-        !source ||
-        source.sourceFingerprint !== candidate.sourceFingerprint ||
-        !liveSource ||
-        liveSource.sourceFingerprint !== candidate.sourceFingerprint
-      ) {
+      if (!source || source.sourceFingerprint !== candidate.sourceFingerprint) {
         throw new Error('总结的采用楼层或原文已经变化，不能沿用旧来源。');
       }
       await executeSmallJob(context, source);
@@ -1250,13 +1132,7 @@ export async function regenerateMemorySummary(summaryId: string): Promise<void> 
     }
 
     const summaries = getCurrentSmallSummaryBatch(context, candidate.sourceSummaryIds);
-    const liveSummaries = getCurrentSmallSummaryBatch(liveContext, candidate.sourceSummaryIds);
-    if (
-      !summaries ||
-      createLargeFingerprint(summaries) !== candidate.sourceFingerprint ||
-      !liveSummaries ||
-      createLargeFingerprint(liveSummaries) !== candidate.sourceFingerprint
-    ) {
+    if (!summaries || createLargeFingerprint(summaries) !== candidate.sourceFingerprint) {
       throw new Error('大总结引用的小总结已经变化，不能沿用旧来源。');
     }
     await executeLargeJob(context, summaries);
@@ -1287,17 +1163,14 @@ export function reviewMemorySummaryCandidate(
   );
   if (!candidate) return false;
   if (savedContext.save.saveUuid !== candidate.saveUuid) return false;
-  const liveContext = createLiveContext(savedContext);
   const isCurrent =
     candidate.mode === 'small'
-      ? [savedContext, liveContext].every(context => {
-          const source = createSpecificSmallSource(context, candidate.sourceMessageIds);
-          return source?.sourceFingerprint === candidate.sourceFingerprint;
-        })
-      : [savedContext, liveContext].every(context => {
-          const summaries = getCurrentSmallSummaryBatch(context, candidate.sourceSummaryIds);
+      ? createSpecificSmallSource(savedContext, candidate.sourceMessageIds)?.sourceFingerprint ===
+        candidate.sourceFingerprint
+      : (() => {
+          const summaries = getCurrentSmallSummaryBatch(savedContext, candidate.sourceSummaryIds);
           return summaries !== null && createLargeFingerprint(summaries) === candidate.sourceFingerprint;
-        });
+        })();
   if (!isCurrent) return false;
 
   const reviewed = archive.reviewCandidate(summaryId, decision, edits);

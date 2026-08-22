@@ -45,10 +45,13 @@ function App() {
   const datingArchives = useDatingStore(state => state.archives);
   const calendarDate = useGameStore(state => state.date);
   const actionPointsRemaining = useGameStore(state => state.actionPointsRemaining);
+  const lastDateAdvanceSource = useGameStore(state => state.lastDateAdvanceSource);
+  const acknowledgeDateAdvance = useGameStore(state => state.acknowledgeDateAdvance);
   const datingAppointments = useDatingStore(state => state.appointments);
-  const datingRun = useDatingStore(state => state.run);
-  const datingFeePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
-  const datingWalkHomeByDate = useDatingStore(state => state.walkHomeByDate);
+const datingRun = useDatingStore(state => state.run);
+const datingFeePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
+const datingWalkHomeByDate = useDatingStore(state => state.walkHomeByDate);
+const datingPendingCompletion = useDatingStore(state => state.pendingDatingCompletion);
   const calendarSpecialDates = useMemo(
     () => [...buildCalendarSpecialDateCatalog(), ...projectDatingAppointmentSpecialDates(datingAppointments)],
     [datingAppointments],
@@ -100,7 +103,7 @@ function App() {
       `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
     ];
   const isDatingOverlayOpen = Boolean(
-    datingRun || datingFeePromptAppointmentId || currentDatingWalk?.status === 'offered',
+    datingRun || datingFeePromptAppointmentId || currentDatingWalk?.status === 'offered' || datingPendingCompletion,
   );
   const isBlockingDialogOpen =
     currentSceneId !== null ||
@@ -202,10 +205,15 @@ function App() {
       previousDate.day !== calendarDate.day;
 
     if (dateChanged) {
-      setCalendarTransition({ from: previousDate, to: calendarDate });
+      if (lastDateAdvanceSource === 'whole-day' || lastDateAdvanceSource === 'dating-complete') {
+        setCalendarTransition({ from: previousDate, to: calendarDate });
+      }
       previousCalendarDateRef.current = calendarDate;
+      acknowledgeDateAdvance();
+    } else if (lastDateAdvanceSource !== null) {
+      acknowledgeDateAdvance();
     }
-  }, [calendarDate]);
+  }, [calendarDate, lastDateAdvanceSource, acknowledgeDateAdvance]);
 
   useEffect(
     () =>

@@ -20,24 +20,36 @@ export const DATING_LOCATIONS: readonly DatingLocationDefinition[] = [
     id: 'park',
     label: '公园',
     cardAsset: '/artsource/datechoice/stage008_a.png',
+    thumbnailAsset: '/artsource/datechoice/stage003_a.png',
     backgroundAsset: '/artsource/backgrounds/park_background.png',
     sceneId: 'park',
+    atmosphereText: '午后的公园，长椅之间刚好能聊起小时候的事。',
+    mapBackgroundAsset: '/artsource/backgrounds/bg008_d.png',
+    mapAnchor: 'left',
     cost: 0,
   },
   {
     id: 'riverbank',
     label: '河堤',
     cardAsset: '/artsource/datechoice/stage009_a.png',
+    thumbnailAsset: '/artsource/datechoice/stage005_a.png',
     backgroundAsset: '/artsource/backgrounds/bg009_a.png',
     sceneId: 'riverbank',
+    atmosphereText: '河堤微风，没有旁人打扰，慢慢散步看着夕阳。',
+    mapBackgroundAsset: '/artsource/backgrounds/bg008_d.png',
+    mapAnchor: 'center',
     cost: 0,
   },
   {
     id: 'townStreet',
     label: '商店街',
     cardAsset: '/artsource/datechoice/stage026_a.png',
+    thumbnailAsset: '/artsource/datechoice/stage013_b.png',
     backgroundAsset: '/artsource/backgrounds/bg026_a.png',
     sceneId: 'townStreet',
+    atmosphereText: '热闹的商店街，可以挑小礼物、一起吃刨冰。',
+    mapBackgroundAsset: '/artsource/backgrounds/bg008_d.png',
+    mapAnchor: 'right',
     cost: 100,
   },
 ] as const;
@@ -155,7 +167,7 @@ export function stableUnit(value: string): number {
 export function getInvitationAcceptanceRate(
   context: Pick<
     DatingInvitationContext,
-    'friendship' | 'romance' | 'favoriteLocation' | 'faceToFace' | 'equippedSkillIds'
+    'friendship' | 'romance' | 'faceToFace' | 'equippedSkillIds'
   >,
 ): number {
   const skills = new Set(context.equippedSkillIds);
@@ -164,18 +176,20 @@ export function getInvitationAcceptanceRate(
     context.friendship * 0.003 +
     context.romance * 0.002 +
     (context.faceToFace ? 0.08 : 0) +
-    (context.favoriteLocation ? 0.06 : 0) +
     (skills.has('three_visits') ? 0.08 : 0);
   return clampAcceptanceRate(rate);
 }
 
 export function resolveInvitation(context: DatingInvitationContext): DatingInvitationResult {
   const acceptanceRate = getInvitationAcceptanceRate(context);
+  // 邀请结果与地点无关——第二/三步判定"对方是否答应"，地点在第四步才决定。
+  // 这里把 locationId 完全从稳定掷骰种子中移除，避免"同一日换地点重掷"的副作用。
   const roll = stableUnit(
-    `${calendarDateKey(context.date)}|${context.characterId}|${context.locationId}|${context.attemptNumber}`,
+    `${calendarDateKey(context.date)}|${context.characterId}|${context.attemptNumber}`,
   );
   const accepted = roll < acceptanceRate;
-  const fee = getDatingLocation(context.locationId).cost;
+  // 费用仅在第四步选完地点后才有意义；第二步默认报告 0。
+  const fee = context.locationId ? getDatingLocation(context.locationId).cost : 0;
   return {
     accepted,
     acceptanceRate,
@@ -187,14 +201,16 @@ export function resolveInvitation(context: DatingInvitationContext): DatingInvit
 
 export function getDatingQualityWeights(
   equippedSkillIds: readonly string[],
+  options: { favoriteLocation?: boolean } = {},
 ): Readonly<Record<'awkward' | 'good' | 'great', number>> {
   const skills = new Set(equippedSkillIds);
   const moodMaker = skills.has('mood_maker') ? 1 : 0;
   const sommelier = skills.has('conversation_sommelier') ? 1 : 0;
+  const favoriteBonus = options.favoriteLocation ? 1 : 0;
   return {
-    awkward: Math.max(1, 4 - moodMaker - sommelier),
+    awkward: Math.max(1, 4 - moodMaker - sommelier - favoriteBonus),
     good: 5 + moodMaker * 2 + sommelier * 2,
-    great: 2 + moodMaker + sommelier * 2,
+    great: 2 + moodMaker + sommelier * 2 + favoriteBonus * 2,
   };
 }
 

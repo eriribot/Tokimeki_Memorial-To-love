@@ -1,7 +1,8 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDatingStore } from '../DatingModule/datingStore';
+import DatingArchiveEvent from '../DatingModule/DatingArchiveEvent';
 import DatingHistoryPlayback from '../DatingModule/DatingHistoryPlayback';
-import { compareDates, getDatingLocation } from '../DatingModule/datingRules';
+import { buildDatingArchiveEventView, sortDatingArchiveEventViews } from '../DatingModule/datingArchiveProjection';
+import { useDatingStore } from '../DatingModule/datingStore';
 import type { DatingArchive } from '../DatingModule/types';
 import {
   createStoryFloor,
@@ -62,10 +63,6 @@ function formatFloorTime(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN', { hour12: false });
 }
 
-function formatCalendarDate(value: DatingArchive['date']): string {
-  return `${value.year}年${value.month}月${value.day}日`;
-}
-
 export default function StoryHistoryArchive({
   isRawHistoryOpen,
   onExit,
@@ -106,12 +103,17 @@ export default function StoryHistoryArchive({
       }),
     [archives],
   );
-  const sortedDatingArchives = useMemo(
+  const sortedDatingArchiveEvents = useMemo(
     () =>
-      [...datingArchives].sort(
-        (left, right) => compareDates(left.date, right.date) || left.createdAt.localeCompare(right.createdAt),
+      sortDatingArchiveEventViews(
+        datingArchives.map(archive =>
+          buildDatingArchiveEventView(
+            archive,
+            targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId,
+          ),
+        ),
       ),
-    [datingArchives],
+    [datingArchives, targets],
   );
   const hasPlayableStory = sortedArchives.some(archive => Boolean(getActiveFloor(archive)?.act));
   const latestPlayableEventId = [...sortedArchives]
@@ -521,62 +523,14 @@ export default function StoryHistoryArchive({
             );
           })}
 
-          {sortedDatingArchives.map((archive, archiveIndex) => {
-            const characterName =
-              targets.find(target => target.id === archive.characterId)?.name ?? archive.characterId;
-            const location = getDatingLocation(archive.locationId);
-            const lineCount = archive.contents.reduce((count, content) => count + content.lines.length, 0);
-            return (
-              <article
-                className="gal-story-archive__act gal-story-archive__dating"
-                key={archive.id}
-                aria-label={`${formatCalendarDate(archive.date)}与${characterName}的约会记录`}
-              >
-                <div className="gal-story-archive__act-heading">
-                  <div>
-                    <span>
-                      日历记录 · 第 {archiveIndex + 1} 场约会 · {formatCalendarDate(archive.date)}
-                    </span>
-                    <h3>
-                      {characterName} · {location.label}
-                    </h3>
-                  </div>
-                  <span>
-                    {archive.quality === 'great' ? '气氛很好' : archive.quality === 'good' ? '相处顺利' : '有点笨拙'}
-                  </span>
-                </div>
-                <p className="gal-story-archive__summary">
-                  共 {archive.contents.length} 个楼层 · {lineCount} 句已保存正文
-                </p>
-                <ol className="gal-story-archive__floors">
-                  {archive.contents.map((content, stageIndex) => {
-                    const isPlayable = content.lines.length > 0;
-                    return (
-                      <li key={`${archive.id}:${content.stageId}:${stageIndex}`}>
-                        <div className="gal-story-archive__floor-meta">
-                          <strong>楼层 {stageIndex + 1}</strong>
-                          <span>{content.stageId === 'main' ? '约会正文' : '返程记录'}</span>
-                          <span>{content.source === 'tavern' ? 'AI' : '保底'}</span>
-                          <span>{isPlayable ? '可播放' : '无正文'}</span>
-                          <time dateTime={content.createdAt}>{formatFloorTime(content.createdAt)}</time>
-                        </div>
-                        <p>{content.lines.length} 句已保存正文</p>
-                        <div className="gal-story-archive__floor-actions">
-                          <button
-                            type="button"
-                            disabled={!isPlayable}
-                            onClick={() => setDatingReplayTarget({ archive, stageIndex })}
-                          >
-                            预览
-                          </button>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </article>
-            );
-          })}
+          {sortedDatingArchiveEvents.map((event, eventIndex) => (
+            <DatingArchiveEvent
+              key={event.eventKey}
+              event={event}
+              eventNumber={eventIndex + 1}
+              onPreviewStage={(archive, stageIndex) => setDatingReplayTarget({ archive, stageIndex })}
+            />
+          ))}
         </div>
       </div>
       {datingReplayTarget && (

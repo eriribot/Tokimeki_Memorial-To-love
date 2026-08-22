@@ -53,6 +53,28 @@ function cleanGalDirectives(text: string): string {
     .trim();
 }
 
+/** Matches the player-choice decision line from main-story generation prompts.
+ *  The main story prompt template places the decision line followed by a full
+ *  protocol block.  This extracts only the decision so protocol text never leaks
+ *  into continuity context consumed by dating generation. */
+const MAIN_STORY_USER_CHOICE_PATTERN =
+  /^.*?【([^】]+)】[：:]\s*(.{2,160}?)\s*$/u;
+
+function extractMainStoryUserDecision(fullContent: string): string {
+  const lines = fullContent.split('\n');
+  const decisionLine = lines.find(line => MAIN_STORY_USER_CHOICE_PATTERN.test(line.trim()));
+  if (decisionLine) {
+    const match = decisionLine.trim().match(MAIN_STORY_USER_CHOICE_PATTERN);
+    if (match) return `${match[1]}：${match[2]}`;
+  }
+  const optionIndex = lines.findIndex(line => /@选项/u.test(line.trim()));
+  if (optionIndex > 0) {
+    const narrative = lines.slice(0, optionIndex).join('\n').trim();
+    if (narrative.length > 10) return narrative;
+  }
+  return lines[0]?.trim() ?? fullContent.slice(0, 200);
+}
+
 function extractStoryContent(message: { role: 'user' | 'assistant'; content: string }): string {
   if (message.role === 'assistant') {
     try {
@@ -61,6 +83,11 @@ function extractStoryContent(message: { role: 'user' | 'assistant'; content: str
       return cleanGalDirectives(message.content);
     }
   }
+
+  // For user messages (main-story player decisions), extract only the choice
+  // decision — strip the full generation prompt template that follows.
+  const decision = extractMainStoryUserDecision(message.content);
+  if (decision !== message.content) return decision;
 
   const lines = message.content.split('\n');
   const storyStartIndex = lines.findIndex(

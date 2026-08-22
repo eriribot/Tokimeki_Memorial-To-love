@@ -7,7 +7,7 @@ import {
 } from '../GalMainStory/storyRegistry';
 import { getStoryCharacter, STORY_USER_ADDRESS_TAG } from '../GalMainStory/characters';
 import { parseStoryParagraphs, type ParsedStoryLine } from '../GalMainStory/storyPresentation';
-import { extractPlayableText } from '../GalMainStory/storyTextExtraction';
+import { extractPlayableText, mergeBilingualTranslationLines } from '../GalMainStory/storyTextExtraction';
 import {
   normalizeGalStoryActs,
   normalizeStoryChoiceOptions,
@@ -296,7 +296,8 @@ export function parsePlainTextAct(raw: string, eventId: string, actId: string, p
   const playableText = extractPlayableText(trimmed);
   if (looksLikeJsonStory(playableText)) throw new Error('酒馆返回了JSON，当前剧情生成只接受逐行正文。');
 
-  const lines = playableText
+  const merged = mergeBilingualTranslationLines(playableText);
+  const lines = merged
     .split(/\r?\n+/u)
     .map(line => line.trim())
     .filter(line => line && !/^#{1,6}\s/u.test(line));

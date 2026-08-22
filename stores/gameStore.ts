@@ -3,6 +3,7 @@ import { GAME_START_DATE, getNextCalendarDate } from '../CalendarModule/date';
 import { getPendingMainStoryEntry } from '../GalMainStory/storyRegistry';
 import { getSkillExperienceReward, useSkillStore } from '../skilllogic';
 import type {
+  DateAdvanceSource,
   GameEvent,
   GameStore,
   LocationId,
@@ -82,6 +83,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   events: [],
   mainStory: createInitialMainStoryState(),
   wholeDayActivity: null,
+  lastDateAdvanceSource: null,
 
   startGame: () => set({ isPlaying: true }),
   pauseGame: () => set({ isPlaying: false }),
@@ -145,6 +147,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           periodIndex: 0,
           currentSceneId: null,
           events: spawnRandomEvents(nextDay),
+          lastDateAdvanceSource: 'whole-day',
           log: log.slice(-20),
         };
       }
@@ -196,7 +199,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return settlement;
   },
 
-  finishWholeDayActivity: () => {
+  finishWholeDayActivity: (options: { source?: DateAdvanceSource } = {}) => {
     let finished = false;
     set(state => {
       if (state.wholeDayActivity === null) return state;
@@ -210,10 +213,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
         currentSceneId: null,
         wholeDayActivity: null,
         events: spawnRandomEvents(nextDay),
+        lastDateAdvanceSource: options.source ?? 'whole-day',
         log: [...state.log, `第 ${state.day} 天结束，第 ${nextDay} 天的早晨到了。`].slice(-20),
       };
     });
     return finished;
+  },
+
+  acknowledgeDateAdvance: () => {
+    if (get().lastDateAdvanceSource !== null) set({ lastDateAdvanceSource: null });
+  },
+
+  markDatingSettlementPending: () => {
+    let marked = false;
+    set(state => {
+      if (state.wholeDayActivity !== 'dating') return state;
+      marked = true;
+      return { wholeDayActivity: 'dating-completing' };
+    });
+    return marked;
   },
 
   addLog: message => set(state => ({ log: [...state.log.slice(-19), message] })),
@@ -257,5 +275,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       events: [],
       mainStory: createInitialMainStoryState(),
       wholeDayActivity: null,
+      lastDateAdvanceSource: 'new-game',
     }),
 }));

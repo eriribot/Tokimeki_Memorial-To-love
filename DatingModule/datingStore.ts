@@ -43,6 +43,7 @@ export function createInitialDatingState(): DatingState {
     archives: [],
     walkHomeByDate: {},
     feePromptAppointmentId: null,
+    pendingDatingCompletion: null,
   };
 }
 
@@ -163,7 +164,8 @@ function isInvitationAttempt(value: unknown): value is DatingInvitationAttempt {
     isString(value.id) &&
     isDate(value.date) &&
     isString(value.characterId) &&
-    ['park', 'riverbank', 'townStreet'].includes(String(value.locationId)) &&
+    (value.locationId === null ||
+      ['park', 'riverbank', 'townStreet'].includes(String(value.locationId))) &&
     typeof attemptNumber === 'number' &&
     Number.isSafeInteger(attemptNumber) &&
     attemptNumber >= 1 &&
@@ -191,6 +193,8 @@ function isPlan(value: unknown): value is DatingDirectorPlan {
       'characterId',
       'characterName',
       'playerName',
+      'playerFamilyName',
+      'playerGivenName',
       'date',
       'locationId',
       'quality',
@@ -383,6 +387,12 @@ function isGeneration(value: unknown): value is DatingGenerationState {
   );
 }
 
+function isPendingDatingCompletion(value: unknown): value is NonNullable<DatingState['pendingDatingCompletion']> {
+  if (value === null || value === undefined) return true;
+  if (!isRecord(value) || !hasOnlyKeys(value, ['message', 'appointmentId'])) return false;
+  return isString(value.message) && isString(value.appointmentId);
+}
+
 export function validateDatingState(value: unknown): value is DatingState {
   if (
     !isRecord(value) ||
@@ -396,6 +406,7 @@ export function validateDatingState(value: unknown): value is DatingState {
       'archives',
       'walkHomeByDate',
       'feePromptAppointmentId',
+      'pendingDatingCompletion',
     ])
   )
     return false;
@@ -411,7 +422,8 @@ export function validateDatingState(value: unknown): value is DatingState {
     !Array.isArray(value.archives) ||
     !value.archives.every(isArchive) ||
     !isRecord(value.walkHomeByDate) ||
-    (value.feePromptAppointmentId !== null && !isString(value.feePromptAppointmentId))
+    (value.feePromptAppointmentId !== null && !isString(value.feePromptAppointmentId)) ||
+    !isPendingDatingCompletion(value.pendingDatingCompletion)
   )
     return false;
   if (!Object.values(value.walkHomeByDate).every(isWalkHomeRecord)) return false;
@@ -524,6 +536,7 @@ export function normalizeDatingState(value: unknown): DatingState {
       ...archive,
       ...(archive.datingRelationshipDelta === undefined ? { datingRelationshipDelta: {} } : {}),
     })),
+    pendingDatingCompletion: cloned.pendingDatingCompletion ?? null,
   };
 }
 
@@ -538,6 +551,7 @@ export function createDatingStateSnapshot(state: DatingState): DatingState {
     archives: state.archives,
     walkHomeByDate: state.walkHomeByDate,
     feePromptAppointmentId: state.feePromptAppointmentId,
+    pendingDatingCompletion: state.pendingDatingCompletion,
   });
 }
 
@@ -559,6 +573,8 @@ export interface DatingStore extends DatingState {
   recordWalkHome: (record: WalkHomeRecord) => void;
   settleWalkHome: (record: WalkHomeRecord) => boolean;
   setFeePrompt: (appointmentId: string | null) => void;
+  recordDatingCompletion: (payload: { message: string; appointmentId: string }) => void;
+  clearDatingCompletion: () => void;
   getAppointmentForDate: (date: { year: number; month: number; day: number }) => DatingAppointment | null;
 }
 
@@ -712,6 +728,16 @@ export const useDatingStore = create<DatingStore>((set, get) => ({
     return settled;
   },
   setFeePrompt: appointmentId => set({ feePromptAppointmentId: appointmentId }),
+
+  recordDatingCompletion: payload =>
+    set({
+      pendingDatingCompletion: {
+        message: payload.message,
+        appointmentId: payload.appointmentId,
+      },
+    }),
+
+  clearDatingCompletion: () => set({ pendingDatingCompletion: null }),
   getAppointmentForDate: date => {
     const key = calendarDateKey(date);
     return (

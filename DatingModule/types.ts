@@ -16,6 +16,15 @@ export interface DatingLocationDefinition {
   sceneId: DatingLocationId;
   cardAsset: string;
   backgroundAsset: string;
+  /** 用于第三步地图浮起来的"地点小卡"图（通常与 cardAsset 不同）。
+   *  若为空则 fallback 到 cardAsset。 */
+  thumbnailAsset?: string;
+  /** 地点氛围短句，例如"傍晚的公园、长椅的位置刚好"。会显示在地图小卡下方。 */
+  atmosphereText: string;
+  /** 地图底图，三个地点共用一张。 */
+  mapBackgroundAsset: string;
+  /** 在地图上的锚点，用于把缩略图浮到地图对应位置（左/中/右）。 */
+  mapAnchor: 'left' | 'center' | 'right';
   cost: number;
 }
 
@@ -72,6 +81,8 @@ export interface DatingDirectorPlan {
   characterId: string;
   characterName: string;
   playerName: string;
+  playerFamilyName: string;
+  playerGivenName: string;
   date: CalendarDateValue;
   locationId: DatingLocationId;
   quality: DatingQuality;
@@ -93,7 +104,11 @@ export interface DatingInvitationAttempt {
   id: string;
   date: CalendarDateValue;
   characterId: string;
-  locationId: DatingLocationId;
+  /**
+   * 第二步邀约时为 `null`（地点尚未决定）。
+   * 第四步确认预约前会在对话框内被覆盖；历史记录中保留 `null` 以反映"当时没选地点"的语义。
+   */
+  locationId: DatingLocationId | null;
   attemptNumber: number;
   acceptanceRate: number;
   roll: number;
@@ -183,6 +198,14 @@ export interface DatingState {
   archives: DatingArchive[];
   walkHomeByDate: Record<string, WalkHomeRecord>;
   feePromptAppointmentId: string | null;
+  /**
+   * Persistent version of `DatingScene`'s local `completionMessage`. Set when a
+   * dating run finishes and the player has not yet acknowledged the post-date
+   * page; cleared when `finishWholeDayActivity({source:'dating-complete'})`
+   * is invoked or when `acknowledgeDatingCompletion` is called explicitly.
+   * Required so a mid-evaluation reload restores the notice panel.
+   */
+  pendingDatingCompletion: { message: string; appointmentId: string } | null;
 }
 
 export interface DatingInvitationContext {
@@ -190,7 +213,15 @@ export interface DatingInvitationContext {
   characterId: string;
   friendship: number;
   romance: number;
-  locationId: DatingLocationId;
+  /**
+   * 邀约阶段为 `null`：第二步仅判定对方是否答应，地点尚未决定。
+   * 第四步确认预约时由 `bookAppointment` 单独选择地点，不参与成功率计算。
+   */
+  locationId: DatingLocationId | null;
+  /**
+   * 是否已事先知道该角色喜欢的地点。仅在第四步选地点后由对话框写入，
+   * 用作 `quality` 加成；不影响邀请成功率。
+   */
   favoriteLocation: boolean;
   faceToFace: boolean;
   equippedSkillIds: readonly string[];

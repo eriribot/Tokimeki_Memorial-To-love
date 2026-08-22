@@ -64,7 +64,8 @@ function createRun(appointment: DatingAppointment): DatingRun | null {
   const plan = createDatingDirectorPlan({
     appointment,
     characterName: character.name,
-    playerName: usePlayerStore.getState().name,
+    playerFamilyName: usePlayerStore.getState().profile?.familyName ?? '主角',
+    playerGivenName: usePlayerStore.getState().profile?.givenName ?? '郎',
     favoriteLocation,
     equippedSkillIds: getEquippedSkillIds(skillProgression),
     relationshipState: useDatingStore.getState().relationships,

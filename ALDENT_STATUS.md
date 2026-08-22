@@ -1,5 +1,42 @@
 # 艾尔登特当前状态
 
+# 2026-08-22 Dating archive event-to-act read-history projection
+
+```yaml
+status: implementation_source_connected_static_checks_and_development_build_passed_browser_visual_qa_pending
+current_loop: dating_archive_event_act_read_history_projection_2026-08-22
+authorized_by:
+  - user_requested_that_completed_dates_read_like_independent_story_events_with_separate_main_and_return_acts
+  - user_requested_modular_ts_tsx_boundaries_without_merging_dating_business_state_into_main_story
+  - user_requested_dating_acts_to_match_main_story_act_and_floor_archive_visual_hierarchy
+authorized_scope:
+  - project_completed_DatingArchive_records_into_read_only_event_views_keyed_by_archive_id
+  - preserve_characterId_and_locationId_as_domain_authorities_without_using_them_as_event_ids
+  - render_each_main_and_return_stage_as_a_main_story_style_act_card_with_one_saved_floor_card_and_stage_scoped_replay
+  - keep_DatingArchive_snapshot_generation_settlement_AP_relationship_and_memory_summary_floor_contracts_unchanged
+forbidden_scope:
+  - merge_dating_archives_into_main_story_storyArchive_or_main_story_floor_persistence
+  - change_dating_generation_choices_settlement_AP_money_calendar_or_relationship_authority
+  - split_memory_summary_projection_into_stage_floors
+  - claim_browser_visual_or_real_Tavern_acceptance_from_static_checks
+connection_state: read_history_act_floor_visual_hierarchy_connected_without_business_or_summary_schema_changes
+verification:
+  passed:
+    - dating_archive_projection_smoke_passed_for_repeated_character_and_location_event_keys_and_main_return_order
+    - static_structure_confirmed_each_dating_stage_has_act_summary_floor_meta_and_preview_layers
+    - full_ToLove_TypeScript_check
+    - scoped_ESLint_and_Pretty_format_check
+    - development_webpack_build
+    - git_diff_check
+  failed:
+    - legacy_DatingModule_verify_script_blocked_before_tests_by_existing_ts_node_ignoreDeprecations_configuration
+  not_run:
+    - inline_bundle_verifier_not_present_in_current_repository
+    - browser_desktop_and_mobile_visual_review_of_event_act_floor_cards_and_replay
+    - real_SillyTavern_generation_or_save_reload_acceptance
+human_review: pending_user_playthrough_of_dating_event_act_floor_read_history_on_desktop_and_mobile
+```
+
 # 2026-08-22 Recover SillyTavern post-commit file upload failures
 
 ```yaml

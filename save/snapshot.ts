@@ -101,7 +101,7 @@ export interface GameSnapshot {
     log: string[];
     events: GameEvent[];
     mainStory: MainStorySaveState;
-    wholeDayActivity?: 'dating' | null;
+    wholeDayActivity?: 'dating' | 'dating-completing' | null;
   };
   player: PlayerState;
   cards: {
@@ -198,7 +198,10 @@ export function assertSnapshotShape(value: unknown): asserts value is GameSnapsh
     !game.log.every(item => typeof item === 'string') ||
     !Array.isArray(game.events) ||
     !isRecord(game.mainStory) ||
-    (game.wholeDayActivity !== undefined && game.wholeDayActivity !== null && game.wholeDayActivity !== 'dating') ||
+    (game.wholeDayActivity !== undefined &&
+      game.wholeDayActivity !== null &&
+      game.wholeDayActivity !== 'dating' &&
+      game.wholeDayActivity !== 'dating-completing') ||
     !Array.isArray(value.cards.targets) ||
     !Array.isArray(value.cards.loadedCards) ||
     (value.cards.activeTargetId !== null && typeof value.cards.activeTargetId !== 'string')
@@ -238,6 +241,17 @@ export function assertSnapshotShape(value: unknown): asserts value is GameSnapsh
       ),
     );
     if (!hasPendingDatingStart) throw new Error('游戏标记为约会日，但约会存档没有待启动预约');
+  }
+  if (game.wholeDayActivity === 'dating-completing') {
+    // 约会正文已完成、等待玩家在评价页确认跳天。校验要求存在一条今日的 archive，且没有遗留的 run cursor。
+    if (dating?.run) throw new Error('约会正文已完成但仍保留 run cursor');
+    const hasTodayArchive = (dating?.archives ?? []).some(
+      archive =>
+        archive.date.year === gameDate.year &&
+        archive.date.month === gameDate.month &&
+        archive.date.day === gameDate.day,
+    );
+    if (!hasTodayArchive) throw new Error('约会正文标记完成但缺少今日的约会档案');
   }
   let profile: PlayerProfile | null;
   if (player.profile === null) profile = null;
@@ -352,6 +366,7 @@ export function restoreGameSnapshot(
   };
 
   useGameStore.setState(game);
+  useGameStore.setState({ lastDateAdvanceSource: 'load' });
   useDatingStore.getState().replaceDatingState(dating);
   useGameStore.getState().reconcilePendingMainStoryEntry();
   usePlayerStore.setState({ ...snapshot.player });

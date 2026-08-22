@@ -153,6 +153,7 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
   const mainStoryRun = useGameStore(state => state.mainStory.run);
   const completedEventIds = useGameStore(state => state.mainStory.completedEventIds);
   const finishWholeDayActivity = useGameStore(state => state.finishWholeDayActivity);
+  const markDatingSettlementPending = useGameStore(state => state.markDatingSettlementPending);
   const targets = useCardStore(state => state.targets);
   const activeTargetId = useCardStore(state => state.activeTargetId);
   const applyRelationshipDelta = useCardStore(state => state.applyRelationshipDelta);
@@ -161,14 +162,17 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
   const generation = useDatingStore(state => state.generation);
   const relationships = useDatingStore(state => state.relationships);
   const walkHomeByDate = useDatingStore(state => state.walkHomeByDate);
-  const feePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
-  const appointments = useDatingStore(state => state.appointments);
+const feePromptAppointmentId = useDatingStore(state => state.feePromptAppointmentId);
+const pendingDatingCompletion = useDatingStore(state => state.pendingDatingCompletion);
+const appointments = useDatingStore(state => state.appointments);
   const setGeneration = useDatingStore(state => state.setGeneration);
   const setStageContent = useDatingStore(state => state.setStageContent);
   const setRunPosition = useDatingStore(state => state.setRunPosition);
   const advanceToReturn = useDatingStore(state => state.advanceToReturn);
-  const completeRun = useDatingStore(state => state.completeRun);
-  const applyDatingRelationshipDelta = useDatingStore(state => state.applyDatingRelationshipDelta);
+const completeRun = useDatingStore(state => state.completeRun);
+const applyDatingRelationshipDelta = useDatingStore(state => state.applyDatingRelationshipDelta);
+const recordDatingCompletion = useDatingStore(state => state.recordDatingCompletion);
+const clearDatingCompletion = useDatingStore(state => state.clearDatingCompletion);
   const recordWalkHome = useDatingStore(state => state.recordWalkHome);
   const settleWalkHome = useDatingStore(state => state.settleWalkHome);
   const skillProgression = useSkillStore();
@@ -347,14 +351,21 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
     if (!completed) return;
     applyRelationshipDelta(activeRun.plan.characterId, relationshipDelta);
     applyDatingRelationshipDelta(activeRun.plan.characterId, datingRelationshipDelta);
-    finishWholeDayActivity();
+    // 先把 store 切到 'dating-completing'：这一步保留日期、AP、periodIndex 不动，
+    // 仅清掉 `wholeDayActivity` 标志，避免与未推进日期的状态产生校验冲突。
+    // 实际的"推进日期 + 跳天动画"留给玩家在评价页点击"返回地图"后再触发。
     const settledProgress = getDatingCharacterProgress(
       useDatingStore.getState().relationships,
       activeRun.plan.characterId,
     );
-    setCompletionMessage(
-      `和${activeRun.plan.characterName}的约会结束了。今天的相处节奏：${getDatingSubBand(settledProgress.sub)}。`,
-    );
+    const completionMessage = `和${activeRun.plan.characterName}的约会结束了。今天的相处节奏：${getDatingSubBand(settledProgress.sub)}。`;
+    const marked = markDatingSettlementPending();
+    recordDatingCompletion({ message: completionMessage, appointmentId: activeRun.appointmentId });
+    if (!marked) {
+      // 极端情况：store 已经不在 'dating' 状态（例如中途被存档恢复覆盖），直接走标准结算。
+      finishWholeDayActivity({ source: 'dating-complete' });
+      clearDatingCompletion();
+    }
   };
 
   const handleDatingChoice = (optionId: string) => {
@@ -429,16 +440,21 @@ export default function DatingScene({ onOpenContextPreview }: DatingSceneProps) 
     );
   }
 
-  if (completionMessage || walkNotice) {
+  if (pendingDatingCompletion || completionMessage || walkNotice) {
+    const noticeText = pendingDatingCompletion?.message ?? completionMessage ?? walkNotice;
     return (
       <section className="dating-overlay dating-notice" data-dating-overlay="notice" aria-live="polite">
         <div className="dating-modal-panel">
           <span className="dating-eyebrow">回忆</span>
-          <p>{completionMessage ?? walkNotice}</p>
+          <p>{noticeText}</p>
           <button
             type="button"
             className="dating-button is-primary"
             onClick={() => {
+              if (pendingDatingCompletion) {
+                finishWholeDayActivity({ source: 'dating-complete' });
+                clearDatingCompletion();
+              }
               setCompletionMessage(null);
               setWalkNotice(null);
             }}

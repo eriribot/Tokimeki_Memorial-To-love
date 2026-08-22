@@ -315,3 +315,27 @@ export function extractPlayableText(raw: string, options: PlayableTextExtraction
 
   return current.trim();
 }
+
+/**
+ * Folds standalone `{...}` translation lines into the previous non-empty line.
+ * AI prompts asking for Japanese text followed by `{Chinese translation}` on its
+ * own line would otherwise be parsed as separate beats — losing the bilingual
+ * pairing the renderer relies on. The merged form keeps the {zh} inline so the
+ * `BilingualText` component can split it into two styled paragraphs.
+ */
+export function mergeBilingualTranslationLines(text: string): string {
+  return text
+    .split(/\r?\n/u)
+    .reduce<string[]>((acc, rawLine) => {
+      const line = rawLine.trim();
+      if (!line) return acc;
+      const translationMatch = line.match(/^\{([\s\S]*)\}$/u);
+      if (translationMatch && acc.length > 0) {
+        acc[acc.length - 1] = `${acc[acc.length - 1].trimEnd()}{${translationMatch[1].trim()}}`;
+        return acc;
+      }
+      acc.push(line);
+      return acc;
+    }, [])
+    .join('\n');
+}

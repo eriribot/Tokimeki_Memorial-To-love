@@ -15,6 +15,9 @@ export interface DatingGenerationContextProjection {
   appointmentId: string;
   stageId: DatingStageId;
   characterName: string;
+  playerName: string;
+  playerFamilyName: string;
+  playerGivenName: string;
   recentArchives: string[];
   recentBody: string | null;
   selectedOptionLabel: string | null;
@@ -80,6 +83,9 @@ export function createDatingGenerationContextProjection(request: {
     appointmentId: plan.appointmentId,
     stageId,
     characterName: plan.characterName,
+    playerName: plan.playerName,
+    playerFamilyName: plan.playerFamilyName,
+    playerGivenName: plan.playerGivenName,
     recentArchives,
     recentBody,
     selectedOptionLabel,

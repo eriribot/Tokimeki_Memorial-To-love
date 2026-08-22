@@ -158,7 +158,8 @@ function buildReturnOptions(quality: DatingQuality, characterName: string, sub: 
 export function createDatingDirectorPlan(input: {
   appointment: DatingAppointment;
   characterName: string;
-  playerName: string;
+  playerFamilyName: string;
+  playerGivenName: string;
   favoriteLocation: boolean;
   equippedSkillIds?: readonly string[];
   relationshipState?: DatingRelationshipState;
@@ -166,7 +167,7 @@ export function createDatingDirectorPlan(input: {
 }): DatingDirectorPlan {
   const quality = qualityFromUnit(
     stableUnit(`${input.appointment.id}|quality|${input.appointment.characterId}`),
-    getDatingQualityWeights(input.equippedSkillIds ?? []),
+    getDatingQualityWeights(input.equippedSkillIds ?? [], { favoriteLocation: input.favoriteLocation }),
   );
   const sub = input.relationshipState
     ? getDatingCharacterProgress(input.relationshipState, input.appointment.characterId).sub
@@ -199,7 +200,9 @@ export function createDatingDirectorPlan(input: {
     appointmentId: input.appointment.id,
     characterId: input.appointment.characterId,
     characterName: input.characterName,
-    playerName: input.playerName,
+    playerName: `${input.playerFamilyName}${input.playerGivenName}`,
+    playerFamilyName: input.playerFamilyName,
+    playerGivenName: input.playerGivenName,
     date: { ...input.appointment.date },
     locationId: input.appointment.locationId,
     quality,

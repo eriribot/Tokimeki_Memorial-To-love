@@ -452,7 +452,7 @@ export default function CharacterInteractionScene() {
                 !inviteGate?.available || actionPointsRemaining <= 0 ? 'is-locked' : ''
               }`}
               disabled={!activeCharacter || !inviteGate?.available || actionPointsRemaining <= 0}
-              title={inviteGate?.reason ?? '浏览日历与地点，成功邀约后消耗 1 AP'}
+              title={inviteGate?.reason ?? '先选日期，再确认是否答应，最后选地点'}
               onClick={() => setIsInviteOpen(true)}
             >
               <span className="character-interaction-scene__action-icon" aria-hidden="true">
